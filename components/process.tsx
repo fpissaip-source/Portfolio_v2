@@ -49,7 +49,7 @@ export function Process() {
       <div className="mb-20 flex flex-col items-center gap-4 text-center">
         <Reveal>
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
-            Process
+            Production Phases
           </span>
         </Reveal>
         <WordReveal

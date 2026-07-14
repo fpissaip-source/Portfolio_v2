@@ -28,7 +28,7 @@ function AnimatedWord({ word, delay }: { word: string; delay: number }) {
 const FACTS = [
   { icon: Sparkles, label: 'AI Engineer & Full-Stack Developer' },
   { icon: Smartphone, label: 'Built entirely on an iPhone' },
-  { icon: MapPin, label: 'Essen, Germany' },
+  { icon: MapPin, label: 'Germany' },
 ]
 
 export function Hero() {

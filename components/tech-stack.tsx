@@ -84,6 +84,33 @@ export function TechStack() {
           ))}
         </ul>
       </Reveal>
+
+      {/* Delivery matrix — the layers behind the logos */}
+      <Reveal delay={0.15}>
+        <dl className="mx-auto mt-16 grid max-w-4xl gap-x-10 gap-y-5 sm:grid-cols-2">
+          {MATRIX.map((m) => (
+            <div key={m.layer} className="flex flex-col gap-1 border-l border-purple/25 pl-4">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple/80">
+                {m.layer}
+              </dt>
+              <dd className="text-sm leading-relaxed text-muted-foreground">
+                {m.items}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </Reveal>
     </section>
   )
 }
+
+const MATRIX: { layer: string; items: string }[] = [
+  { layer: 'Core & Logic', items: 'TypeScript, JavaScript, Node.js, Express.js, Python, rule engines' },
+  { layer: 'Frontend & Motion', items: 'React, Vite, Tailwind CSS, Three.js, Framer Motion, GSAP' },
+  { layer: 'Data & APIs', items: 'PostgreSQL, Drizzle ORM, Zod, REST APIs, OAuth2, Bungie API' },
+  { layer: 'AI & Memory', items: 'Autonomous agents, knowledge graphs, Nexus Brain, weighted experience loops' },
+  { layer: 'Infrastructure', items: 'Linux/Ubuntu VPS, Windows instances, Railway, Render, Replit, Cloudflare' },
+  { layer: 'Messaging & Delivery', items: 'Telegram bots, Resend e-mail, webhooks, automated processing pipelines' },
+  { layer: 'Search & Growth', items: 'Technical SEO, AEO, JSON-LD, sitemaps, local search architecture' },
+  { layer: 'Product Domains', items: 'Gaming, EdTech, operations, logistics, FinTech, brand production, utilities' },
+]

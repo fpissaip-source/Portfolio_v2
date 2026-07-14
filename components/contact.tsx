@@ -8,19 +8,19 @@ const DETAILS = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'fpissa.ip@gmail.com',
-    href: 'mailto:fpissa.ip@gmail.com',
+    value: 'info@hareb.org',
+    href: 'mailto:info@hareb.org',
   },
   {
     icon: Phone,
     label: 'Phone',
-    value: '0172 8431115',
-    href: 'tel:+491728431115',
+    value: '01525 9559708',
+    href: 'tel:+4915259559708',
   },
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Essen, Germany',
+    value: 'Germany',
     href: null,
   },
 ]

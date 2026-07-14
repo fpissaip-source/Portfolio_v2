@@ -17,23 +17,14 @@ type Project = {
 
 const PROJECTS: Project[] = [
   {
-    name: 'L.U.K.A.S.',
-    tagline: 'Logical Universal Knowledge Agent System',
-    description:
-      'A persistent, autonomous software agent whose behaviour emerges from an evolving history of decisions rather than static prompting. Full isolated control over its own server infrastructure, a Nexus Brain of structured knowledge graphs for persistent memory, weighted experience loops, and a peer-to-peer network for AI-only collaborative learning and reflexive metacognition.',
-    image: '/projects/lukas.png',
-    stack: ['TypeScript', 'Node.js', 'Knowledge Graphs', 'PostgreSQL', 'Linux VPS'],
-    status: 'Core R&D System',
-    featured: true,
-  },
-  {
     name: 'GuardianGrid',
     tagline: 'Destiny 2 Companion Platform',
     description:
-      'A standalone AAA game companion built directly on the Bungie API. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan.',
+      'A standalone AAA game companion built directly on the Bungie API — guardiangrid.net. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
     image: '/projects/guardiangrid.png',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
     status: 'Active Development',
+    featured: true,
   },
   {
     name: 'TaxiBB Essen',
@@ -165,6 +156,18 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
   )
 }
 
+/** The rest of the register — one line each, like a credits roll. */
+const REGISTER: { name: string; category: string; status: string }[] = [
+  { name: 'Polymarket / Trading Automation', category: 'Automation & Data R&D', status: 'Research Prototype' },
+  { name: 'Financial Transaction Tracker', category: 'FinTech UI', status: 'App Prototype' },
+  { name: 'Qibla One', category: 'Utility App', status: 'Product Concept' },
+  { name: 'Mercedes Assessment Web App', category: 'Assessment Platform', status: 'Web-App Prototype' },
+  { name: 'TENSA. Digital Production System', category: 'Brand Operations', status: 'Active Brand Project' },
+  { name: 'MoncyDev / Portfolio Web Systems', category: 'Web Experience', status: 'Web Portfolio Work' },
+  { name: '3D Character & Rigging Preparation', category: 'Creative Pipeline', status: 'Visual Development' },
+  { name: 'Motion, Gaming & Interface Experiments', category: 'Prototype Lab', status: 'Ongoing Lab' },
+]
+
 export function Projects() {
   return (
     <section id="work" className="relative mx-auto max-w-7xl px-6 py-32">
@@ -191,6 +194,35 @@ export function Projects() {
         {PROJECTS.map((p, i) => (
           <ProjectCard key={p.name} project={p} index={i} />
         ))}
+      </div>
+
+      {/* Full register — the credits roll */}
+      <div className="mt-24">
+        <Reveal>
+          <div className="mb-8 flex items-center gap-4">
+            <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
+              Complete Project Register
+            </span>
+            <span className="h-px flex-1 bg-gradient-to-r from-purple/30 to-transparent" />
+          </div>
+        </Reveal>
+        <ul className="divide-y divide-white/5">
+          {REGISTER.map((r, i) => (
+            <Reveal key={r.name} delay={i * 0.03} y={16}>
+              <li className="group grid gap-1 py-4 transition-colors hover:bg-white/[0.02] sm:grid-cols-[1.4fr_1fr_auto] sm:items-baseline sm:gap-6 sm:px-3">
+                <span className="font-medium tracking-tight text-foreground">
+                  {r.name}
+                </span>
+                <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  {r.category}
+                </span>
+                <span className="font-mono text-xs text-purple/80">
+                  {r.status}
+                </span>
+              </li>
+            </Reveal>
+          ))}
+        </ul>
       </div>
     </section>
   )

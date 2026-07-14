@@ -18,7 +18,8 @@ gsap.registerPlugin(ScrollTrigger)
  * the website preview into it, and scale the whole stage so the monitor
  * swallows the viewport — that zoom IS the transition onto the real site.
  */
-const FRAME_COUNT = 181
+// NOTE: bump to the new count when the regenerated flythrough frames land.
+const FRAME_COUNT = 121
 const framePath = (i: number) =>
   `/intro/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`
 const POSTER_SRC = '/intro/cinematic-poster.jpg'

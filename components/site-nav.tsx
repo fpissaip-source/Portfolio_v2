@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 
 const LINKS = [
+  { label: 'L.U.K.A.S.', href: '#lukas' },
   { label: 'Work', href: '#work' },
   { label: 'About', href: '#about' },
   { label: 'Stack', href: '#stack' },

@@ -9,7 +9,7 @@ const SOCIALS = [
     href: '#',
     label: 'LinkedIn',
   },
-  { type: 'icon' as const, href: 'mailto:fpissa.ip@gmail.com', label: 'Email' },
+  { type: 'icon' as const, href: 'mailto:info@hareb.org', label: 'Email' },
 ]
 
 export function SiteFooter() {
@@ -48,7 +48,8 @@ export function SiteFooter() {
         </div>
 
         <p className="font-mono text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} — Crafted with intent
+          &copy; {new Date().getFullYear()} — Directed, written &amp; built by
+          Issa Hareb. On a phone.
         </p>
       </div>
     </footer>

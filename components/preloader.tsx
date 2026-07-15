@@ -28,7 +28,7 @@ const PRELOAD = [
 ]
 
 const MIN_SHOW_MS = 900
-const PERCENT_DURATION = 1.3
+const PERCENT_DURATION = 2.2
 
 export function Preloader() {
   const ovalRef = useRef<HTMLDivElement>(null)
@@ -151,7 +151,7 @@ export function Preloader() {
       rewrite,
       {
         p: 1,
-        duration: reduced ? 0.01 : 0.68,
+        duration: reduced ? 0.01 : 1.1,
         ease: 'power2.inOut',
         onUpdate: () => {
           const p = rewrite.p
@@ -161,9 +161,9 @@ export function Preloader() {
         },
       },
       0,
-    ).to(percentGroup, { opacity: 0, duration: reduced ? 0.01 : 0.22, ease: 'power1.in' }, 0)
+    ).to(percentGroup, { opacity: 0, duration: reduced ? 0.01 : 0.3, ease: 'power1.in' }, 0.15)
 
-    tl.to({}, { duration: reduced ? 0 : 0.3 })
+    tl.to({}, { duration: reduced ? 0 : 0.45 })
 
     tl.set(black, { display: 'block' })
       .to(

@@ -22,8 +22,9 @@ const PROJECTS: Project[] = [
     name: 'GuardianGrid',
     tagline: 'Destiny 2 Companion Platform',
     description:
-      'A standalone AAA game companion built directly on the Bungie API: guardiangrid.net. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
-    image: '/projects/guardiangrid.png',
+      'A standalone AAA game companion built directly on the Bungie API: guardiangrid.io. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
+    image: '/projects/guardiangrid-login.jpg',
+    video: '/projects/guardiangrid-scroll.mp4',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
     status: 'Active Development',
     featured: true,

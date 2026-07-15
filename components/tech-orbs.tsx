@@ -125,21 +125,22 @@ function Orb({
     const rb = api.current
     if (!rb) return
     delta = Math.min(0.1, delta)
+    // Loose center pull — weak enough that orbs roam across the whole
+    // frame and drift past the edges before being drawn back.
     const impulse = vec
       .copy(rb.translation() as THREE.Vector3)
       .normalize()
       .multiply(
         new THREE.Vector3(
-          -50 * delta * scale,
-          -150 * delta * scale,
-          -50 * delta * scale,
+          -26 * delta * scale,
+          -60 * delta * scale,
+          -40 * delta * scale,
         ),
       )
-    // Gentle per-orb wander so the cluster keeps drifting on its own,
-    // even without any pointer interaction.
+    // Per-orb wander keeps everything floating on its own, no pointer needed.
     const t = state.clock.elapsedTime
-    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 22 * delta * scale
-    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 26 * delta * scale
+    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 30 * delta * scale
+    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 30 * delta * scale
     impulse.z += Math.sin(t * 0.31 + seed * 0.7) * 12 * delta * scale
     rb.applyImpulse(impulse, true)
   })

@@ -32,16 +32,16 @@ export default function Page() {
           <Scene label="Selected Work" backdrop="ions">
             <Projects />
           </Scene>
-          <Scene label="Shipped Entirely From an iPhone" backdrop="dust">
+          <Scene label="Shipped Entirely From an iPhone" backdrop="rain">
             <PhoneStory />
           </Scene>
-          <Scene label="The Person Behind the Systems" backdrop="aurora">
+          <Scene label="The Person Behind the Systems" backdrop="dust">
             <About />
           </Scene>
-          <Scene label="Tools of the Trade" backdrop="dust">
+          <Scene label="Tools of the Trade">
             <TechStack />
           </Scene>
-          <Scene label="From Idea to Production" backdrop="ions">
+          <Scene label="From Idea to Production" backdrop="orbits">
             <Process />
           </Scene>
           <Scene label="Let's Build Together" backdrop="aurora">

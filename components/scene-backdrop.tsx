@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export type BackdropVariant = 'ions' | 'dust' | 'aurora'
+export type BackdropVariant = 'ions' | 'dust' | 'aurora' | 'rain' | 'orbits'
 
 /**
  * Subtle cinematic background animation for a scene. A sticky full-viewport
@@ -15,6 +15,8 @@ export type BackdropVariant = 'ions' | 'dust' | 'aurora'
  *  - 'ions'   — a few glowing ion trails drifting across the frame
  *  - 'dust'   — slow luminous dust particles with scroll parallax
  *  - 'aurora' — soft blue/purple light fields breathing at the edges
+ *  - 'rain'   — sparse vertical light streaks falling like code
+ *  - 'orbits' — thin elliptical paths with points of light riding them
  *
  * Deliberately restrained: low alpha, few elements, no attention-grabbing.
  */
@@ -44,7 +46,8 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
     window.addEventListener('resize', size)
 
     // deterministic per-variant seeds
-    let s = variant === 'ions' ? 7 : variant === 'dust' ? 21 : 55
+    let s =
+      variant === 'ions' ? 7 : variant === 'dust' ? 21 : variant === 'rain' ? 33 : variant === 'orbits' ? 44 : 55
     const rand = () => {
       s = (s * 16807) % 2147483647
       return s / 2147483647
@@ -64,6 +67,21 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
       z: 0.3 + rand() * 0.7,
       tw: rand() * Math.PI * 2,
       r: 0.6 + rand() * 1.3,
+    }))
+    const drops = Array.from({ length: 18 }, () => ({
+      x: rand(),
+      y: rand(),
+      speed: 0.06 + rand() * 0.12,
+      len: 0.05 + rand() * 0.1,
+      hue: rand(),
+    }))
+    const orbits = Array.from({ length: 3 }, (_, i) => ({
+      cy: 0.25 + i * 0.25,
+      rx: 0.3 + rand() * 0.25,
+      ry: 0.05 + rand() * 0.05,
+      tilt: (rand() - 0.5) * 0.5,
+      speed: (0.05 + rand() * 0.06) * (i % 2 ? 1 : -1),
+      phase: rand() * Math.PI * 2,
     }))
 
     const draw = (t: number) => {
@@ -103,6 +121,46 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           ctx.fillStyle = `rgba(190,200,235,${a})`
           ctx.beginPath()
           ctx.arc(px, py, d.r * d.z, 0, Math.PI * 2)
+          ctx.fill()
+        }
+      } else if (variant === 'rain') {
+        for (const d of drops) {
+          const y = (d.y + t * 0.00004 * d.speed * 10 + progress * 0.1) % 1.2 - 0.1
+          const px = d.x * cw
+          const col = d.hue > 0.5 ? '167,139,250' : '125,165,235'
+          const grad = ctx.createLinearGradient(px, y * ch, px, (y + d.len) * ch)
+          grad.addColorStop(0, `rgba(${col},0)`)
+          grad.addColorStop(0.8, `rgba(${col},0.22)`)
+          grad.addColorStop(1, `rgba(${col},0.4)`)
+          ctx.strokeStyle = grad
+          ctx.lineWidth = 1.1
+          ctx.beginPath()
+          ctx.moveTo(px, y * ch)
+          ctx.lineTo(px, (y + d.len) * ch)
+          ctx.stroke()
+        }
+      } else if (variant === 'orbits') {
+        for (const o of orbits) {
+          const cx = cw / 2
+          const cy = (o.cy + (progress - 0.5) * 0.08) * ch
+          // faint elliptical path
+          ctx.strokeStyle = 'rgba(160,170,215,0.07)'
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.ellipse(cx, cy, o.rx * cw, o.ry * ch, o.tilt, 0, Math.PI * 2)
+          ctx.stroke()
+          // light riding the path
+          const a = t * 0.001 * o.speed * 6 + o.phase + progress * 2
+          const ex = Math.cos(a) * o.rx * cw
+          const ey = Math.sin(a) * o.ry * ch
+          const px = cx + ex * Math.cos(o.tilt) - ey * Math.sin(o.tilt)
+          const py = cy + ex * Math.sin(o.tilt) + ey * Math.cos(o.tilt)
+          const g = ctx.createRadialGradient(px, py, 0, px, py, 26)
+          g.addColorStop(0, 'rgba(196,181,253,0.5)')
+          g.addColorStop(1, 'rgba(196,181,253,0)')
+          ctx.fillStyle = g
+          ctx.beginPath()
+          ctx.arc(px, py, 26, 0, Math.PI * 2)
           ctx.fill()
         }
       } else {

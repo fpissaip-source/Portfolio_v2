@@ -40,7 +40,15 @@ const TECH: Tech[] = [
 
 export function TechStack() {
   return (
-    <section id="stack" className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32">
+    <section id="stack" className="relative py-24 sm:py-32">
+      {/* Free-floating 3D balls over the whole section — no frame, no border.
+          They drift across the headings and beyond the viewport edges.
+          touch-pan-y keeps vertical scrolling working on mobile. */}
+      <div className="absolute inset-0 z-10 touch-pan-y md:touch-none">
+        <TechOrbs />
+      </div>
+
+      <div className="pointer-events-none relative mx-auto max-w-7xl px-6">
       <div className="mb-12 flex flex-col items-center gap-4 text-center">
         <Reveal>
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
@@ -60,14 +68,8 @@ export function TechStack() {
         </Reveal>
       </div>
 
-      <Reveal y={40}>
-        {/* Interactive 3D balls on every device. `touch-pan-y` lets the page
-            still scroll vertically on mobile while horizontal drags shove the
-            balls around. */}
-        <div className="relative h-[420px] w-full touch-pan-y overflow-hidden rounded-3xl sm:h-[560px] md:touch-none">
-          <TechOrbs />
-        </div>
-      </Reveal>
+      {/* Open space for the balls to roam */}
+      <div className="h-[380px] sm:h-[480px]" aria-hidden />
 
       {/* Clean, legible reference list */}
       <Reveal delay={0.1}>
@@ -100,6 +102,7 @@ export function TechStack() {
           ))}
         </dl>
       </Reveal>
+      </div>
     </section>
   )
 }

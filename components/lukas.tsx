@@ -9,14 +9,29 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * Flagship scroll story for L.U.K.A.S. — pinned full-screen chapter that
  * plays like a film sequence: the name assembles, then five beats fade
- * through while a dense procedural neuron field lives in the background.
+ * through over a generated neuron-field film scrubbed on a canvas.
  *
- * The field is NOT a human brain silhouette — it is a deep 3D lattice of
- * thousands of neurons in stacked strata ("layers under the layers"). Each
- * story beat activates a different REGION of the field (right, lower,
- * upper-left, …): the neurons there flare up and their links brighten, so
- * scrolling visibly shows different faculties of the brain lighting up.
+ * The film is choreographed to the beats:
+ *   act 1 (frames 0..A)   — dormant field, no glow; a first neuron region
+ *                           awakens right before beat 1 appears
+ *   act 2 (frames A..B)   — smooth cinematic zoom along the filaments into
+ *                           that glowing region, landing before beat 2
+ *   act 3 (frames B..end) — a second region lights up deeper in the field
+ *                           and the camera dives toward it
  */
+const FRAME_COUNT = 182
+const framePath = (i: number) =>
+  `/lukas/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`
+
+/** Clip boundaries in frames (three 5s clips at 12fps). */
+const ACT_1_END = 60
+const ACT_2_END = 121
+
+/** Section-progress checkpoints the acts are pinned to. */
+const P_GLOW_1 = 0.26 // act 1 fully played just as beat 1 stands
+const P_ARRIVED = 0.46 // zoom finished shortly before beat 2 settles
+const P_GLOW_2 = 0.78 // second light-up + dive play across beats 3–4
+
 const BEATS = [
   {
     kicker: 'Vision & Core Identity',
@@ -45,42 +60,23 @@ const BEATS = [
   },
 ]
 
-/** Activation region per beat, in field space (x/y in [-1,1], z in [0,1]). */
-const REGIONS = [
-  { x: 0.0, y: 0.0, z: 0.35, r: 0.42 }, // identity — the core, center
-  { x: -0.62, y: -0.42, z: 0.3, r: 0.45 }, // memory — upper left
-  { x: 0.66, y: -0.05, z: 0.4, r: 0.45 }, // agency — right
-  { x: 0.05, y: 0.55, z: 0.45, r: 0.5 }, // evolution — lower field
-  { x: -0.1, y: -0.58, z: 0.55, r: 0.45 }, // metacognition — upper deep
-]
-
-type Neuron = {
-  x: number
-  y: number
-  z: number
-  s: number // base size
-  tw: number // twinkle phase
-  region: number // nearest region index (-1 none)
-  rw: number // region weight 0..1 (falloff)
-}
-
-function mulberry(seed: number) {
-  return () => {
-    seed |= 0
-    seed = (seed + 0x6d2b79f5) | 0
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
+/** Piecewise map of section progress → film frame, so glows and zooms land
+ *  exactly around the beats. */
+function frameForProgress(p: number): number {
+  if (p <= P_GLOW_1) return (p / P_GLOW_1) * ACT_1_END
+  if (p <= P_ARRIVED)
+    return ACT_1_END + ((p - P_GLOW_1) / (P_ARRIVED - P_GLOW_1)) * (ACT_2_END - ACT_1_END)
+  if (p <= P_GLOW_2)
+    return (
+      ACT_2_END +
+      ((p - P_ARRIVED) / (P_GLOW_2 - P_ARRIVED)) * (FRAME_COUNT - 1 - ACT_2_END)
+    )
+  return FRAME_COUNT - 1
 }
 
 export function Lukas() {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  // Per-beat activation levels, written by the GSAP timeline and read by the
-  // render loop every frame.
-  const activationsRef = useRef<number[]>(new Array(BEATS.length).fill(0))
-  const progressRef = useRef(0)
 
   useEffect(() => {
     const root = rootRef.current
@@ -93,55 +89,50 @@ export function Lukas() {
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    // --- build the neuron field ---------------------------------------
-    const rand = mulberry(42)
-    const LAYERS = 7
-    const COUNT = 1100
-    const neurons: Neuron[] = []
-    for (let i = 0; i < COUNT; i++) {
-      // Stacked strata with jitter — layers under the layers.
-      const layer = i % LAYERS
-      const y = -0.72 + (layer / (LAYERS - 1)) * 1.44 + (rand() - 0.5) * 0.16
-      const x = (rand() * 2 - 1) * 1.15
-      const z = rand()
-      let region = -1
-      let rw = 0
-      for (let ri = 0; ri < REGIONS.length; ri++) {
-        const R = REGIONS[ri]
-        const d = Math.hypot(x - R.x, y - R.y, (z - R.z) * 0.9)
-        if (d < R.r) {
-          const w = 1 - d / R.r
-          if (w > rw) {
-            rw = w
-            region = ri
-          }
-        }
-      }
-      neurons.push({
-        x,
-        y,
-        z,
-        s: 0.6 + rand() * 1.6,
-        tw: rand() * Math.PI * 2,
-        region,
-        rw: rw * rw,
-      })
+    // --- frame sequence scrubbing --------------------------------------
+    const images: HTMLImageElement[] = new Array(FRAME_COUNT)
+    const loaded = new Array<boolean>(FRAME_COUNT).fill(false)
+    let currentIndex = -1
+
+    const drawCover = (img: HTMLImageElement) => {
+      const cw = canvas.clientWidth
+      const ch = canvas.clientHeight
+      if (!cw || !ch || !img.naturalWidth) return
+      const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
+      ctx2d.clearRect(0, 0, cw, ch)
+      ctx2d.drawImage(
+        img,
+        (cw - img.naturalWidth * scale) / 2,
+        (ch - img.naturalHeight * scale) / 2,
+        img.naturalWidth * scale,
+        img.naturalHeight * scale,
+      )
     }
-    // Short-range links (each neuron to its nearest few in the same slab).
-    const links: [number, number][] = []
-    for (let i = 0; i < COUNT; i++) {
-      let best = -1
-      let bestD = 0.14
-      for (let j = i + 1; j < Math.min(i + 60, COUNT); j++) {
-        const a = neurons[i]
-        const b = neurons[j]
-        const d = Math.hypot(a.x - b.x, a.y - b.y, (a.z - b.z) * 0.5)
-        if (d < bestD) {
-          bestD = d
-          best = j
+
+    const renderIndex = (index: number) => {
+      const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(index)))
+      let img = images[clamped]
+      if (!loaded[clamped]) {
+        let lo = clamped
+        let hi = clamped
+        let found: HTMLImageElement | null = null
+        while (lo >= 0 || hi < FRAME_COUNT) {
+          if (lo >= 0 && loaded[lo]) {
+            found = images[lo]
+            break
+          }
+          if (hi < FRAME_COUNT && loaded[hi]) {
+            found = images[hi]
+            break
+          }
+          lo--
+          hi++
         }
+        if (!found) return
+        img = found
       }
-      if (best >= 0) links.push([i, best])
+      currentIndex = clamped
+      drawCover(img)
     }
 
     const sizeCanvas = () => {
@@ -149,95 +140,31 @@ export function Lukas() {
       canvas.width = Math.round(canvas.clientWidth * dpr)
       canvas.height = Math.round(canvas.clientHeight * dpr)
       ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
-    }
-    sizeCanvas()
-    window.addEventListener('resize', sizeCanvas)
-
-    // Perspective projection with a slow scroll-linked camera drift.
-    const project = (n: Neuron, camZ: number, cw: number, ch: number) => {
-      const z = ((n.z - camZ) % 1 + 1) % 1 // wrap for endless depth
-      const pers = 0.35 + z * 1.05
-      return {
-        sx: cw / 2 + (n.x / pers) * cw * 0.42,
-        sy: ch / 2 + (n.y / pers) * ch * 0.46,
-        z,
-        pers,
-      }
+      renderIndex(currentIndex >= 0 ? currentIndex : 0)
     }
 
-    let raf = 0
-    let running = false
-    const acts = activationsRef.current
-    const draw = (t: number) => {
-      const cw = canvas.clientWidth
-      const ch = canvas.clientHeight
-      if (!cw || !ch) return
-      const camZ = progressRef.current * 0.35
-      ctx2d.clearRect(0, 0, cw, ch)
-
-      const P: { sx: number; sy: number; z: number; pers: number }[] =
-        new Array(COUNT)
-      for (let i = 0; i < COUNT; i++) P[i] = project(neurons[i], camZ, cw, ch)
-
-      // links first — faint filaments, brighter inside active regions
-      ctx2d.lineWidth = 0.6
-      for (const [a, b] of links) {
-        const na = neurons[a]
-        const pa = P[a]
-        const pb = P[b]
-        if (pa.z < 0.04 || pb.z < 0.04) continue
-        const act = na.region >= 0 ? acts[na.region] * na.rw : 0
-        const depth = 1 - pa.z
-        const alpha = Math.min(1, 0.05 + depth * 0.1 + act * 0.85)
-        ctx2d.strokeStyle =
-          act > 0.02
-            ? `rgba(203,183,255,${alpha})`
-            : `rgba(148,163,204,${alpha})`
-        ctx2d.beginPath()
-        ctx2d.moveTo(pa.sx, pa.sy)
-        ctx2d.lineTo(pb.sx, pb.sy)
-        ctx2d.stroke()
-      }
-
-      // neurons
-      for (let i = 0; i < COUNT; i++) {
-        const n = neurons[i]
-        const p = P[i]
-        if (p.z < 0.04) continue
-        const depth = 1 - p.z
-        const twinkle = 0.75 + 0.25 * Math.sin(t * 0.0011 + n.tw)
-        const act = n.region >= 0 ? acts[n.region] * n.rw : 0
-        const size = (n.s * (0.5 + depth * 1.7)) / p.pers * (1 + act * 1.8)
-        const alpha = (0.18 + depth * 0.5) * twinkle + act * 0.85
-        if (act > 0.05) {
-          // active neurons flare with a strong violet halo
-          const R = size * 8
-          const g = ctx2d.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, R)
-          g.addColorStop(0, `rgba(222,204,255,${Math.min(1, act * 1.1)})`)
-          g.addColorStop(0.35, `rgba(172,140,252,${act * 0.55})`)
-          g.addColorStop(1, 'rgba(172,140,252,0)')
-          ctx2d.fillStyle = g
-          ctx2d.beginPath()
-          ctx2d.arc(p.sx, p.sy, R, 0, Math.PI * 2)
-          ctx2d.fill()
+    let firstDrawn = false
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      const img = new Image()
+      img.decoding = 'async'
+      img.onload = () => {
+        loaded[i] = true
+        if (i === 0 && !firstDrawn) {
+          firstDrawn = true
+          sizeCanvas()
+        } else if (i === currentIndex) {
+          renderIndex(i)
         }
-        ctx2d.fillStyle =
-          act > 0.05
-            ? `rgba(228,214,255,${Math.min(1, alpha)})`
-            : `rgba(186,196,240,${Math.min(1, alpha)})`
-        ctx2d.beginPath()
-        ctx2d.arc(p.sx, p.sy, size, 0, Math.PI * 2)
-        ctx2d.fill()
       }
+      img.src = framePath(i)
+      images[i] = img
     }
-    const loop = (t: number) => {
-      draw(t)
-      if (running) raf = requestAnimationFrame(loop)
-    }
+    window.addEventListener('resize', sizeCanvas)
 
     // --- scroll choreography -------------------------------------------
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
+      let raf = 0
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
@@ -246,13 +173,10 @@ export function Lukas() {
           end: 'bottom bottom',
           scrub: prefersReduced ? (false as const) : 0.7,
           onUpdate: (self) => {
-            progressRef.current = self.progress
-            if (prefersReduced) draw(performance.now())
-          },
-          onToggle: (self) => {
-            running = self.isActive && !prefersReduced
-            if (running) raf = requestAnimationFrame(loop)
-            else cancelAnimationFrame(raf)
+            const index = frameForProgress(self.progress)
+            if (Math.round(index) === currentIndex) return
+            cancelAnimationFrame(raf)
+            raf = requestAnimationFrame(() => renderIndex(index))
           },
         },
       })
@@ -283,7 +207,7 @@ export function Lukas() {
         )
         .to(q('[data-lukas-sub]'), { opacity: 0, duration: 0.04 }, 0.16)
 
-      // Beats crossfade like cut scenes; each beat also lights its region.
+      // Beats crossfade like cut scenes.
       const beats = q('[data-beat]')
       const slot = 0.66 / beats.length
       beats.forEach((el, i) => {
@@ -294,39 +218,26 @@ export function Lukas() {
           { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: slot * 0.32, ease: 'power2.out' },
           start,
         )
-        tl.to(
-          activationsRef.current,
-          { [i]: 1, duration: slot * 0.3, ease: 'power2.out' },
-          start,
-        )
-        const isLast = i === beats.length - 1
-        if (!isLast) {
+        if (i < beats.length - 1) {
           tl.to(
             el,
             { opacity: 0, yPercent: -8, filter: 'blur(10px)', duration: slot * 0.28, ease: 'power2.in' },
             start + slot * 0.68,
           )
         }
-        tl.to(
-          activationsRef.current,
-          { [i]: isLast ? 0.55 : 0, duration: slot * 0.3, ease: 'power2.in' },
-          start + slot * (isLast ? 0.75 : 0.66),
-        )
       })
 
-      // The field fades up as the chapter opens and breathes brighter while
-      // the beats play.
+      // The film fades up as the chapter opens.
       tl.fromTo(
         q('[data-field]'),
-        { opacity: 0.25 },
-        { opacity: 0.9, duration: 0.9 },
+        { opacity: 0.35 },
+        { opacity: 0.95, duration: 0.9 },
         0.06,
       )
     }, root)
 
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
-      cancelAnimationFrame(raf)
       window.removeEventListener('resize', sizeCanvas)
       ctx.revert()
     }
@@ -340,14 +251,15 @@ export function Lukas() {
       className="relative h-[520vh]"
     >
       <div className="sticky top-0 flex h-[100svh] w-full flex-col items-center justify-center overflow-hidden">
-        {/* Dense neuron field — regions flare up per story beat */}
+        {/* Neuron-field film — regions awaken and the camera dives along the
+            filaments, scrubbed by scroll */}
         <canvas
           ref={canvasRef}
           data-field
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full opacity-40"
         />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,transparent_30%,#050505_85%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_65%_at_50%_50%,transparent_40%,#050505_88%)]" />
 
         {/* Title */}
         <div data-lukas-head className="relative z-10 text-center will-transform">

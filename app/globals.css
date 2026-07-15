@@ -60,6 +60,13 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
+  /* Never allow stray horizontal overflow to widen the page (which would
+     shift centered content and let mobile browsers zoom out). `clip`
+     keeps position:sticky working, unlike `hidden`. */
+  html,
+  body {
+    overflow-x: clip;
+  }
   ::selection {
     background: color-mix(in oklch, var(--blue) 40%, transparent);
     color: white;

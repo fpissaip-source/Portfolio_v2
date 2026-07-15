@@ -45,9 +45,9 @@ export function Scene({
           transition={{ duration: 1.2, ease: easeOut }}
         />
         <motion.span
-          className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.4em] text-purple/80"
-          initial={{ opacity: 0, letterSpacing: '0.7em', filter: 'blur(6px)' }}
-          whileInView={{ opacity: 1, letterSpacing: '0.4em', filter: 'blur(0px)' }}
+          className="max-w-[78vw] text-center font-mono text-[11px] uppercase tracking-[0.3em] text-purple/80 sm:max-w-none sm:whitespace-nowrap sm:tracking-[0.4em]"
+          initial={{ opacity: 0, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, filter: 'blur(0px)' }}
           viewport={{ once: true, margin: '-10% 0px' }}
           transition={{ duration: 1, ease: easeOut }}
         >

@@ -357,15 +357,25 @@ export function Lukas() {
             <div
               key={b.kicker}
               data-beat
-              className="absolute max-w-2xl text-center opacity-0 will-transform"
+              className="absolute max-w-2xl px-6 text-center opacity-0 will-transform"
             >
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
+              {/* Soft light-absorbing pocket: keeps the words readable over
+                  bright filaments without drawing a visible box. */}
+              <div
+                aria-hidden
+                className="absolute -inset-x-20 -inset-y-14 -z-10 rounded-full blur-2xl"
+                style={{
+                  background:
+                    'radial-gradient(closest-side, rgba(5,5,5,0.85), rgba(5,5,5,0.45) 62%, transparent 100%)',
+                }}
+              />
+              <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
                 {b.kicker}
               </span>
-              <h3 className="mt-4 text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
+              <h3 className="mt-4 text-balance text-4xl font-semibold tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
                 {b.title}
               </h3>
-              <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-muted-foreground">
+              <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
                 {b.body.map((sentence, si) => (
                   <span key={si} className="block text-balance">
                     {sentence}

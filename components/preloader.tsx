@@ -4,25 +4,18 @@ import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 
 /**
- * Opening curtain, written from scratch for this site: a full-screen plate in
- * the page background cycles through greetings while the intro's first frames
- * actually preload (the percentage is real). When everything is ready a short
- * "Welcome." beat plays, then the curtain lifts with a curved lower edge and
- * hands over to the cinematic intro underneath.
+ * Opening curtain, written from scratch for this site. Classic loader
+ * grammar - a large live percentage, a drifting marquee of roles, and a
+ * click-to-enter moment - implemented in our own design language. The
+ * percentage is real: it tracks preloading of the intro's opening frames.
  */
-const GREETINGS = [
-  'Hello',
-  'Hallo',
-  'Bonjour',
-  'Ciao',
-  'Olá',
-  'こんにちは',
-  '안녕하세요',
-  'مرحبا',
-  'Merhaba',
+const ROLES = [
+  'AI Engineer',
+  'Full-Stack Developer',
+  'Automation Architect',
+  'Built on iPhone',
 ]
 
-/** Assets that gate the reveal: poster + the intro's opening frames. */
 const PRELOAD = [
   '/intro/cinematic-poster.jpg',
   ...Array.from(
@@ -31,15 +24,15 @@ const PRELOAD = [
   ),
 ]
 
-const MIN_SHOW_MS = 1800
+const MIN_SHOW_MS = 1400
 
 export function Preloader() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const [greetIdx, setGreetIdx] = useState(0)
   const [percent, setPercent] = useState(0)
-  const [welcome, setWelcome] = useState(false)
+  const [ready, setReady] = useState(false)
   const [gone, setGone] = useState(false)
 
+  // preload + progress
   useEffect(() => {
     document.documentElement.classList.add('preloading')
     const started = performance.now()
@@ -58,67 +51,70 @@ export function Preloader() {
       img.src = src
     }
 
-    // Greeting carousel — quick at first, settling toward the end.
-    let gi = 0
-    const cycle = () => {
-      gi++
-      setGreetIdx(gi % GREETINGS.length)
-    }
-    const interval = window.setInterval(cycle, 200)
-
-    // Reveal once everything is loaded AND the minimum beat has played.
-    const tryReveal = () => {
+    const tryReady = () => {
       if (cancelled) return
-      const ready = loadedCount >= PRELOAD.length
       const elapsed = performance.now() - started
-      if (!ready || elapsed < MIN_SHOW_MS) {
-        window.setTimeout(tryReveal, 120)
+      if (loadedCount >= PRELOAD.length && elapsed >= MIN_SHOW_MS) {
+        setReady(true)
         return
       }
-      window.clearInterval(interval)
-      setWelcome(true)
-      const root = rootRef.current
-      if (!root) return
-      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      gsap.to(root, {
-        yPercent: -100,
-        delay: reduced ? 0.3 : 0.85,
-        duration: reduced ? 0.3 : 1.1,
-        ease: 'power3.inOut',
-        onStart: () => {
-          // curved lower edge while the curtain lifts
-          gsap.to(root, {
-            borderBottomLeftRadius: '50% 12vh',
-            borderBottomRightRadius: '50% 12vh',
-            duration: 0.5,
-            ease: 'power2.out',
-          })
-        },
-        onComplete: () => {
-          document.documentElement.classList.remove('preloading')
-          setGone(true)
-        },
-      })
+      window.setTimeout(tryReady, 120)
     }
-    window.setTimeout(tryReveal, 300)
+    window.setTimeout(tryReady, 250)
 
     return () => {
       cancelled = true
-      window.clearInterval(interval)
       document.documentElement.classList.remove('preloading')
     }
   }, [])
+
+  const enter = () => {
+    const root = rootRef.current
+    if (!root) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    gsap.to(root, {
+      yPercent: -100,
+      duration: reduced ? 0.3 : 1.05,
+      ease: 'power3.inOut',
+      onStart: () => {
+        gsap.to(root, {
+          borderBottomLeftRadius: '50% 12vh',
+          borderBottomRightRadius: '50% 12vh',
+          duration: 0.5,
+          ease: 'power2.out',
+        })
+      },
+      onComplete: () => {
+        document.documentElement.classList.remove('preloading')
+        setGone(true)
+      },
+    })
+  }
+
+  // once ready, also allow keyboard / wheel to enter
+  useEffect(() => {
+    if (!ready || gone) return
+    const go = () => enter()
+    window.addEventListener('wheel', go, { once: true, passive: true })
+    window.addEventListener('touchmove', go, { once: true, passive: true })
+    window.addEventListener('keydown', go, { once: true })
+    return () => {
+      window.removeEventListener('wheel', go)
+      window.removeEventListener('touchmove', go)
+      window.removeEventListener('keydown', go)
+    }
+  }, [ready, gone])
 
   if (gone) return null
 
   return (
     <div
       ref={rootRef}
-      aria-hidden
       className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-background"
     >
-      {/* faint ambient glow so the plate isn't dead black */}
+      {/* faint ambient glow */}
       <div
+        aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
@@ -126,19 +122,33 @@ export function Preloader() {
         }}
       />
 
-      <div className="relative flex flex-col items-center gap-3 px-6 text-center">
-        {welcome ? (
-          <span className="font-sans text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
-            Welcome<span className="text-purple">.</span>
-          </span>
-        ) : (
-          <span
-            key={greetIdx}
-            className="font-sans text-4xl font-semibold tracking-tight text-foreground sm:text-6xl"
-            style={{ animation: 'preloader-greet 200ms ease-out' }}
+      {/* drifting marquee of roles */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[18%] overflow-hidden opacity-25">
+        <div className="preloader-marquee flex w-max items-center gap-10 whitespace-nowrap font-sans text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
+          {[...ROLES, ...ROLES, ...ROLES].map((r, i) => (
+            <span key={i} className="flex items-center gap-10">
+              {r}
+              <span className="h-1.5 w-1.5 rounded-full bg-purple/70" />
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* center: enter moment */}
+      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
+        {ready ? (
+          <button
+            onClick={enter}
+            className="group relative rounded-full border border-white/15 px-10 py-4 font-sans text-xl font-semibold tracking-tight text-foreground transition-colors hover:border-purple/60 sm:text-2xl"
           >
-            <span className="mr-3 inline-block h-2 w-2 -translate-y-1 rounded-full bg-purple align-middle" />
-            {GREETINGS[greetIdx]}
+            <span className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 [box-shadow:0_0_50px_-8px_var(--purple)]" />
+            Enter
+            <span className="text-purple">.</span>
+          </button>
+        ) : (
+          <span className="font-sans text-xl font-semibold tracking-tight text-muted-foreground sm:text-2xl">
+            Loading the film
+            <span className="text-purple">…</span>
           </span>
         )}
         <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
@@ -146,9 +156,13 @@ export function Preloader() {
         </span>
       </div>
 
-      <span className="absolute bottom-8 right-8 font-mono text-sm tabular-nums text-muted-foreground">
-        {percent}%
-      </span>
+      {/* large live percentage, bottom left */}
+      <div className="pointer-events-none absolute bottom-6 left-6 flex items-end gap-2 sm:bottom-10 sm:left-10">
+        <span className="font-sans text-7xl font-bold leading-none tracking-tight text-foreground/90 tabular-nums sm:text-9xl">
+          {percent}
+        </span>
+        <span className="pb-2 font-mono text-base text-purple sm:pb-3">%</span>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { motion, useMotionValue, useSpring } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
@@ -78,10 +78,29 @@ const PROJECTS: Project[] = [
 
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const ref = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const rx = useMotionValue(0)
   const ry = useMotionValue(0)
   const srx = useSpring(rx, { stiffness: 150, damping: 18 })
   const sry = useSpring(ry, { stiffness: 150, damping: 18 })
+
+  // Video only starts the first time the card is actually scrolled into view,
+  // not immediately on page load.
+  useEffect(() => {
+    const video = videoRef.current
+    if (!project.video || !video) return
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {})
+          io.disconnect()
+        }
+      },
+      { threshold: 0.35 },
+    )
+    io.observe(video)
+    return () => io.disconnect()
+  }, [project.video])
 
   function onMove(e: React.MouseEvent) {
     const el = ref.current
@@ -120,9 +139,9 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         >
           {project.video ? (
             <video
+              ref={videoRef}
               src={project.video}
               poster={project.image}
-              autoPlay
               muted
               loop
               playsInline

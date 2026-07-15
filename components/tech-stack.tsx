@@ -51,7 +51,7 @@ export function TechStack() {
         </div>
       </div>
 
-      <div className="pointer-events-none relative mx-auto max-w-7xl px-6">
+      <div className="pointer-events-none relative z-20 mx-auto max-w-7xl px-6">
       <div className="mb-12 flex flex-col items-center gap-4 text-center">
         <Reveal>
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">

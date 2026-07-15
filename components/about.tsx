@@ -12,7 +12,7 @@ const PILLARS = [
   },
   {
     title: 'Software Architecture',
-    body: 'Systems that stay clean as they scale — clear boundaries, predictable data flow, and interfaces that age well.',
+    body: 'Systems that stay clean as they scale: clear boundaries, predictable data flow, and interfaces that age well.',
   },
   {
     title: 'Automation',
@@ -20,11 +20,11 @@ const PILLARS = [
   },
   {
     title: 'Artificial Intelligence',
-    body: "This is where I go deepest. I've nearly mastered working with modern AI — using it as a genuine engineering partner to design, write and ship production systems, complete with the retrieval, tooling and guardrails that make it dependable.",
+    body: "This is where I go deepest. I've nearly mastered working with modern AI, using it as a genuine engineering partner to design, write and ship production systems, complete with the retrieval, tooling and guardrails that make it dependable.",
   },
   {
     title: 'System Thinking',
-    body: 'I design for the whole loop — inputs, feedback, failure and recovery — not just the happy path.',
+    body: 'I design for the whole loop, from inputs and feedback to failure and recovery, not just the happy path.',
   },
 ]
 
@@ -75,7 +75,7 @@ export function About() {
             <p className="mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground">
               My work connects technical architecture, product thinking, visual
               design, automation and commercial deployment. From autonomous
-              agents to live client systems — I ship the whole loop, not just
+              agents to live client systems: I ship the whole loop, not just
               the demo.
             </p>
           </Reveal>
@@ -90,8 +90,8 @@ export function About() {
               </div>
               <p className="mt-3 text-pretty leading-relaxed text-foreground">
                 Here&apos;s what I&apos;m most proud of: I&apos;ve{' '}
-                <span className="font-semibold">nearly mastered the use of AI</span>{' '}
-                — and I&apos;ve done it without a computer. Every architecture
+                <span className="font-semibold">nearly mastered the use of AI</span>,
+                and I&apos;ve done it without a computer. Every architecture
                 decision, every line of code and every deployment happens
                 entirely from my iPhone. It forced me to think sharper, lean on
                 AI as a real engineering partner, and prove that great software

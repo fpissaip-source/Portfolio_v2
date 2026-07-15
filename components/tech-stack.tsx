@@ -62,7 +62,7 @@ export function TechStack() {
         />
         <Reveal delay={0.1}>
           <p className="max-w-md text-pretty text-sm text-muted-foreground">
-            The tools I use to design, build and ship complete systems — end to
+            The tools I use to design, build and ship complete systems, end to
             end.
           </p>
         </Reveal>

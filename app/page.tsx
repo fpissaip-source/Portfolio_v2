@@ -30,7 +30,7 @@ export default function Page() {
           <EdgeGlow />
           <IonTrail />
           <Hero />
-          <Scene label="L.U.K.A.S. — The Operating System Behind Everything">
+          <Scene label="L.U.K.A.S. · The Operating System Behind Everything">
             <Lukas />
           </Scene>
           <Scene label="Selected Work" backdrop="ions">

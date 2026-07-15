@@ -62,17 +62,17 @@ export function IonTrail() {
         const f = (i + 1) / trail.length
         const r = 2 + f * 7
         const g = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, r * 4)
-        g.addColorStop(0, `rgba(125,170,240,${0.16 * f})`)
+        g.addColorStop(0, `rgba(125,170,240,${0.12 * f})`)
         g.addColorStop(1, 'rgba(125,170,240,0)')
         ctx.fillStyle = g
         ctx.beginPath()
         ctx.arc(pt.x, pt.y, r * 4, 0, Math.PI * 2)
         ctx.fill()
       }
-      // head — bright ion core
+      // head — soft ion core
       const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, 34)
-      g.addColorStop(0, 'rgba(214,232,255,0.85)')
-      g.addColorStop(0.25, 'rgba(125,170,240,0.4)')
+      g.addColorStop(0, 'rgba(214,232,255,0.55)')
+      g.addColorStop(0.25, 'rgba(125,170,240,0.28)')
       g.addColorStop(1, 'rgba(125,170,240,0)')
       ctx.fillStyle = g
       ctx.beginPath()
@@ -102,7 +102,18 @@ export function IonTrail() {
       aria-hidden
       className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
     >
-      <canvas ref={canvasRef} className="sticky top-0 h-[100svh] w-full" />
+      <canvas
+        ref={canvasRef}
+        className="sticky top-0 h-[100svh] w-full"
+        style={{
+          // Keep the central reading column clean: the trail only glows
+          // toward the edges of the viewport, never under centered text.
+          WebkitMaskImage:
+            'radial-gradient(ellipse 58% 56% at 50% 50%, transparent 34%, black 76%)',
+          maskImage:
+            'radial-gradient(ellipse 58% 56% at 50% 50%, transparent 34%, black 76%)',
+        }}
+      />
     </div>
   )
 }

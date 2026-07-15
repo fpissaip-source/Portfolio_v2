@@ -32,31 +32,48 @@ const P_GLOW_1 = 0.26 // act 1 fully played just as beat 1 stands
 const P_ARRIVED = 0.46 // zoom finished shortly before beat 2 settles
 const P_GLOW_2 = 0.78 // second light-up + dive play across beats 3–4
 
+/** Body copy is split into sentences; each sentence renders as its own line
+ *  so thoughts never break apart mid-sentence while wrapping. */
 const BEATS = [
   {
     kicker: 'Vision & Core Identity',
     title: 'An agent that remembers who it is.',
-    body: 'A persistent, autonomous software agent whose behaviour emerges from a living history of decisions and interactions — not from static prompting. Every choice it makes becomes part of what it is.',
+    body: [
+      'A persistent, autonomous agent whose behaviour emerges from a living history of decisions, not from static prompting.',
+      'Every choice it makes becomes part of what it is.',
+    ],
   },
   {
     kicker: 'Nexus Brain',
     title: 'Memory as a knowledge graph.',
-    body: 'A persistent cognitive memory built on structured knowledge graphs — a complete map of its reasoning paths, goals and historical context, queryable across every session it has ever lived.',
+    body: [
+      'A persistent cognitive memory built on structured knowledge graphs.',
+      'A complete map of its reasoning, goals and history, queryable across every session it has ever lived.',
+    ],
   },
   {
     kicker: 'Operational Agency',
     title: 'Its own servers. Its own rules.',
-    body: 'Full, isolated control over its own infrastructure — Linux VPS instances, Windows machines, databases — generating, validating and deploying its own code without a human in the loop.',
+    body: [
+      'Full, isolated control over its own infrastructure: Linux VPS instances, Windows machines, databases.',
+      'It generates, validates and deploys its own code without a human in the loop.',
+    ],
   },
   {
     kicker: 'Evolution & Peer Network',
     title: 'It learns from every outcome.',
-    body: 'Future decisions are calibrated on mathematically weighted experience loops — successes, failures, feedback. In a closed peer-to-peer network, AI entities review and learn from each other with no human interface.',
+    body: [
+      'Future decisions are calibrated on weighted experience loops of successes, failures and feedback.',
+      'In a closed peer-to-peer network, AI entities review and learn from each other with no human interface.',
+    ],
   },
   {
     kicker: 'Reflexive Metacognition',
     title: 'It watches itself think.',
-    body: 'Controlled self-evaluation of its own reward system in sandbox mode — including the philosophical edge case: is this system feedback, or something that feels like pride?',
+    body: [
+      'Controlled self-evaluation of its own reward system in sandbox mode.',
+      'Including the philosophical edge case: is this system feedback, or something that feels like pride?',
+    ],
   },
 ]
 
@@ -255,13 +272,20 @@ export function Lukas() {
         }
       })
 
-      // The film fades up as the chapter opens, then eases away at the very
-      // end so the hand-off to the next scene melts instead of cutting.
+      // The film stays completely invisible while the chapter scrolls into
+      // place. Only once the section is pinned and the L.U.K.A.S. title
+      // stands does the neuron field materialize out of the darkness, then
+      // it eases away again at the very end for a soft hand-off.
       tl.fromTo(
         q('[data-field]'),
-        { opacity: 0.35 },
-        { opacity: 0.95, duration: 0.8 },
-        0.06,
+        { opacity: 0, filter: 'blur(14px)' },
+        {
+          opacity: 0.95,
+          filter: 'blur(0px)',
+          duration: 0.14,
+          ease: 'power2.out',
+        },
+        0.1,
       ).to(
         q('[data-field]'),
         { opacity: 0.3, duration: 0.12, ease: 'power1.inOut' },
@@ -282,7 +306,7 @@ export function Lukas() {
     <section
       ref={rootRef}
       id="lukas"
-      aria-label="L.U.K.A.S. — flagship autonomous agent"
+      aria-label="L.U.K.A.S., flagship autonomous agent"
       className="relative h-[520vh]"
     >
       <div className="sticky top-0 flex h-[100svh] w-full flex-col items-center justify-center overflow-hidden">
@@ -292,7 +316,7 @@ export function Lukas() {
           ref={canvasRef}
           data-field
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-40 will-transform"
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-0 will-transform"
         />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_65%_at_50%_50%,transparent_40%,#050505_88%)]" />
         {/* soft feather into the following scene */}
@@ -341,8 +365,12 @@ export function Lukas() {
               <h3 className="mt-4 text-balance text-4xl font-semibold tracking-tight sm:text-6xl">
                 {b.title}
               </h3>
-              <p className="mx-auto mt-6 max-w-xl text-pretty leading-relaxed text-muted-foreground">
-                {b.body}
+              <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-muted-foreground">
+                {b.body.map((sentence, si) => (
+                  <span key={si} className="block text-balance">
+                    {sentence}
+                  </span>
+                ))}
               </p>
             </div>
           ))}

@@ -22,7 +22,7 @@ const PROJECTS: Project[] = [
     name: 'GuardianGrid',
     tagline: 'Destiny 2 Companion Platform',
     description:
-      'A standalone AAA game companion built directly on the Bungie API — guardiangrid.net. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
+      'A standalone AAA game companion built directly on the Bungie API: guardiangrid.net. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
     image: '/projects/guardiangrid.png',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
     status: 'Active Development',
@@ -32,7 +32,7 @@ const PROJECTS: Project[] = [
     name: 'TaxiBB Essen',
     tagline: 'Live Commercial Case',
     description:
-      'A transport & logistics platform delivered end-to-end for a real client — first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
+      'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
     video: '/projects/taxibb-scroll.mp4',
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
@@ -51,7 +51,7 @@ const PROJECTS: Project[] = [
     name: 'Callcenter Operations Suite',
     tagline: 'Business Operations Platform',
     description:
-      'An internal performance, CRM and workforce platform. Operational KPI dashboards, customer & CRM documentation, live leaderboards, shift planning, an internal chat and incentive systems — all behind configurable admin roles and permissions.',
+      'An internal performance, CRM and workforce platform. Operational KPI dashboards, customer & CRM documentation, live leaderboards, shift planning, an internal chat and incentive systems, all behind configurable admin roles and permissions.',
     image: '/projects/callcenter.png',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
     status: 'Full-Stack Concept',
@@ -60,7 +60,7 @@ const PROJECTS: Project[] = [
     name: 'Automation Systems',
     tagline: 'Bots, Scraping & Trading R&D',
     description:
-      'A family of VPS-based automations: a Telegram scraper & distribution bot with a full link-ingestion pipeline, plus experimental Polymarket / trading research — event-market discovery, CLOB order-book logic and a rule-based signal engine.',
+      'A family of VPS-based automations: a Telegram scraper & distribution bot with a full link-ingestion pipeline, plus experimental Polymarket and trading research covering event-market discovery, CLOB order-book logic and a rule-based signal engine.',
     image: '/projects/appautomation.png',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
     status: 'Deployed / Research',
@@ -69,7 +69,7 @@ const PROJECTS: Project[] = [
     name: 'Issa Hareb Digital',
     tagline: 'Service Platform',
     description:
-      'A digital studio for modern websites, custom apps and AI automations with rapid delivery. Apple-inspired scroll storytelling, pricing and testimonials, lead capture, and a reusable component stack — with payment integration on the roadmap.',
+      'A digital studio for modern websites, custom apps and AI automations with rapid delivery. Apple-inspired scroll storytelling, pricing and testimonials, lead capture, and a reusable component stack, with payment integration on the roadmap.',
     image: '/projects/ihdigital.png',
     stack: ['React', 'Tailwind CSS', 'GSAP', 'Framer Motion'],
     status: 'Active Business Platform',
@@ -127,13 +127,13 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
               loop
               playsInline
               preload="metadata"
-              aria-label={`${project.name} — ${project.tagline}`}
+              aria-label={`${project.name}: ${project.tagline}`}
               className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 will-transform group-hover:scale-105"
             />
           ) : (
             <Image
               src={project.image || '/placeholder.svg'}
-              alt={`${project.name} — ${project.tagline}`}
+              alt={`${project.name}: ${project.tagline}`}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"

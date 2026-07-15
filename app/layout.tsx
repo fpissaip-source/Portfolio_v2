@@ -14,12 +14,12 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Issa Hareb — Building Intelligent Systems',
+  title: 'Issa Hareb | Building Intelligent Systems',
   description:
-    'Issa Hareb — Full-stack product engineer in Essen, Germany, building autonomous agents, data-intensive platforms and high-end interfaces, end to end.',
+    'Issa Hareb, full-stack product engineer in Essen, Germany, building autonomous agents, data-intensive platforms and high-end interfaces, end to end.',
   generator: 'v0.app',
   openGraph: {
-    title: 'Issa Hareb — Building Intelligent Systems',
+    title: 'Issa Hareb | Building Intelligent Systems',
     description:
       'Full-stack product engineer building autonomous agents, data-intensive platforms and high-end interfaces.',
     type: 'website',

@@ -66,7 +66,7 @@ export function Hero() {
           transition={{ duration: 0.8, ease: easeOut }}
           className="font-mono text-xs uppercase tracking-[0.35em] text-blue sm:text-sm"
         >
-          Issa Hareb — Curriculum Vitae
+          Issa Hareb · Curriculum Vitae
         </motion.span>
 
         <h1 className="mt-6 text-balance font-sans text-6xl font-semibold leading-[0.95] tracking-tight sm:text-8xl md:text-[9rem]">
@@ -85,7 +85,7 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.6, ease: easeOut }}
           className="mt-8 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg"
         >
-          I&apos;ve made AI a true engineering partner — and I&apos;ve nearly
+          I&apos;ve made AI a true engineering partner, and I&apos;ve nearly
           mastered it. What makes that unusual: I don&apos;t own a PC or a
           laptop. Every system I design, build and ship is created entirely from
           my iPhone, end to end.

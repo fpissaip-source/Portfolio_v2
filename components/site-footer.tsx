@@ -48,7 +48,7 @@ export function SiteFooter() {
         </div>
 
         <p className="font-mono text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} — Directed, written &amp; built by
+          &copy; {new Date().getFullYear()} · Directed, written &amp; built by
           Issa Hareb. On a phone.
         </p>
       </div>

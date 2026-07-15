@@ -215,7 +215,18 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
       aria-hidden
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      <canvas ref={canvasRef} className="sticky top-0 h-[100svh] w-full" />
+      <canvas
+        ref={canvasRef}
+        className="sticky top-0 h-[100svh] w-full"
+        style={{
+          // Same treatment as the ion trail: backdrops live at the frame
+          // edges and stay out of the central reading column.
+          WebkitMaskImage:
+            'radial-gradient(ellipse 62% 60% at 50% 50%, transparent 28%, black 74%)',
+          maskImage:
+            'radial-gradient(ellipse 62% 60% at 50% 50%, transparent 28%, black 74%)',
+        }}
+      />
     </div>
   )
 }

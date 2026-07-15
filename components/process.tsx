@@ -31,7 +31,7 @@ const STEPS = [
   },
   {
     title: 'Continuous Improvement',
-    body: 'Measure, learn and refine — the loop never really ends.',
+    body: 'Measure, learn and refine. The loop never really ends.',
   },
 ]
 

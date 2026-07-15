@@ -29,10 +29,10 @@ export function PhoneStory() {
           className="text-balance font-sans text-4xl font-semibold leading-[1.12] tracking-tight sm:text-6xl md:text-7xl"
           stagger={0.16}
           lines={[
-            <>Every system on this page —</>,
+            <>Every system on this page,</>,
             <>
               <span className="text-muted-foreground">
-                the agent, the platforms, the deployments —
+                the agent, the platforms, the deployments,
               </span>
             </>,
             <>was designed, written and shipped</>,

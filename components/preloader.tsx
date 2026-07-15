@@ -142,7 +142,7 @@ export function Preloader() {
           </span>
         )}
         <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Issa Hareb — Portfolio
+          Issa Hareb · Portfolio
         </span>
       </div>
 

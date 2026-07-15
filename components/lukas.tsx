@@ -162,6 +162,23 @@ export function Lukas() {
     window.addEventListener('resize', sizeCanvas)
 
     // --- scroll choreography -------------------------------------------
+    // Idle playback: once the film has reached its finale, the last frames
+    // keep breathing (slow ping-pong) so the neurons never freeze — and the
+    // hand-off to the next scene stays alive.
+    let idleRaf = 0
+    let idleActive = false
+    let lastProgress = 0
+    const IDLE_SPAN = 20
+    const idleLoop = (t: number) => {
+      if (!idleActive) return
+      if (lastProgress > P_GLOW_2 - 0.02) {
+        const cycle = (t / 140) % (IDLE_SPAN * 2)
+        const off = cycle < IDLE_SPAN ? cycle : IDLE_SPAN * 2 - cycle
+        renderIndex(FRAME_COUNT - 1 - off)
+      }
+      idleRaf = requestAnimationFrame(idleLoop)
+    }
+
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
       let raf = 0
@@ -173,10 +190,21 @@ export function Lukas() {
           end: 'bottom bottom',
           scrub: prefersReduced ? (false as const) : 0.7,
           onUpdate: (self) => {
-            const index = frameForProgress(self.progress)
-            if (Math.round(index) === currentIndex) return
-            cancelAnimationFrame(raf)
-            raf = requestAnimationFrame(() => renderIndex(index))
+            lastProgress = self.progress
+            // Ken-Burns push on top of the footage — the whole film slowly
+            // dives deeper while scrolling, amplifying the zoom acts.
+            canvas.style.transform = `scale(${(1.06 + self.progress * 0.16).toFixed(4)})`
+            if (self.progress <= P_GLOW_2 - 0.02) {
+              const index = frameForProgress(self.progress)
+              if (Math.round(index) === currentIndex) return
+              cancelAnimationFrame(raf)
+              raf = requestAnimationFrame(() => renderIndex(index))
+            }
+          },
+          onToggle: (self) => {
+            idleActive = self.isActive && !prefersReduced
+            cancelAnimationFrame(idleRaf)
+            if (idleActive) idleRaf = requestAnimationFrame(idleLoop)
           },
         },
       })
@@ -227,17 +255,24 @@ export function Lukas() {
         }
       })
 
-      // The film fades up as the chapter opens.
+      // The film fades up as the chapter opens, then eases away at the very
+      // end so the hand-off to the next scene melts instead of cutting.
       tl.fromTo(
         q('[data-field]'),
         { opacity: 0.35 },
-        { opacity: 0.95, duration: 0.9 },
+        { opacity: 0.95, duration: 0.8 },
         0.06,
+      ).to(
+        q('[data-field]'),
+        { opacity: 0.3, duration: 0.12, ease: 'power1.inOut' },
+        0.88,
       )
     }, root)
 
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
+      idleActive = false
+      cancelAnimationFrame(idleRaf)
       window.removeEventListener('resize', sizeCanvas)
       ctx.revert()
     }
@@ -257,9 +292,11 @@ export function Lukas() {
           ref={canvasRef}
           data-field
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-40"
+          className="pointer-events-none absolute inset-0 h-full w-full opacity-40 will-transform"
         />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_65%_at_50%_50%,transparent_40%,#050505_88%)]" />
+        {/* soft feather into the following scene */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[22vh] bg-gradient-to-b from-transparent to-background" />
 
         {/* Title */}
         <div data-lukas-head className="relative z-10 text-center will-transform">

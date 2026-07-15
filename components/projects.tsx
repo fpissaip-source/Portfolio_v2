@@ -10,6 +10,8 @@ type Project = {
   tagline: string
   description: string
   image: string
+  /** Optional looping screen capture shown instead of the still image. */
+  video?: string
   stack: string[]
   status: string
   featured?: boolean
@@ -32,6 +34,7 @@ const PROJECTS: Project[] = [
     description:
       'A transport & logistics platform delivered end-to-end for a real client — first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
+    video: '/projects/taxibb-scroll.mp4',
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     status: 'Live System',
   },
@@ -115,13 +118,27 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             project.featured ? 'aspect-[16/10] md:h-full md:min-h-[22rem]' : 'aspect-[16/10]'
           }`}
         >
-          <Image
-            src={project.image || '/placeholder.svg'}
-            alt={`${project.name} — ${project.tagline}`}
-            fill
-            sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
-          />
+          {project.video ? (
+            <video
+              src={project.video}
+              poster={project.image}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label={`${project.name} — ${project.tagline}`}
+              className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 will-transform group-hover:scale-105"
+            />
+          ) : (
+            <Image
+              src={project.image || '/placeholder.svg'}
+              alt={`${project.name} — ${project.tagline}`}
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
           <span className="absolute bottom-3 left-4 font-mono text-xs uppercase tracking-[0.2em] text-white/70 [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
             {project.tagline}

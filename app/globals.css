@@ -98,6 +98,23 @@ html.lenis body {
   }
 }
 
+/* preloader greeting swap */
+@keyframes preloader-greet {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+html.preloading {
+  overflow: hidden;
+}
+
 /* slow breathing for the corner edge glows */
 @keyframes edge-glow-pulse {
   0%,

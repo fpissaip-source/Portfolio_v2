@@ -98,6 +98,22 @@ html.lenis body {
   }
 }
 
+/* slow breathing for the corner edge glows */
+@keyframes edge-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.1);
+  }
+}
+.edge-glow-pulse {
+  animation: edge-glow-pulse 14s ease-in-out infinite;
+}
+
 /* film grain jitter — steps() keeps it flickery like real stock */
 @keyframes grain {
   0% {

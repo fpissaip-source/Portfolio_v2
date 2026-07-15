@@ -1,8 +1,13 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Smartphone, MapPin, Sparkles } from 'lucide-react'
 import { GradientOrbs } from './gradient-orbs'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
@@ -10,17 +15,16 @@ const line1 = 'Building'
 const line2 = 'Intelligent'
 const line3 = 'Systems.'
 
-function AnimatedWord({ word, delay }: { word: string; delay: number }) {
+/** The word is always in the DOM; each letter starts dim and is lit up
+ *  letter by letter as the hero scrolls into place. */
+function LitWord({ word }: { word: string }) {
   return (
-    <span className="inline-block overflow-hidden pb-[0.1em] align-bottom">
-      <motion.span
-        className="inline-block will-transform"
-        initial={{ y: '110%' }}
-        animate={{ y: '0%' }}
-        transition={{ duration: 1, delay, ease: easeOut }}
-      >
-        {word}
-      </motion.span>
+    <span className="inline-block">
+      {word.split('').map((ch, i) => (
+        <span key={i} data-lit style={{ opacity: 0.12 }} className="inline-block">
+          {ch}
+        </span>
+      ))}
     </span>
   )
 }
@@ -32,9 +36,32 @@ const FACTS = [
 ]
 
 export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const ctx = gsap.context(() => {
+      gsap.to(section.querySelectorAll('[data-lit]'), {
+        opacity: 1,
+        ease: 'none',
+        duration: 0.35,
+        stagger: 0.045,
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 90%',
+          end: 'top 5%',
+          scrub: 0.5,
+        },
+      })
+    }, section)
+    return () => ctx.revert()
+  }, [])
+
   return (
     <section
       id="top"
+      ref={sectionRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24"
     >
       <GradientOrbs />
@@ -50,13 +77,13 @@ export function Hero() {
         </motion.span>
 
         <h1 className="mt-6 text-balance font-sans text-6xl font-semibold leading-[0.95] tracking-tight sm:text-8xl md:text-[9rem]">
-          <AnimatedWord word={line1} delay={0.1} />
+          <LitWord word={line1} />
           <br />
           <span className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent">
-            <AnimatedWord word={line2} delay={0.22} />
+            <LitWord word={line2} />
           </span>
           <br />
-          <AnimatedWord word={line3} delay={0.34} />
+          <LitWord word={line3} />
         </h1>
 
         <motion.p

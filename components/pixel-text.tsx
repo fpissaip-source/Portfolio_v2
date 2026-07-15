@@ -101,9 +101,9 @@ export const PixelText = forwardRef<
               tx: x,
               ty: y,
               nx: x / cw,
-              ox: (Math.random() - 0.5) * 260,
-              oy: (Math.random() - 0.5) * 260,
-              size: gap * (0.5 + Math.random() * 0.45),
+              ox: (Math.random() - 0.5) * 120,
+              oy: (Math.random() - 0.5) * 120,
+              size: gap * (0.55 + Math.random() * 0.4),
               hue: Math.random(),
               drift: 0.6 + Math.random() * 0.8,
             })
@@ -145,18 +145,17 @@ export const PixelText = forwardRef<
             1,
           )
           const e = pd * pd
-          px = pt.tx + e * (34 * pt.drift + pt.ox * 0.35)
-          py = pt.ty - e * (70 * pt.drift)
+          px = pt.tx + e * (24 * pt.drift + pt.ox * 0.35)
+          py = pt.ty - e * (50 * pt.drift)
           alpha = 1 - pd
-          grow = e * 1.4
+          grow = e * 0.9
         }
 
         if (alpha <= 0.01) continue
-        const r = Math.round(lerp(124, 168, pt.hue))
-        const g = Math.round(lerp(152, 90, pt.hue))
-        const b = Math.round(lerp(255, 247, pt.hue))
-        ctx.globalAlpha = alpha
-        ctx.fillStyle = `rgb(${r},${g},${b})`
+        // Restrained monochrome: soft silver-white with a whisper of blue.
+        const tone = Math.round(lerp(212, 236, pt.hue))
+        ctx.globalAlpha = alpha * (0.82 + 0.18 * pt.hue)
+        ctx.fillStyle = `rgb(${tone},${tone + 6},${Math.min(255, tone + 16)})`
         const s = pt.size + grow
         ctx.fillRect(px, py, s, s)
       }
@@ -186,8 +185,7 @@ export const PixelText = forwardRef<
       aria-hidden
       className={className}
       style={{
-        filter:
-          'drop-shadow(0 0 40px rgba(139,92,246,0.6)) drop-shadow(0 0 16px rgba(96,165,250,0.45))',
+        filter: 'drop-shadow(0 0 22px rgba(170,180,214,0.28))',
       }}
     />
   )

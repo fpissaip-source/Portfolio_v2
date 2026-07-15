@@ -60,7 +60,7 @@ function createLogoTexture(tech: Tech): Promise<THREE.Texture> {
     canvas.height = size
     const ctx = canvas.getContext('2d')!
 
-    // Dark glossy base
+    // White glossy base
     const grad = ctx.createRadialGradient(
       size * 0.4,
       size * 0.32,
@@ -69,9 +69,9 @@ function createLogoTexture(tech: Tech): Promise<THREE.Texture> {
       size * 0.5,
       size * 0.65,
     )
-    grad.addColorStop(0, '#1a1a24')
-    grad.addColorStop(0.55, '#0c0c12')
-    grad.addColorStop(1, '#050507')
+    grad.addColorStop(0, '#ffffff')
+    grad.addColorStop(0.55, '#f4f5f9')
+    grad.addColorStop(1, '#e6e8f0')
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, size, size)
 
@@ -89,11 +89,9 @@ function createLogoTexture(tech: Tech): Promise<THREE.Texture> {
       const ratio = Math.min(target / img.width, target / img.height)
       const w = img.width * ratio
       const h = img.height * ratio
-      if (tech.tint === 'white') {
-        ctx.filter = 'brightness(0) invert(1)'
-      }
+      // Logos keep their original colors — dark marks read fine on the
+      // white base (the former white-tint inversion would vanish here).
       ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h)
-      ctx.filter = 'none'
       finish()
     }
     img.onerror = finish
@@ -123,7 +121,7 @@ function Orb({
     ]
   }, [seed])
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const rb = api.current
     if (!rb) return
     delta = Math.min(0.1, delta)
@@ -137,6 +135,12 @@ function Orb({
           -50 * delta * scale,
         ),
       )
+    // Gentle per-orb wander so the cluster keeps drifting on its own,
+    // even without any pointer interaction.
+    const t = state.clock.elapsedTime
+    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 22 * delta * scale
+    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 26 * delta * scale
+    impulse.z += Math.sin(t * 0.31 + seed * 0.7) * 12 * delta * scale
     rb.applyImpulse(impulse, true)
   })
 
@@ -198,9 +202,9 @@ function Scene({ count }: { count: number }) {
             map: texture,
             emissive: new THREE.Color('#ffffff'),
             emissiveMap: texture,
-            emissiveIntensity: 0.3,
-            metalness: 0.5,
-            roughness: 1,
+            emissiveIntensity: 0.38,
+            metalness: 0.08,
+            roughness: 0.45,
           }),
       )
       created.push(...mats)
@@ -230,9 +234,9 @@ function Scene({ count }: { count: number }) {
 
   return (
     <>
-      <ambientLight intensity={1} />
-      <directionalLight position={[10, 12, 8]} intensity={2} color="#c4b5fd" />
-      <directionalLight position={[-10, -6, 6]} intensity={0.6} color="#93c5fd" />
+      <ambientLight intensity={1.15} />
+      <directionalLight position={[10, 12, 8]} intensity={1.7} color="#efeaff" />
+      <directionalLight position={[-10, -6, 6]} intensity={0.5} color="#e3edff" />
 
       <Physics gravity={[0, 0, 0]}>
         <Pointer />

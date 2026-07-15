@@ -13,10 +13,11 @@ gsap.registerPlugin(ScrollTrigger)
  * sequence and drawn on a <canvas> — the Apple-style approach, since <video>
  * currentTime seeking freezes on iOS Safari while scrolling.
  *
- * The final shot ends on an ultrawide monitor showing a solid chroma-green
- * screen. We detect the green rectangle in the last frame at runtime, project
- * the website preview into it, and scale the whole stage so the monitor
- * swallows the viewport — that zoom IS the transition onto the real site.
+ * The final shot ends on an ultrawide monitor. The frames are pre-processed so
+ * the screen carries the website's dark blue→purple tones; SCREEN_RECT below is
+ * the measured screen area of the last frame (image px). The website preview is
+ * projected into it and the whole stage scales until the monitor swallows the
+ * viewport — that zoom IS the transition onto the real site.
  */
 const FRAME_COUNT = 182
 const framePath = (i: number) =>
@@ -26,13 +27,16 @@ const POSTER_SRC = '/intro/cinematic-poster.jpg'
 /** Scroll share reserved for the flythrough; the rest is the monitor zoom. */
 const FLIGHT_END = 0.82
 
+/** Monitor screen area in the last frame, in image pixels (1536×864). */
+const SCREEN_RECT = { x: 0, y: 95, w: 1536, h: 660 }
+
 type PhraseAnim = 'blurScale' | 'wipe' | 'flip3D' | 'maskUp' | 'zoomOut'
 
 const PHRASES: { text: string; anim: PhraseAnim }[] = [
   { text: 'Building Intelligent Systems', anim: 'blurScale' },
   { text: 'AI Automation', anim: 'wipe' },
   { text: 'Full Stack Development', anim: 'flip3D' },
-  { text: 'Built entirely on a phone. No PC. No laptop.', anim: 'maskUp' },
+  { text: 'I built everything entirely on iPhone. No PC. No Laptop!', anim: 'maskUp' },
   { text: 'Software That Solves Real Problems', anim: 'zoomOut' },
 ]
 
@@ -63,49 +67,6 @@ const PHRASE_ANIMS: Record<
   },
 }
 
-/** Bounding box of the chroma-green screen in the final frame (image px). */
-function detectGreenRect(img: HTMLImageElement): {
-  x: number
-  y: number
-  w: number
-  h: number
-} | null {
-  const c = document.createElement('canvas')
-  // Downsample for speed; bbox is scaled back up.
-  const scale = Math.min(1, 480 / img.naturalWidth)
-  c.width = Math.round(img.naturalWidth * scale)
-  c.height = Math.round(img.naturalHeight * scale)
-  const cx = c.getContext('2d', { willReadFrequently: true })
-  if (!cx) return null
-  cx.drawImage(img, 0, 0, c.width, c.height)
-  const { data } = cx.getImageData(0, 0, c.width, c.height)
-  let minX = c.width
-  let minY = c.height
-  let maxX = -1
-  let maxY = -1
-  for (let y = 0; y < c.height; y++) {
-    for (let x = 0; x < c.width; x++) {
-      const i = (y * c.width + x) * 4
-      const r = data[i]
-      const g = data[i + 1]
-      const b = data[i + 2]
-      if (g > 120 && g > r * 1.6 && g > b * 1.6) {
-        if (x < minX) minX = x
-        if (x > maxX) maxX = x
-        if (y < minY) minY = y
-        if (y > maxY) maxY = y
-      }
-    }
-  }
-  if (maxX < 0 || maxX - minX < c.width * 0.08) return null
-  return {
-    x: minX / scale,
-    y: minY / scale,
-    w: (maxX - minX + 1) / scale,
-    h: (maxY - minY + 1) / scale,
-  }
-}
-
 export function CinematicIntro() {
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
@@ -113,6 +74,7 @@ export function CinematicIntro() {
   const screenRef = useRef<HTMLDivElement>(null)
   const iRef = useRef<PixelTextHandle>(null)
   const amRef = useRef<PixelTextHandle>(null)
+  const nameRef = useRef<PixelTextHandle>(null)
 
   useEffect(() => {
     const root = rootRef.current
@@ -130,8 +92,6 @@ export function CinematicIntro() {
     const images: HTMLImageElement[] = new Array(FRAME_COUNT)
     const loaded = new Array<boolean>(FRAME_COUNT).fill(false)
     let currentIndex = -1
-    // Green-screen rect of the LAST frame, in image px; resolved async.
-    let greenRect: { x: number; y: number; w: number; h: number } | null = null
 
     // object-fit: cover mapping of the frame onto the canvas.
     const coverTransform = (img: HTMLImageElement) => {
@@ -182,16 +142,16 @@ export function CinematicIntro() {
       drawCover(img)
     }
 
-    // Keep the website preview glued to the monitor's green screen and set
-    // the zoom origin so scaling the stage dives straight into the screen.
+    // Keep the website preview glued to the monitor screen and set the zoom
+    // origin so scaling the stage dives straight into the screen.
     const placeScreen = () => {
       const last = images[FRAME_COUNT - 1]
-      if (!greenRect || !last || !loaded[FRAME_COUNT - 1]) return
+      if (!last || !loaded[FRAME_COUNT - 1]) return
       const { scale, dx, dy } = coverTransform(last)
-      const x = dx + greenRect.x * scale
-      const y = dy + greenRect.y * scale
-      const w = greenRect.w * scale
-      const h = greenRect.h * scale
+      const x = dx + SCREEN_RECT.x * scale
+      const y = dy + SCREEN_RECT.y * scale
+      const w = SCREEN_RECT.w * scale
+      const h = SCREEN_RECT.h * scale
       Object.assign(screen.style, {
         left: `${x}px`,
         top: `${y}px`,
@@ -217,8 +177,8 @@ export function CinematicIntro() {
       placeScreen()
     }
 
-    // Kick off loading. Draw as soon as frame 0 arrives; detect the green
-    // screen as soon as the last frame arrives.
+    // Kick off loading. Draw as soon as frame 0 arrives; place the website
+    // preview as soon as the last frame arrives.
     let firstDrawn = false
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image()
@@ -231,10 +191,7 @@ export function CinematicIntro() {
         } else if (i === currentIndex) {
           renderIndex(i)
         }
-        if (i === FRAME_COUNT - 1) {
-          greenRect = detectGreenRect(img)
-          placeScreen()
-        }
+        if (i === FRAME_COUNT - 1) placeScreen()
       }
       img.src = framePath(i)
       images[i] = img
@@ -358,17 +315,19 @@ export function CinematicIntro() {
         0.38,
       )
 
-      // "Issa Hareb" glows over the room once the camera has arrived inside,
-      // then recedes as the camera pushes toward the monitor.
-      tl.fromTo(
-        q('[data-wall-name]'),
-        { opacity: 0, scale: 0.96, yPercent: -8, filter: 'blur(16px)' },
-        { opacity: 1, scale: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.05, ease: 'power2.out' },
-        0.58,
-      ).to(
-        q('[data-wall-name]'),
-        { opacity: 0, scale: 1.1, filter: 'blur(10px)', duration: 0.05, ease: 'power2.in' },
-        0.68,
+      // "Issa Hareb" assembles centered over the room once the camera has
+      // arrived inside — same pixel-dust language as the I/AM letters — then
+      // dusts away as the camera pushes toward the monitor.
+      const nameProxy = { p: 0 }
+      tl.to(
+        nameProxy,
+        {
+          p: 1,
+          duration: 0.17,
+          ease: 'none',
+          onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
+        },
+        0.57,
       )
     }, root)
 
@@ -456,19 +415,19 @@ export function CinematicIntro() {
           </p>
         </div>
 
-        {/* Giant "Thanos snap" pixel letters behind the phrases. */}
+        {/* Pixel-dust letters behind the phrases. */}
         <PixelText
           ref={iRef}
           text="I"
-          heightFactor={0.82}
-          widthFactor={0.5}
+          heightFactor={0.42}
+          widthFactor={0.4}
           className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
         />
         <PixelText
           ref={amRef}
           text="AM"
-          heightFactor={0.52}
-          widthFactor={0.82}
+          heightFactor={0.3}
+          widthFactor={0.56}
           className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
         />
 
@@ -486,22 +445,14 @@ export function CinematicIntro() {
           ))}
         </div>
 
-        {/* Name reveal — lights up over the room, then is swallowed by the zoom. */}
-        <div
-          data-wall-name
-          className="pointer-events-none absolute inset-x-0 top-[6%] z-[22] flex justify-center opacity-0 will-transform"
-        >
-          <span
-            className="select-none px-6 text-center font-sans text-5xl font-bold tracking-[0.14em] sm:text-7xl md:text-8xl"
-            style={{
-              color: 'color-mix(in oklch, var(--purple) 55%, white)',
-              textShadow:
-                '0 0 18px color-mix(in oklch, var(--purple) 95%, transparent), 0 0 44px color-mix(in oklch, var(--purple) 80%, transparent), 0 0 90px color-mix(in oklch, var(--purple) 55%, transparent)',
-            }}
-          >
-            Issa Hareb
-          </span>
-        </div>
+        {/* Name reveal — same pixel-dust style, centered, swallowed by the zoom. */}
+        <PixelText
+          ref={nameRef}
+          text="ISSA HAREB"
+          heightFactor={0.14}
+          widthFactor={0.86}
+          className="pointer-events-none absolute inset-0 z-[22] h-full w-full"
+        />
 
         {/* Final hand-off plate matching the hero start */}
         <div

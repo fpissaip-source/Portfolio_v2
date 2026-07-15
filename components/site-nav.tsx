@@ -39,18 +39,10 @@ export function SiteNav() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="fixed left-1/2 top-4 z-50 -translate-x-1/2"
+          className="fixed left-1/2 top-4 z-50 hidden -translate-x-1/2 sm:block"
         >
           <div className="glass flex items-center gap-1 rounded-full px-2 py-1.5">
-            <a
-              href="#top"
-              onClick={(e) => go(e, '#top')}
-              className="px-3 py-1.5 font-mono text-sm font-semibold tracking-tight text-foreground"
-            >
-              IH<span className="text-blue">.</span>
-            </a>
-            <div className="mx-1 hidden h-4 w-px bg-white/10 sm:block" />
-            <div className="hidden items-center sm:flex">
+            <div className="flex items-center">
               {LINKS.map((l) => (
                 <a
                   key={l.href}

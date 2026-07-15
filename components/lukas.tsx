@@ -160,6 +160,7 @@ export function Lukas() {
       renderIndex(currentIndex >= 0 ? currentIndex : 0)
     }
 
+    let cleanupScrollLock = () => {}
     let firstDrawn = false
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image()
@@ -221,27 +222,6 @@ export function Lukas() {
           start: 'top top',
           end: 'bottom bottom',
           scrub: prefersReduced ? (false as const) : 0.7,
-          // Magnet: pull the scroll toward a beat center once it's nearby,
-          // so each ability settles into a fully readable resting point.
-          snap: prefersReduced
-            ? undefined
-            : {
-                snapTo: (value: number) => {
-                  let best = value
-                  let bestD = 0.065
-                  for (const s of BEAT_SNAPS) {
-                    const d = Math.abs(value - s)
-                    if (d < bestD) {
-                      bestD = d
-                      best = s
-                    }
-                  }
-                  return best
-                },
-                duration: { min: 0.2, max: 0.6 },
-                delay: 0.04,
-                ease: 'power3.out',
-              },
           onUpdate: (self) => {
             // Ken-Burns push on top of the footage — the whole film slowly
             // dives deeper while scrolling, amplifying the zoom acts.
@@ -252,9 +232,159 @@ export function Lukas() {
               raf = requestAnimationFrame(() => renderIndex(index))
             }
             updateBeam(self.progress)
+            watchZone(self.progress)
           },
         },
       })
+
+      // --- hard stop between beats ---------------------------------------
+      // Rather than letting scroll simply run through every beat, the
+      // section locks the page scroll (via Lenis) once a beat is standing,
+      // and only advances one beat at a time on the next deliberate wheel
+      // or swipe — a felt "stop", not just a soft pull.
+      const st = tl.scrollTrigger!
+      const EDGE = 0.02
+      let zone: 'before' | 'locked' | 'after' = 'before'
+      let stepIndex = 0
+      let transitioning = false
+      let wheelAccum = 0
+      let touchStartY = 0
+      let touchAccum = 0
+
+      const getLenis = () =>
+        (window as unknown as { __lenis?: { scrollTo: (y: number, o: Record<string, unknown>) => void; stop: () => void; start: () => void } }).__lenis
+
+      const scrollYForProgress = (p: number) => st.start + p * (st.end - st.start)
+
+      const nearestStep = (p: number) =>
+        BEAT_SNAPS.reduce(
+          (bi, s, i) => (Math.abs(p - s) < Math.abs(p - BEAT_SNAPS[bi]) ? i : bi),
+          0,
+        )
+
+      const goToStep = (index: number) => {
+        stepIndex = Math.max(0, Math.min(BEAT_SNAPS.length - 1, index))
+        transitioning = true
+        const y = scrollYForProgress(BEAT_SNAPS[stepIndex])
+        const lenis = getLenis()
+        if (lenis) {
+          lenis.scrollTo(y, {
+            duration: 0.85,
+            easing: (t: number) => 1 - Math.pow(1 - t, 3),
+            force: true, // Lenis ignores scrollTo while stopped unless forced
+            onComplete: () => {
+              transitioning = false
+            },
+          })
+        } else {
+          window.scrollTo({ top: y, behavior: 'smooth' })
+          window.setTimeout(() => {
+            transitioning = false
+          }, 650)
+        }
+      }
+
+      // Called every scrub update: detects crossing into/out of the beat
+      // band and stops (or releases) real page scrolling accordingly. Only
+      // reacts to genuinely external scroll — while one of our own
+      // animations (goToStep / releasePast) is mid-flight, it stands down
+      // so it can't re-lock a deliberate release before it clears the band.
+      function watchZone(p: number) {
+        if (prefersReduced || transitioning) return
+        const next: typeof zone =
+          p < BEAT_SNAPS[0] - EDGE
+            ? 'before'
+            : p > BEAT_SNAPS[BEAT_SNAPS.length - 1] + EDGE
+              ? 'after'
+              : 'locked'
+        if (next === zone) return
+        zone = next
+        const lenis = getLenis()
+        if (zone === 'locked') {
+          stepIndex = nearestStep(p)
+          lenis?.stop()
+          goToStep(stepIndex)
+        } else {
+          lenis?.start()
+        }
+      }
+
+      // A deliberate scroll past the first/last beat: animate clear of the
+      // locked band first, then hand control back to Lenis — otherwise
+      // watchZone would see progress still inside the band and re-lock it
+      // before the escape finishes.
+      const releasePast = (dir: 1 | -1) => {
+        zone = dir > 0 ? 'after' : 'before'
+        transitioning = true
+        const escapeP =
+          dir > 0
+            ? BEAT_SNAPS[BEAT_SNAPS.length - 1] + EDGE + 0.015
+            : BEAT_SNAPS[0] - EDGE - 0.015
+        const y = scrollYForProgress(Math.max(0, Math.min(1, escapeP)))
+        const lenis = getLenis()
+        if (lenis) {
+          lenis.scrollTo(y, {
+            duration: 0.6,
+            easing: (t: number) => 1 - Math.pow(1 - t, 3),
+            force: true,
+            onComplete: () => {
+              transitioning = false
+              lenis.start()
+            },
+          })
+        } else {
+          window.scrollTo({ top: y, behavior: 'smooth' })
+          window.setTimeout(() => {
+            transitioning = false
+          }, 500)
+        }
+      }
+
+      const onWheel = (e: WheelEvent) => {
+        if (prefersReduced || zone !== 'locked') return
+        e.preventDefault()
+        if (transitioning) return
+        wheelAccum += e.deltaY
+        if (Math.abs(wheelAccum) < 32) return
+        const dir = wheelAccum > 0 ? 1 : -1
+        wheelAccum = 0
+        const next = stepIndex + dir
+        if (next < 0 || next >= BEAT_SNAPS.length) {
+          releasePast(dir)
+          return
+        }
+        goToStep(next)
+      }
+      const onTouchStart = (e: TouchEvent) => {
+        touchStartY = e.touches[0].clientY
+        touchAccum = 0
+      }
+      const onTouchMove = (e: TouchEvent) => {
+        if (prefersReduced || zone !== 'locked') return
+        e.preventDefault()
+        if (transitioning) return
+        const y = e.touches[0].clientY
+        touchAccum = touchStartY - y
+        if (Math.abs(touchAccum) < 46) return
+        const dir = touchAccum > 0 ? 1 : -1
+        touchStartY = y
+        touchAccum = 0
+        const next = stepIndex + dir
+        if (next < 0 || next >= BEAT_SNAPS.length) {
+          releasePast(dir)
+          return
+        }
+        goToStep(next)
+      }
+      window.addEventListener('wheel', onWheel, { passive: false })
+      window.addEventListener('touchstart', onTouchStart, { passive: true })
+      window.addEventListener('touchmove', onTouchMove, { passive: false })
+      cleanupScrollLock = () => {
+        window.removeEventListener('wheel', onWheel)
+        window.removeEventListener('touchstart', onTouchStart)
+        window.removeEventListener('touchmove', onTouchMove)
+        if (zone === 'locked') getLenis()?.start()
+      }
 
       tl.fromTo(
         q('[data-lukas-letter]'),
@@ -326,6 +456,7 @@ export function Lukas() {
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
       window.removeEventListener('resize', sizeCanvas)
+      cleanupScrollLock()
       ctx.revert()
     }
   }, [])

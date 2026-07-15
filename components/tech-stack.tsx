@@ -45,7 +45,7 @@ export function TechStack() {
           section is in view — they roam the full frame right up to the
           viewport edges (invisible physics walls keep them on screen).
           touch-pan-y keeps vertical scrolling working on mobile. */}
-      <div className="absolute inset-0 z-10">
+      <div className="absolute inset-0 z-10 overflow-hidden">
         <div className="sticky top-0 h-[100svh] w-full touch-pan-y md:touch-none">
           <TechOrbs />
         </div>

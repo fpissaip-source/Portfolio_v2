@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { Smartphone, MapPin, Sparkles } from 'lucide-react'
 import { GradientOrbs } from './gradient-orbs'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -28,12 +27,6 @@ function LitWord({ word }: { word: string }) {
     </span>
   )
 }
-
-const FACTS = [
-  { icon: Sparkles, label: 'AI Engineer & Full-Stack Developer' },
-  { icon: Smartphone, label: 'Built entirely on an iPhone' },
-  { icon: MapPin, label: 'Germany' },
-]
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -98,22 +91,6 @@ export function Hero() {
           my iPhone, end to end.
         </motion.p>
 
-        <motion.ul
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 0.75, ease: easeOut }}
-          className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:gap-3"
-        >
-          {FACTS.map((f) => (
-            <li
-              key={f.label}
-              className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm text-muted-foreground"
-            >
-              <f.icon className="h-4 w-4 text-blue" />
-              {f.label}
-            </li>
-          ))}
-        </motion.ul>
       </div>
     </section>
   )

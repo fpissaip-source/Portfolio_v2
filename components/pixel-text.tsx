@@ -77,8 +77,12 @@ export const PixelText = forwardRef<
       if (!octx) return
       octx.textAlign = 'center'
       octx.textBaseline = 'middle'
+      // Premium look: lighter weight + generous tracking (where supported).
+      try {
+        ;(octx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = '0.12em'
+      } catch {}
       const font = (s: number) =>
-        (octx.font = `900 ${s}px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`)
+        (octx.font = `700 ${s}px ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`)
 
       let size = Math.round(ch * heightFactor)
       font(size)

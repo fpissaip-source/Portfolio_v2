@@ -123,11 +123,10 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          <span className="absolute left-4 top-4 rounded-full bg-background/60 px-3 py-1 font-mono text-xs tracking-tight text-muted-foreground backdrop-blur">
+          <span className="absolute bottom-3 left-4 font-mono text-xs uppercase tracking-[0.2em] text-white/70 [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
             {project.tagline}
           </span>
-          <span className="absolute right-4 top-4 inline-flex items-center gap-1.5 rounded-full bg-background/60 px-3 py-1 font-mono text-xs tracking-tight text-blue backdrop-blur">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue [box-shadow:0_0_8px_var(--blue)]" />
+          <span className="absolute bottom-3 right-4 font-mono text-xs uppercase tracking-[0.2em] text-blue [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
             {project.status}
           </span>
         </div>
@@ -140,16 +139,9 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             {project.description}
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {project.stack.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-white/10 px-2.5 py-1 font-mono text-xs text-muted-foreground"
-              >
-                {t}
-              </span>
-            ))}
-          </div>
+          <p className="mt-4 font-mono text-xs leading-relaxed text-muted-foreground/80">
+            {project.stack.join(' · ')}
+          </p>
         </div>
       </motion.div>
     </Reveal>

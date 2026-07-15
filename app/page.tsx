@@ -26,25 +26,25 @@ export default function Page() {
         <div className="relative z-10 bg-background">
           <EdgeGlow />
           <Hero />
-          <Scene index="01" label="The Machine">
+          <Scene label="L.U.K.A.S. — The Operating System Behind Everything">
             <Lukas />
           </Scene>
-          <Scene index="02" label="The Work">
+          <Scene label="Selected Work" backdrop="ions">
             <Projects />
           </Scene>
-          <Scene index="03" label="Shot on a Phone">
+          <Scene label="Shipped Entirely From an iPhone" backdrop="dust">
             <PhoneStory />
           </Scene>
-          <Scene index="04" label="The Person">
+          <Scene label="The Person Behind the Systems" backdrop="aurora">
             <About />
           </Scene>
-          <Scene index="05" label="The Instruments">
+          <Scene label="Tools of the Trade" backdrop="dust">
             <TechStack />
           </Scene>
-          <Scene index="06" label="The Method">
+          <Scene label="From Idea to Production" backdrop="ions">
             <Process />
           </Scene>
-          <Scene index="07" label="Final Cut">
+          <Scene label="Let's Build Together" backdrop="aurora">
             <Contact />
           </Scene>
           <SiteFooter />

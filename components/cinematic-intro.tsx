@@ -419,15 +419,15 @@ export function CinematicIntro() {
         <PixelText
           ref={iRef}
           text="I"
-          heightFactor={0.42}
-          widthFactor={0.4}
+          heightFactor={0.3}
+          widthFactor={0.3}
           className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
         />
         <PixelText
           ref={amRef}
           text="AM"
-          heightFactor={0.3}
-          widthFactor={0.56}
+          heightFactor={0.22}
+          widthFactor={0.44}
           className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
         />
 
@@ -449,8 +449,8 @@ export function CinematicIntro() {
         <PixelText
           ref={nameRef}
           text="ISSA HAREB"
-          heightFactor={0.14}
-          widthFactor={0.86}
+          heightFactor={0.1}
+          widthFactor={0.68}
           className="pointer-events-none absolute inset-0 z-[22] h-full w-full"
         />
 

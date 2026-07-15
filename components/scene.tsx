@@ -2,27 +2,28 @@
 
 import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
+import { SceneBackdrop, type BackdropVariant } from './scene-backdrop'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
 /**
- * Film-chapter wrapper. Every major section opens like a scene of a movie:
- * a slate line (SCENE 03 — THE PERSON) types itself in, flanked by a rule
- * that draws outward, while thin letterbox bars retract as the section
- * scrolls into view. Purely presentational — anchors/ids stay on the
- * wrapped section components.
+ * Film-chapter wrapper. Every major section opens with an editorial slate
+ * line, flanked by a rule that draws outward, while thin letterbox bars
+ * retract as the section scrolls into view. Purely presentational —
+ * anchors/ids stay on the wrapped section components.
  */
 export function Scene({
-  index,
   label,
+  backdrop,
   children,
 }: {
-  index: string
   label: string
+  backdrop?: BackdropVariant
   children: ReactNode
 }) {
   return (
     <div className="relative">
+      {backdrop && <SceneBackdrop variant={backdrop} />}
       {/* letterbox bars — pinch the frame shut, then release */}
       <motion.div
         aria-hidden
@@ -50,7 +51,7 @@ export function Scene({
           viewport={{ once: true, margin: '-10% 0px' }}
           transition={{ duration: 1, ease: easeOut }}
         >
-          Scene {index} — {label}
+          {label}
         </motion.span>
         <motion.span
           aria-hidden

@@ -287,32 +287,55 @@ export function CinematicIntro() {
         0.012,
       )
 
-      // "I AM" — generated light-painting title written behind the phrases,
-      // held, then dissolved. A single 0→1 proxy runs its whole life.
+      // "I AM" then "ISSA HAREB" — a single sentence assembling at the top:
+      // "I AM" writes in first and holds fully lit (GlowTitle's own life
+      // cycle only fades past p=0.78, so parking each proxy at 0.6 keeps it
+      // written-and-held), then "ISSA HAREB" writes in below it and holds
+      // too — both parts stay on screen together until a shared dissolve
+      // right at the end of the flight, instead of each fading on its own.
+      const HOLD = 0.6
       const iamProxy = { p: 0 }
+      const nameProxy = { p: 0 }
+      tl.to(
+        iamProxy,
+        {
+          p: HOLD,
+          duration: 0.16,
+          ease: 'none',
+          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
+        },
+        0.04,
+      )
+      tl.to(
+        nameProxy,
+        {
+          p: HOLD,
+          duration: 0.16,
+          ease: 'none',
+          onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
+        },
+        0.22,
+      )
+      // Shared dissolve — both parts fade and blur away together.
       tl.to(
         iamProxy,
         {
           p: 1,
-          duration: 0.46,
+          duration: 0.08,
           ease: 'none',
           onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
         },
-        0.05,
+        0.72,
       )
-
-      // "ISSA HAREB" — same light-painting language, centered over the room
-      // once the camera has arrived inside, then dissolves toward the zoom.
-      const nameProxy = { p: 0 }
       tl.to(
         nameProxy,
         {
           p: 1,
-          duration: 0.17,
+          duration: 0.08,
           ease: 'none',
           onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
         },
-        0.57,
+        0.72,
       )
     }, root)
 
@@ -400,13 +423,23 @@ export function CinematicIntro() {
           </p>
         </div>
 
-        {/* Generated light-painting title behind the phrases. */}
+        {/* "I AM" / "ISSA HAREB" — a persistent title stacked at the top of
+            the screen. Each part writes in, then holds fully lit while the
+            next writes below it; both stay until a shared dissolve at the
+            very end of the flight. */}
         <GlowTitle
           ref={iamRef}
           dir="/intro/type-iam"
           count={61}
+          widthFactor={0.42}
+          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full sm:top-[11%] sm:h-[13vh]"
+        />
+        <GlowTitle
+          ref={nameRef}
+          dir="/intro/type-issa"
+          count={61}
           widthFactor={0.5}
-          className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
+          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] h-[13vh] w-full sm:top-[25%] sm:h-[11vh]"
         />
 
         {/* Scene 2 — text phrases */}
@@ -422,15 +455,6 @@ export function CinematicIntro() {
             </p>
           ))}
         </div>
-
-        {/* Name reveal — same light-painting style, centered, swallowed by the zoom. */}
-        <GlowTitle
-          ref={nameRef}
-          dir="/intro/type-issa"
-          count={61}
-          widthFactor={0.62}
-          className="pointer-events-none absolute inset-0 z-[22] h-full w-full"
-        />
 
         {/* Final hand-off plate matching the hero start */}
         <div

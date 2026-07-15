@@ -34,6 +34,7 @@ const PROJECTS: Project[] = [
     description:
       'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
+    video: '/projects/taxibb-scroll.mp4',
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     status: 'Live System',
   },

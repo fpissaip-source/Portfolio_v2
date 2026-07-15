@@ -2,18 +2,21 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
+import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 
 /**
- * Opening curtain, written from scratch for this site. Classic loader
- * grammar - a large live percentage, a drifting marquee of roles, and a
- * click-to-enter moment - implemented in our own design language. The
- * percentage is real: it tracks preloading of the intro's opening frames.
+ * Opening curtain. A mouse-chasing shimmer ring, a drifting tagline field
+ * behind it, and a fast percentage count with a real blinking insertion
+ * caret — which, at 100%, slides left across "Loading the film" and
+ * rewrites it to "Willkommen" as it passes. A black ring then expands to
+ * swallow the screen and fades away, revealing the hero already waiting
+ * underneath.
  */
-const ROLES = [
-  'AI Engineer',
-  'Full-Stack Developer',
-  'Automation Architect',
-  'Built on iPhone',
+const TAGLINES = [
+  'I build automations',
+  'I build intelligent systems',
+  'I ship on iPhone',
+  'I build products end to end',
 ]
 
 const PRELOAD = [
@@ -24,145 +27,275 @@ const PRELOAD = [
   ),
 ]
 
-const MIN_SHOW_MS = 1400
+const MIN_SHOW_MS = 900
+const PERCENT_DURATION = 1.3
 
 export function Preloader() {
-  const rootRef = useRef<HTMLDivElement>(null)
+  const ovalRef = useRef<HTMLDivElement>(null)
+  const blackRef = useRef<HTMLDivElement>(null)
+  const caretRef = useRef<HTMLSpanElement>(null)
+  const percentGroupRef = useRef<HTMLSpanElement>(null)
+  const rowRef = useRef<HTMLDivElement>(null)
+  const marqueeRef = useRef<HTMLDivElement>(null)
+  const oldLabelRef = useRef<HTMLSpanElement>(null)
+  const newLabelRef = useRef<HTMLSpanElement>(null)
+  const captionRef = useRef<HTMLSpanElement>(null)
+
   const [percent, setPercent] = useState(0)
-  const [ready, setReady] = useState(false)
   const [gone, setGone] = useState(false)
 
-  // preload + progress
+  const angle = useMotionValue(0)
+  const springAngle = useSpring(angle, { stiffness: 55, damping: 16, mass: 0.6 })
+  const shimmerBg = useTransform(
+    springAngle,
+    (a) =>
+      `conic-gradient(from ${a}deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.95) 16deg, color-mix(in oklch, var(--purple) 70%, white) 34deg, transparent 58deg, transparent 360deg)`,
+  )
+
+  // Shimmer chases the pointer; idles into a slow auto-rotation without one.
+  useEffect(() => {
+    const oval = ovalRef.current
+    if (!oval) return
+    let raf = 0
+    let autoAngle = 0
+    let lastPointer = -Infinity
+    const onMove = (e: PointerEvent) => {
+      lastPointer = performance.now()
+      const r = oval.getBoundingClientRect()
+      const cx = r.left + r.width / 2
+      const cy = r.top + r.height / 2
+      const deg = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI + 90
+      angle.set(deg)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    const tick = () => {
+      if (performance.now() - lastPointer > 1400) {
+        autoAngle = (autoAngle + 0.5) % 360
+        angle.set(autoAngle)
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => {
+      window.removeEventListener('pointermove', onMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [angle])
+
   useEffect(() => {
     document.documentElement.classList.add('preloading')
-    const started = performance.now()
-    let loadedCount = 0
     let cancelled = false
+    let loadedCount = 0
 
     for (const src of PRELOAD) {
       const img = new Image()
       const done = () => {
-        if (cancelled) return
-        loadedCount++
-        setPercent(Math.round((loadedCount / PRELOAD.length) * 100))
+        if (!cancelled) loadedCount++
       }
       img.onload = done
       img.onerror = done
       img.src = src
     }
 
-    const tryReady = () => {
+    const visualProxy = { p: 0 }
+    const tween = gsap.to(visualProxy, {
+      p: 100,
+      duration: PERCENT_DURATION,
+      ease: 'power1.inOut',
+      onUpdate: () => {
+        if (!cancelled) setPercent(Math.round(visualProxy.p))
+      },
+    })
+
+    const started = performance.now()
+    let settle: number | undefined
+    const tryStart = () => {
       if (cancelled) return
       const elapsed = performance.now() - started
-      if (loadedCount >= PRELOAD.length && elapsed >= MIN_SHOW_MS) {
-        setReady(true)
+      const realReady = loadedCount >= PRELOAD.length
+      if (realReady && visualProxy.p >= 100 && elapsed >= MIN_SHOW_MS) {
+        beginTransition()
         return
       }
-      window.setTimeout(tryReady, 120)
+      settle = window.setTimeout(tryStart, 80)
     }
-    window.setTimeout(tryReady, 250)
+    settle = window.setTimeout(tryStart, 200)
 
     return () => {
       cancelled = true
-      document.documentElement.classList.remove('preloading')
+      tween.kill()
+      if (settle) window.clearTimeout(settle)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const enter = () => {
-    const root = rootRef.current
-    if (!root) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    gsap.to(root, {
-      yPercent: -100,
-      duration: reduced ? 0.3 : 1.05,
-      ease: 'power3.inOut',
-      onStart: () => {
-        gsap.to(root, {
-          borderBottomLeftRadius: '50% 12vh',
-          borderBottomRightRadius: '50% 12vh',
-          duration: 0.5,
-          ease: 'power2.out',
-        })
-      },
-      onComplete: () => {
-        document.documentElement.classList.remove('preloading')
-        setGone(true)
-      },
-    })
-  }
+  function beginTransition() {
+    const caret = caretRef.current
+    const percentGroup = percentGroupRef.current
+    const oldLabel = oldLabelRef.current
+    const newLabel = newLabelRef.current
+    const black = blackRef.current
+    const oval = ovalRef.current
+    const marquee = marqueeRef.current
+    if (!caret || !percentGroup || !oldLabel || !newLabel || !black) return
 
-  // once ready, also allow keyboard / wheel to enter
-  useEffect(() => {
-    if (!ready || gone) return
-    const go = () => enter()
-    window.addEventListener('wheel', go, { once: true, passive: true })
-    window.addEventListener('touchmove', go, { once: true, passive: true })
-    window.addEventListener('keydown', go, { once: true })
-    return () => {
-      window.removeEventListener('wheel', go)
-      window.removeEventListener('touchmove', go)
-      window.removeEventListener('keydown', go)
-    }
-  }, [ready, gone])
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const travel = caret.getBoundingClientRect().left - oldLabel.getBoundingClientRect().left
+
+    caret.classList.remove('caret-blink')
+    gsap.set(caret, { opacity: 1 })
+
+    const tl = gsap.timeline()
+    const rewrite = { p: 0 }
+    tl.to(
+      rewrite,
+      {
+        p: 1,
+        duration: reduced ? 0.01 : 0.68,
+        ease: 'power2.inOut',
+        onUpdate: () => {
+          const p = rewrite.p
+          gsap.set(caret, { x: -travel * p })
+          gsap.set(oldLabel, { clipPath: `inset(0 0 0 ${p * 100}%)` })
+          gsap.set(newLabel, { clipPath: `inset(0 0 0 ${(1 - p) * 100}%)` })
+        },
+      },
+      0,
+    ).to(percentGroup, { opacity: 0, duration: reduced ? 0.01 : 0.22, ease: 'power1.in' }, 0)
+
+    tl.to({}, { duration: reduced ? 0 : 0.3 })
+
+    tl.set(black, { display: 'block' })
+      .to(
+        [oval, marquee, caret, oldLabel, newLabel, captionRef.current].filter(Boolean),
+        { opacity: 0, duration: reduced ? 0.01 : 0.22, ease: 'power1.in' },
+        '<',
+      )
+      .to(
+        black,
+        {
+          width: '300vmax',
+          height: '300vmax',
+          borderRadius: 0,
+          duration: reduced ? 0.05 : 0.75,
+          ease: 'power3.in',
+        },
+        '<',
+      )
+      .to(
+        black,
+        {
+          opacity: 0,
+          duration: reduced ? 0.05 : 0.5,
+          ease: 'power2.out',
+          onComplete: () => {
+            document.documentElement.classList.remove('preloading')
+            setGone(true)
+          },
+        },
+        reduced ? '>' : '-=0.32',
+      )
+  }
 
   if (gone) return null
 
   return (
-    <div
-      ref={rootRef}
-      className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-background"
-    >
-      {/* faint ambient glow */}
+    <div className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-background">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(60% 45% at 50% 55%, color-mix(in oklch, var(--purple) 10%, transparent), transparent 75%)',
+            'radial-gradient(60% 45% at 50% 50%, color-mix(in oklch, var(--purple) 12%, transparent), transparent 75%)',
         }}
       />
 
-      {/* drifting marquee of roles */}
-      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-[18%] overflow-hidden opacity-25">
-        <div className="preloader-marquee flex w-max items-center gap-10 whitespace-nowrap font-sans text-3xl font-semibold tracking-tight text-foreground sm:text-5xl">
-          {[...ROLES, ...ROLES, ...ROLES].map((r, i) => (
-            <span key={i} className="flex items-center gap-10">
-              {r}
-              <span className="h-1.5 w-1.5 rounded-full bg-purple/70" />
+      {/* drifting taglines behind the oval */}
+      <div
+        ref={marqueeRef}
+        aria-hidden
+        className="pointer-events-none absolute inset-0 flex items-center overflow-hidden opacity-[0.14]"
+      >
+        <div className="preloader-marquee flex w-max items-center gap-16 whitespace-nowrap font-sans text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
+          {[...TAGLINES, ...TAGLINES, ...TAGLINES].map((t, i) => (
+            <span key={i} className="flex items-center gap-16">
+              {t}
+              <span className="h-2 w-2 rounded-full bg-purple/70" />
             </span>
           ))}
         </div>
       </div>
 
-      {/* center: enter moment */}
-      <div className="relative flex flex-col items-center gap-4 px-6 text-center">
-        {ready ? (
-          <button
-            onClick={enter}
-            className="group relative rounded-full border border-white/15 px-10 py-4 font-sans text-xl font-semibold tracking-tight text-foreground transition-colors hover:border-purple/60 sm:text-2xl"
+      {/* foreground oval, shimmer chasing the pointer around its edge —
+          the loading label and percentage live inside it */}
+      <div className="relative z-10 flex flex-col items-center gap-6">
+      <div
+        ref={ovalRef}
+        className="relative flex h-[104px] w-[90vw] max-w-[620px] items-center justify-center rounded-full bg-black sm:h-[140px]"
+      >
+        <div className="absolute inset-0 rounded-full border border-white/10 bg-black [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06),0_30px_60px_-20px_rgba(0,0,0,0.9)]" />
+        <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
+        <motion.div
+          aria-hidden
+          className="absolute -inset-px rounded-full p-px"
+          style={{
+            background: shimmerBg,
+            WebkitMask:
+              'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+          }}
+        />
+
+        {/* label / percent row — the caret travels left across it at 100% */}
+        <div
+          ref={rowRef}
+          className="relative z-10 flex items-center justify-center gap-3 px-6 sm:gap-4"
+        >
+          <div className="relative h-8 w-[150px] shrink-0 sm:h-11 sm:w-[220px]">
+            <span
+              ref={oldLabelRef}
+              className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
+            >
+              Loading the film
+            </span>
+            <span
+              ref={newLabelRef}
+              className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
+              style={{ clipPath: 'inset(0 0 0 100%)' }}
+            >
+              Willkommen
+            </span>
+          </div>
+          <span
+            ref={percentGroupRef}
+            className="relative flex items-center font-sans text-xl font-bold tabular-nums text-foreground sm:text-4xl"
           >
-            <span className="pointer-events-none absolute inset-0 rounded-full opacity-0 transition-opacity duration-500 group-hover:opacity-100 [box-shadow:0_0_50px_-8px_var(--purple)]" />
-            Enter
-            <span className="text-purple">.</span>
-          </button>
-        ) : (
-          <span className="font-sans text-xl font-semibold tracking-tight text-muted-foreground sm:text-2xl">
-            Loading the film
-            <span className="text-purple">…</span>
+            {percent}
+            <span
+              ref={caretRef}
+              className="caret-blink ml-1 inline-block h-[0.85em] w-[3px] translate-y-[1px] bg-white align-middle sm:w-[4px]"
+            />
+            <span className="ml-1 text-purple">%</span>
           </span>
-        )}
-        <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          Issa Hareb · Portfolio
-        </span>
+        </div>
       </div>
 
-      {/* large live percentage, bottom left */}
-      <div className="pointer-events-none absolute bottom-6 left-6 flex items-end gap-2 sm:bottom-10 sm:left-10">
-        <span className="font-sans text-7xl font-bold leading-none tracking-tight text-foreground/90 tabular-nums sm:text-9xl">
-          {percent}
-        </span>
-        <span className="pb-2 font-mono text-base text-purple sm:pb-3">%</span>
+      <span
+        ref={captionRef}
+        className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:text-xs"
+      >
+        Issa Hareb · Portfolio
+      </span>
       </div>
+
+      {/* expanding blackout — hidden until the transition begins */}
+      <div
+        ref={blackRef}
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden rounded-full bg-background"
+        style={{ width: 132, height: 132, transform: 'translate(-50%, -50%)' }}
+      />
     </div>
   )
 }

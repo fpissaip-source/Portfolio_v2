@@ -1,10 +1,13 @@
 'use client'
 
+import Image from 'next/image'
+import { motion } from 'motion/react'
 import { LineReveal, Reveal } from './anim'
 
 /**
  * Cinematic interlude — the fact carries itself, so the typography stays
- * quiet and enormous. No badge, no exclamation: just the statement.
+ * quiet and enormous. Behind it: the actual instrument, a dark iPhone
+ * traced by a violet rim light.
  */
 export function PhoneStory() {
   return (
@@ -13,16 +16,25 @@ export function PhoneStory() {
       aria-label="Built entirely on a phone"
       className="relative overflow-hidden px-6 py-40 sm:py-56"
     >
-      {/* faint code rain inside a phone silhouette */}
-      <div
+      {/* the instrument itself — dark iPhone with violet rim light */}
+      <motion.div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[76%] w-[min(320px,60vw)] -translate-x-1/2 -translate-y-1/2 rounded-[3rem] border border-purple/15 opacity-40"
+        initial={{ opacity: 0, scale: 1.06 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: '-15% 0px' }}
+        transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
+        className="pointer-events-none absolute left-1/2 top-1/2 aspect-video w-[max(120vw,900px)] -translate-x-1/2 -translate-y-1/2 sm:w-[min(1400px,100vw)]"
       >
-        <div className="absolute inset-x-0 top-3 mx-auto h-1.5 w-16 rounded-full bg-white/5" />
-        <div className="absolute inset-4 overflow-hidden rounded-[2.2rem]">
-          <div className="h-[200%] w-full animate-[grain_9s_linear_infinite] bg-[repeating-linear-gradient(0deg,transparent,transparent_10px,color-mix(in_oklch,var(--purple)_12%,transparent)_11px,transparent_12px)]" />
-        </div>
-      </div>
+        <Image
+          src="/phone/iphone-dark.png"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-contain opacity-80"
+        />
+        {/* melt the image edges into the page background */}
+        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_50%,transparent_45%,#050505_92%)]" />
+      </motion.div>
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <LineReveal

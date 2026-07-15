@@ -67,6 +67,10 @@
   body {
     overflow-x: clip;
   }
+  /* Vertical panning + pinch only: kills sideways screen dragging on touch */
+  body {
+    touch-action: pan-y pinch-zoom;
+  }
   ::selection {
     background: color-mix(in oklch, var(--blue) 40%, transparent);
     color: white;

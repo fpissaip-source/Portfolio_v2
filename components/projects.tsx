@@ -139,12 +139,11 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          <span className="absolute bottom-3 left-4 font-mono text-xs uppercase tracking-[0.2em] text-white/70 [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
-            {project.tagline}
-          </span>
-          <span className="absolute bottom-3 right-4 font-mono text-xs uppercase tracking-[0.2em] text-blue [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
-            {project.status}
-          </span>
+          {/* one flex bar — labels can never collide or overlap */}
+          <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.18em] [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
+            <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
+            <span className="shrink-0 text-blue">{project.status}</span>
+          </div>
         </div>
 
         <div className={`px-4 pb-4 pt-5 ${project.featured ? 'md:flex md:flex-col md:justify-center md:px-8' : ''}`}>

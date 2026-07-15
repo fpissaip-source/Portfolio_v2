@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import {
   Physics,
   RigidBody,
   BallCollider,
+  CuboidCollider,
   type RapierRigidBody,
 } from '@react-three/rapier'
 import * as THREE from 'three'
@@ -112,12 +113,12 @@ function Orb({
   const vec = useMemo(() => new THREE.Vector3(), [])
 
   const position = useMemo<[number, number, number]>(() => {
-    // Start scattered outside / below the visible area
+    // Start scattered INSIDE the visible frame (the walls keep them there)
     const a = seed * 2.3999
     return [
-      Math.cos(a) * 6 + THREE.MathUtils.randFloatSpread(6),
-      -8 - Math.random() * 12,
-      THREE.MathUtils.randFloatSpread(8),
+      Math.cos(a) * 5 + THREE.MathUtils.randFloatSpread(4),
+      Math.sin(a * 1.7) * 3 + THREE.MathUtils.randFloatSpread(3),
+      THREE.MathUtils.randFloatSpread(6),
     ]
   }, [seed])
 
@@ -125,22 +126,22 @@ function Orb({
     const rb = api.current
     if (!rb) return
     delta = Math.min(0.1, delta)
-    // Loose center pull — weak enough that orbs roam across the whole
-    // frame and drift past the edges before being drawn back.
+    // Gentle center pull keeps the flock on screen; the viewport walls stop
+    // them exactly at the frame edge, so they roam the full screen.
     const impulse = vec
       .copy(rb.translation() as THREE.Vector3)
       .normalize()
       .multiply(
         new THREE.Vector3(
-          -26 * delta * scale,
-          -60 * delta * scale,
-          -40 * delta * scale,
+          -20 * delta * scale,
+          -24 * delta * scale,
+          -30 * delta * scale,
         ),
       )
     // Per-orb wander keeps everything floating on its own, no pointer needed.
     const t = state.clock.elapsedTime
-    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 30 * delta * scale
-    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 30 * delta * scale
+    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 34 * delta * scale
+    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 34 * delta * scale
     impulse.z += Math.sin(t * 0.31 + seed * 0.7) * 12 * delta * scale
     rb.applyImpulse(impulse, true)
   })
@@ -156,6 +157,25 @@ function Orb({
     >
       <BallCollider args={[scale]} />
       <mesh geometry={sphereGeometry} material={material} scale={scale} />
+    </RigidBody>
+  )
+}
+
+/** Invisible walls at the viewport edges — balls roam right up to the rim
+ *  of the screen but never leave it. */
+function Walls() {
+  const { viewport } = useThree()
+  const w = viewport.width / 2
+  const h = viewport.height / 2
+  const t = 1
+  return (
+    <RigidBody type="fixed" colliders={false}>
+      <CuboidCollider args={[t, h + 6, 8]} position={[w + t, 0, 0]} />
+      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t, 0, 0]} />
+      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t, 0]} />
+      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t, 0]} />
+      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 7 + t]} />
+      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -7 - t]} />
     </RigidBody>
   )
 }
@@ -240,6 +260,7 @@ function Scene({ count }: { count: number }) {
       <directionalLight position={[-10, -6, 6]} intensity={0.5} color="#e3edff" />
 
       <Physics gravity={[0, 0, 0]}>
+        <Walls />
         <Pointer />
         {orbs.map((o, i) => (
           <Orb

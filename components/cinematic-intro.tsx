@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { PixelText, type PixelTextHandle } from './pixel-text'
+import { GlowTitle, type GlowTitleHandle } from './glow-title'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -72,9 +72,8 @@ export function CinematicIntro() {
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
-  const iRef = useRef<PixelTextHandle>(null)
-  const amRef = useRef<PixelTextHandle>(null)
-  const nameRef = useRef<PixelTextHandle>(null)
+  const iamRef = useRef<GlowTitleHandle>(null)
+  const nameRef = useRef<GlowTitleHandle>(null)
 
   useEffect(() => {
     const root = rootRef.current
@@ -288,36 +287,22 @@ export function CinematicIntro() {
         0.012,
       )
 
-      // Giant pixel "I" — assembles from dust, holds behind phrases 1–4, then
-      // dusts away (Thanos snap). A single 0→1 proxy runs its whole life.
-      const iProxy = { p: 0 }
+      // "I AM" — generated light-painting title written behind the phrases,
+      // held, then dissolved. A single 0→1 proxy runs its whole life.
+      const iamProxy = { p: 0 }
       tl.to(
-        iProxy,
+        iamProxy,
         {
           p: 1,
-          duration: 0.36,
+          duration: 0.46,
           ease: 'none',
-          onUpdate: () => iRef.current?.setProgress(iProxy.p),
+          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
         },
         0.05,
       )
 
-      // Giant pixel "AM" — same dusting life behind the final phrase.
-      const amProxy = { p: 0 }
-      tl.to(
-        amProxy,
-        {
-          p: 1,
-          duration: 0.13,
-          ease: 'none',
-          onUpdate: () => amRef.current?.setProgress(amProxy.p),
-        },
-        0.38,
-      )
-
-      // "Issa Hareb" assembles centered over the room once the camera has
-      // arrived inside — same pixel-dust language as the I/AM letters — then
-      // dusts away as the camera pushes toward the monitor.
+      // "ISSA HAREB" — same light-painting language, centered over the room
+      // once the camera has arrived inside, then dissolves toward the zoom.
       const nameProxy = { p: 0 }
       tl.to(
         nameProxy,
@@ -415,19 +400,12 @@ export function CinematicIntro() {
           </p>
         </div>
 
-        {/* Pixel-dust letters behind the phrases. */}
-        <PixelText
-          ref={iRef}
-          text="I"
-          heightFactor={0.3}
-          widthFactor={0.3}
-          className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
-        />
-        <PixelText
-          ref={amRef}
-          text="AM"
-          heightFactor={0.22}
-          widthFactor={0.44}
+        {/* Generated light-painting title behind the phrases. */}
+        <GlowTitle
+          ref={iamRef}
+          dir="/intro/type-iam"
+          count={61}
+          widthFactor={0.5}
           className="pointer-events-none absolute inset-0 z-[6] h-full w-full"
         />
 
@@ -445,12 +423,12 @@ export function CinematicIntro() {
           ))}
         </div>
 
-        {/* Name reveal — same pixel-dust style, centered, swallowed by the zoom. */}
-        <PixelText
+        {/* Name reveal — same light-painting style, centered, swallowed by the zoom. */}
+        <GlowTitle
           ref={nameRef}
-          text="ISSA HAREB"
-          heightFactor={0.1}
-          widthFactor={0.68}
+          dir="/intro/type-issa"
+          count={61}
+          widthFactor={0.62}
           className="pointer-events-none absolute inset-0 z-[22] h-full w-full"
         />
 

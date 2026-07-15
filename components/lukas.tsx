@@ -179,22 +179,10 @@ export function Lukas() {
     window.addEventListener('resize', sizeCanvas)
 
     // --- scroll choreography -------------------------------------------
-    // Idle playback: once the film has reached its finale, the last frames
-    // keep breathing (slow ping-pong) so the neurons never freeze — and the
-    // hand-off to the next scene stays alive.
-    let idleRaf = 0
-    let idleActive = false
-    let lastProgress = 0
-    const IDLE_SPAN = 20
-    const idleLoop = (t: number) => {
-      if (!idleActive) return
-      if (lastProgress > P_GLOW_2 - 0.02) {
-        const cycle = (t / 140) % (IDLE_SPAN * 2)
-        const off = cycle < IDLE_SPAN ? cycle : IDLE_SPAN * 2 - cycle
-        renderIndex(FRAME_COUNT - 1 - off)
-      }
-      idleRaf = requestAnimationFrame(idleLoop)
-    }
+    // Beat centers on the section timeline; the scroll gets a gentle
+    // magnetic pull toward these so each ability settles readable.
+    const SLOT = 0.66 / BEATS.length
+    const BEAT_SNAPS = BEATS.map((_, i) => 0.24 + i * SLOT + SLOT * 0.45)
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
@@ -206,22 +194,35 @@ export function Lukas() {
           start: 'top top',
           end: 'bottom bottom',
           scrub: prefersReduced ? (false as const) : 0.7,
+          // Subtle magnet: only pull when already close to a beat center,
+          // otherwise leave the scroll alone.
+          snap: prefersReduced
+            ? undefined
+            : {
+                snapTo: (value: number) => {
+                  let best = value
+                  let bestD = 0.035
+                  for (const s of BEAT_SNAPS) {
+                    const d = Math.abs(value - s)
+                    if (d < bestD) {
+                      bestD = d
+                      best = s
+                    }
+                  }
+                  return best
+                },
+                duration: { min: 0.15, max: 0.45 },
+                delay: 0.08,
+                ease: 'power2.inOut',
+              },
           onUpdate: (self) => {
-            lastProgress = self.progress
             // Ken-Burns push on top of the footage — the whole film slowly
             // dives deeper while scrolling, amplifying the zoom acts.
             canvas.style.transform = `scale(${(1.06 + self.progress * 0.16).toFixed(4)})`
-            if (self.progress <= P_GLOW_2 - 0.02) {
-              const index = frameForProgress(self.progress)
-              if (Math.round(index) === currentIndex) return
-              cancelAnimationFrame(raf)
-              raf = requestAnimationFrame(() => renderIndex(index))
-            }
-          },
-          onToggle: (self) => {
-            idleActive = self.isActive && !prefersReduced
-            cancelAnimationFrame(idleRaf)
-            if (idleActive) idleRaf = requestAnimationFrame(idleLoop)
+            const index = frameForProgress(self.progress)
+            if (Math.round(index) === currentIndex) return
+            cancelAnimationFrame(raf)
+            raf = requestAnimationFrame(() => renderIndex(index))
           },
         },
       })
@@ -295,8 +296,6 @@ export function Lukas() {
 
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
-      idleActive = false
-      cancelAnimationFrame(idleRaf)
       window.removeEventListener('resize', sizeCanvas)
       ctx.revert()
     }

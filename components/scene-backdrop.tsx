@@ -53,7 +53,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
       return s / 2147483647
     }
 
-    const ions = Array.from({ length: 4 }, () => ({
+    const ions = Array.from({ length: 6 }, () => ({
       y: 0.15 + rand() * 0.7,
       amp: 0.05 + rand() * 0.1,
       f: 0.6 + rand() * 0.9,
@@ -61,7 +61,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
       hue: rand(),
       phase: rand() * Math.PI * 2,
     }))
-    const dust = Array.from({ length: 70 }, () => ({
+    const dust = Array.from({ length: 110 }, () => ({
       x: rand(),
       y: rand(),
       z: 0.3 + rand() * 0.7,
@@ -104,7 +104,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
             const rr = (3.2 - k * 0.09) * (0.7 + ion.hue * 0.5)
             const g = ctx.createRadialGradient(px, py, 0, px, py, rr * 4)
             const col = ion.hue > 0.5 ? '167,139,250' : '125,165,235'
-            g.addColorStop(0, `rgba(${col},${0.28 * fade})`)
+            g.addColorStop(0, `rgba(${col},${0.5 * fade})`)
             g.addColorStop(1, `rgba(${col},0)`)
             ctx.fillStyle = g
             ctx.beginPath()
@@ -117,7 +117,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           const y = ((d.y + t * 0.0000045 / d.z + 1) % 1)
           const px = d.x * cw + Math.sin(t * 0.0002 + d.tw) * 14 * d.z
           const py = (y - progress * 0.12 * d.z + 1) % 1 * ch
-          const a = (0.1 + 0.16 * Math.sin(t * 0.0009 + d.tw) ** 2) * d.z
+          const a = (0.18 + 0.26 * Math.sin(t * 0.0009 + d.tw) ** 2) * d.z
           ctx.fillStyle = `rgba(190,200,235,${a})`
           ctx.beginPath()
           ctx.arc(px, py, d.r * d.z, 0, Math.PI * 2)
@@ -130,8 +130,8 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           const col = d.hue > 0.5 ? '167,139,250' : '125,165,235'
           const grad = ctx.createLinearGradient(px, y * ch, px, (y + d.len) * ch)
           grad.addColorStop(0, `rgba(${col},0)`)
-          grad.addColorStop(0.8, `rgba(${col},0.22)`)
-          grad.addColorStop(1, `rgba(${col},0.4)`)
+          grad.addColorStop(0.8, `rgba(${col},0.38)`)
+          grad.addColorStop(1, `rgba(${col},0.62)`)
           ctx.strokeStyle = grad
           ctx.lineWidth = 1.1
           ctx.beginPath()
@@ -144,7 +144,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           const cx = cw / 2
           const cy = (o.cy + (progress - 0.5) * 0.08) * ch
           // faint elliptical path
-          ctx.strokeStyle = 'rgba(160,170,215,0.07)'
+          ctx.strokeStyle = 'rgba(160,170,215,0.14)'
           ctx.lineWidth = 1
           ctx.beginPath()
           ctx.ellipse(cx, cy, o.rx * cw, o.ry * ch, o.tilt, 0, Math.PI * 2)
@@ -155,8 +155,8 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           const ey = Math.sin(a) * o.ry * ch
           const px = cx + ex * Math.cos(o.tilt) - ey * Math.sin(o.tilt)
           const py = cy + ex * Math.sin(o.tilt) + ey * Math.cos(o.tilt)
-          const g = ctx.createRadialGradient(px, py, 0, px, py, 26)
-          g.addColorStop(0, 'rgba(196,181,253,0.5)')
+          const g = ctx.createRadialGradient(px, py, 0, px, py, 30)
+          g.addColorStop(0, 'rgba(196,181,253,0.75)')
           g.addColorStop(1, 'rgba(196,181,253,0)')
           ctx.fillStyle = g
           ctx.beginPath()
@@ -175,7 +175,7 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
         ] as const) {
           const breathe = 0.75 + 0.25 * Math.sin(t * 0.00025 + cx)
           const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * breathe)
-          g.addColorStop(0, `rgba(${col},0.10)`)
+          g.addColorStop(0, `rgba(${col},0.2)`)
           g.addColorStop(1, `rgba(${col},0)`)
           ctx.fillStyle = g
           ctx.fillRect(0, 0, cw, ch)

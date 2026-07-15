@@ -41,11 +41,14 @@ const TECH: Tech[] = [
 export function TechStack() {
   return (
     <section id="stack" className="relative py-24 sm:py-32">
-      {/* Free-floating 3D balls over the whole section — no frame, no border.
-          They drift across the headings and beyond the viewport edges.
+      {/* Free-floating 3D balls, pinned to the visible screen while the
+          section is in view — they roam the full frame right up to the
+          viewport edges (invisible physics walls keep them on screen).
           touch-pan-y keeps vertical scrolling working on mobile. */}
-      <div className="absolute inset-0 z-10 touch-pan-y md:touch-none">
-        <TechOrbs />
+      <div className="absolute inset-0 z-10">
+        <div className="sticky top-0 h-[100svh] w-full touch-pan-y md:touch-none">
+          <TechOrbs />
+        </div>
       </div>
 
       <div className="pointer-events-none relative mx-auto max-w-7xl px-6">

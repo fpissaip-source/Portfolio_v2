@@ -187,6 +187,33 @@ export function Lukas() {
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
       let raf = 0
+
+      // Left-side beam: fills toward the next beat as scroll approaches it,
+      // then resets — a visible cue for "how close is the next section".
+      const beamFill = q('[data-beam-fill]')[0] as HTMLElement | undefined
+      const beamTicks = q('[data-beam-tick]') as HTMLElement[]
+      const updateBeam = (p: number) => {
+        if (!beamFill) return
+        let idx = BEAT_SNAPS.findIndex((s) => s >= p)
+        if (idx === -1) idx = BEAT_SNAPS.length - 1
+        const prevBound = idx > 0 ? BEAT_SNAPS[idx - 1] : 0
+        const span = Math.max(0.0001, BEAT_SNAPS[idx] - prevBound)
+        const fraction = Math.max(0, Math.min(1, (p - prevBound) / span))
+        beamFill.style.height = `${fraction * 100}%`
+        beamTicks.forEach((el, i) => {
+          const isPast = i < idx || (i === idx && fraction >= 0.98)
+          const glow = isPast ? 1 : i === idx ? 0.35 + fraction * 0.65 : 0.22
+          el.style.opacity = String(glow)
+          el.style.boxShadow =
+            isPast || i === idx
+              ? `0 0 ${6 + fraction * 12}px color-mix(in oklch, var(--purple) ${Math.round(
+                  40 + fraction * 40,
+                )}%, transparent)`
+              : 'none'
+        })
+      }
+      updateBeam(0)
+
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
@@ -194,14 +221,14 @@ export function Lukas() {
           start: 'top top',
           end: 'bottom bottom',
           scrub: prefersReduced ? (false as const) : 0.7,
-          // Subtle magnet: only pull when already close to a beat center,
-          // otherwise leave the scroll alone.
+          // Magnet: pull the scroll toward a beat center once it's nearby,
+          // so each ability settles into a fully readable resting point.
           snap: prefersReduced
             ? undefined
             : {
                 snapTo: (value: number) => {
                   let best = value
-                  let bestD = 0.035
+                  let bestD = 0.065
                   for (const s of BEAT_SNAPS) {
                     const d = Math.abs(value - s)
                     if (d < bestD) {
@@ -211,18 +238,20 @@ export function Lukas() {
                   }
                   return best
                 },
-                duration: { min: 0.15, max: 0.45 },
-                delay: 0.08,
-                ease: 'power2.inOut',
+                duration: { min: 0.2, max: 0.6 },
+                delay: 0.04,
+                ease: 'power3.out',
               },
           onUpdate: (self) => {
             // Ken-Burns push on top of the footage — the whole film slowly
             // dives deeper while scrolling, amplifying the zoom acts.
             canvas.style.transform = `scale(${(1.06 + self.progress * 0.16).toFixed(4)})`
             const index = frameForProgress(self.progress)
-            if (Math.round(index) === currentIndex) return
-            cancelAnimationFrame(raf)
-            raf = requestAnimationFrame(() => renderIndex(index))
+            if (Math.round(index) !== currentIndex) {
+              cancelAnimationFrame(raf)
+              raf = requestAnimationFrame(() => renderIndex(index))
+            }
+            updateBeam(self.progress)
           },
         },
       })
@@ -320,6 +349,31 @@ export function Lukas() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_65%_at_50%_50%,transparent_40%,#050505_88%)]" />
         {/* soft feather into the following scene */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[22vh] bg-gradient-to-b from-transparent to-background" />
+
+        {/* Left-side beam — fills as scroll approaches the next beat, then
+            resets, so the next section's arrival is felt before it lands. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-5 top-1/2 z-20 hidden -translate-y-1/2 sm:left-9 sm:block"
+          style={{ height: '36vh' }}
+        >
+          <div className="relative h-full w-px overflow-hidden rounded-full bg-white/10">
+            <div
+              data-beam-fill
+              className="absolute inset-x-0 top-0 w-full rounded-full bg-gradient-to-b from-purple via-purple/70 to-blue/50"
+              style={{ height: '0%' }}
+            />
+          </div>
+          <div className="absolute inset-y-0 left-1/2 flex -translate-x-1/2 flex-col justify-between">
+            {BEATS.map((b) => (
+              <span
+                key={b.kicker}
+                data-beam-tick
+                className="h-1.5 w-1.5 rounded-full bg-purple/60"
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Title */}
         <div data-lukas-head className="relative z-10 text-center will-transform">

@@ -178,40 +178,40 @@ export function PhoneStory() {
           <text
             data-screen-text
             x="200"
-            y="541"
+            y="372"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
-            fill="url(#screenText)"
+            style={{ opacity: 0, fontSize: '46px', fontWeight: 900, letterSpacing: '-0.01em' }}
+            fill="#ffffff"
           >
             NO PC.
           </text>
           <text
             data-screen-text
             x="200"
-            y="583"
+            y="426"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
-            fill="url(#screenText)"
+            style={{ opacity: 0, fontSize: '46px', fontWeight: 900, letterSpacing: '-0.01em' }}
+            fill="#ffffff"
           >
             NO LAPTOP.
           </text>
           <text
             data-screen-text
             x="200"
-            y="617"
+            y="470"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '17px', fontWeight: 700, letterSpacing: '0.02em' }}
+            style={{ opacity: 0, fontSize: '21px', fontWeight: 700, letterSpacing: '0.02em' }}
             fill="url(#screenText)"
           >
-            EVERYTHING BUILT ENTIRELY ON IPHONE.
+            BUILT ENTIRELY ON IPHONE.
           </text>
           <text
             data-screen-text
             x="200"
-            y="658"
+            y="512"
             textAnchor="middle"
             className="font-mono uppercase"
             style={{ opacity: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.32em' }}

@@ -37,6 +37,8 @@ type Project = {
   image?: string
   /** Optional looping screen capture shown instead of the still image. */
   video?: string
+  /** Playback speed multiplier for `video` — defaults to 1 (normal speed). */
+  videoPlaybackRate?: number
   stack: string[]
   status: string
   featured?: boolean
@@ -68,6 +70,7 @@ const PROJECTS: Project[] = [
       'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
     video: '/projects/taxibb-scroll.mp4',
+    videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     status: 'Live System',
   },
@@ -123,6 +126,10 @@ function ProjectDetailContent({ project }: { project: Project }) {
         <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
           {project.video ? (
             <video
+              key={project.video}
+              ref={(el) => {
+                if (el) el.playbackRate = project.videoPlaybackRate ?? 1
+              }}
               src={project.video}
               poster={project.image}
               muted

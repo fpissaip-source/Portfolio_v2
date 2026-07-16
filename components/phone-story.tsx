@@ -178,29 +178,40 @@ export function PhoneStory() {
           <text
             data-screen-text
             x="200"
-            y="562"
+            y="541"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '34px', fontWeight: 900, letterSpacing: '0.01em' }}
+            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
             fill="url(#screenText)"
           >
-            NO PC. NO LAPTOP.
+            NO PC.
           </text>
           <text
             data-screen-text
             x="200"
-            y="604"
+            y="583"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '34px', fontWeight: 900, letterSpacing: '0.01em' }}
+            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
             fill="url(#screenText)"
           >
-            THE ENTIRE TIME.
+            NO LAPTOP.
           </text>
           <text
             data-screen-text
             x="200"
-            y="648"
+            y="625"
+            textAnchor="middle"
+            className="font-sans"
+            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
+            fill="url(#screenText)"
+          >
+            ONLY MY SMARTPHONE.
+          </text>
+          <text
+            data-screen-text
+            x="200"
+            y="669"
             textAnchor="middle"
             className="font-mono uppercase"
             style={{ opacity: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.32em' }}

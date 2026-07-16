@@ -1,9 +1,21 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { motion, useMotionValue, useSpring } from 'motion/react'
+import dynamic from 'next/dynamic'
 import { Reveal, WordReveal } from './anim'
+import type { OrbProject } from './project-orbs'
+
+const ProjectOrbs = dynamic(() => import('./project-orbs'), {
+  ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 grid place-items-center">
+      <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        Loading gallery…
+      </span>
+    </div>
+  ),
+})
 
 type Project = {
   name: string
@@ -80,61 +92,41 @@ const PROJECTS: Project[] = [
   },
 ]
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const rx = useMotionValue(0)
-  const ry = useMotionValue(0)
-  const srx = useSpring(rx, { stiffness: 150, damping: 18 })
-  const sry = useSpring(ry, { stiffness: 150, damping: 18 })
-
-  // Video only starts the first time the card is actually scrolled into view,
-  // not immediately on page load.
+/** Expanded, full-detail view of one project — a centered glass panel over
+ *  a dimmed backdrop. Clicking the backdrop (not the panel) or Escape
+ *  returns to the floating 3D gallery. */
+function ProjectDetail({ project, onClose }: { project: Project; onClose: () => void }) {
   useEffect(() => {
-    const video = videoRef.current
-    if (!project.video || !video) return
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          video.play().catch(() => {})
-          io.disconnect()
-        }
-      },
-      { threshold: 0.35 },
-    )
-    io.observe(video)
-    return () => io.disconnect()
-  }, [project.video])
-
-  function onMove(e: React.MouseEvent) {
-    const el = ref.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    const px = (e.clientX - r.left) / r.width - 0.5
-    const py = (e.clientY - r.top) / r.height - 0.5
-    ry.set(px * 8)
-    rx.set(-py * 8)
-  }
-  function onLeave() {
-    rx.set(0)
-    ry.set(0)
-  }
+    const lenisWin = window as unknown as { __lenis?: { stop: () => void; start: () => void } }
+    lenisWin.__lenis?.stop()
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      lenisWin.__lenis?.start()
+      window.removeEventListener('keydown', onKey)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
-    <Reveal delay={(index % 2) * 0.08} y={40} className={project.featured ? 'md:col-span-2' : undefined}>
-      <motion.div
-        ref={ref}
-        onMouseMove={onMove}
-        onMouseLeave={onLeave}
-        style={{ rotateX: srx, rotateY: sry, transformPerspective: 1000 }}
-        whileHover={{ y: -8 }}
-        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-        className={`glass group relative overflow-hidden rounded-3xl p-2 will-transform ${
-          project.featured ? 'md:grid md:grid-cols-2 md:gap-2' : ''
-        }`}
+    <div
+      className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-black/70 p-6 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="glass relative w-full max-w-2xl overflow-hidden rounded-3xl p-2"
       >
-        {/* glow border on hover */}
-        <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 [box-shadow:0_0_80px_-20px_var(--blue),inset_0_0_0_1px_color-mix(in_oklch,var(--blue)_40%,transparent)]" />
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 transition-colors hover:bg-black/60 hover:text-white"
+        >
+          &times;
+        </button>
 
         {project.hobby ? (
           <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
@@ -148,32 +140,30 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         ) : (
           <div
             className={`relative overflow-hidden rounded-2xl ${
-              project.featured ? 'aspect-[16/10] md:h-full md:min-h-[22rem]' : 'aspect-[16/10]'
+              project.featured ? 'aspect-[16/10]' : 'aspect-[16/10]'
             }`}
           >
             {project.video ? (
               <video
-                ref={videoRef}
                 src={project.video}
                 poster={project.image}
                 muted
                 loop
+                autoPlay
                 playsInline
-                preload="metadata"
                 aria-label={`${project.name}: ${project.tagline}`}
-                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 will-transform group-hover:scale-105"
+                className="absolute inset-0 h-full w-full object-cover object-top"
               />
             ) : (
               <Image
                 src={project.image || '/placeholder.svg'}
                 alt={`${project.name}: ${project.tagline}`}
                 fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 42rem"
+                className="object-cover"
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-            {/* one flex bar — labels can never collide or overlap */}
             <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.18em] [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
               <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
               <span className="shrink-0 text-blue">{project.status}</span>
@@ -181,20 +171,17 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
           </div>
         )}
 
-        <div className={`px-4 pb-4 pt-5 ${project.featured ? 'md:flex md:flex-col md:justify-center md:px-8' : ''}`}>
-          <h3 className={`font-semibold tracking-tight ${project.featured ? 'text-3xl sm:text-4xl' : 'text-2xl'}`}>
-            {project.name}
-          </h3>
-          <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
+        <div className="px-5 pb-6 pt-5 sm:px-7">
+          <h3 className="text-3xl font-semibold tracking-tight">{project.name}</h3>
+          <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
             {project.description}
           </p>
-
-          <p className="mt-4 font-mono text-xs leading-relaxed text-muted-foreground/80">
+          <p className="mt-5 font-mono text-xs leading-relaxed text-muted-foreground/80">
             {project.stack.join(' · ')}
           </p>
         </div>
-      </motion.div>
-    </Reveal>
+      </div>
+    </div>
   )
 }
 
@@ -211,6 +198,17 @@ const REGISTER: { name: string; category: string; status: string }[] = [
 ]
 
 export function Projects() {
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const expandedProject = PROJECTS.find((p) => p.name === expanded) ?? null
+
+  const orbProjects: OrbProject[] = PROJECTS.map((p) => ({
+    name: p.name,
+    tagline: p.tagline,
+    status: p.status,
+    hobby: p.hobby,
+    featured: p.featured,
+  }))
+
   return (
     <section id="work" className="relative mx-auto max-w-7xl px-6 py-32">
       <div className="mb-16 flex flex-col gap-4">
@@ -221,22 +219,29 @@ export function Projects() {
         </Reveal>
         <WordReveal
           as="h2"
-          text="Products, not portfolios."
+          text="Projekte & Hobbyprojekte"
           className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
         />
         <Reveal delay={0.1}>
           <p className="max-w-xl text-pretty text-muted-foreground">
-            A selection of intelligent systems and automations shipped to
-            production.
+            Hover a node to preview it, click to see the full project — click
+            outside to return to the gallery.
           </p>
         </Reveal>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {PROJECTS.map((p, i) => (
-          <ProjectCard key={p.name} project={p} index={i} />
-        ))}
+      {/* Interactive 3D gallery — projects and hobby projects float as
+          physical nodes; touch-pan-y keeps vertical scroll working on
+          mobile while the canvas still catches taps/hovers. */}
+      <div className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] sm:h-[640px]">
+        <div className="absolute inset-0 touch-pan-y md:touch-none">
+          <ProjectOrbs projects={orbProjects} onExpand={setExpanded} />
+        </div>
       </div>
+
+      {expandedProject && (
+        <ProjectDetail project={expandedProject} onClose={() => setExpanded(null)} />
+      )}
 
       {/* Full register — the credits roll */}
       <div className="mt-24">

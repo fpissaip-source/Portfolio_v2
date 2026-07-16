@@ -97,8 +97,10 @@ function colorFor(hue: 'purple' | 'blue' | 'mixed', mix: number) {
   return mix > 0.5 ? purple : blue
 }
 
-export const LightningFlash = forwardRef<LightningHandle, { className?: string }>(
-  function LightningFlash({ className }, ref) {
+export const LightningFlash = forwardRef<
+  LightningHandle,
+  { className?: string; blend?: 'screen' | 'multiply' }
+>(function LightningFlash({ className, blend = 'screen' }, ref) {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const apiRef = useRef<LightningHandle>({ strike: () => {}, setHandoffProgress: () => {} })
 
@@ -248,7 +250,7 @@ export const LightningFlash = forwardRef<LightningHandle, { className?: string }
         // pinned to the top-left, invisible on anything but a lucky
         // aspect ratio.
         className={`h-full w-full ${className ?? ''}`}
-        style={{ mixBlendMode: 'screen' }}
+        style={{ mixBlendMode: blend }}
       />
     )
   },

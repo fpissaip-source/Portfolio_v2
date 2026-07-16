@@ -255,7 +255,7 @@ export function Preloader() {
   if (gone) return null
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-background">
+    <div className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-white">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -271,7 +271,7 @@ export function Preloader() {
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-center overflow-hidden opacity-[0.14]"
       >
-        <div className="preloader-marquee flex w-max items-center gap-16 whitespace-nowrap font-sans text-5xl font-bold tracking-tight text-foreground sm:text-7xl">
+        <div className="preloader-marquee flex w-max items-center gap-16 whitespace-nowrap font-sans text-5xl font-bold tracking-tight text-black/60 sm:text-7xl">
           {[...TAGLINES, ...TAGLINES, ...TAGLINES].map((t, i) => (
             <span key={i} className="flex items-center gap-16">
               {t}
@@ -282,7 +282,11 @@ export function Preloader() {
       </div>
 
       {/* signal sparks — L.U.K.A.S. waking up */}
-      <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[5]" />
+      <LightningFlash
+        ref={lightningRef}
+        className="pointer-events-none absolute inset-0 z-[5]"
+        blend="multiply"
+      />
 
       {/* foreground oval, shimmer chasing the pointer around its edge —
           the loading label and percentage live inside it */}
@@ -341,7 +345,7 @@ export function Preloader() {
 
       <span
         ref={captionRef}
-        className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:text-xs"
+        className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs"
       >
         Issa Hareb · Portfolio
       </span>

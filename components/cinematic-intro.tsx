@@ -212,12 +212,6 @@ export function CinematicIntro() {
       // Frame scrubbing — the flythrough completes at FLIGHT_END; the last
       // stretch is reserved for the dive into the monitor.
       let raf = 0
-      // Ambient sparks recur through the flight — L.U.K.A.S. staying "awake"
-      // as the scene plays — one-shot per threshold, never on scroll-up, and
-      // only the highest crossed fires on a fast fling (no flash storm). All
-      // comfortably before FLIGHT_END so none land during the monitor dive.
-      const FLASH_POINTS = [0.08, 0.24, 0.42, 0.6, 0.76]
-      let nextFlash = 0
       ScrollTrigger.create({
         ...st,
         onUpdate: (self) => {
@@ -227,12 +221,6 @@ export function CinematicIntro() {
             cancelAnimationFrame(raf)
             raf = requestAnimationFrame(() => renderIndex(index))
           }
-          let crossed = -1
-          while (nextFlash < FLASH_POINTS.length && self.progress >= FLASH_POINTS[nextFlash]) {
-            crossed = nextFlash
-            nextFlash++
-          }
-          if (crossed >= 0) lightningRef.current?.strike({ intensity: 0.8 })
         },
       })
 
@@ -360,6 +348,53 @@ export function CinematicIntro() {
     return () => {
       window.removeEventListener('resize', sizeCanvas)
       ctxAnim.revert()
+    }
+  }, [])
+
+  // Ambient network sparks — L.U.K.A.S. staying "awake" through the flight.
+  // Deliberately independent of scroll: runs on its own clock the whole time
+  // the section is in view, rather than firing at fixed scroll thresholds.
+  // Kept to the far left/right margins so it never sits over the centered
+  // title/phrase text (and the canvas is z-[8], behind every text layer,
+  // as a second line of defense if a cluster ever drifts close to the edge
+  // of that margin).
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduced) return
+
+    let inView = false
+    let timer: number | undefined
+
+    const scheduleNext = () => {
+      const delay = 1100 + Math.random() * 1400
+      timer = window.setTimeout(() => {
+        if (inView) {
+          const onLeft = Math.random() > 0.5
+          const originX = onLeft ? 0.03 + Math.random() * 0.1 : 0.87 + Math.random() * 0.1
+          const originY = 0.08 + Math.random() * 0.84
+          lightningRef.current?.strike({
+            style: 'network',
+            intensity: 0.85,
+            originX,
+            originY,
+            spread: 0.05 + Math.random() * 0.03,
+          })
+        }
+        scheduleNext()
+      }, delay)
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting
+    })
+    observer.observe(root)
+    scheduleNext()
+
+    return () => {
+      observer.disconnect()
+      if (timer) window.clearTimeout(timer)
     }
   }, [])
 

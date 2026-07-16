@@ -38,6 +38,7 @@ export function Preloader() {
   const percentGroupRef = useRef<HTMLSpanElement>(null)
   const rowRef = useRef<HTMLDivElement>(null)
   const marqueeRef = useRef<HTMLDivElement>(null)
+  const labelBoxRef = useRef<HTMLDivElement>(null)
   const oldLabelRef = useRef<HTMLSpanElement>(null)
   const newLabelRef = useRef<HTMLSpanElement>(null)
   const captionRef = useRef<HTMLSpanElement>(null)
@@ -159,6 +160,7 @@ export function Preloader() {
   function beginTransition() {
     const caret = caretRef.current
     const percentGroup = percentGroupRef.current
+    const labelBox = labelBoxRef.current
     const oldLabel = oldLabelRef.current
     const newLabel = newLabelRef.current
     const black = blackRef.current
@@ -213,6 +215,17 @@ export function Preloader() {
           // it shares with the caret's path.
           gsap.set(oldLabel, { clipPath: `inset(0 ${p * 100}% 0 0)` })
           gsap.set(newLabel, { clipPath: `inset(0 0 0 ${(1 - p) * 100}%)` })
+        },
+        onComplete: () => {
+          // Both labels were right-aligned inside a box sized to fit
+          // "Loading the film" so the caret wipe reveal has a fixed track to
+          // travel across. "Willkommen" is shorter, so once the wipe is
+          // done, hugging that same right edge leaves it visibly off-center
+          // in the pill. Switch the box (and the now-only-visible label) to
+          // shrink-wrap their real content so the row centers around
+          // "Willkommen" itself instead of the old wipe-track width.
+          if (labelBox) gsap.set(labelBox, { width: 'auto' })
+          gsap.set(newLabel, { position: 'static', display: 'inline-flex' })
         },
       },
       0,
@@ -314,7 +327,7 @@ export function Preloader() {
           ref={rowRef}
           className="relative z-10 flex items-center justify-center gap-3 px-6 sm:gap-4"
         >
-          <div className="relative h-8 w-[150px] shrink-0 sm:h-11 sm:w-[220px]">
+          <div ref={labelBoxRef} className="relative h-8 w-[150px] shrink-0 sm:h-11 sm:w-[220px]">
             <span
               ref={oldLabelRef}
               className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"

@@ -3,6 +3,8 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { gsap } from 'gsap'
 
+type Hue = 'purple' | 'blue' | 'mixed'
+
 export type LightningHandle = {
   /** Fire a one-shot bolt — draws in, flickers, decays. Fresh geometry each call. */
   strike: (opts?: {
@@ -11,8 +13,16 @@ export type LightningHandle = {
     targetX?: number
     targetY?: number
     intensity?: number
-    hue?: 'purple' | 'blue' | 'mixed'
+    hue?: Hue
     duration?: number
+    /** 'bolt' (default) is the point-to-point circuit streak used by the
+     *  preloader/hero/handoff. 'network' is a small pseudo-3D cluster of
+     *  glowing nodes connected by edges — used by the cinematic intro so
+     *  the recurring sparks read as the same visual language as the
+     *  L.U.K.A.S. neuron field they eventually become. */
+    style?: 'bolt' | 'network'
+    /** 'network' style only — radius of the cluster, in 0..1 canvas units. */
+    spread?: number
   }) => void
   /** A single fixed, pre-seeded bolt whose reveal/decay is a pure function of
    *  p (0→1) — no internal timer, so it can be driven by the same scroll
@@ -22,7 +32,13 @@ export type LightningHandle = {
 
 type Segment = { x1: number; y1: number; x2: number; y2: number; w: number }
 type Node = { x: number; y: number; r: number }
-type Bolt = { segments: Segment[]; nodes: Node[]; hue: 'purple' | 'blue' | 'mixed' }
+type LinearBolt = { kind: 'bolt'; segments: Segment[]; nodes: Node[]; hue: Hue }
+
+type NetNode = { x: number; y: number; z: number; r: number }
+type NetEdge = { a: number; b: number }
+type NetworkBolt = { kind: 'network'; nodes: NetNode[]; edges: NetEdge[]; hue: Hue }
+
+type Bolt = LinearBolt | NetworkBolt
 
 const COMPASS = [0, 45, 90, 135, 180, 225, 270, 315]
 
@@ -35,8 +51,8 @@ function generateBolt(
   originY: number,
   targetX: number,
   targetY: number,
-  hue: 'purple' | 'blue' | 'mixed',
-): Bolt {
+  hue: Hue,
+): LinearBolt {
   const segments: Segment[] = []
   const nodes: Node[] = []
   const steps = 6 + Math.floor(rand() * 3)
@@ -86,10 +102,63 @@ function generateBolt(
     y = fy
   }
   nodes.push({ x: originX, y: originY, r: 2.6 }, { x, y, r: 3 })
-  return { segments, nodes, hue }
+  return { kind: 'bolt', segments, nodes, hue }
 }
 
-function colorFor(hue: 'purple' | 'blue' | 'mixed', mix: number) {
+/** A small pseudo-3D cluster: nodes scattered around (cx, cy) each with a
+ *  random depth z (0=far, 1=near), connected into a minimum-spanning tree
+ *  (plus one extra edge for a circuit-like loop) rather than a single
+ *  directional streak — reads as a miniature neuron-field fragment. */
+function generateNetwork(
+  rand: () => number,
+  cx: number,
+  cy: number,
+  spreadX: number,
+  spreadY: number,
+  hue: Hue,
+): NetworkBolt {
+  const count = 6 + Math.floor(rand() * 3)
+  const nodes: NetNode[] = []
+  for (let i = 0; i < count; i++) {
+    const x = cx + (rand() - 0.5) * 2 * spreadX
+    const y = cy + (rand() - 0.5) * 2 * spreadY
+    const z = rand()
+    nodes.push({ x, y, z, r: 1.4 + z * 1.6 })
+  }
+  const dist = (i: number, j: number) =>
+    Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y)
+  const inTree = new Set<number>([0])
+  const edges: NetEdge[] = []
+  while (inTree.size < nodes.length) {
+    let bestA = -1
+    let bestB = -1
+    let bestD = Infinity
+    for (const a of inTree) {
+      for (let b = 0; b < nodes.length; b++) {
+        if (inTree.has(b)) continue
+        const d = dist(a, b)
+        if (d < bestD) {
+          bestD = d
+          bestA = a
+          bestB = b
+        }
+      }
+    }
+    if (bestB === -1) break
+    edges.push({ a: bestA, b: bestB })
+    inTree.add(bestB)
+  }
+  if (nodes.length > 3 && rand() > 0.3) {
+    const a = Math.floor(rand() * nodes.length)
+    const b = Math.floor(rand() * nodes.length)
+    if (a !== b && !edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a))) {
+      edges.push({ a, b })
+    }
+  }
+  return { kind: 'network', nodes, edges, hue }
+}
+
+function colorFor(hue: Hue, mix: number) {
   const purple = '167,139,250'
   const blue = '125,165,235'
   if (hue === 'purple') return purple
@@ -131,12 +200,8 @@ export const LightningFlash = forwardRef<
         return seed / 2147483647
       }
 
-      const drawBolt = (bolt: Bolt, alpha: number, growT: number) => {
-        const cw = canvas.clientWidth
-        const ch = canvas.clientHeight
+      const drawLinear = (bolt: LinearBolt, alpha: number, growT: number, cw: number, ch: number) => {
         const visibleSegCount = Math.max(1, Math.round(bolt.segments.length * growT))
-        const prevOp = ctx.globalCompositeOperation
-        ctx.globalCompositeOperation = 'lighter'
         for (let i = 0; i < visibleSegCount; i++) {
           const s = bolt.segments[i]
           const col = colorFor(bolt.hue, (i / bolt.segments.length + 0.3) % 1)
@@ -174,6 +239,75 @@ export const LightningFlash = forwardRef<
           ctx.arc(px, py, n.r * 5, 0, Math.PI * 2)
           ctx.fill()
         }
+      }
+
+      // Depth (z) drives size/brightness only (no hard occlusion, since the
+      // 'lighter' composite is additive) — enough to read as pseudo-3D
+      // parallax without needing an actual 3D renderer.
+      const drawNetwork = (bolt: NetworkBolt, alpha: number, growT: number, cw: number, ch: number) => {
+        const visibleEdges = Math.max(0, Math.round(bolt.edges.length * growT))
+        for (let i = 0; i < visibleEdges; i++) {
+          const e = bolt.edges[i]
+          const na = bolt.nodes[e.a]
+          const nb = bolt.nodes[e.b]
+          const avgZ = (na.z + nb.z) / 2
+          const col = colorFor(bolt.hue, avgZ)
+          const x1 = na.x * cw
+          const y1 = na.y * ch
+          const x2 = nb.x * cw
+          const y2 = nb.y * ch
+          ctx.strokeStyle = `rgba(${col},${(0.12 + avgZ * 0.18) * alpha})`
+          ctx.lineWidth = (2 + avgZ * 3) * 1.4
+          ctx.lineCap = 'round'
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.stroke()
+          ctx.strokeStyle = `rgba(${col},${(0.45 + avgZ * 0.4) * alpha})`
+          ctx.lineWidth = Math.max(0.6, 0.5 + avgZ * 1.3)
+          ctx.beginPath()
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
+          ctx.stroke()
+        }
+        const visibleNodes = Math.max(1, Math.round(bolt.nodes.length * growT))
+        // Painter's algorithm — draw far nodes first so nearer ones overlap.
+        const order = bolt.nodes
+          .map((_, i) => i)
+          .slice(0, visibleNodes)
+          .sort((i, j) => bolt.nodes[i].z - bolt.nodes[j].z)
+        for (const i of order) {
+          const n = bolt.nodes[i]
+          const col = colorFor(bolt.hue, n.z)
+          const px = n.x * cw
+          const py = n.y * ch
+          const radius = n.r * (3.2 + n.z * 4.5)
+          const g = ctx.createRadialGradient(px, py, 0, px, py, radius)
+          g.addColorStop(0, `rgba(${col},${(0.35 + n.z * 0.45) * alpha})`)
+          g.addColorStop(1, `rgba(${col},0)`)
+          ctx.fillStyle = g
+          ctx.beginPath()
+          ctx.arc(px, py, radius, 0, Math.PI * 2)
+          ctx.fill()
+          if (n.z > 0.4) {
+            ctx.fillStyle = `rgba(${col},${(0.5 + n.z * 0.4) * alpha})`
+            ctx.beginPath()
+            ctx.arc(px, py, 1 + n.z * 1.4, 0, Math.PI * 2)
+            ctx.fill()
+          }
+        }
+      }
+
+      const drawBolt = (bolt: Bolt, alpha: number, growT: number) => {
+        const cw = canvas.clientWidth
+        const ch = canvas.clientHeight
+        const prevOp = ctx.globalCompositeOperation
+        ctx.globalCompositeOperation = 'lighter'
+        if (bolt.kind === 'network') {
+          drawNetwork(bolt, alpha, growT, cw, ch)
+        } else {
+          drawLinear(bolt, alpha, growT, cw, ch)
+        }
         ctx.globalCompositeOperation = prevOp
       }
 
@@ -196,11 +330,19 @@ export const LightningFlash = forwardRef<
 
       const strike: LightningHandle['strike'] = (opts = {}) => {
         if (reduced) return
-        const originX = opts.originX ?? 0.2 + rand() * 0.6
-        const originY = opts.originY ?? 0.1 + rand() * 0.2
-        const targetX = opts.targetX ?? originX + (rand() - 0.5) * 0.3
-        const targetY = opts.targetY ?? originY + 0.35 + rand() * 0.25
-        const bolt = generateBolt(rand, originX, originY, targetX, targetY, opts.hue ?? 'mixed')
+        let bolt: Bolt
+        if (opts.style === 'network') {
+          const originX = opts.originX ?? 0.1 + rand() * 0.8
+          const originY = opts.originY ?? 0.15 + rand() * 0.7
+          const spread = opts.spread ?? 0.07
+          bolt = generateNetwork(rand, originX, originY, spread, spread * 1.3, opts.hue ?? 'mixed')
+        } else {
+          const originX = opts.originX ?? 0.2 + rand() * 0.6
+          const originY = opts.originY ?? 0.1 + rand() * 0.2
+          const targetX = opts.targetX ?? originX + (rand() - 0.5) * 0.3
+          const targetY = opts.targetY ?? originY + 0.35 + rand() * 0.25
+          bolt = generateBolt(rand, originX, originY, targetX, targetY, opts.hue ?? 'mixed')
+        }
         const entry: ActiveStrike = { bolt, growT: 0, alpha: 0 }
         active.push(entry)
         const duration = (opts.duration ?? 300) / 1000

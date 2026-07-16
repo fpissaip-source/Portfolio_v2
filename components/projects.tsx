@@ -3,8 +3,11 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
+import { motion } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
 import type { OrbProject } from './project-orbs'
+
+const easeOut = [0.22, 1, 0.36, 1] as const
 
 const ProjectOrbs = dynamic(() => import('./project-orbs'), {
   ssr: false,
@@ -202,6 +205,7 @@ export function Projects() {
     status: p.status,
     hobby: p.hobby,
     featured: p.featured,
+    image: p.image,
   }))
 
   return (
@@ -227,8 +231,18 @@ export function Projects() {
 
       {/* Interactive 3D gallery — projects and hobby projects float as
           physical nodes; touch-pan-y keeps vertical scroll working on
-          mobile while the canvas still catches taps/hovers. */}
-      <div className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/5 bg-white/[0.02] sm:h-[640px]">
+          mobile while the canvas still catches taps/hovers. A soft ambient
+          glow + stronger border give the section presence of its own so it
+          doesn't blend into the surrounding page. */}
+      <div className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(60% 60% at 50% 45%, color-mix(in oklch, var(--purple) 16%, transparent), transparent 70%)',
+          }}
+        />
         <div className="absolute inset-0 touch-pan-y md:touch-none">
           <ProjectOrbs projects={orbProjects} onExpand={setExpanded} />
         </div>
@@ -250,19 +264,24 @@ export function Projects() {
         </Reveal>
         <ul className="divide-y divide-white/5">
           {REGISTER.map((r, i) => (
-            <Reveal key={r.name} delay={i * 0.03} y={16}>
-              <li className="group grid gap-1 py-4 transition-colors hover:bg-white/[0.02] sm:grid-cols-[1.4fr_1fr_auto] sm:items-baseline sm:gap-6 sm:px-3">
-                <span className="font-medium tracking-tight text-foreground">
-                  {r.name}
-                </span>
-                <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  {r.category}
-                </span>
-                <span className="font-mono text-xs text-purple/80">
-                  {r.status}
-                </span>
-              </li>
-            </Reveal>
+            <motion.li
+              key={r.name}
+              className="group grid gap-1 py-4 transition-colors hover:bg-white/[0.02] sm:grid-cols-[1.4fr_1fr_1fr] sm:items-baseline sm:gap-6 sm:px-3"
+              initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
+              whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+              transition={{ duration: 0.9, delay: i * 0.03, ease: easeOut }}
+            >
+              <span className="font-medium tracking-tight text-foreground">
+                {r.name}
+              </span>
+              <span className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {r.category}
+              </span>
+              <span className="font-mono text-xs text-purple/80">
+                {r.status}
+              </span>
+            </motion.li>
           ))}
         </ul>
       </div>

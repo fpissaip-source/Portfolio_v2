@@ -153,6 +153,8 @@ function Orb({
       linearDamping={0.75}
       angularDamping={0.15}
       friction={0.2}
+      restitution={0.45}
+      ccd
       colliders={false}
     >
       <BallCollider args={[scale]} />
@@ -162,14 +164,17 @@ function Orb({
 }
 
 /** Invisible walls at the viewport edges — balls roam right up to the rim
- *  of the screen but never leave it. */
+ *  of the screen but never leave it (and bounce off it, rather than
+ *  stopping dead — the default zero restitution above made a ball that
+ *  drifted to the bottom edge just sit there against the floor, which
+ *  read as it "disappearing" rather than roaming back into view). */
 function Walls() {
   const { viewport } = useThree()
   const w = viewport.width / 2
   const h = viewport.height / 2
-  const t = 1
+  const t = 2
   return (
-    <RigidBody type="fixed" colliders={false}>
+    <RigidBody type="fixed" colliders={false} restitution={0.45}>
       <CuboidCollider args={[t, h + 6, 8]} position={[w + t, 0, 0]} />
       <CuboidCollider args={[t, h + 6, 8]} position={[-w - t, 0, 0]} />
       <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t, 0]} />

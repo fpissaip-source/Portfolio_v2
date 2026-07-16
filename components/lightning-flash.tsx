@@ -345,7 +345,12 @@ export const LightningFlash = forwardRef<
         }
         const entry: ActiveStrike = { bolt, growT: 0, alpha: 0 }
         active.push(entry)
-        const duration = (opts.duration ?? 300) / 1000
+        // Real lightning: a near-instant flash, then a glow that lingers and
+        // fades gradually rather than snapping off — the strike/flicker
+        // phases stay quick, but the tail is both longer and eased to decay
+        // slowly (power1.out lingers near the end) instead of the previous
+        // power2.in, which held bright then cut off comparatively fast.
+        const duration = (opts.duration ?? 600) / 1000
         const intensity = opts.intensity ?? 1
         const tl = gsap.timeline({
           onComplete: () => {
@@ -353,10 +358,10 @@ export const LightningFlash = forwardRef<
             if (idx >= 0) active.splice(idx, 1)
           },
         })
-        tl.to(entry, { growT: 1, alpha: intensity, duration: duration * 0.3, ease: 'power4.out' })
-          .to(entry, { alpha: intensity * 0.35, duration: duration * 0.12, ease: 'power1.inOut' })
-          .to(entry, { alpha: intensity * 0.9, duration: duration * 0.1, ease: 'power1.inOut' })
-          .to(entry, { alpha: 0, duration: duration * 0.48, ease: 'power2.in' })
+        tl.to(entry, { growT: 1, alpha: intensity, duration: duration * 0.18, ease: 'power4.out' })
+          .to(entry, { alpha: intensity * 0.45, duration: duration * 0.08, ease: 'power1.inOut' })
+          .to(entry, { alpha: intensity * 0.85, duration: duration * 0.07, ease: 'power1.inOut' })
+          .to(entry, { alpha: 0, duration: duration * 0.67, ease: 'power1.out' })
         if (!raf) raf = requestAnimationFrame(renderActive)
       }
 

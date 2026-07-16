@@ -77,6 +77,7 @@ export function CinematicIntro() {
   const nameRef = useRef<ShimmerTitleHandle>(null)
   const nameWrapRef = useRef<HTMLDivElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
+  const terminalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const root = rootRef.current
@@ -207,7 +208,15 @@ export function CinematicIntro() {
         trigger: root,
         start: 'top top',
         end: 'bottom bottom',
-        scrub: prefersReduced ? (false as const) : 0.8,
+        // Lenis (smooth-scroll.tsx) already eases raw scroll input with a
+        // 1.1s duration; stacking a heavy scrub on top of that doubled up
+        // the lag. That's barely noticeable on a continuous touch/trackpad
+        // stream, but a notched desktop mouse wheel arrives in discrete
+        // bursts, so the compounded delay read as the frame sequence not
+        // tracking the scroll — a much lighter scrub here keeps the canvas
+        // glued to Lenis's already-smooth position instead of adding a
+        // second layer of catch-up.
+        scrub: prefersReduced ? (false as const) : 0.25,
       }
 
       // Frame scrubbing — the flythrough completes at FLIGHT_END; the last
@@ -433,6 +442,60 @@ export function CinematicIntro() {
     }
   }, [])
 
+  // Cursor-follow terminal reveal — only during the opening plate (the
+  // very first shot, before the flythrough starts). It lives inside
+  // data-intro so it inherits that layer's own scroll-driven fade-out
+  // rather than needing its own scroll logic. A small "window" that trails
+  // the pointer with a soft lerp, as if a hidden code editor sits just
+  // behind the footage and the cursor is peeling back a corner of it.
+  useEffect(() => {
+    const root = rootRef.current
+    const panel = terminalRef.current
+    if (!root || !panel) return
+    if (window.matchMedia('(pointer: coarse)').matches) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    let raf = 0
+    let inView = false
+    let active = false
+    let tx = 0
+    let ty = 0
+    let cx = 0
+    let cy = 0
+
+    const onMove = (e: PointerEvent) => {
+      const r = root.getBoundingClientRect()
+      tx = e.clientX - r.left
+      ty = e.clientY - r.top
+      if (!active) {
+        active = true
+        cx = tx
+        cy = ty
+      }
+    }
+
+    const loop = () => {
+      cx += (tx - cx) * 0.16
+      cy += (ty - cy) * 0.16
+      panel.style.transform = `translate3d(${cx + 28}px, ${cy + 28}px, 0)`
+      panel.style.opacity = active && inView ? '1' : '0'
+      raf = requestAnimationFrame(loop)
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting
+    })
+    observer.observe(root)
+    root.addEventListener('pointermove', onMove)
+    raf = requestAnimationFrame(loop)
+
+    return () => {
+      observer.disconnect()
+      root.removeEventListener('pointermove', onMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
   return (
     <section
       ref={rootRef}
@@ -510,6 +573,33 @@ export function CinematicIntro() {
           >
             Let me introduce myself.
           </p>
+
+          {/* Cursor-follow terminal reveal — a small window trailing the
+              pointer, as if the footage is hiding a code editor just
+              beneath it. Desktop-only (see effect above), fades with the
+              rest of this plate the moment scrolling begins. */}
+          <div
+            ref={terminalRef}
+            aria-hidden
+            className="absolute left-0 top-0 w-[280px] rounded-xl border border-white/10 bg-black/75 p-3 text-left font-mono text-[11px] leading-relaxed text-white/70 opacity-0 shadow-[0_25px_70px_-20px_rgba(0,0,0,0.85)] backdrop-blur-md will-transform"
+          >
+            <div className="mb-2 flex gap-1.5">
+              <span className="h-2 w-2 rounded-full bg-red-400/60" />
+              <span className="h-2 w-2 rounded-full bg-yellow-400/60" />
+              <span className="h-2 w-2 rounded-full bg-green-400/60" />
+            </div>
+            <div>
+              <span className="text-purple">const</span> agent = <span className="text-blue">new</span> Agent()
+            </div>
+            <div>
+              <span className="text-purple">await</span> agent.<span className="text-blue">deploy</span>(<span className="text-emerald-300">&apos;production&apos;</span>)
+            </div>
+            <div className="text-white/35">// syncing knowledge graph…</div>
+            <div>
+              agent.memory.<span className="text-blue">write</span>(event)
+              <span className="ml-0.5 animate-pulse">▌</span>
+            </div>
+          </div>
         </div>
 
         {/* "I AM" / "ISSA HAREB" — a persistent title stacked at the top of

@@ -259,7 +259,11 @@ export function Lukas() {
           trigger: root,
           start: 'top top',
           end: 'bottom bottom',
-          scrub: prefersReduced ? (false as const) : 0.7,
+          // See cinematic-intro.tsx: Lenis already smooths raw scroll input,
+          // so a heavy scrub here double-lags the frame sequence behind the
+          // mouse wheel specifically (a notched desktop wheel arrives in
+          // discrete bursts, unlike a continuous touch/trackpad stream).
+          scrub: prefersReduced ? (false as const) : 0.25,
           // Firm magnet: once scrolling settles near a beat, it's pulled the
           // rest of the way there — but this rides on top of the normal
           // scrub rather than freezing it, so the frame index below keeps

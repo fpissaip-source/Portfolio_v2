@@ -53,8 +53,8 @@ export function PhoneStory() {
         ease: 'none',
         scrollTrigger: {
           trigger: section,
-          start: 'top 85%',
-          end: 'top 25%',
+          start: 'top 65%',
+          end: 'top 20%',
           scrub: 0.6,
         },
         onUpdate: () => {
@@ -207,17 +207,6 @@ export function PhoneStory() {
             fill="url(#screenText)"
           >
             BUILT ENTIRELY ON IPHONE.
-          </text>
-          <text
-            data-screen-text
-            x="200"
-            y="512"
-            textAnchor="middle"
-            className="font-mono uppercase"
-            style={{ opacity: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.32em' }}
-            fill="rgba(255,255,255,0.65)"
-          >
-            6.1-inch screen &middot; Germany
           </text>
         </svg>
         {/* melt the outline's edges into the page background */}

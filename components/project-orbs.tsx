@@ -2,151 +2,204 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Html, useTexture } from '@react-three/drei'
-import {
-  Physics,
-  RigidBody,
-  BallCollider,
-  CuboidCollider,
-  type RapierRigidBody,
-} from '@react-three/rapier'
+import { Html, Line } from '@react-three/drei'
+import { AnimatePresence, motion } from 'motion/react'
 import * as THREE from 'three'
+import { roleFor, tierFor, ROLE_COLORS, type Tier as SizeTier } from './project-orbs-shared'
 
 /**
- * Projects & hobby projects as physical, floating 3D nodes — zero gravity,
- * a gentle center-pull plus per-node wander keeps them adrift on screen
- * (same engine as components/tech-orbs.tsx), each now carrying a real,
- * Higgsfield-generated glass-orb badge image instead of a flat color, and
- * a slow constant tumble so they read as floating in 3D rather than just
- * panning across a plane. Hovering brings up a cursor-anchored preview
- * panel (rendered by the parent, outside the canvas, with the project's
- * real screenshot when it has one); clicking asks the parent to open the
- * full detail view.
+ * "Project Constellation" — a deliberately composed system/neuron network,
+ * not a bag of randomly floating balls. GuardianGrid is the hub; every
+ * other project is a spoke, sized and colored by its real importance.
+ * Positions are fixed (not physics-driven); a tiny per-node sinusoidal
+ * offset plus a slow constant spin is the only motion, so it reads as
+ * "quietly alive" rather than "bouncing around."
  */
 export type OrbProject = {
   name: string
+  category: string
   tagline: string
   status: string
+  stack: string[]
   hobby?: boolean
-  featured?: boolean
-  /** Real project screenshot — shown in the cursor-follow preview if set. */
-  image?: string
 }
 
-/** Higgsfield-generated glass-orb badge per project, keyed by name — a
- *  distinct visual identity per node instead of a flat tinted sphere. */
-const ORB_IMAGES: Record<string, string> = {
-  GuardianGrid: '/projects/orbs/guardiangrid.png',
-  'TaxiBB Essen': '/projects/orbs/taxibb.png',
-  StudyForge: '/projects/orbs/studyforge.png',
-  'Team Operations Suite': '/projects/orbs/team-ops.png',
-  'Automation Systems': '/projects/orbs/automation.png',
-  Bewerbungsbot: '/projects/orbs/bewerbungsbot.png',
+/** Fixed, composed layout — GuardianGrid at the hub, the rest arranged
+ *  around it like a pentagon, Automation Systems held slightly further
+ *  back as the smallest research node. */
+const NODE_POSITIONS: Record<string, [number, number, number]> = {
+  GuardianGrid: [0, 1.3, 1.4],
+  'TaxiBB Essen': [-4.6, 2.2, -0.8],
+  Bewerbungsbot: [4.6, 2.0, -0.6],
+  StudyForge: [3.9, -2.4, -1.6],
+  'Team Operations Suite': [-3.9, -2.3, -1.4],
+  'Automation Systems': [1.9, -2.85, -2.4],
 }
-const FALLBACK_ORB_IMAGE = '/projects/orbs/guardiangrid.png'
 
-const geometry = new THREE.IcosahedronGeometry(1, 2)
+const SCALE_FOR_TIER: Record<SizeTier, number> = {
+  hero: 2.4,
+  large: 1.55,
+  medium: 1.15,
+  small: 0.85,
+}
+
+function seedFromName(name: string): number {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 1000
+  return h / 1000
+}
+
+const geometry = new THREE.IcosahedronGeometry(1, 1)
 const edgesGeometry = new THREE.EdgesGeometry(geometry)
-
-function tintFor(p: OrbProject) {
-  return p.hobby ? new THREE.Color('#a78bfa') : new THREE.Color('#7da5eb')
-}
+const dotGeometry = new THREE.SphereGeometry(1, 10, 10)
+const ringGeometry = new THREE.TorusGeometry(1.35, 0.012, 8, 64)
 
 function Node({
   project,
-  seed,
-  reduced,
-  hovered,
+  hoveredName,
   onHover,
   onExpand,
+  expandedName,
+  reduced,
 }: {
   project: OrbProject
-  seed: number
-  reduced: boolean
-  hovered: boolean
+  hoveredName: string | null
   onHover: (v: boolean) => void
   onExpand: () => void
+  expandedName: string | null
+  reduced: boolean
 }) {
-  const api = useRef<RapierRigidBody>(null)
-  const meshRef = useRef<THREE.Mesh>(null)
-  const wireRef = useRef<THREE.LineSegments>(null)
-  const vec = useMemo(() => new THREE.Vector3(), [])
-  const tint = useMemo(() => tintFor(project), [project])
-  const texture = useTexture(ORB_IMAGES[project.name] ?? FALLBACK_ORB_IMAGE)
-  const scale = (project.featured ? 1.75 : 1.55) * (hovered ? 1.12 : 1)
+  const outerRef = useRef<THREE.Group>(null)
+  const spinRef = useRef<THREE.Group>(null)
+  const coreMatRef = useRef<THREE.MeshStandardMaterial>(null)
+  const wireMatRef = useRef<THREE.LineBasicMaterial>(null)
+  const ringMatRef = useRef<THREE.MeshBasicMaterial>(null)
+  const satMatRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([])
+  const liftRef = useRef(0)
 
-  const position = useMemo<[number, number, number]>(() => {
-    // Spread nodes around a ring so they start clearly separated — physics
-    // (or, in reduced motion, nothing at all) takes it from there.
-    const a = seed * 1.9
-    return [Math.cos(a) * 5.6, Math.sin(a * 1.3) * 3.2, Math.sin(a * 0.7) * 1.2]
-  }, [seed])
+  const basePos = useMemo(
+    () => new THREE.Vector3(...(NODE_POSITIONS[project.name] ?? [0, 0, 0])),
+    [project.name],
+  )
+  const role = useMemo(() => roleFor(project), [project.name])
+  const colors = ROLE_COLORS[role]
+  const scale = SCALE_FOR_TIER[tierFor(project)]
+  const seed = useMemo(() => seedFromName(project.name), [project.name])
 
-  // A slow, constant tumble on top of the physics translation — makes the
-  // badge read as genuinely floating in 3D rather than sliding across a
-  // flat plane. Set once; Rapier keeps it spinning without any per-frame
-  // torque bookkeeping.
-  useEffect(() => {
-    if (reduced) return
-    const rb = api.current
-    if (!rb) return
-    const s = seed * 7.3
-    rb.setAngvel(
-      {
-        x: (Math.sin(s) * 0.5 + 0.5) * 0.12 + 0.02,
-        y: (Math.cos(s * 1.4) * 0.5 + 0.5) * 0.12 + 0.02,
-        z: (Math.sin(s * 0.6) * 0.5 + 0.5) * 0.08,
-      },
-      true,
-    )
-  }, [reduced, seed])
+  const hovered = hoveredName === project.name
+  const anyHovered = hoveredName !== null
+  const dimmed = (anyHovered && !hovered) || (expandedName !== null && expandedName !== project.name)
+
+  const satelliteOffsets = useMemo(() => {
+    const s = seed * 6.28
+    return [
+      new THREE.Vector3(Math.cos(s * 1.7) * 1.0 * scale, Math.sin(s * 2.3) * 0.8 * scale, 0.35 * scale),
+      new THREE.Vector3(Math.cos(s * 3.1) * -0.95 * scale, Math.sin(s * 1.1) * -0.7 * scale, -0.25 * scale),
+    ]
+  }, [seed, scale])
 
   useFrame((state, delta) => {
-    if (reduced) return
-    const rb = api.current
-    if (!rb) return
-    delta = Math.min(0.1, delta)
-    // Gentle center pull keeps the flock readable and on-screen; a slow,
-    // low-frequency wander gives each one its own lazy drift in every
-    // direction rather than a flat left-right pan.
-    const impulse = vec
-      .copy(rb.translation() as THREE.Vector3)
-      .normalize()
-      .multiply(new THREE.Vector3(-3, -3.6, -5))
-      .multiplyScalar(delta)
+    const outer = outerRef.current
+    const spin = spinRef.current
+    if (!outer || !spin) return
     const t = state.clock.elapsedTime
-    impulse.x += Math.sin(t * 0.09 + seed * 2.1) * 4.5 * delta
-    impulse.y += Math.cos(t * 0.08 + seed * 1.3) * 4.5 * delta
-    impulse.z += Math.sin(t * 0.07 + seed * 0.7) * 2.4 * delta
-    rb.applyImpulse(impulse, true)
+    let floatX = 0
+    let floatY = 0
+    if (!reduced) {
+      spin.rotation.y += delta * 0.055
+      spin.rotation.x += delta * 0.018
+      floatX = Math.cos(t * 0.2 + seed * 6) * 0.09 * scale
+      floatY = Math.sin(t * 0.25 + seed * 6) * 0.13 * scale
+    }
+    const targetLift = hovered ? 0.55 : 0
+    liftRef.current += (targetLift - liftRef.current) * Math.min(1, delta * 6)
+    outer.position.set(basePos.x + floatX, basePos.y + floatY, basePos.z + liftRef.current)
+
+    const k = Math.min(1, delta * 6)
+    const targetWire = dimmed ? 0.08 : hovered ? 0.85 : 0.38
+    const targetCore = dimmed ? 0.08 : hovered ? 0.42 : 0.28
+    const targetRing = dimmed ? 0.06 : hovered ? 0.75 : 0.3
+    if (wireMatRef.current) wireMatRef.current.opacity += (targetWire - wireMatRef.current.opacity) * k
+    if (coreMatRef.current) coreMatRef.current.opacity += (targetCore - coreMatRef.current.opacity) * k
+    if (ringMatRef.current) ringMatRef.current.opacity += (targetRing - ringMatRef.current.opacity) * k
+    const targetSat = hovered ? 0.6 : 0
+    for (const m of satMatRefs.current) {
+      if (m) m.opacity += (targetSat - m.opacity) * k
+    }
   })
 
   return (
-    <RigidBody
-      ref={api}
-      position={position}
-      linearDamping={1.4}
-      angularDamping={1.1}
-      friction={0.3}
-      colliders={false}
-    >
-      <BallCollider args={[2.6]} />
-      <mesh ref={meshRef} geometry={geometry} scale={scale}>
-        <meshStandardMaterial
-          map={texture}
-          emissive="#ffffff"
-          emissiveMap={texture}
-          emissiveIntensity={hovered ? 0.85 : 0.55}
-          roughness={0.3}
-          metalness={0.15}
-        />
+    <group ref={outerRef} position={basePos}>
+      {/* invisible, slightly oversized hit-area so hovering/clicking the
+          visible sphere itself (not just the small label chip) drives the
+          hover/expand state — the sphere reads much bigger on screen than
+          the wireframe edges' actual raycast footprint. */}
+      <mesh
+        geometry={geometry}
+        scale={scale * 1.12}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          onHover(true)
+        }}
+        onPointerOut={(e) => {
+          e.stopPropagation()
+          onHover(false)
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          onExpand()
+        }}
+      >
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
-      <lineSegments ref={wireRef} geometry={edgesGeometry} scale={scale * 1.01}>
-        <lineBasicMaterial color={tint} transparent opacity={hovered ? 0.85 : 0.4} />
-      </lineSegments>
+      <group ref={spinRef}>
+        <mesh geometry={geometry} scale={scale}>
+          <meshStandardMaterial
+            ref={coreMatRef}
+            color="#0a0a12"
+            emissive={colors.core}
+            emissiveIntensity={0.22}
+            roughness={0.6}
+            metalness={0.1}
+            transparent
+            opacity={0.28}
+          />
+        </mesh>
+        <lineSegments geometry={edgesGeometry} scale={scale}>
+          <lineBasicMaterial ref={wireMatRef} color={colors.ring} transparent opacity={0.38} />
+        </lineSegments>
+        <mesh geometry={ringGeometry} scale={scale} rotation={[1.15, 0.4, 0]}>
+          <meshBasicMaterial ref={ringMatRef} color={colors.ring} transparent opacity={0.3} />
+        </mesh>
+      </group>
 
-      <Html center distanceFactor={9} zIndexRange={[10, 0]}>
-        <div
+      {/* small glowing center */}
+      <mesh geometry={dotGeometry} scale={0.1 * scale}>
+        <meshBasicMaterial color={colors.core} transparent opacity={0.9} />
+      </mesh>
+
+      {/* backend satellites — near-invisible until this node is hovered */}
+      {satelliteOffsets.map((offset, i) => (
+        <mesh
+          key={i}
+          geometry={dotGeometry}
+          position={offset}
+          scale={0.045 * scale}
+        >
+          <meshBasicMaterial
+            ref={(m) => {
+              satMatRefs.current[i] = m
+            }}
+            color={colors.core}
+            transparent
+            opacity={0}
+          />
+        </mesh>
+      ))}
+
+      <Html center distanceFactor={8.5} zIndexRange={[10, 0]} position={[0, -1.55 * scale - 0.3, 0]}>
+        <button
+          type="button"
           onPointerOver={(e) => {
             e.stopPropagation()
             onHover(true)
@@ -159,36 +212,136 @@ function Node({
             e.stopPropagation()
             onExpand()
           }}
-          className={`glass flex cursor-pointer items-center justify-center rounded-full px-4 py-2 text-center transition-all duration-200 ${
-            hovered ? 'scale-110 shadow-[0_0_50px_-10px_rgba(167,139,250,0.65)]' : ''
-          }`}
-          style={{ width: 168, transform: 'translateY(78px)' }}
+          aria-label={`${project.name} — ${project.category}`}
+          className="glass flex cursor-pointer flex-col items-center gap-1 whitespace-nowrap rounded-xl px-3.5 py-2 text-center transition-[transform,opacity] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+          style={{
+            transform: hovered ? 'scale(1.07)' : 'scale(1)',
+            opacity: dimmed ? 0.35 : 1,
+            outlineColor: colors.ring,
+          }}
         >
-          <span className="whitespace-nowrap font-semibold tracking-tight text-foreground" style={{ fontSize: 15 }}>
-            {project.name}
+          <span className="flex items-center gap-1.5">
+            <span
+              aria-hidden
+              className="h-1.5 w-1.5 shrink-0 rounded-full"
+              style={{ background: colors.core, boxShadow: `0 0 6px 1px ${colors.glow}` }}
+            />
+            <span className="font-semibold tracking-tight text-foreground" style={{ fontSize: 14 }}>
+              {project.name}
+            </span>
           </span>
-        </div>
+          <span
+            className="font-mono uppercase tracking-[0.12em] text-muted-foreground"
+            style={{ fontSize: 10 }}
+          >
+            {project.category}
+          </span>
+        </button>
       </Html>
-    </RigidBody>
+    </group>
   )
 }
 
-/** Invisible walls at the viewport edges — nodes roam right up to the rim
- *  of the screen but never leave it. */
-function Walls() {
-  const { viewport } = useThree()
-  const w = viewport.width / 2
-  const h = viewport.height / 2
-  const t = 2
+function Connection({
+  from,
+  to,
+  color,
+  highlighted,
+  reduced,
+  phase,
+}: {
+  from: THREE.Vector3
+  to: THREE.Vector3
+  color: string
+  highlighted: boolean
+  reduced: boolean
+  phase: number
+}) {
+  const dotRef = useRef<THREE.Mesh>(null)
+  useFrame((state) => {
+    const d = dotRef.current
+    if (!d) return
+    const t = reduced ? 0.5 : (Math.sin(state.clock.elapsedTime * 0.35 + phase) + 1) / 2
+    d.position.lerpVectors(from, to, t)
+  })
   return (
-    <RigidBody type="fixed" colliders={false} restitution={0.3}>
-      <CuboidCollider args={[t, h + 6, 8]} position={[w + t, 0, 0]} />
-      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t, 0, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t, 0]} />
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 3 + t]} />
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -3 - t]} />
-    </RigidBody>
+    <>
+      <Line points={[from, to]} color={color} lineWidth={1} transparent opacity={highlighted ? 0.55 : 0.12} />
+      <mesh ref={dotRef} geometry={dotGeometry} scale={0.05}>
+        <meshBasicMaterial color={color} transparent opacity={highlighted ? 0.9 : 0.35} />
+      </mesh>
+    </>
+  )
+}
+
+function Connections({
+  projects,
+  hoveredName,
+  reduced,
+}: {
+  projects: OrbProject[]
+  hoveredName: string | null
+  reduced: boolean
+}) {
+  const hero = projects.find((p) => roleFor(p) === 'hero')
+  if (!hero) return null
+  const heroPos = new THREE.Vector3(...(NODE_POSITIONS[hero.name] ?? [0, 0, 0]))
+  return (
+    <>
+      {projects
+        .filter((p) => p.name !== hero.name)
+        .map((p, i) => {
+          const pos = new THREE.Vector3(...(NODE_POSITIONS[p.name] ?? [0, 0, 0]))
+          const highlighted = hoveredName === hero.name || hoveredName === p.name
+          const colors = ROLE_COLORS[roleFor(p)]
+          return (
+            <Connection
+              key={p.name}
+              from={heroPos}
+              to={pos}
+              color={colors.ring}
+              highlighted={highlighted}
+              reduced={reduced}
+              phase={i * 1.3}
+            />
+          )
+        })}
+    </>
+  )
+}
+
+/** A handful of small, slow ambient particles for spatial depth — cheap,
+ *  static positions, one shared slow rotation. */
+function Particles({ reduced }: { reduced: boolean }) {
+  const ref = useRef<THREE.Points>(null)
+  const positions = useMemo(() => {
+    const count = 70
+    const arr = new Float32Array(count * 3)
+    let s = 7
+    const rand = () => {
+      s = (s * 16807) % 2147483647
+      return s / 2147483647
+    }
+    for (let i = 0; i < count; i++) {
+      arr[i * 3] = (rand() - 0.5) * 24
+      arr[i * 3 + 1] = (rand() - 0.5) * 15
+      arr[i * 3 + 2] = (rand() - 0.5) * 10 - 3
+    }
+    return arr
+  }, [])
+
+  useFrame((_, delta) => {
+    if (reduced || !ref.current) return
+    ref.current.rotation.y += delta * 0.01
+  })
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+      </bufferGeometry>
+      <pointsMaterial size={0.045} color="#c9d0f0" transparent opacity={0.32} sizeAttenuation depthWrite={false} />
+    </points>
   )
 }
 
@@ -197,118 +350,189 @@ function Scene({
   reduced,
   hoveredName,
   onHover,
+  expandedName,
   onExpand,
+  dragTarget,
+  containerWidth,
 }: {
   projects: OrbProject[]
   reduced: boolean
   hoveredName: string | null
   onHover: (name: string | null) => void
+  expandedName: string | null
   onExpand: (name: string) => void
+  dragTarget: React.RefObject<{ yaw: number; pitch: number }>
+  containerWidth: number
 }) {
+  const dragGroupRef = useRef<THREE.Group>(null)
+  const focusGroupRef = useRef<THREE.Group>(null)
+  const { camera } = useThree()
+
+  // The layout's world-space extents are tuned for a wide (~1280px) desktop
+  // container. On a narrower tablet container the same extents project
+  // closer to the edges — dolly the camera back proportionally so labels
+  // keep clear margin instead of clipping against the rounded corners.
+  useEffect(() => {
+    const baseWidth = 1280
+    const z = THREE.MathUtils.clamp(15 * (baseWidth / Math.max(containerWidth, 1)), 15, 24)
+    camera.position.z = z
+    if (camera instanceof THREE.PerspectiveCamera) camera.updateProjectionMatrix()
+  }, [camera, containerWidth])
+
+  useFrame((_, delta) => {
+    const dg = dragGroupRef.current
+    if (dg) {
+      const k = Math.min(1, delta * 4)
+      dg.rotation.y += (dragTarget.current.yaw - dg.rotation.y) * k
+      dg.rotation.x += (dragTarget.current.pitch - dg.rotation.x) * k
+    }
+    const fg = focusGroupRef.current
+    if (fg) {
+      let targetX = 0
+      let targetScale = 1
+      if (expandedName) {
+        const basePos = NODE_POSITIONS[expandedName] ?? [0, 0, 0]
+        targetX = -basePos[0] - 1.6
+        targetScale = 1.1
+      }
+      const k = Math.min(1, delta * 4)
+      fg.position.x += (targetX - fg.position.x) * k
+      const s = fg.scale.x + (targetScale - fg.scale.x) * k
+      fg.scale.set(s, s, s)
+    }
+  })
+
   return (
     <>
-      <ambientLight intensity={1.3} />
-      <directionalLight position={[10, 12, 8]} intensity={1.6} color="#efeaff" />
-      <directionalLight position={[-10, -6, 6]} intensity={0.5} color="#e3edff" />
-
-      <Physics gravity={[0, 0, 0]}>
-        <Walls />
-        {projects.map((p, i) => (
-          <Node
-            key={p.name}
-            project={p}
-            seed={i + 1}
-            reduced={reduced}
-            hovered={hoveredName === p.name}
-            onHover={(v) => onHover(v ? p.name : null)}
-            onExpand={() => onExpand(p.name)}
-          />
-        ))}
-      </Physics>
+      <ambientLight intensity={1.1} />
+      <directionalLight position={[8, 10, 6]} intensity={1.1} color="#e8e4ff" />
+      <directionalLight position={[-8, -4, 4]} intensity={0.4} color="#dbe6ff" />
+      <Particles reduced={reduced} />
+      <group ref={dragGroupRef}>
+        <group ref={focusGroupRef}>
+          <Connections projects={projects} hoveredName={hoveredName} reduced={reduced} />
+          {projects.map((p) => (
+            <Node
+              key={p.name}
+              project={p}
+              hoveredName={hoveredName}
+              onHover={(v) => onHover(v ? p.name : null)}
+              onExpand={() => onExpand(p.name)}
+              expandedName={expandedName}
+              reduced={reduced}
+            />
+          ))}
+        </group>
+      </group>
     </>
   )
 }
 
-/** Cursor-anchored preview panel — rendered outside the R3F canvas as a
- *  plain DOM overlay so it can show a real <img> and track the literal
- *  mouse position (not a 3D-projected one), always offset to the right
- *  of the pointer. */
-function HoverPreview({
-  project,
-  x,
-  y,
-}: {
-  project: OrbProject | null
-  x: number
-  y: number
-}) {
-  if (!project) return null
+/** Cursor-anchored compact preview — name, tagline, up to three stack
+ *  items, and a "View project" cue. Text only, per spec (the full media
+ *  lives in the click-through detail panel, not the hover preview). */
+function HoverPreview({ project, x, y }: { project: OrbProject | null; x: number; y: number }) {
   return (
-    <div
-      className="glass pointer-events-none absolute left-0 top-0 z-20 w-64 overflow-hidden rounded-2xl shadow-[0_25px_70px_-20px_rgba(0,0,0,0.85)]"
-      style={{ transform: `translate3d(${x + 22}px, ${y - 24}px, 0)` }}
-    >
-      {project.image ? (
-        <div className="relative aspect-[16/10] w-full overflow-hidden">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={project.image}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-transparent to-transparent" />
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3 bg-white/[0.04] px-4 py-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.16em] text-purple">
-            {project.hobby ? 'Hobby Project' : project.status}
-          </span>
-        </div>
+    <AnimatePresence>
+      {project && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.96 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="glass pointer-events-none absolute left-0 top-0 z-20 w-60 rounded-2xl p-4 shadow-[0_25px_70px_-20px_rgba(0,0,0,0.85)]"
+          style={{ transform: `translate3d(${x + 22}px, ${y - 20}px, 0)` }}
+        >
+          <p className="font-semibold tracking-tight text-foreground">{project.name}</p>
+          <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+            {project.tagline}
+          </p>
+          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-purple/80">
+            {project.stack.slice(0, 3).join(' · ')}
+          </p>
+          <p className="mt-2 text-[11px] font-medium text-blue">View project →</p>
+        </motion.div>
       )}
-      <div className="px-4 py-3">
-        <p className="font-semibold tracking-tight text-foreground">{project.name}</p>
-        <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-          {project.tagline}
-        </p>
-      </div>
-    </div>
+    </AnimatePresence>
   )
 }
 
 export default function ProjectOrbs({
   projects,
+  expandedName,
   onExpand,
 }: {
   projects: OrbProject[]
+  expandedName: string | null
   onExpand: (name: string) => void
 }) {
   const [reduced, setReduced] = useState(false)
   const [hoveredName, setHoveredName] = useState<string | null>(null)
   const [pointer, setPointer] = useState({ x: 0, y: 0 })
+  const [inView, setInView] = useState(true)
+  const [containerWidth, setContainerWidth] = useState(1280)
   const wrapRef = useRef<HTMLDivElement>(null)
+  const dragTarget = useRef({ yaw: 0, pitch: 0 })
+  const dragging = useRef(false)
+  const lastPointer = useRef({ x: 0, y: 0 })
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
 
-  const hoveredProject = projects.find((p) => p.name === hoveredName) ?? null
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), { threshold: 0.05 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const hoveredProject = expandedName ? null : projects.find((p) => p.name === hoveredName) ?? null
 
   return (
     <div
       ref={wrapRef}
-      className="relative h-full w-full"
+      className="relative h-full w-full cursor-grab touch-none active:cursor-grabbing"
+      onPointerDown={(e) => {
+        dragging.current = true
+        lastPointer.current = { x: e.clientX, y: e.clientY }
+      }}
       onPointerMove={(e) => {
         const r = wrapRef.current?.getBoundingClientRect()
-        if (!r) return
-        setPointer({ x: e.clientX - r.left, y: e.clientY - r.top })
+        if (r) setPointer({ x: e.clientX - r.left, y: e.clientY - r.top })
+        if (dragging.current && !reduced) {
+          const dx = e.clientX - lastPointer.current.x
+          const dy = e.clientY - lastPointer.current.y
+          lastPointer.current = { x: e.clientX, y: e.clientY }
+          dragTarget.current = {
+            yaw: THREE.MathUtils.clamp(dragTarget.current.yaw + dx * 0.004, -0.9, 0.9),
+            pitch: THREE.MathUtils.clamp(dragTarget.current.pitch + dy * 0.003, -0.35, 0.35),
+          }
+        }
+      }}
+      onPointerUp={() => {
+        dragging.current = false
+      }}
+      onPointerLeave={() => {
+        dragging.current = false
       }}
     >
       <Canvas
         dpr={[1, 1.5]}
         shadows={false}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-        camera={{ position: [0, 0, 17], fov: 32.5, near: 1, far: 100 }}
+        camera={{ position: [0, 0, 15], fov: 34, near: 1, far: 100 }}
         style={{ width: '100%', height: '100%' }}
+        frameloop={inView ? 'always' : 'never'}
       >
         <Suspense fallback={null}>
           <Scene
@@ -316,7 +540,10 @@ export default function ProjectOrbs({
             reduced={reduced}
             hoveredName={hoveredName}
             onHover={setHoveredName}
+            expandedName={expandedName}
             onExpand={onExpand}
+            dragTarget={dragTarget}
+            containerWidth={containerWidth}
           />
         </Suspense>
       </Canvas>

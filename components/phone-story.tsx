@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { LineReveal, Reveal } from './anim'
+import { LineReveal } from './anim'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -37,7 +37,14 @@ export function PhoneStory() {
       el.style.strokeDashoffset = prefersReduced ? '0' : `${lengths[i]}`
     })
 
-    if (prefersReduced) return
+    const textEls = Array.from(svg.querySelectorAll<SVGTextElement>('[data-screen-text]'))
+
+    if (prefersReduced) {
+      textEls.forEach((el) => {
+        el.style.opacity = '1'
+      })
+      return
+    }
 
     const ctx = gsap.context(() => {
       const proxy = { p: 0 }
@@ -59,6 +66,20 @@ export function PhoneStory() {
           shapes.forEach((el, i) => {
             const t = i === 0 ? bodyT : detailT
             el.style.strokeDashoffset = `${lengths[i] * (1 - t)}`
+          })
+          // The screen only "powers on" once the outline is essentially
+          // fully drawn — the text lights up from nothing, brightening its
+          // own glow as it settles, like a phone waking up.
+          const textT = Math.max(0, Math.min(1, (proxy.p - 0.72) / 0.28))
+          const eased = textT * textT * (3 - 2 * textT)
+          textEls.forEach((el) => {
+            el.style.opacity = String(eased)
+            el.style.filter = `blur(${(1 - eased) * 4}px) drop-shadow(0 0 ${
+              2 + eased * 12
+            }px rgba(167,139,250,${0.6 * eased})) drop-shadow(0 0 ${
+              1 + eased * 6
+            }px rgba(255,255,255,${0.55 * eased}))`
+            el.style.transform = `translateY(${(1 - eased) * 8}px)`
           })
         },
       })
@@ -93,6 +114,11 @@ export function PhoneStory() {
             <linearGradient id="phoneOutline" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="var(--purple)" />
               <stop offset="55%" stopColor="white" />
+              <stop offset="100%" stopColor="var(--blue)" />
+            </linearGradient>
+            <linearGradient id="screenText" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--purple)" />
+              <stop offset="50%" stopColor="white" />
               <stop offset="100%" stopColor="var(--blue)" />
             </linearGradient>
           </defs>
@@ -146,6 +172,42 @@ export function PhoneStory() {
             stroke="url(#phoneOutline)"
             strokeWidth="2.5"
           />
+
+          {/* screen content — lights up in place once the outline finishes
+              drawing, like the phone waking up */}
+          <text
+            data-screen-text
+            x="200"
+            y="562"
+            textAnchor="middle"
+            className="font-sans"
+            style={{ opacity: 0, fontSize: '34px', fontWeight: 900, letterSpacing: '0.01em' }}
+            fill="url(#screenText)"
+          >
+            NO PC. NO LAPTOP.
+          </text>
+          <text
+            data-screen-text
+            x="200"
+            y="604"
+            textAnchor="middle"
+            className="font-sans"
+            style={{ opacity: 0, fontSize: '34px', fontWeight: 900, letterSpacing: '0.01em' }}
+            fill="url(#screenText)"
+          >
+            THE ENTIRE TIME.
+          </text>
+          <text
+            data-screen-text
+            x="200"
+            y="648"
+            textAnchor="middle"
+            className="font-mono uppercase"
+            style={{ opacity: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.32em' }}
+            fill="rgba(255,255,255,0.65)"
+          >
+            6.1-inch screen &middot; Germany
+          </text>
         </svg>
         {/* melt the outline's edges into the page background */}
         <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_50%,transparent_45%,#050505_92%)]" />
@@ -170,17 +232,6 @@ export function PhoneStory() {
             </>,
           ]}
         />
-
-        <Reveal delay={0.5}>
-          <p className="mt-14 font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground sm:text-sm">
-            No PC. No laptop. The entire time.
-          </p>
-        </Reveal>
-        <Reveal delay={0.62}>
-          <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.3em] text-muted-foreground/60">
-            6.1-inch screen &middot; Germany
-          </p>
-        </Reveal>
       </div>
     </section>
   )

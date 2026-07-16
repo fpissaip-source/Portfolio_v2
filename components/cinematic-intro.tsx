@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { GlowTitle, type GlowTitleHandle } from './glow-title'
+import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -74,6 +75,7 @@ export function CinematicIntro() {
   const screenRef = useRef<HTMLDivElement>(null)
   const iamRef = useRef<GlowTitleHandle>(null)
   const nameRef = useRef<GlowTitleHandle>(null)
+  const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
     const root = rootRef.current
@@ -210,14 +212,27 @@ export function CinematicIntro() {
       // Frame scrubbing — the flythrough completes at FLIGHT_END; the last
       // stretch is reserved for the dive into the monitor.
       let raf = 0
+      // Ambient sparks recur through the flight — L.U.K.A.S. staying "awake"
+      // as the scene plays — one-shot per threshold, never on scroll-up, and
+      // only the highest crossed fires on a fast fling (no flash storm). All
+      // comfortably before FLIGHT_END so none land during the monitor dive.
+      const FLASH_POINTS = [0.08, 0.24, 0.42, 0.6, 0.76]
+      let nextFlash = 0
       ScrollTrigger.create({
         ...st,
         onUpdate: (self) => {
           const p = Math.min(self.progress / FLIGHT_END, 1)
           const index = Math.round(p * (FRAME_COUNT - 1))
-          if (index === currentIndex) return
-          cancelAnimationFrame(raf)
-          raf = requestAnimationFrame(() => renderIndex(index))
+          if (index !== currentIndex) {
+            cancelAnimationFrame(raf)
+            raf = requestAnimationFrame(() => renderIndex(index))
+          }
+          let crossed = -1
+          while (nextFlash < FLASH_POINTS.length && self.progress >= FLASH_POINTS[nextFlash]) {
+            crossed = nextFlash
+            nextFlash++
+          }
+          if (crossed >= 0) lightningRef.current?.strike({ intensity: 0.8 })
         },
       })
 
@@ -406,6 +421,9 @@ export function CinematicIntro() {
         {/* cinematic vignette */}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background/70" />
         <div className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_220px_60px_rgba(0,0,0,0.85)]" />
+
+        {/* signal sparks recurring through the flight — L.U.K.A.S. staying awake */}
+        <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[8]" />
 
         {/* Opening plate — something is on screen the moment the page loads. */}
         <div

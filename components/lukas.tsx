@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -94,6 +95,7 @@ function frameForProgress(p: number): number {
 export function Lukas() {
   const rootRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
     const root = rootRef.current
@@ -255,6 +257,13 @@ export function Lukas() {
               raf = requestAnimationFrame(() => renderIndex(index))
             }
             updateBeam(self.progress)
+            // The handoff: one lightning bolt draws in and decays across
+            // 0.02-0.12, overlapping data-field's own fade-in (which starts
+            // at 0.1) — the bolt becomes the neuron field rather than
+            // cutting to it, driven by the same scroll value as everything
+            // else here so it can't drift out of sync.
+            const handoffP = Math.max(0, Math.min(1, (self.progress - 0.02) / 0.1))
+            lightningRef.current?.setHandoffProgress(handoffP)
           },
         },
       })
@@ -349,6 +358,9 @@ export function Lukas() {
           aria-hidden
           className="pointer-events-none absolute inset-0 h-full w-full opacity-0 will-transform"
         />
+        {/* The handoff — the last lightning bolt from the intro becomes this
+            neuron field rather than cutting to it. */}
+        <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_65%_at_50%_50%,transparent_40%,#050505_88%)]" />
         {/* soft feather into the following scene */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[22vh] bg-gradient-to-b from-transparent to-background" />

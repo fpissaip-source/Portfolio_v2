@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { GradientOrbs } from './gradient-orbs'
+import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,10 +31,12 @@ function LitWord({ word }: { word: string }) {
 
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null)
+  const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
+    let sparked = false
     const ctx = gsap.context(() => {
       gsap.to(section.querySelectorAll('[data-lit]'), {
         opacity: 1,
@@ -45,6 +48,15 @@ export function Hero() {
           start: 'top 90%',
           end: 'top 5%',
           scrub: 0.5,
+          onUpdate: (self) => {
+            // One last spark bridging toward L.U.K.A.S., right as the
+            // headline finishes lighting up — deliberately just one; Hero
+            // is a reading section, not a place for a recurring loop.
+            if (!sparked && self.progress >= 0.85) {
+              sparked = true
+              lightningRef.current?.strike({ intensity: 0.9 })
+            }
+          },
         },
       })
     }, section)
@@ -58,6 +70,7 @@ export function Hero() {
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24"
     >
       <GradientOrbs />
+      <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
         <motion.span

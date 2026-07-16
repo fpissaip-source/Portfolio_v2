@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
+import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 /**
  * Opening curtain. A mouse-chasing shimmer ring, a drifting tagline field
@@ -40,6 +41,7 @@ export function Preloader() {
   const oldLabelRef = useRef<HTMLSpanElement>(null)
   const newLabelRef = useRef<HTMLSpanElement>(null)
   const captionRef = useRef<HTMLSpanElement>(null)
+  const lightningRef = useRef<LightningHandle>(null)
 
   const [percent, setPercent] = useState(0)
   const [gone, setGone] = useState(false)
@@ -121,10 +123,35 @@ export function Preloader() {
     }
     settle = window.setTimeout(tryStart, 200)
 
+    // Two ambient sparks during the climb — L.U.K.A.S. waking up, not a
+    // storm — plus a larger one at the "Willkommen" moment (in beginTransition).
+    // Kept in the upper third of the screen so they read clearly instead of
+    // getting clipped behind the opaque oval.
+    const wake1 = window.setTimeout(() => {
+      lightningRef.current?.strike({
+        intensity: 0.7,
+        originX: 0.15 + Math.random() * 0.2,
+        originY: 0.05 + Math.random() * 0.08,
+        targetX: 0.15 + Math.random() * 0.2,
+        targetY: 0.2 + Math.random() * 0.1,
+      })
+    }, 600)
+    const wake2 = window.setTimeout(() => {
+      lightningRef.current?.strike({
+        intensity: 0.8,
+        originX: 0.65 + Math.random() * 0.2,
+        originY: 0.05 + Math.random() * 0.08,
+        targetX: 0.65 + Math.random() * 0.2,
+        targetY: 0.2 + Math.random() * 0.1,
+      })
+    }, 1500)
+
     return () => {
       cancelled = true
       tween.kill()
       if (settle) window.clearTimeout(settle)
+      window.clearTimeout(wake1)
+      window.clearTimeout(wake2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -144,6 +171,14 @@ export function Preloader() {
 
     caret.classList.remove('caret-blink')
     gsap.set(caret, { opacity: 1 })
+    lightningRef.current?.strike({
+      intensity: 1.15,
+      duration: 380,
+      originX: 0.35 + Math.random() * 0.3,
+      originY: 0.06 + Math.random() * 0.08,
+      targetX: 0.35 + Math.random() * 0.3,
+      targetY: 0.22 + Math.random() * 0.1,
+    })
 
     const tl = gsap.timeline()
     const rewrite = { p: 0 }
@@ -225,6 +260,9 @@ export function Preloader() {
           ))}
         </div>
       </div>
+
+      {/* signal sparks — L.U.K.A.S. waking up */}
+      <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[5]" />
 
       {/* foreground oval, shimmer chasing the pointer around its edge —
           the loading label and percentage live inside it */}

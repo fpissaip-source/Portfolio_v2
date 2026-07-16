@@ -9,12 +9,15 @@ type Project = {
   name: string
   tagline: string
   description: string
-  image: string
+  /** Omitted for hobby projects — no screenshot, just the write-up. */
+  image?: string
   /** Optional looping screen capture shown instead of the still image. */
   video?: string
   stack: string[]
   status: string
   featured?: boolean
+  /** Personal/side projects — rendered without media, with a plain badge. */
+  hobby?: boolean
 }
 
 const PROJECTS: Project[] = [
@@ -44,18 +47,18 @@ const PROJECTS: Project[] = [
     tagline: 'AI Learning Platform',
     description:
       'A document-to-learning workflow: upload notes and PDFs, then generate structured summaries, key terms, comprehension questions and adaptive quizzes. Includes mock-exam simulation and a full learning history for long-term use.',
-    image: '/projects/studyforge.png',
     stack: ['React', 'Tailwind CSS', 'TypeScript', 'AI Pipelines'],
     status: 'Product Prototype',
+    hobby: true,
   },
   {
-    name: 'Callcenter Operations Suite',
+    name: 'Team Operations Suite',
     tagline: 'Business Operations Platform',
     description:
-      'An internal performance, CRM and workforce platform. Operational KPI dashboards, customer & CRM documentation, live leaderboards, shift planning, an internal chat and incentive systems, all behind configurable admin roles and permissions.',
-    image: '/projects/callcenter.png',
+      'An internal performance, CRM and workforce platform for any team-based business. Operational KPI dashboards, customer & CRM documentation, live leaderboards, shift planning, an internal chat and incentive systems, all behind configurable admin roles and permissions.',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
     status: 'Full-Stack Concept',
+    hobby: true,
   },
   {
     name: 'Automation Systems',
@@ -67,13 +70,13 @@ const PROJECTS: Project[] = [
     status: 'Deployed / Research',
   },
   {
-    name: 'Issa Hareb Digital',
-    tagline: 'Service Platform',
+    name: 'Bewerbungsbot',
+    tagline: 'AI Job Application Assistant',
     description:
-      'A digital studio for modern websites, custom apps and AI automations with rapid delivery. Apple-inspired scroll storytelling, pricing and testimonials, lead capture, and a reusable component stack, with payment integration on the roadmap.',
-    image: '/projects/ihdigital.png',
-    stack: ['React', 'Tailwind CSS', 'GSAP', 'Framer Motion'],
-    status: 'Active Business Platform',
+      'An AI-driven job search and application pipeline. Aggregates apprenticeship listings from the German Federal Employment Agency API, finds and ranks real company contact emails, then drafts a fully personalized German cover letter with GPT-4o grounded strictly in the applicant\'s own CV, generates the application PDF and sends it automatically. Includes bulk-apply with duplicate detection and offline retry queuing.',
+    stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
+    status: 'In Use',
+    hobby: true,
   },
 ]
 
@@ -133,39 +136,50 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
         {/* glow border on hover */}
         <div className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-100 [box-shadow:0_0_80px_-20px_var(--blue),inset_0_0_0_1px_color-mix(in_oklch,var(--blue)_40%,transparent)]" />
 
-        <div
-          className={`relative overflow-hidden rounded-2xl ${
-            project.featured ? 'aspect-[16/10] md:h-full md:min-h-[22rem]' : 'aspect-[16/10]'
-          }`}
-        >
-          {project.video ? (
-            <video
-              ref={videoRef}
-              src={project.video}
-              poster={project.image}
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label={`${project.name}: ${project.tagline}`}
-              className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 will-transform group-hover:scale-105"
-            />
-          ) : (
-            <Image
-              src={project.image || '/placeholder.svg'}
-              alt={`${project.name}: ${project.tagline}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 50vw"
-              className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          {/* one flex bar — labels can never collide or overlap */}
-          <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.18em] [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
-            <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
-            <span className="shrink-0 text-blue">{project.status}</span>
+        {project.hobby ? (
+          <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-purple">
+              Hobby Project
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              {project.tagline}
+            </span>
           </div>
-        </div>
+        ) : (
+          <div
+            className={`relative overflow-hidden rounded-2xl ${
+              project.featured ? 'aspect-[16/10] md:h-full md:min-h-[22rem]' : 'aspect-[16/10]'
+            }`}
+          >
+            {project.video ? (
+              <video
+                ref={videoRef}
+                src={project.video}
+                poster={project.image}
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label={`${project.name}: ${project.tagline}`}
+                className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-700 will-transform group-hover:scale-105"
+              />
+            ) : (
+              <Image
+                src={project.image || '/placeholder.svg'}
+                alt={`${project.name}: ${project.tagline}`}
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover transition-transform duration-700 will-transform group-hover:scale-105"
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+            {/* one flex bar — labels can never collide or overlap */}
+            <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.18em] [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
+              <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
+              <span className="shrink-0 text-blue">{project.status}</span>
+            </div>
+          </div>
+        )}
 
         <div className={`px-4 pb-4 pt-5 ${project.featured ? 'md:flex md:flex-col md:justify-center md:px-8' : ''}`}>
           <h3 className={`font-semibold tracking-tight ${project.featured ? 'text-3xl sm:text-4xl' : 'text-2xl'}`}>

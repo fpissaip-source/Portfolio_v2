@@ -200,18 +200,18 @@ export function PhoneStory() {
           <text
             data-screen-text
             x="200"
-            y="625"
+            y="617"
             textAnchor="middle"
             className="font-sans"
-            style={{ opacity: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '0.01em' }}
+            style={{ opacity: 0, fontSize: '17px', fontWeight: 700, letterSpacing: '0.02em' }}
             fill="url(#screenText)"
           >
-            ONLY MY SMARTPHONE.
+            EVERYTHING BUILT ENTIRELY ON IPHONE.
           </text>
           <text
             data-screen-text
             x="200"
-            y="669"
+            y="658"
             textAnchor="middle"
             className="font-mono uppercase"
             style={{ opacity: 0, fontSize: '13px', fontWeight: 600, letterSpacing: '0.32em' }}

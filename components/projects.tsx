@@ -77,7 +77,6 @@ const PROJECTS: Project[] = [
     tagline: 'Bots, Scraping & Trading R&D',
     description:
       'A family of VPS-based automations: a Telegram scraper & distribution bot with a full link-ingestion pipeline, plus experimental Polymarket and trading research covering event-market discovery, CLOB order-book logic and a rule-based signal engine.',
-    image: '/projects/appautomation.png',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
     status: 'Deployed / Research',
   },
@@ -128,21 +127,8 @@ function ProjectDetail({ project, onClose }: { project: Project; onClose: () => 
           &times;
         </button>
 
-        {project.hobby ? (
-          <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-purple">
-              Hobby Project
-            </span>
-            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-              {project.tagline}
-            </span>
-          </div>
-        ) : (
-          <div
-            className={`relative overflow-hidden rounded-2xl ${
-              project.featured ? 'aspect-[16/10]' : 'aspect-[16/10]'
-            }`}
-          >
+        {project.image || project.video ? (
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
             {project.video ? (
               <video
                 src={project.video}
@@ -168,6 +154,15 @@ function ProjectDetail({ project, onClose }: { project: Project; onClose: () => 
               <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
               <span className="shrink-0 text-blue">{project.status}</span>
             </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-purple">
+              {project.hobby ? 'Hobby Project' : project.status}
+            </span>
+            <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+              {project.tagline}
+            </span>
           </div>
         )}
 

@@ -241,7 +241,13 @@ export const LightningFlash = forwardRef<LightningHandle, { className?: string }
       <canvas
         ref={canvasRef}
         aria-hidden
-        className={className}
+        // canvas is a replaced element with an intrinsic size (300x150) —
+        // `absolute inset-0` alone does NOT stretch a replaced element to
+        // fill its container the way it does a <div>, so an explicit
+        // h-full w-full is required or it silently renders tiny and
+        // pinned to the top-left, invisible on anything but a lucky
+        // aspect ratio.
+        className={`h-full w-full ${className ?? ''}`}
         style={{ mixBlendMode: 'screen' }}
       />
     )

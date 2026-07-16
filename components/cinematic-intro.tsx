@@ -456,8 +456,8 @@ export function CinematicIntro() {
           ref={nameRef}
           dir="/intro/type-issa"
           count={61}
-          widthFactor={0.5}
-          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] h-[13vh] w-full sm:top-[25%] sm:h-[11vh]"
+          widthFactor={0.7}
+          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] h-[17vh] w-full sm:top-[25%] sm:h-[15vh]"
         />
 
         {/* Scene 2 — text phrases */}

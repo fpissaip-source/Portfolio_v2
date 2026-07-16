@@ -225,6 +225,34 @@ export function Lukas() {
       }
       updateBeam(0)
 
+      // A fast mobile flick easily out-runs the snap: touch scroll is
+      // boosted site-wide (touchMultiplier 1.4 in smooth-scroll.tsx), so a
+      // single flick can cover more scroll distance than one beat's slot
+      // before momentum decays enough for the snap to catch it, skipping a
+      // beat entirely. Lenis reads touchMultiplier live on every touch
+      // event, so it's safe to dampen it just while this section is
+      // pinned — scroll still responds continuously to touch, it just
+      // can't travel as far per flick here, giving the snap room to catch
+      // every beat.
+      if (!prefersReduced) {
+        const lenisWin = window as unknown as {
+          __lenis?: { options: { touchMultiplier: number } }
+        }
+        const defaultTouchMultiplier = lenisWin.__lenis?.options.touchMultiplier ?? 1.4
+        const setTouchMultiplier = (v: number) => {
+          if (lenisWin.__lenis) lenisWin.__lenis.options.touchMultiplier = v
+        }
+        ScrollTrigger.create({
+          trigger: root,
+          start: 'top top',
+          end: 'bottom bottom',
+          onEnter: () => setTouchMultiplier(0.5),
+          onEnterBack: () => setTouchMultiplier(0.5),
+          onLeave: () => setTouchMultiplier(defaultTouchMultiplier),
+          onLeaveBack: () => setTouchMultiplier(defaultTouchMultiplier),
+        })
+      }
+
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
@@ -348,6 +376,12 @@ export function Lukas() {
     return () => {
       window.removeEventListener('resize', sizeCanvas)
       ctx.revert()
+      // Defensive: restore touch sensitivity if unmounted mid-section,
+      // since ctx.revert() kills the ScrollTrigger before its onLeave fires.
+      const lenisWin = window as unknown as {
+        __lenis?: { options: { touchMultiplier: number } }
+      }
+      if (lenisWin.__lenis) lenisWin.__lenis.options.touchMultiplier = 1.4
     }
   }, [])
 

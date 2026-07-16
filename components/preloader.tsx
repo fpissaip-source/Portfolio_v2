@@ -8,10 +8,11 @@ import { LightningFlash, type LightningHandle } from './lightning-flash'
 /**
  * Opening curtain. A mouse-chasing shimmer ring, a drifting tagline field
  * behind it, and a fast percentage count with a real blinking insertion
- * caret — which, at 100%, slides left across "Loading the film" and
- * rewrites it to "Willkommen" as it passes. A black ring then expands to
- * swallow the screen and fades away, revealing the hero already waiting
- * underneath.
+ * caret — which, at 100%, slides left across "Loading" and rewrites it to
+ * "Willkommen" as it passes. A black ring then expands to swallow the
+ * screen, then the whole overlay fades as one to reveal the hero
+ * underneath — never an intermediate flash of the preloader's own
+ * backdrop.
  */
 const TAGLINES = [
   'I build automations',
@@ -32,6 +33,7 @@ const MIN_SHOW_MS = 900
 const PERCENT_DURATION = 2.2
 
 export function Preloader() {
+  const rootRef = useRef<HTMLDivElement>(null)
   const ovalRef = useRef<HTMLDivElement>(null)
   const blackRef = useRef<HTMLDivElement>(null)
   const caretRef = useRef<HTMLSpanElement>(null)
@@ -217,13 +219,14 @@ export function Preloader() {
           gsap.set(newLabel, { clipPath: `inset(0 0 0 ${(1 - p) * 100}%)` })
         },
         onComplete: () => {
-          // Both labels were right-aligned inside a box sized to fit
-          // "Loading the film" so the caret wipe reveal has a fixed track to
-          // travel across. "Willkommen" is shorter, so once the wipe is
-          // done, hugging that same right edge leaves it visibly off-center
-          // in the pill. Switch the box (and the now-only-visible label) to
-          // shrink-wrap their real content so the row centers around
-          // "Willkommen" itself instead of the old wipe-track width.
+          // Both labels were right-aligned inside a fixed-width box so the
+          // caret wipe has a stable track to travel across. Once the wipe
+          // is done, hugging that same right edge leaves "Willkommen"
+          // visibly off-center in the pill (the box's fixed width doesn't
+          // match its actual rendered width). Switch the box (and the
+          // now-only-visible label) to shrink-wrap their real content so
+          // the row centers around "Willkommen" itself instead of the old
+          // fixed wipe-track width.
           if (labelBox) gsap.set(labelBox, { width: 'auto' })
           gsap.set(newLabel, { position: 'static', display: 'inline-flex' })
         },
@@ -233,25 +236,24 @@ export function Preloader() {
 
     tl.to({}, { duration: reduced ? 0 : 0.45 })
 
-    tl.set(black, { display: 'block' })
+    // The content must be fully gone before the black circle appears — it
+    // starts small from dead center, exactly where "Willkommen" sits, so
+    // starting the two together punched an opaque black hole through the
+    // still-fading word instead of a clean fade-to-black.
+    tl.to(
+      [oval, marquee, caret, oldLabel, newLabel, captionRef.current].filter(Boolean),
+      { opacity: 0, duration: reduced ? 0.01 : 0.22, ease: 'power1.in' },
+    )
+      .set(black, { display: 'block' })
+      .to(black, {
+        width: '300vmax',
+        height: '300vmax',
+        borderRadius: 0,
+        duration: reduced ? 0.05 : 0.75,
+        ease: 'power3.in',
+      })
       .to(
-        [oval, marquee, caret, oldLabel, newLabel, captionRef.current].filter(Boolean),
-        { opacity: 0, duration: reduced ? 0.01 : 0.22, ease: 'power1.in' },
-        '<',
-      )
-      .to(
-        black,
-        {
-          width: '300vmax',
-          height: '300vmax',
-          borderRadius: 0,
-          duration: reduced ? 0.05 : 0.75,
-          ease: 'power3.in',
-        },
-        '<',
-      )
-      .to(
-        black,
+        rootRef.current,
         {
           opacity: 0,
           duration: reduced ? 0.05 : 0.5,
@@ -268,7 +270,10 @@ export function Preloader() {
   if (gone) return null
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-white">
+    <div
+      ref={rootRef}
+      className="fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-white"
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -332,7 +337,7 @@ export function Preloader() {
               ref={oldLabelRef}
               className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
             >
-              Loading the film
+              Loading
             </span>
             <span
               ref={newLabelRef}

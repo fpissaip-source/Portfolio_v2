@@ -75,6 +75,7 @@ export function CinematicIntro() {
   const screenRef = useRef<HTMLDivElement>(null)
   const iamRef = useRef<ShimmerTitleHandle>(null)
   const nameRef = useRef<ShimmerTitleHandle>(null)
+  const nameWrapRef = useRef<HTMLDivElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
@@ -330,13 +331,47 @@ export function CinematicIntro() {
         },
         0.72,
       )
+      // "ISSA HAREB" doesn't just fade in place — it slides and shrinks
+      // down toward its exact position inside the monitor's screen
+      // preview while it dissolves, landing right as the static preview
+      // text (data-screen) fades in at that same spot. One continuous
+      // hand-off instead of two independent pieces of text appearing.
+      let nameSlide: { dx: number; dy: number; scale: number } | null = null
       tl.to(
         nameProxy,
         {
           p: 1,
           duration: 0.08,
           ease: 'none',
-          onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
+          onUpdate: () => {
+            nameRef.current?.setProgress(nameProxy.p)
+            const wrap = nameWrapRef.current
+            if (!wrap) return
+            if (!nameSlide) {
+              const textEl = wrap.querySelector<HTMLElement>('.shimmer-text')
+              const targetEl = screen.querySelector<HTMLElement>('[data-screen-name]')
+              if (!textEl || !targetEl) return
+              const tr = textEl.getBoundingClientRect()
+              const gr = targetEl.getBoundingClientRect()
+              if (tr.width === 0 || gr.width === 0) return
+              nameSlide = {
+                dx: gr.left + gr.width / 2 - (tr.left + tr.width / 2),
+                dy: gr.top + gr.height / 2 - (tr.top + tr.height / 2),
+                scale: gr.height / tr.height,
+              }
+            }
+            const slide = nameSlide
+            if (!slide) return
+            // nameProxy.p runs HOLD..1 in this tween, not 0..1 — normalize
+            // to a clean 0..1 slide progress so it doesn't jump straight to
+            // 60% on the very first frame.
+            const t = Math.max(0, Math.min(1, (nameProxy.p - HOLD) / (1 - HOLD)))
+            gsap.set(wrap, {
+              x: slide.dx * t,
+              y: slide.dy * t,
+              scale: 1 + (slide.scale - 1) * t,
+            })
+          },
         },
         0.72,
       )
@@ -433,6 +468,7 @@ export function CinematicIntro() {
               }}
             >
               <span
+                data-screen-name
                 className="font-sans font-bold tracking-[0.12em]"
                 style={{
                   fontSize: 'min(4cqw, 28px)',
@@ -485,11 +521,20 @@ export function CinematicIntro() {
           text="I AM"
           className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] flex h-[15vh] w-full items-center justify-center text-center font-sans text-4xl font-bold tracking-tight sm:top-[11%] sm:h-[13vh] sm:text-6xl md:text-7xl"
         />
-        <ShimmerTitle
-          ref={nameRef}
-          text="ISSA HAREB"
-          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] flex h-[17vh] w-full items-center justify-center px-4 text-center font-sans text-4xl font-bold tracking-tight sm:top-[25%] sm:h-[15vh] sm:text-7xl md:text-9xl"
-        />
+        {/* Wrapped separately from ShimmerTitle's own opacity/blur life cycle
+            so it can also be slid + scaled down toward the monitor screen
+            as it dissolves — it becomes the real "ISSA HAREB" sitting in
+            the screen preview rather than fading away independently of it. */}
+        <div
+          ref={nameWrapRef}
+          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] sm:top-[25%]"
+        >
+          <ShimmerTitle
+            ref={nameRef}
+            text="ISSA HAREB"
+            className="flex h-[17vh] w-full items-center justify-center px-4 text-center font-sans text-4xl font-bold tracking-tight sm:h-[15vh] sm:text-7xl md:text-9xl"
+          />
+        </div>
 
         {/* Scene 2 — text phrases */}
         <div className="pointer-events-none absolute inset-0 z-[10] flex items-center justify-center px-6">

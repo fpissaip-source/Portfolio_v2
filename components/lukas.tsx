@@ -12,26 +12,33 @@ gsap.registerPlugin(ScrollTrigger)
  * plays like a film sequence: the name assembles, then five beats fade
  * through over a generated neuron-field film scrubbed on a canvas.
  *
- * The film is choreographed to the beats:
- *   act 1 (frames 0..A)   — dormant field, no glow; a first neuron region
- *                           awakens right before beat 1 appears
- *   act 2 (frames A..B)   — smooth cinematic zoom along the filaments into
- *                           that glowing region, landing before beat 2
- *   act 3 (frames B..end) — a second region lights up deeper in the field
- *                           and the camera dives toward it
+ * The film is choreographed to the beats — each of the 5 beats gets its
+ * own camera event, landing on 3 distinct glowing nodes in total:
+ *   act 1 (frames 0..A)     — dormant field, no glow; node 1 awakens
+ *                             right before beat 1 appears
+ *   act 2 (frames A..B)     — smooth cinematic zoom along the filaments
+ *                             into node 1, landing before beat 2 settles
+ *   act 3 (frames B..C)     — node 2 lights up deeper in the field and the
+ *                             camera dives toward it during beat 3,
+ *                             arriving as beat 4 begins
+ *   act 4 (frames C..end)   — node 3 lights up further still and the
+ *                             camera dives toward it during beat 4,
+ *                             arriving as beat 5 begins and holding there
  */
-const FRAME_COUNT = 182
+const FRAME_COUNT = 243
 const framePath = (i: number) =>
   `/lukas/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`
 
-/** Clip boundaries in frames (three 5s clips at 12fps). */
+/** Clip boundaries in frames (four 5s clips at 12fps). */
 const ACT_1_END = 60
 const ACT_2_END = 121
+const ACT_3_END = 181
 
 /** Section-progress checkpoints the acts are pinned to. */
 const P_GLOW_1 = 0.26 // act 1 fully played just as beat 1 stands
 const P_ARRIVED = 0.46 // zoom finished shortly before beat 2 settles
-const P_GLOW_2 = 0.78 // second light-up + dive play across beats 3–4
+const P_GLOW_2 = 0.64 // node 2 arrives just as beat 4 stands
+const P_GLOW_3 = 0.78 // node 3 arrives just as beat 5 stands, then holds
 
 /** Body copy is split into sentences; each sentence renders as its own line
  *  so thoughts never break apart mid-sentence while wrapping. */
@@ -85,9 +92,11 @@ function frameForProgress(p: number): number {
   if (p <= P_ARRIVED)
     return ACT_1_END + ((p - P_GLOW_1) / (P_ARRIVED - P_GLOW_1)) * (ACT_2_END - ACT_1_END)
   if (p <= P_GLOW_2)
+    return ACT_2_END + ((p - P_ARRIVED) / (P_GLOW_2 - P_ARRIVED)) * (ACT_3_END - ACT_2_END)
+  if (p <= P_GLOW_3)
     return (
-      ACT_2_END +
-      ((p - P_ARRIVED) / (P_GLOW_2 - P_ARRIVED)) * (FRAME_COUNT - 1 - ACT_2_END)
+      ACT_3_END +
+      ((p - P_GLOW_2) / (P_GLOW_3 - P_GLOW_2)) * (FRAME_COUNT - 1 - ACT_3_END)
     )
   return FRAME_COUNT - 1
 }

@@ -169,6 +169,21 @@ export function Preloader() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const travel = caret.getBoundingClientRect().left - oldLabel.getBoundingClientRect().left
 
+    // Take the percent group out of the flex flow at its current on-screen
+    // spot before fading it — otherwise it keeps occupying layout width
+    // while invisible, and "Willkommen" ends up sitting left-of-center in
+    // the pill instead of centered once it's the only thing left.
+    const parent = percentGroup.offsetParent as HTMLElement | null
+    if (parent) {
+      const pr = percentGroup.getBoundingClientRect()
+      const or = parent.getBoundingClientRect()
+      gsap.set(percentGroup, {
+        position: 'absolute',
+        left: pr.left - or.left,
+        top: pr.top - or.top,
+      })
+    }
+
     caret.classList.remove('caret-blink')
     gsap.set(caret, { opacity: 1 })
     lightningRef.current?.strike({
@@ -191,7 +206,12 @@ export function Preloader() {
         onUpdate: () => {
           const p = rewrite.p
           gsap.set(caret, { x: -travel * p })
-          gsap.set(oldLabel, { clipPath: `inset(0 0 0 ${p * 100}%)` })
+          // Both wipes track the caret's actual right-to-left motion: the
+          // old label erases starting from its right edge (clipped via the
+          // right inset, growing as p increases) instead of its left edge,
+          // and the new label reveals growing leftward from the right edge
+          // it shares with the caret's path.
+          gsap.set(oldLabel, { clipPath: `inset(0 ${p * 100}% 0 0)` })
           gsap.set(newLabel, { clipPath: `inset(0 0 0 ${(1 - p) * 100}%)` })
         },
       },

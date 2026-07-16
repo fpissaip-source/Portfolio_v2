@@ -144,6 +144,44 @@ html.preloading {
   animation: caret-blink 1s step-end infinite;
 }
 
+/* ambient shimmer sweep across bold title letters — a bright band drifts
+   across the text (background-clip: text), pausing off to each side so it
+   reads as a periodic flash rather than a constant scroll. */
+.shimmer-text {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.95) 45%,
+    color-mix(in oklch, var(--purple) 75%, white) 50%,
+    rgba(255, 255, 255, 0.95) 55%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: rgba(255, 255, 255, 0.88);
+  animation: title-shimmer 4.5s ease-in-out infinite;
+}
+@keyframes title-shimmer {
+  0%,
+  40% {
+    background-position: 200% 0;
+  }
+  70% {
+    background-position: -70% 0;
+  }
+  100% {
+    background-position: -70% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-text {
+    animation: none;
+    background-position: 0 0;
+  }
+}
+
 /* slow breathing for the corner edge glows */
 @keyframes edge-glow-pulse {
   0%,

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { GlowTitle, type GlowTitleHandle } from './glow-title'
+import { ShimmerTitle, type ShimmerTitleHandle } from './shimmer-title'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -73,8 +73,8 @@ export function CinematicIntro() {
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
-  const iamRef = useRef<GlowTitleHandle>(null)
-  const nameRef = useRef<GlowTitleHandle>(null)
+  const iamRef = useRef<ShimmerTitleHandle>(null)
+  const nameRef = useRef<ShimmerTitleHandle>(null)
   const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
@@ -291,7 +291,7 @@ export function CinematicIntro() {
       )
 
       // "I AM" then "ISSA HAREB" — a single sentence assembling at the top:
-      // "I AM" writes in first and holds fully lit (GlowTitle's own life
+      // "I AM" writes in first and holds fully lit (ShimmerTitle's own life
       // cycle only fades past p=0.78, so parking each proxy at 0.6 keeps it
       // written-and-held), then "ISSA HAREB" writes in below it and holds
       // too — both parts stay on screen together until a shared dissolve
@@ -480,19 +480,15 @@ export function CinematicIntro() {
             the screen. Each part writes in, then holds fully lit while the
             next writes below it; both stay until a shared dissolve at the
             very end of the flight. */}
-        <GlowTitle
+        <ShimmerTitle
           ref={iamRef}
-          dir="/intro/type-iam"
-          count={61}
-          widthFactor={0.42}
-          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full sm:top-[11%] sm:h-[13vh]"
+          text="I AM"
+          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] flex h-[15vh] w-full items-center justify-center text-center font-sans text-4xl font-bold tracking-tight sm:top-[11%] sm:h-[13vh] sm:text-6xl md:text-7xl"
         />
-        <GlowTitle
+        <ShimmerTitle
           ref={nameRef}
-          dir="/intro/type-issa"
-          count={61}
-          widthFactor={0.7}
-          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] h-[17vh] w-full sm:top-[25%] sm:h-[15vh]"
+          text="ISSA HAREB"
+          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] flex h-[17vh] w-full items-center justify-center px-4 text-center font-sans text-4xl font-bold tracking-tight sm:top-[25%] sm:h-[15vh] sm:text-7xl md:text-9xl"
         />
 
         {/* Scene 2 — text phrases */}

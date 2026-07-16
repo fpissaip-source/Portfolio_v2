@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
@@ -87,6 +87,26 @@ export function Preloader() {
     }
   }, [angle])
 
+  // The label box's width used to be a fixed guess sized for the old, much
+  // longer "Loading the film" copy. Once the label shrank to "Loading", that
+  // stale width left a big empty gap on the box's left (it right-aligns its
+  // text), which reads as asymmetric padding inside the pill. Size the box
+  // to the label's own true rendered width instead — clip-path/mask don't
+  // affect getBoundingClientRect, so this measures cleanly even mid-wipe.
+  useLayoutEffect(() => {
+    const box = labelBoxRef.current
+    const oldLabel = oldLabelRef.current
+    if (!box || !oldLabel) return
+    const sizeBox = () => {
+      const w = oldLabel.getBoundingClientRect().width
+      if (w > 0) gsap.set(box, { width: w })
+    }
+    sizeBox()
+    window.addEventListener('resize', sizeBox)
+    document.fonts?.ready?.then(sizeBox).catch(() => {})
+    return () => window.removeEventListener('resize', sizeBox)
+  }, [])
+
   useEffect(() => {
     document.documentElement.classList.add('preloading')
     let cancelled = false
@@ -170,8 +190,30 @@ export function Preloader() {
     const marquee = marqueeRef.current
     if (!caret || !percentGroup || !oldLabel || !newLabel || !black) return
 
+    // Defensive re-measure right before we depend on the box's width (e.g. a
+    // resize landed between mount and now) — travel below is derived from
+    // where this puts "Loading"'s left edge.
+    if (labelBox) {
+      const w = oldLabel.getBoundingClientRect().width
+      if (w > 0) gsap.set(labelBox, { width: w })
+    }
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const travel = caret.getBoundingClientRect().left - oldLabel.getBoundingClientRect().left
+
+    // Both labels are right-anchored to the same edge, but "Willkommen" is
+    // longer than "Loading". Wiping each at its own 0-100% pace (the naive
+    // approach) puts their erase/reveal fronts at different absolute
+    // x-positions, so for a stretch of the animation both words are
+    // partially opaque over the same pixels — two different words blended
+    // together reads as warped/garbled text. Scaling the old label's pace up
+    // by (new width / old width) keeps both fronts on the same shared,
+    // caret-driven boundary the whole time, so only one word is ever opaque
+    // at a given x — the old word simply finishes erasing early (clamped at
+    // 0) once the new, longer one still needs more room to reveal.
+    const oldWidth = oldLabel.getBoundingClientRect().width
+    const newWidth = newLabel.getBoundingClientRect().width
+    const oldPaceRatio = oldWidth > 0 ? newWidth / oldWidth : 1
 
     // Take the percent group out of the flex flow at its current on-screen
     // spot before fading it — otherwise it keeps occupying layout width
@@ -210,13 +252,22 @@ export function Preloader() {
         onUpdate: () => {
           const p = rewrite.p
           gsap.set(caret, { x: -travel * p })
-          // Both wipes track the caret's actual right-to-left motion: the
-          // old label erases starting from its right edge (clipped via the
-          // right inset, growing as p increases) instead of its left edge,
-          // and the new label reveals growing leftward from the right edge
-          // it shares with the caret's path.
-          gsap.set(oldLabel, { clipPath: `inset(0 ${p * 100}% 0 0)` })
-          gsap.set(newLabel, { clipPath: `inset(0 0 0 ${(1 - p) * 100}%)` })
+          // A hard clip-path edge here can cut mid-glyph on real devices
+          // (especially the wide "W" in "Willkommen"), which reads as the
+          // letters warping — a soft feathered mask avoids ever landing a
+          // hard edge inside a glyph.
+          const FEATHER = 5
+          const oldP = Math.min(1, p * oldPaceRatio)
+          const oldBoundary = (1 - oldP) * 100
+          const ob0 = Math.max(0, oldBoundary - FEATHER)
+          const ob1 = Math.min(100, oldBoundary + FEATHER)
+          const newBoundary = (1 - p) * 100
+          const nb0 = Math.max(0, newBoundary - FEATHER)
+          const nb1 = Math.min(100, newBoundary + FEATHER)
+          const oldMask = `linear-gradient(to right, black 0%, black ${ob0}%, transparent ${ob1}%, transparent 100%)`
+          const newMask = `linear-gradient(to right, transparent 0%, transparent ${nb0}%, black ${nb1}%, black 100%)`
+          gsap.set(oldLabel, { WebkitMaskImage: oldMask, maskImage: oldMask, clipPath: 'none' })
+          gsap.set(newLabel, { WebkitMaskImage: newMask, maskImage: newMask, clipPath: 'none' })
         },
         onComplete: () => {
           // Both labels were right-aligned inside a fixed-width box so the
@@ -332,7 +383,10 @@ export function Preloader() {
           ref={rowRef}
           className="relative z-10 flex items-center justify-center gap-3 px-6 sm:gap-4"
         >
-          <div ref={labelBoxRef} className="relative h-8 w-[150px] shrink-0 sm:h-11 sm:w-[220px]">
+          <div
+            ref={labelBoxRef}
+            className="relative h-8 w-[78px] shrink-0 sm:h-11 sm:w-[134px]"
+          >
             <span
               ref={oldLabelRef}
               className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
@@ -342,7 +396,10 @@ export function Preloader() {
             <span
               ref={newLabelRef}
               className="absolute inset-y-0 right-0 flex items-center whitespace-nowrap font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
-              style={{ clipPath: 'inset(0 0 0 100%)' }}
+              style={{
+                WebkitMaskImage: 'linear-gradient(to right, transparent 0%, transparent 100%)',
+                maskImage: 'linear-gradient(to right, transparent 0%, transparent 100%)',
+              }}
             >
               Willkommen
             </span>

@@ -5,6 +5,29 @@ import { useInView } from 'motion/react'
 import { Smartphone } from 'lucide-react'
 import { Reveal, WordReveal } from './anim'
 
+const STORY = [
+  {
+    era: 'The Start',
+    title: 'Drawn to the digital world',
+    body: "I'm Issa, 24, based in Essen. For as long as I can remember I've been curious about the digital world and everything you can build in it — long before I ever wrote a line of code.",
+  },
+  {
+    era: 'The Foundation',
+    title: 'Fachabitur, then the real world',
+    body: 'I earned my Fachabitur in business and administration with strong grades — and then kept it grounded, working a string of full-time jobs and learning how things actually run.',
+  },
+  {
+    era: 'The Spark',
+    title: 'Then AI changed everything',
+    body: 'When OpenAI set the AI wave rolling with ChatGPT, something clicked. It woke a passion I never knew I had — suddenly the digital world I had always watched became something I could build in.',
+  },
+  {
+    era: 'Today',
+    title: 'Learning something new, every day',
+    body: 'Since that day I have taught myself something new every single day, and I make a point of staying on the leading edge of what is possible. Everything on this site is the result.',
+  },
+]
+
 const PILLARS = [
   {
     title: 'Problem Solving',
@@ -149,6 +172,62 @@ export function About() {
             </Reveal>
           ))}
         </div>
+      </div>
+
+      {/* The story so far — a glowing timeline instead of a wall of text,
+          designed to still feel alive on a narrow phone screen. */}
+      <div className="mt-28">
+        <Reveal>
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
+            Origin story
+          </span>
+        </Reveal>
+        <WordReveal
+          as="h2"
+          text="The story so far."
+          className="mt-4 text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
+        />
+
+        <ol className="relative mt-12 max-w-3xl">
+          {/* glowing spine */}
+          <div
+            aria-hidden
+            className="absolute bottom-2 left-[7px] top-2 w-px"
+            style={{
+              background:
+                'linear-gradient(to bottom, color-mix(in oklch, var(--blue) 70%, transparent), color-mix(in oklch, var(--purple) 70%, transparent), transparent)',
+            }}
+          />
+          {STORY.map((s, i) => (
+            <li key={s.era} className="relative pb-12 pl-10 last:pb-0">
+              {/* pulsing node on the spine */}
+              <span
+                aria-hidden
+                className="absolute left-0 top-1.5 grid h-[15px] w-[15px] place-items-center"
+              >
+                <span className="absolute inset-0 animate-ping rounded-full bg-blue/25 [animation-duration:3s]" />
+                <span
+                  className="h-2 w-2 rounded-full bg-blue"
+                  style={{
+                    boxShadow:
+                      '0 0 10px color-mix(in oklch, var(--blue) 90%, transparent), 0 0 26px color-mix(in oklch, var(--purple) 55%, transparent)',
+                  }}
+                />
+              </span>
+              <Reveal delay={i * 0.06} y={24}>
+                <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-purple/90">
+                  {s.era}
+                </span>
+                <h3 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
+                  {s.title}
+                </h3>
+                <p className="mt-3 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+                  {s.body}
+                </p>
+              </Reveal>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   )

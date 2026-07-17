@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ShimmerTitle, type ShimmerTitleHandle } from './shimmer-title'
+import { NodeTitle, type NodeTitleHandle } from './node-title'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -73,9 +73,8 @@ export function CinematicIntro() {
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
-  const iamRef = useRef<ShimmerTitleHandle>(null)
-  const nameRef = useRef<ShimmerTitleHandle>(null)
-  const nameWrapRef = useRef<HTMLDivElement>(null)
+  const titleRef = useRef<NodeTitleHandle>(null)
+  const titleWrapRef = useRef<HTMLDivElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
 
@@ -300,90 +299,52 @@ export function CinematicIntro() {
         0.012,
       )
 
-      // "I AM" then "ISSA HAREB" — a single sentence assembling at the top:
-      // "I AM" writes in first and holds fully lit (ShimmerTitle's own life
-      // cycle only fades past p=0.78, so parking each proxy at 0.6 keeps it
-      // written-and-held), then "ISSA HAREB" writes in below it and holds
-      // too — both parts stay on screen together until a shared dissolve
-      // right at the end of the flight, instead of each fading on its own.
-      const HOLD = 0.6
-      const iamProxy = { p: 0 }
-      const nameProxy = { p: 0 }
-      tl.to(
-        iamProxy,
-        {
-          p: HOLD,
-          duration: 0.16,
-          ease: 'none',
-          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
-        },
-        0.04,
-      )
-      tl.to(
-        nameProxy,
-        {
-          p: HOLD,
-          duration: 0.16,
-          ease: 'none',
-          onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
-        },
-        0.22,
-      )
-      // Shared dissolve — both parts fade and blur away together.
-      tl.to(
-        iamProxy,
-        {
-          p: 1,
-          duration: 0.08,
-          ease: 'none',
-          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
-        },
-        0.72,
-      )
-      // "ISSA HAREB" doesn't just fade in place — it slides and shrinks
-      // down toward its exact position inside the monitor's screen
-      // preview while it dissolves, landing right as the static preview
-      // text (data-screen) fades in at that same spot. One continuous
-      // hand-off instead of two independent pieces of text appearing.
-      let nameSlide: { dx: number; dy: number; scale: number } | null = null
-      tl.to(
-        nameProxy,
-        {
-          p: 1,
-          duration: 0.08,
-          ease: 'none',
-          onUpdate: () => {
-            nameRef.current?.setProgress(nameProxy.p)
-            const wrap = nameWrapRef.current
-            if (!wrap) return
-            if (!nameSlide) {
-              const textEl = wrap.querySelector<HTMLElement>('.shimmer-text')
-              const targetEl = screen.querySelector<HTMLElement>('[data-screen-name]')
-              if (!textEl || !targetEl) return
-              const tr = textEl.getBoundingClientRect()
-              const gr = targetEl.getBoundingClientRect()
-              if (tr.width === 0 || gr.width === 0) return
-              nameSlide = {
-                dx: gr.left + gr.width / 2 - (tr.left + tr.width / 2),
-                dy: gr.top + gr.height / 2 - (tr.top + tr.height / 2),
-                scale: gr.height / tr.height,
-              }
-            }
-            const slide = nameSlide
-            if (!slide) return
-            // nameProxy.p runs HOLD..1 in this tween, not 0..1 — normalize
-            // to a clean 0..1 slide progress so it doesn't jump straight to
-            // 60% on the very first frame.
-            const t = Math.max(0, Math.min(1, (nameProxy.p - HOLD) / (1 - HOLD)))
-            gsap.set(wrap, {
-              x: slide.dx * t,
-              y: slide.dy * t,
-              scale: 1 + (slide.scale - 1) * t,
-            })
-          },
-        },
-        0.72,
-      )
+      // "I AM ISSA" assembles word-by-word out of flashing nodes at the top
+      // of the screen, holds outlined-and-glowing, then morphs into
+      // "ISSA HAREB" (I/AM spark away, the first ISSA glides into place as
+      // HAREB forms beside it). All of that lives inside NodeTitle, driven
+      // by ONE 0→1 progress value; the final stretch (p 0.88→1) is the
+      // monitor hand-off, where the whole canvas slides and shrinks so the
+      // remaining "ISSA HAREB" lands exactly on the screen preview just as
+      // the static preview text (data-screen) fades in at that same spot.
+      const SLIDE_START = 0.88
+      let titleSlide: { dx: number; dy: number; scale: number } | null = null
+      const titleProxy = { p: 0 }
+      const updateTitle = () => {
+        titleRef.current?.setProgress(titleProxy.p)
+        const wrap = titleWrapRef.current
+        if (!wrap) return
+        const t = Math.max(0, Math.min(1, (titleProxy.p - SLIDE_START) / (1 - SLIDE_START)))
+        if (t === 0) {
+          gsap.set(wrap, { x: 0, y: 0, scale: 1 })
+          return
+        }
+        if (!titleSlide) {
+          const nr = titleRef.current?.getNameRect()
+          const targetEl = screen.querySelector<HTMLElement>('[data-screen-name]')
+          if (!nr || !targetEl) return
+          const gr = targetEl.getBoundingClientRect()
+          if (nr.width === 0 || gr.width === 0) return
+          titleSlide = {
+            dx: gr.left + gr.width / 2 - (nr.left + nr.width / 2),
+            dy: gr.top + gr.height / 2 - (nr.top + nr.height / 2),
+            scale: gr.height / nr.height,
+          }
+          // Scale around the name's own center (wrap covers the viewport,
+          // and its client origin matches the sticky viewport's 0,0).
+          const wr = wrap.getBoundingClientRect()
+          wrap.style.transformOrigin = `${nr.left + nr.width / 2 - wr.left}px ${nr.top + nr.height / 2 - wr.top}px`
+        }
+        gsap.set(wrap, {
+          x: titleSlide.dx * t,
+          y: titleSlide.dy * t,
+          scale: 1 + (titleSlide.scale - 1) * t,
+        })
+      }
+      // Form + hold across the flight…
+      tl.to(titleProxy, { p: 0.85, duration: 0.62, ease: 'none', onUpdate: updateTitle }, 0.05)
+      // …then dissolve + slide onto the monitor right before the zoom.
+      tl.to(titleProxy, { p: 1, duration: 0.1, ease: 'none', onUpdate: updateTitle }, 0.71)
     }, root)
 
     // Ensure ScrollTrigger measures correctly once mounted.
@@ -602,28 +563,15 @@ export function CinematicIntro() {
           </div>
         </div>
 
-        {/* "I AM" / "ISSA HAREB" — a persistent title stacked at the top of
-            the screen. Each part writes in, then holds fully lit while the
-            next writes below it; both stay until a shared dissolve at the
-            very end of the flight. */}
-        <ShimmerTitle
-          ref={iamRef}
-          text="I AM"
-          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] flex h-[15vh] w-full items-center justify-center text-center font-sans text-4xl font-bold tracking-tight sm:top-[11%] sm:h-[13vh] sm:text-6xl md:text-7xl"
-        />
-        {/* Wrapped separately from ShimmerTitle's own opacity/blur life cycle
-            so it can also be slid + scaled down toward the monitor screen
-            as it dissolves — it becomes the real "ISSA HAREB" sitting in
-            the screen preview rather than fading away independently of it. */}
+        {/* "I AM ISSA" → "ISSA HAREB" — outlined letters assembling from
+            flashing nodes near the top of the screen (see NodeTitle). The
+            wrapper is what slides/scales the finished name down onto the
+            monitor's screen preview at the end of the flight. */}
         <div
-          ref={nameWrapRef}
-          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] sm:top-[25%]"
+          ref={titleWrapRef}
+          className="pointer-events-none absolute inset-0 z-[16] will-transform"
         >
-          <ShimmerTitle
-            ref={nameRef}
-            text="ISSA HAREB"
-            className="flex h-[17vh] w-full items-center justify-center px-4 text-center font-sans text-4xl font-bold tracking-tight sm:h-[15vh] sm:text-7xl md:text-9xl"
-          />
+          <NodeTitle ref={titleRef} className="absolute inset-0 h-full w-full" />
         </div>
 
         {/* Scene 2 — text phrases */}

@@ -76,20 +76,24 @@ const PROJECT_META: ProjectMeta[] = [
   },
   {
     name: 'StudyForge',
+    image: '/projects/studyforge.png',
     stack: ['React', 'Tailwind CSS', 'TypeScript', 'AI Pipelines'],
     hobby: true,
   },
   {
     name: 'Team Operations Suite',
+    image: '/projects/teamops.png',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
     hobby: true,
   },
   {
     name: 'Automation Systems',
+    image: '/projects/automation.png',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
   },
   {
     name: 'Bewerbungsbot',
+    image: '/projects/bewerbungsbot.png',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
     hobby: true,
   },

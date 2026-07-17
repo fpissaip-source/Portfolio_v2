@@ -27,13 +27,10 @@ const TAGLINES = [
   'I build products end to end',
 ]
 
-const PRELOAD = [
-  '/intro/cinematic-poster.jpg',
-  ...Array.from(
-    { length: 36 },
-    (_, i) => `/intro/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`,
-  ),
-]
+/** The cinematic intro's own <video preload="auto"> starts fetching the
+ *  film the moment the page mounts beneath this overlay — only the poster
+ *  needs to be guaranteed here so the intro canvas never flashes empty. */
+const PRELOAD = ['/intro/cinematic-poster.jpg']
 
 const MIN_SHOW_MS = 900
 const PERCENT_DURATION = 2.2

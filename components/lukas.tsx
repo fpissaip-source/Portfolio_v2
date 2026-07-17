@@ -10,35 +10,22 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * Flagship scroll story for L.U.K.A.S. — pinned full-screen chapter that
  * plays like a film sequence: the name assembles, then five beats fade
- * through over a generated neuron-field film scrubbed on a canvas.
+ * through over a generated 3D node-network film scrubbed by scroll.
  *
- * The film is choreographed to the beats — each of the 5 beats gets its
- * own camera event, landing on 3 distinct glowing nodes in total:
- *   act 1 (frames 0..A)     — dormant field, no glow; node 1 awakens
- *                             right before beat 1 appears
- *   act 2 (frames A..B)     — smooth cinematic zoom along the filaments
- *                             into node 1, landing before beat 2 settles
- *   act 3 (frames B..C)     — node 2 lights up deeper in the field and the
- *                             camera dives toward it during beat 3,
- *                             arriving as beat 4 begins
- *   act 4 (frames C..end)   — node 3 lights up further still and the
- *                             camera dives toward it during beat 4,
- *                             arriving as beat 5 begins and holding there
+ * The film is one continuous shot — a slow camera pull-back through a
+ * rigid network of glowing nodes. Depth layers keep revealing, nodes
+ * ignite one after another, and electric arcs travel the straight
+ * connection lines in the second half. It ships as an All-Intra MP4
+ * (every frame a keyframe), so scrubbing `currentTime` from scroll lands
+ * instantly on exact frames — no GOP seeking stalls.
  */
-const FRAME_COUNT = 243
-const framePath = (i: number) =>
-  `/lukas/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`
+const VIDEO_DESKTOP = '/videos/lukas-desktop.mp4'
+const VIDEO_MOBILE = '/videos/lukas-mobile.mp4'
 
-/** Clip boundaries in frames (four 5s clips at 12fps). */
-const ACT_1_END = 60
-const ACT_2_END = 121
-const ACT_3_END = 181
-
-/** Section-progress checkpoints the acts are pinned to. */
-const P_GLOW_1 = 0.26 // act 1 fully played just as beat 1 stands
-const P_ARRIVED = 0.46 // zoom finished shortly before beat 2 settles
-const P_GLOW_2 = 0.64 // node 2 arrives just as beat 4 stands
-const P_GLOW_3 = 0.78 // node 3 arrives just as beat 5 stands, then holds
+/** The film plays across section progress 0 → P_FILM_END, then holds its
+ *  final composition while beat 5 stands — the same hold the old frame
+ *  sequence had from 0.78 onward. */
+const P_FILM_END = 0.78
 
 /** Body copy is split into sentences; each sentence renders as its own line
  *  so thoughts never break apart mid-sentence while wrapping. */
@@ -85,109 +72,66 @@ const BEATS = [
   },
 ]
 
-/** Piecewise map of section progress → film frame, so glows and zooms land
- *  exactly around the beats. */
-function frameForProgress(p: number): number {
-  if (p <= P_GLOW_1) return (p / P_GLOW_1) * ACT_1_END
-  if (p <= P_ARRIVED)
-    return ACT_1_END + ((p - P_GLOW_1) / (P_ARRIVED - P_GLOW_1)) * (ACT_2_END - ACT_1_END)
-  if (p <= P_GLOW_2)
-    return ACT_2_END + ((p - P_ARRIVED) / (P_GLOW_2 - P_ARRIVED)) * (ACT_3_END - ACT_2_END)
-  if (p <= P_GLOW_3)
-    return (
-      ACT_3_END +
-      ((p - P_GLOW_2) / (P_GLOW_3 - P_GLOW_2)) * (FRAME_COUNT - 1 - ACT_3_END)
-    )
-  return FRAME_COUNT - 1
-}
-
 export function Lukas() {
   const rootRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
 
   useEffect(() => {
     const root = rootRef.current
-    const canvas = canvasRef.current
-    if (!root || !canvas) return
-    const ctx2d = canvas.getContext('2d')
-    if (!ctx2d) return
+    const video = videoRef.current
+    if (!root || !video) return
 
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    // --- frame sequence scrubbing --------------------------------------
-    const images: HTMLImageElement[] = new Array(FRAME_COUNT)
-    const loaded = new Array<boolean>(FRAME_COUNT).fill(false)
-    let currentIndex = -1
+    // --- scroll-scrubbed video -----------------------------------------
+    // Source is picked once on mount: the 9:16 crop keeps the dense heart
+    // of the network centered on portrait screens instead of letting
+    // object-cover slice an arbitrary window out of the 16:9 master —
+    // and phones download a third of the bytes.
+    const isPortraitPhone = window.matchMedia('(max-width: 768px)').matches
 
-    const drawCover = (img: HTMLImageElement) => {
-      const cw = canvas.clientWidth
-      const ch = canvas.clientHeight
-      if (!cw || !ch || !img.naturalWidth) return
-      const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
-      ctx2d.clearRect(0, 0, cw, ch)
-      ctx2d.drawImage(
-        img,
-        (cw - img.naturalWidth * scale) / 2,
-        (ch - img.naturalHeight * scale) / 2,
-        img.naturalWidth * scale,
-        img.naturalHeight * scale,
-      )
-    }
-
-    const renderIndex = (index: number) => {
-      const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, Math.round(index)))
-      let img = images[clamped]
-      if (!loaded[clamped]) {
-        let lo = clamped
-        let hi = clamped
-        let found: HTMLImageElement | null = null
-        while (lo >= 0 || hi < FRAME_COUNT) {
-          if (lo >= 0 && loaded[lo]) {
-            found = images[lo]
-            break
-          }
-          if (hi < FRAME_COUNT && loaded[hi]) {
-            found = images[hi]
-            break
-          }
-          lo--
-          hi++
-        }
-        if (!found) return
-        img = found
+    // Seek queue — never issue overlapping seeks; the newest target wins.
+    // With All-Intra encoding every frame is a keyframe, so each seek
+    // resolves in one decode and `fastSeek` (where available) is exact.
+    const fastSeek = (
+      video as HTMLVideoElement & { fastSeek?: (time: number) => void }
+    ).fastSeek?.bind(video)
+    let pendingTime: number | null = null
+    let seekBusy = false
+    const seekTo = (t: number) => {
+      const d = video.duration
+      if (!d || Number.isNaN(d)) return
+      const clamped = Math.max(0, Math.min(d - 1 / 24, t))
+      if (seekBusy) {
+        pendingTime = clamped
+        return
       }
-      currentIndex = clamped
-      drawCover(img)
+      seekBusy = true
+      if (fastSeek) fastSeek(clamped)
+      else video.currentTime = clamped
     }
-
-    const sizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = Math.round(canvas.clientWidth * dpr)
-      canvas.height = Math.round(canvas.clientHeight * dpr)
-      ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0)
-      renderIndex(currentIndex >= 0 ? currentIndex : 0)
-    }
-
-    let firstDrawn = false
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      img.onload = () => {
-        loaded[i] = true
-        if (i === 0 && !firstDrawn) {
-          firstDrawn = true
-          sizeCanvas()
-        } else if (i === currentIndex) {
-          renderIndex(i)
-        }
+    const onSeeked = () => {
+      seekBusy = false
+      if (pendingTime !== null) {
+        const t = pendingTime
+        pendingTime = null
+        seekTo(t)
       }
-      img.src = framePath(i)
-      images[i] = img
     }
-    window.addEventListener('resize', sizeCanvas)
+    video.addEventListener('seeked', onSeeked)
+
+    // A muted inline play/pause primes the decode pipeline — allowed
+    // without a gesture, and it makes iOS actually buffer the file.
+    const onLoadedMeta = () => {
+      seekTo(0)
+      const p = video.play()
+      if (p) p.then(() => video.pause()).catch(() => {})
+    }
+    video.addEventListener('loadedmetadata', onLoadedMeta)
+    video.src = isPortraitPhone ? VIDEO_MOBILE : VIDEO_DESKTOP
 
     // --- scroll choreography -------------------------------------------
     // Beat centers on the section timeline; the scroll gets a gentle
@@ -197,7 +141,6 @@ export function Lukas() {
 
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
-      let raf = 0
 
       // Left-side beam: fills toward the next beat as scroll approaches it,
       // then resets — a visible cue for "how close is the next section".
@@ -290,13 +233,9 @@ export function Lukas() {
               },
           onUpdate: (self) => {
             // Ken-Burns push on top of the footage — the whole film slowly
-            // dives deeper while scrolling, amplifying the zoom acts.
-            canvas.style.transform = `scale(${(1.06 + self.progress * 0.16).toFixed(4)})`
-            const index = frameForProgress(self.progress)
-            if (Math.round(index) !== currentIndex) {
-              cancelAnimationFrame(raf)
-              raf = requestAnimationFrame(() => renderIndex(index))
-            }
+            // dives deeper while scrolling, amplifying the pull-back.
+            video.style.transform = `scale(${(1.06 + self.progress * 0.16).toFixed(4)})`
+            seekTo(Math.min(self.progress / P_FILM_END, 1) * (video.duration || 0))
             updateBeam(self.progress)
             // The handoff: one lightning bolt draws in and decays across
             // 0.02-0.12, overlapping data-field's own fade-in (which starts
@@ -378,7 +317,8 @@ export function Lukas() {
 
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
-      window.removeEventListener('resize', sizeCanvas)
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('loadedmetadata', onLoadedMeta)
       ctx.revert()
       // Defensive: restore touch sensitivity if unmounted mid-section,
       // since ctx.revert() kills the ScrollTrigger before its onLeave fires.
@@ -397,13 +337,18 @@ export function Lukas() {
       className="relative h-[520vh]"
     >
       <div className="sticky top-0 flex h-[100svh] w-full flex-col items-center justify-center overflow-hidden">
-        {/* Neuron-field film — regions awaken and the camera dives along the
-            filaments, scrubbed by scroll */}
-        <canvas
-          ref={canvasRef}
+        {/* Node-network film — a continuous pull-back through the glowing
+            network, scrubbed by scroll. object-cover + the Ken-Burns scale
+            replace the old canvas cover-draw. */}
+        <video
+          ref={videoRef}
           data-field
           aria-hidden
-          className="pointer-events-none absolute inset-0 h-full w-full opacity-0 will-transform"
+          muted
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-0 will-transform"
         />
         {/* The handoff — the last lightning bolt from the intro becomes this
             neuron field rather than cutting to it. */}

@@ -56,7 +56,7 @@ const PROJECTS: Project[] = [
     description:
       'A standalone AAA game companion built directly on the Bungie API: guardiangrid.io. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
     image: '/projects/guardiangrid-login.jpg',
-    video: '/projects/guardiangrid-scroll.mp4',
+    video: '/videos/guardiangrid.mp4',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
     status: 'Active Development',
     featured: true,
@@ -69,7 +69,7 @@ const PROJECTS: Project[] = [
     description:
       'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
-    video: '/projects/taxibb-scroll.mp4',
+    video: '/videos/taxibb.mp4',
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     status: 'Live System',

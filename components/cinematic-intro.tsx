@@ -10,26 +10,30 @@ gsap.registerPlugin(ScrollTrigger)
 
 /**
  * Scroll-scrubbed cinematic intro. A generated 3-shot flythrough (city →
- * glowing purple window → room → green-screen monitor) is exported as an image
- * sequence and drawn on a <canvas> — the Apple-style approach, since <video>
- * currentTime seeking freezes on iOS Safari while scrolling.
+ * glowing purple window → room → green-screen monitor) is a 4K All-Intra
+ * MP4 used as a pure frame source: scroll seeks a hidden <video>, and each
+ * decoded frame is drawn onto the <canvas> — the same Apple-style canvas
+ * pipeline as before, but fed by hardware video decode instead of 182
+ * separate JPEG requests. All-Intra (every frame a keyframe) means every
+ * seek resolves in a single decode, which keeps scrubbing responsive even
+ * on iOS Safari, where video seeking during scroll is historically fragile.
  *
- * The final shot ends on an ultrawide monitor. The frames are pre-processed so
- * the screen carries the website's dark blue→purple tones; SCREEN_RECT below is
- * the measured screen area of the last frame (image px). The website preview is
- * projected into it and the whole stage scales until the monitor swallows the
- * viewport — that zoom IS the transition onto the real site.
+ * The final shot ends on an ultrawide monitor. The footage is pre-processed
+ * so the screen carries the website's dark blue→purple tones; SCREEN_FRAC
+ * below is the measured screen area of the last frame as fractions of the
+ * source frame (measured on the 1536×864 master — fractions survive the 4K
+ * upscale). The website preview is projected into it and the whole stage
+ * scales until the monitor swallows the viewport — that zoom IS the
+ * transition onto the real site.
  */
-const FRAME_COUNT = 182
-const framePath = (i: number) =>
-  `/intro/frames/frame-${String(i + 1).padStart(3, '0')}.jpg`
+const VIDEO_SRC = '/videos/intro.mp4'
 const POSTER_SRC = '/intro/cinematic-poster.jpg'
 
 /** Scroll share reserved for the flythrough; the rest is the monitor zoom. */
 const FLIGHT_END = 0.82
 
-/** Monitor screen area in the last frame, in image pixels (1536×864). */
-const SCREEN_RECT = { x: 0, y: 95, w: 1536, h: 660 }
+/** Monitor screen area in the last frame, as fractions of the frame. */
+const SCREEN_FRAC = { x: 0, y: 95 / 864, w: 1, h: 660 / 864 }
 
 type PhraseAnim = 'blurScale' | 'wipe' | 'flip3D' | 'maskUp' | 'zoomOut'
 
@@ -72,6 +76,7 @@ export function CinematicIntro() {
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
   const iamRef = useRef<ShimmerTitleHandle>(null)
   const nameRef = useRef<ShimmerTitleHandle>(null)
@@ -92,69 +97,47 @@ export function CinematicIntro() {
       '(prefers-reduced-motion: reduce)',
     ).matches
 
-    const images: HTMLImageElement[] = new Array(FRAME_COUNT)
-    const loaded = new Array<boolean>(FRAME_COUNT).fill(false)
-    let currentIndex = -1
+    const video = videoRef.current
+    if (!video) return
 
-    // object-fit: cover mapping of the frame onto the canvas.
-    const coverTransform = (img: HTMLImageElement) => {
+    // object-fit: cover mapping of the video frame onto the canvas.
+    const coverTransform = () => {
       const cw = canvas.clientWidth
       const ch = canvas.clientHeight
-      const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
+      const vw = video.videoWidth
+      const vh = video.videoHeight
+      const scale = Math.max(cw / vw, ch / vh)
       return {
         scale,
-        dx: (cw - img.naturalWidth * scale) / 2,
-        dy: (ch - img.naturalHeight * scale) / 2,
+        dx: (cw - vw * scale) / 2,
+        dy: (ch - vh * scale) / 2,
       }
     }
 
-    const drawCover = (img: HTMLImageElement) => {
+    const drawFrame = () => {
       const cw = canvas.clientWidth
       const ch = canvas.clientHeight
-      if (!cw || !ch || !img.naturalWidth) return
-      const { scale, dx, dy } = coverTransform(img)
+      if (!cw || !ch || !video.videoWidth) return
+      const { scale, dx, dy } = coverTransform()
       ctx.clearRect(0, 0, cw, ch)
-      ctx.drawImage(img, dx, dy, img.naturalWidth * scale, img.naturalHeight * scale)
-    }
-
-    // Render the closest already-loaded frame so we never blank out while
-    // frames are still streaming in.
-    const renderIndex = (index: number) => {
-      const clamped = Math.max(0, Math.min(FRAME_COUNT - 1, index))
-      let img = images[clamped]
-      if (!loaded[clamped]) {
-        let lo = clamped
-        let hi = clamped
-        let found: HTMLImageElement | null = null
-        while (lo >= 0 || hi < FRAME_COUNT) {
-          if (lo >= 0 && loaded[lo]) {
-            found = images[lo]
-            break
-          }
-          if (hi < FRAME_COUNT && loaded[hi]) {
-            found = images[hi]
-            break
-          }
-          lo--
-          hi++
-        }
-        if (!found) return
-        img = found
-      }
-      currentIndex = clamped
-      drawCover(img)
+      ctx.drawImage(
+        video,
+        dx,
+        dy,
+        video.videoWidth * scale,
+        video.videoHeight * scale,
+      )
     }
 
     // Keep the website preview glued to the monitor screen and set the zoom
     // origin so scaling the stage dives straight into the screen.
     const placeScreen = () => {
-      const last = images[FRAME_COUNT - 1]
-      if (!last || !loaded[FRAME_COUNT - 1]) return
-      const { scale, dx, dy } = coverTransform(last)
-      const x = dx + SCREEN_RECT.x * scale
-      const y = dy + SCREEN_RECT.y * scale
-      const w = SCREEN_RECT.w * scale
-      const h = SCREEN_RECT.h * scale
+      if (!video.videoWidth) return
+      const { scale, dx, dy } = coverTransform()
+      const x = dx + SCREEN_FRAC.x * video.videoWidth * scale
+      const y = dy + SCREEN_FRAC.y * video.videoHeight * scale
+      const w = SCREEN_FRAC.w * video.videoWidth * scale
+      const h = SCREEN_FRAC.h * video.videoHeight * scale
       Object.assign(screen.style, {
         left: `${x}px`,
         top: `${y}px`,
@@ -176,29 +159,64 @@ export function CinematicIntro() {
       canvas.width = Math.round(cw * dpr)
       canvas.height = Math.round(ch * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-      renderIndex(currentIndex >= 0 ? currentIndex : 0)
+      drawFrame()
       placeScreen()
     }
 
-    // Kick off loading. Draw as soon as frame 0 arrives; place the website
-    // preview as soon as the last frame arrives.
-    let firstDrawn = false
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      img.onload = () => {
-        loaded[i] = true
-        if (i === 0 && !firstDrawn) {
-          firstDrawn = true
-          sizeCanvas()
-        } else if (i === currentIndex) {
-          renderIndex(i)
-        }
-        if (i === FRAME_COUNT - 1) placeScreen()
+    // Seek queue — never issue overlapping seeks; the newest target wins.
+    // Painting is driven by requestVideoFrameCallback where supported (it
+    // fires exactly when the seeked frame is ready to composite), with the
+    // plain `seeked` event as fallback. All-Intra encoding makes each seek
+    // a single-frame decode, so the queue drains at display rate.
+    const vrfc = (
+      video as HTMLVideoElement & {
+        requestVideoFrameCallback?: (cb: () => void) => number
       }
-      img.src = framePath(i)
-      images[i] = img
+    ).requestVideoFrameCallback?.bind(video)
+    const fastSeek = (
+      video as HTMLVideoElement & { fastSeek?: (time: number) => void }
+    ).fastSeek?.bind(video)
+    let pendingTime: number | null = null
+    let seekBusy = false
+    const seekTo = (t: number) => {
+      const d = video.duration
+      if (!d || Number.isNaN(d)) return
+      const clamped = Math.max(0, Math.min(d - 1 / 24, t))
+      if (seekBusy) {
+        pendingTime = clamped
+        return
+      }
+      seekBusy = true
+      if (vrfc) vrfc(() => drawFrame())
+      if (fastSeek) fastSeek(clamped)
+      else video.currentTime = clamped
     }
+    const onSeeked = () => {
+      seekBusy = false
+      if (!vrfc) drawFrame()
+      if (pendingTime !== null) {
+        const t = pendingTime
+        pendingTime = null
+        seekTo(t)
+      }
+    }
+    video.addEventListener('seeked', onSeeked)
+
+    // First paint + preview placement as soon as dimensions are known; a
+    // muted inline play/pause primes the decode pipeline without a gesture.
+    const onLoadedMeta = () => {
+      sizeCanvas()
+      const p = video.play()
+      if (p) p.then(() => video.pause()).catch(() => {})
+      seekTo(0)
+    }
+    const onLoadedData = () => {
+      drawFrame()
+      placeScreen()
+    }
+    video.addEventListener('loadedmetadata', onLoadedMeta)
+    video.addEventListener('loadeddata', onLoadedData)
+    video.src = VIDEO_SRC
 
     window.addEventListener('resize', sizeCanvas)
 
@@ -221,16 +239,11 @@ export function CinematicIntro() {
 
       // Frame scrubbing — the flythrough completes at FLIGHT_END; the last
       // stretch is reserved for the dive into the monitor.
-      let raf = 0
       ScrollTrigger.create({
         ...st,
         onUpdate: (self) => {
           const p = Math.min(self.progress / FLIGHT_END, 1)
-          const index = Math.round(p * (FRAME_COUNT - 1))
-          if (index !== currentIndex) {
-            cancelAnimationFrame(raf)
-            raf = requestAnimationFrame(() => renderIndex(index))
-          }
+          seekTo(p * (video.duration || 0))
         },
       })
 
@@ -391,6 +404,9 @@ export function CinematicIntro() {
 
     return () => {
       window.removeEventListener('resize', sizeCanvas)
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('loadedmetadata', onLoadedMeta)
+      video.removeEventListener('loadeddata', onLoadedData)
       ctxAnim.revert()
     }
   }, [])
@@ -514,6 +530,19 @@ export function CinematicIntro() {
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
+          />
+
+          {/* Hidden frame source — decoded by the browser, painted onto the
+              canvas above. Kept 1px + transparent instead of display:none so
+              Safari doesn't deprioritize decoding it. */}
+          <video
+            ref={videoRef}
+            aria-hidden
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
           />
 
           {/* Website preview glued onto the monitor's chroma-green screen. */}

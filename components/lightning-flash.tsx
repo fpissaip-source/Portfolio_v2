@@ -34,9 +34,22 @@ type Segment = { x1: number; y1: number; x2: number; y2: number; w: number }
 type Node = { x: number; y: number; r: number }
 type LinearBolt = { kind: 'bolt'; segments: Segment[]; nodes: Node[]; hue: Hue }
 
-type NetNode = { x: number; y: number; z: number; r: number }
+/** Offsets are normalized 3D coordinates in a unit cube around the cluster
+ *  center, so the renderer can rotate the whole cluster as a rigid body. */
+type NetNode = { ox: number; oy: number; oz: number; r: number }
 type NetEdge = { a: number; b: number }
-type NetworkBolt = { kind: 'network'; nodes: NetNode[]; edges: NetEdge[]; hue: Hue }
+type NetworkBolt = {
+  kind: 'network'
+  cx: number
+  cy: number
+  spreadX: number
+  spreadY: number
+  nodes: NetNode[]
+  edges: NetEdge[]
+  hue: Hue
+  /** Random initial phase so simultaneous clusters don't face the same way. */
+  rot0: number
+}
 
 type Bolt = LinearBolt | NetworkBolt
 
@@ -105,10 +118,11 @@ function generateBolt(
   return { kind: 'bolt', segments, nodes, hue }
 }
 
-/** A small pseudo-3D cluster: nodes scattered around (cx, cy) each with a
- *  random depth z (0=far, 1=near), connected into a minimum-spanning tree
- *  (plus one extra edge for a circuit-like loop) rather than a single
- *  directional streak — reads as a miniature neuron-field fragment. */
+/** A small pseudo-3D cluster: nodes scattered in a unit cube around the
+ *  cluster center, connected into a minimum-spanning tree plus a few extra
+ *  cross-links for circuit-like loops. Offsets are stored in normalized 3D
+ *  so the renderer can revolve the whole cluster around its Y axis while
+ *  it lives — a live miniature of the L.U.K.A.S. node-network film. */
 function generateNetwork(
   rand: () => number,
   cx: number,
@@ -120,13 +134,19 @@ function generateNetwork(
   const count = 6 + Math.floor(rand() * 3)
   const nodes: NetNode[] = []
   for (let i = 0; i < count; i++) {
-    const x = cx + (rand() - 0.5) * 2 * spreadX
-    const y = cy + (rand() - 0.5) * 2 * spreadY
-    const z = rand()
-    nodes.push({ x, y, z, r: 1.4 + z * 1.6 })
+    nodes.push({
+      ox: (rand() - 0.5) * 2,
+      oy: (rand() - 0.5) * 2,
+      oz: (rand() - 0.5) * 2,
+      r: 1.6 + rand() * 1.0,
+    })
   }
   const dist = (i: number, j: number) =>
-    Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y)
+    Math.hypot(
+      nodes[i].ox - nodes[j].ox,
+      nodes[i].oy - nodes[j].oy,
+      nodes[i].oz - nodes[j].oz,
+    )
   const inTree = new Set<number>([0])
   const edges: NetEdge[] = []
   while (inTree.size < nodes.length) {
@@ -148,14 +168,28 @@ function generateNetwork(
     edges.push({ a: bestA, b: bestB })
     inTree.add(bestB)
   }
-  if (nodes.length > 3 && rand() > 0.3) {
+  // 2-3 extra cross-links so the cluster reads as a circuit, not a tree.
+  const extraTarget = 2 + Math.floor(rand() * 2)
+  let extras = 0
+  for (let tries = 0; tries < 12 && extras < extraTarget; tries++) {
     const a = Math.floor(rand() * nodes.length)
     const b = Math.floor(rand() * nodes.length)
-    if (a !== b && !edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a))) {
-      edges.push({ a, b })
-    }
+    if (a === b) continue
+    if (edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a))) continue
+    edges.push({ a, b })
+    extras++
   }
-  return { kind: 'network', nodes, edges, hue }
+  return {
+    kind: 'network',
+    cx,
+    cy,
+    spreadX,
+    spreadY,
+    nodes,
+    edges,
+    hue,
+    rot0: rand() * Math.PI * 2,
+  }
 }
 
 function colorFor(hue: Hue, mix: number) {
@@ -241,70 +275,93 @@ export const LightningFlash = forwardRef<
         }
       }
 
-      // Depth (z) drives size/brightness only (no hard occlusion, since the
-      // 'lighter' composite is additive) — enough to read as pseudo-3D
-      // parallax without needing an actual 3D renderer.
-      const drawNetwork = (bolt: NetworkBolt, alpha: number, growT: number, cw: number, ch: number) => {
+      // True pseudo-3D: node offsets live in a unit cube, the cluster slowly
+      // revolves around its Y axis, and a perspective ratio drives size and
+      // brightness — nodes facing the viewer render up to ~3× larger while
+      // the far side shrinks toward 0.5×, so every spark reads as a tiny
+      // rotating hologram of the network. No hard occlusion needed, since
+      // the 'lighter' composite is additive.
+      const drawNetwork = (
+        bolt: NetworkBolt,
+        alpha: number,
+        growT: number,
+        cw: number,
+        ch: number,
+        rot: number,
+      ) => {
+        const cos = Math.cos(bolt.rot0 + rot)
+        const sin = Math.sin(bolt.rot0 + rot)
+        // Project once per frame: rotate offsets around Y, then map depth
+        // (0 far → 1 near) to perspective scale and parallax spread.
+        const proj = bolt.nodes.map((n) => {
+          const x3 = n.ox * cos + n.oz * sin
+          const z3 = -n.ox * sin + n.oz * cos
+          const depth = Math.max(0, Math.min(1, (z3 + 1) / 2))
+          const persp = 0.5 + depth * 2.5 // far 0.5× → near 3×
+          const parallax = 0.7 + depth * 0.6
+          return {
+            x: (bolt.cx + x3 * bolt.spreadX * parallax) * cw,
+            y: (bolt.cy + n.oy * bolt.spreadY * parallax) * ch,
+            depth,
+            persp,
+            r: n.r,
+          }
+        })
         const visibleEdges = Math.max(0, Math.round(bolt.edges.length * growT))
         for (let i = 0; i < visibleEdges; i++) {
           const e = bolt.edges[i]
-          const na = bolt.nodes[e.a]
-          const nb = bolt.nodes[e.b]
-          const avgZ = (na.z + nb.z) / 2
+          const na = proj[e.a]
+          const nb = proj[e.b]
+          const avgZ = (na.depth + nb.depth) / 2
+          const avgPersp = 0.5 + avgZ * 2.5
           const col = colorFor(bolt.hue, avgZ)
-          const x1 = na.x * cw
-          const y1 = na.y * ch
-          const x2 = nb.x * cw
-          const y2 = nb.y * ch
           ctx.strokeStyle = `rgba(${col},${(0.12 + avgZ * 0.18) * alpha})`
-          ctx.lineWidth = (2 + avgZ * 3) * 1.4
+          ctx.lineWidth = 1.2 + avgPersp * 1.6
           ctx.lineCap = 'round'
           ctx.beginPath()
-          ctx.moveTo(x1, y1)
-          ctx.lineTo(x2, y2)
+          ctx.moveTo(na.x, na.y)
+          ctx.lineTo(nb.x, nb.y)
           ctx.stroke()
           ctx.strokeStyle = `rgba(${col},${(0.45 + avgZ * 0.4) * alpha})`
-          ctx.lineWidth = Math.max(0.6, 0.5 + avgZ * 1.3)
+          ctx.lineWidth = Math.max(0.5, avgPersp * 0.55)
           ctx.beginPath()
-          ctx.moveTo(x1, y1)
-          ctx.lineTo(x2, y2)
+          ctx.moveTo(na.x, na.y)
+          ctx.lineTo(nb.x, nb.y)
           ctx.stroke()
         }
         const visibleNodes = Math.max(1, Math.round(bolt.nodes.length * growT))
         // Painter's algorithm — draw far nodes first so nearer ones overlap.
-        const order = bolt.nodes
+        const order = proj
           .map((_, i) => i)
           .slice(0, visibleNodes)
-          .sort((i, j) => bolt.nodes[i].z - bolt.nodes[j].z)
+          .sort((i, j) => proj[i].depth - proj[j].depth)
         for (const i of order) {
-          const n = bolt.nodes[i]
-          const col = colorFor(bolt.hue, n.z)
-          const px = n.x * cw
-          const py = n.y * ch
-          const radius = n.r * (3.2 + n.z * 4.5)
-          const g = ctx.createRadialGradient(px, py, 0, px, py, radius)
-          g.addColorStop(0, `rgba(${col},${(0.35 + n.z * 0.45) * alpha})`)
+          const n = proj[i]
+          const col = colorFor(bolt.hue, n.depth)
+          const radius = n.r * n.persp * 3.4
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radius)
+          g.addColorStop(0, `rgba(${col},${(0.35 + n.depth * 0.45) * alpha})`)
           g.addColorStop(1, `rgba(${col},0)`)
           ctx.fillStyle = g
           ctx.beginPath()
-          ctx.arc(px, py, radius, 0, Math.PI * 2)
+          ctx.arc(n.x, n.y, radius, 0, Math.PI * 2)
           ctx.fill()
-          if (n.z > 0.4) {
-            ctx.fillStyle = `rgba(${col},${(0.5 + n.z * 0.4) * alpha})`
+          if (n.depth > 0.4) {
+            ctx.fillStyle = `rgba(${col},${(0.5 + n.depth * 0.4) * alpha})`
             ctx.beginPath()
-            ctx.arc(px, py, 1 + n.z * 1.4, 0, Math.PI * 2)
+            ctx.arc(n.x, n.y, 0.8 + n.depth * 1.8, 0, Math.PI * 2)
             ctx.fill()
           }
         }
       }
 
-      const drawBolt = (bolt: Bolt, alpha: number, growT: number) => {
+      const drawBolt = (bolt: Bolt, alpha: number, growT: number, rot = 0) => {
         const cw = canvas.clientWidth
         const ch = canvas.clientHeight
         const prevOp = ctx.globalCompositeOperation
         ctx.globalCompositeOperation = 'lighter'
         if (bolt.kind === 'network') {
-          drawNetwork(bolt, alpha, growT, cw, ch)
+          drawNetwork(bolt, alpha, growT, cw, ch, rot)
         } else {
           drawLinear(bolt, alpha, growT, cw, ch)
         }
@@ -312,15 +369,20 @@ export const LightningFlash = forwardRef<
       }
 
       // --- fire-and-forget strikes -----------------------------------
-      type ActiveStrike = { bolt: Bolt; growT: number; alpha: number }
+      type ActiveStrike = { bolt: Bolt; growT: number; alpha: number; born: number }
       const active: ActiveStrike[] = []
       let raf = 0
+
+      /** Slow, deliberate revolve for network clusters — ~26°/s. */
+      const ROT_SPEED = 0.45
 
       const renderActive = () => {
         const cw = canvas.clientWidth
         const ch = canvas.clientHeight
+        const now = performance.now()
         ctx.clearRect(0, 0, cw, ch)
-        for (const a of active) drawBolt(a.bolt, a.alpha, a.growT)
+        for (const a of active)
+          drawBolt(a.bolt, a.alpha, a.growT, ((now - a.born) / 1000) * ROT_SPEED)
         if (active.length > 0) {
           raf = requestAnimationFrame(renderActive)
         } else {
@@ -343,7 +405,7 @@ export const LightningFlash = forwardRef<
           const targetY = opts.targetY ?? originY + 0.35 + rand() * 0.25
           bolt = generateBolt(rand, originX, originY, targetX, targetY, opts.hue ?? 'mixed')
         }
-        const entry: ActiveStrike = { bolt, growT: 0, alpha: 0 }
+        const entry: ActiveStrike = { bolt, growT: 0, alpha: 0, born: performance.now() }
         active.push(entry)
         // Real lightning: a near-instant flash, then a glow that lingers and
         // fades gradually rather than snapping off — the strike/flicker
@@ -375,7 +437,9 @@ export const LightningFlash = forwardRef<
         const ch = canvas.clientHeight
         ctx.clearRect(0, 0, cw, ch)
         if (p > 0 && p < 1) drawBolt(handoffBolt, alpha, growT)
-        for (const a of active) drawBolt(a.bolt, a.alpha, a.growT)
+        const now = performance.now()
+        for (const a of active)
+          drawBolt(a.bolt, a.alpha, a.growT, ((now - a.born) / 1000) * ROT_SPEED)
       }
 
       apiRef.current = { strike, setHandoffProgress }

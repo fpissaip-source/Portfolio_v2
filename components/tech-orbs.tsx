@@ -111,16 +111,24 @@ function Orb({
 }) {
   const api = useRef<RapierRigidBody>(null)
   const vec = useMemo(() => new THREE.Vector3(), [])
+  const { viewport, camera } = useThree()
 
   const position = useMemo<[number, number, number]>(() => {
-    // Start scattered INSIDE the visible frame (the walls keep them there)
+    // Start scattered INSIDE the visible frame (the walls keep them there).
+    // The scatter is clamped to the view frustum at the ball's own depth —
+    // a fixed spread wider than a narrow phone screen would drop balls
+    // outside the frustum walls, where they'd be stuck offscreen forever.
     const a = seed * 2.3999
+    const z = THREE.MathUtils.randFloatSpread(6)
+    const shrink = (camera.position.z - z) / camera.position.z
+    const maxX = Math.max(0, (viewport.width / 2) * shrink - scale)
+    const maxY = Math.max(0, (viewport.height / 2) * shrink - scale)
     return [
-      Math.cos(a) * 5 + THREE.MathUtils.randFloatSpread(4),
-      Math.sin(a * 1.7) * 3 + THREE.MathUtils.randFloatSpread(3),
-      THREE.MathUtils.randFloatSpread(6),
+      THREE.MathUtils.clamp(Math.cos(a) * 5 + THREE.MathUtils.randFloatSpread(4), -maxX, maxX),
+      THREE.MathUtils.clamp(Math.sin(a * 1.7) * 3 + THREE.MathUtils.randFloatSpread(3), -maxY, maxY),
+      z,
     ]
-  }, [seed])
+  }, [seed, scale, viewport.width, viewport.height, camera])
 
   useFrame((state, delta) => {
     const rb = api.current
@@ -167,20 +175,39 @@ function Orb({
  *  of the screen but never leave it (and bounce off it, rather than
  *  stopping dead — the default zero restitution above made a ball that
  *  drifted to the bottom edge just sit there against the floor, which
- *  read as it "disappearing" rather than roaming back into view). */
+ *  read as it "disappearing" rather than roaming back into view).
+ *
+ *  The side/top/bottom walls are tilted to lie exactly on the camera's
+ *  view-frustum planes instead of standing straight at the z=0 viewport
+ *  rect: the balls roam a ±7 depth range, and a ball near the camera
+ *  projects wider than the z=0 rect, so straight walls let it drift
+ *  visually past the screen edge — on a narrow phone that read as the
+ *  balls being cut off at the sides. A sphere resting against a frustum
+ *  plane is tangent to the screen edge at every depth. */
 function Walls() {
-  const { viewport } = useThree()
+  const { viewport, camera } = useThree()
   const w = viewport.width / 2
   const h = viewport.height / 2
+  const camZ = camera.position.z
   const t = 2
+  // Frustum side plane through (±w, ·, 0) and the camera at (0, 0, camZ):
+  // tilt angle from the yz-plane, and the plane's outward normal, per axis.
+  const phiX = Math.atan(w / camZ)
+  const phiY = Math.atan(h / camZ)
+  const lenX = Math.hypot(camZ, w)
+  const lenY = Math.hypot(camZ, h)
+  // Center each wall one half-thickness outside the plane, along its normal.
+  const sx = { x: w + (t * camZ) / lenX, z: (t * w) / lenX }
+  const sy = { y: h + (t * camZ) / lenY, z: (t * h) / lenY }
+  const side = Math.max(w, h) + 14
   return (
     <RigidBody type="fixed" colliders={false} restitution={0.45}>
-      <CuboidCollider args={[t, h + 6, 8]} position={[w + t, 0, 0]} />
-      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t, 0, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t, 0]} />
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 7 + t]} />
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -7 - t]} />
+      <CuboidCollider args={[t, side, side]} position={[sx.x, 0, sx.z]} rotation={[0, -phiX, 0]} />
+      <CuboidCollider args={[t, side, side]} position={[-sx.x, 0, sx.z]} rotation={[0, phiX, 0]} />
+      <CuboidCollider args={[side, t, side]} position={[0, sy.y, sy.z]} rotation={[phiY, 0, 0]} />
+      <CuboidCollider args={[side, t, side]} position={[0, -sy.y, sy.z]} rotation={[-phiY, 0, 0]} />
+      <CuboidCollider args={[side, side, t]} position={[0, 0, 7 + t]} />
+      <CuboidCollider args={[side, side, t]} position={[0, 0, -7 - t]} />
     </RigidBody>
   )
 }

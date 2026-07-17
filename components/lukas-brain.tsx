@@ -33,7 +33,12 @@ const BG = '#050505'
 const PURPLE = '#a58ad8' // ≈ --purple oklch(0.68 0.11 300)
 const BLUE = '#7fa9e8' // ≈ --blue  oklch(0.72 0.11 250)
 const FOG_DENSITY = 0.028
-const BASE_FOV = 57
+// Wide enough that the already-scattered neuron field reads as filling the
+// whole screen edge-to-edge even while the camera dwells on a beat (static,
+// no speed-kick) — the ambient field is scattered well beyond what a
+// narrower lens pulls into frame, which read as the brain being "boxed" in
+// the middle with dead dark space at the sides.
+const BASE_FOV = 68
 
 /** Region centers — spread across x AND y so travel dips under some regions
  *  and climbs over others: the brain must exist above and below us too. */

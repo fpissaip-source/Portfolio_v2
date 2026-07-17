@@ -413,9 +413,12 @@ export function CinematicIntro() {
       )
       // "ISSA HAREB" doesn't just fade in place — the assembled line slides
       // and shrinks down toward its exact position inside the monitor's
-      // screen preview while it dissolves, landing right as the static
-      // preview text (data-screen) fades in at that same spot. One
-      // continuous hand-off instead of two independent pieces of text.
+      // screen preview while it solidifies from a hollow blue outline into
+      // solid purple ink (same glyphs, same position, same tracking — see
+      // setSolidify in neon-name.tsx), landing right as the real
+      // [data-screen-name] element reveals itself at that same spot. One
+      // continuous hand-off instead of two independent pieces of text
+      // cross-fading — no blur anywhere in this sequence.
       let nameSlide: { dx: number; dy: number; scale: number } | null = null
       const slideP = { v: 0 }
       tl.to(
@@ -448,11 +451,29 @@ export function CinematicIntro() {
               y: slide.dy * t,
               scale: 1 + (slide.scale - 1) * t,
             })
-            line2Ref.current?.setFade(Math.max(0, (t - 0.55) / 0.45))
+            // Solidify early and finish well before the slide ends, so by
+            // the time [data-screen-name] appears there's no hollow blue
+            // outline left to clash with it — just solid purple ink
+            // already sitting in roughly the right spot.
+            line2Ref.current?.setSolidify(Math.max(0, (t - 0.15) / 0.55))
           },
         },
         0.75,
       )
+      // [data-screen-name] gets its own reveal, timed to appear only once
+      // the sliding copy has essentially solidified and arrived — instead
+      // of inheriting [data-screen]'s earlier 0.775–0.82 fade (which used
+      // to overlap the still-blue, still-hollow outline mid-slide).
+      tl.fromTo(
+        q('[data-screen-name]'),
+        { opacity: 0 },
+        { opacity: 1, duration: 0.02, ease: 'power1.inOut' },
+        0.818,
+      )
+      // The neon copy and the real title are pixel-close by now (same
+      // color, fill, position, scale) — a hard cut here is invisible, and
+      // it's the "slide down and replace, no fade" the design calls for.
+      tl.to(nameWrapRef.current, { opacity: 0, duration: 0.015 }, 0.825)
     }, root)
 
     // Ensure ScrollTrigger measures correctly once mounted.
@@ -619,7 +640,7 @@ export function CinematicIntro() {
             >
               <span
                 data-screen-name
-                className="font-sans font-bold tracking-[0.12em]"
+                className="font-sans font-bold tracking-[0.12em] opacity-0"
                 style={{
                   fontSize: 'min(4cqw, 28px)',
                   color: 'color-mix(in oklch, var(--purple) 55%, white)',
@@ -710,6 +731,7 @@ export function CinematicIntro() {
           <NeonLine
             ref={line2Ref}
             words={['ISSA', 'HAREB']}
+            trackingEm={0.12}
             className="h-[17vh] w-full px-4 font-sans font-bold sm:h-[15vh]"
           />
         </div>

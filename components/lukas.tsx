@@ -273,17 +273,26 @@ export function Lukas() {
           // mouse wheel specifically (a notched desktop wheel arrives in
           // discrete bursts, unlike a continuous touch/trackpad stream).
           scrub: prefersReduced ? (false as const) : 0.25,
-          // Firm magnet: once scrolling settles near a beat, it's pulled the
-          // rest of the way there — but this rides on top of the normal
-          // scrub rather than freezing it, so the camera flight below keeps
-          // advancing smoothly through the pull instead of the scene
-          // appearing to freeze.
+          // Gentle magnet: once scrolling settles very near a beat, it's
+          // eased the rest of the way there — but this rides on top of the
+          // normal scrub rather than freezing it, so the camera flight
+          // below keeps advancing smoothly through the pull instead of the
+          // scene appearing to freeze. A short capture radius plus fully
+          // snap-free margins past the first/last beat keep this from
+          // fighting anyone trying to scroll straight through the section
+          // or out of it into a neighbor — a wider radius here used to
+          // read as the page aggressively "snapping back" whenever a
+          // scroll gesture happened to settle anywhere near the last beat,
+          // which sits well before the section's actual bottom edge.
           snap: prefersReduced
             ? undefined
             : {
                 snapTo: (value: number) => {
+                  const first = BEAT_SNAPS[0]
+                  const last = BEAT_SNAPS[BEAT_SNAPS.length - 1]
+                  if (value < first - 0.05 || value > last + 0.05) return value
                   let best = value
-                  let bestD = 0.08
+                  let bestD = 0.045
                   for (const s of BEAT_SNAPS) {
                     const d = Math.abs(value - s)
                     if (d < bestD) {
@@ -293,7 +302,7 @@ export function Lukas() {
                   }
                   return best
                 },
-                duration: { min: 0.15, max: 0.45 },
+                duration: { min: 0.12, max: 0.28 },
                 delay: 0,
                 ease: 'power3.out',
               },

@@ -33,6 +33,10 @@ export type NeonLineHandle = {
   setSolo: (t: number) => void
   /** Dissolve: 0 = fully visible, 1 = gone (opacity + blur). */
   setFade: (t: number) => void
+  /** 0 = hollow neon outline (default), 1 = solid filled ink, same glyphs/
+   *  position/tracking throughout — no blur, so a handoff to a solid-fill
+   *  target can happen without ever looking like "a different font." */
+  setSolidify: (t: number) => void
 }
 
 type Layout = {
@@ -65,14 +69,15 @@ const FLICKER_CSS = `
 
 export const NeonLine = forwardRef<
   NeonLineHandle,
-  { words: string[]; className?: string; gapEm?: number }
->(function NeonLine({ words, className, gapEm = 0.42 }, ref) {
+  { words: string[]; className?: string; gapEm?: number; trackingEm?: number }
+>(function NeonLine({ words, className, gapEm = 0.42, trackingEm = 0 }, ref) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '')
   const rootRef = useRef<HTMLDivElement>(null)
   const wordRefs = useRef<(SVGGElement | null)[]>([])
   const progRef = useRef<number[]>(words.map(() => 0))
   const soloRef = useRef(1)
   const fadeRef = useRef(0)
+  const solidifyRef = useRef(0)
   const layoutRef = useRef<Layout | null>(null)
   const [layout, setLayout] = useState<Layout | null>(null)
 
@@ -84,20 +89,27 @@ export const NeonLine = forwardRef<
     const nodes = clamp01(p / 0.45)
     const draw = clamp01((p - 0.28) / 0.62)
     const lit = clamp01((p - 0.8) / 0.2)
+    const s = clamp01(solidifyRef.current)
     const L = lay.fs * 6
     const dots = g.querySelector<SVGTextElement>('[data-dots]')
     const main = g.querySelector<SVGTextElement>('[data-main]')
     const glow = g.querySelector<SVGTextElement>('[data-glow]')
-    // Nodes flash up first, then recede a little once the line takes over.
-    if (dots) dots.style.opacity = String(nodes * (1 - 0.35 * draw))
+    const solid = g.querySelector<SVGTextElement>('[data-solid]')
+    // Nodes flash up first, then recede a little once the line takes over,
+    // then fully retire as the word solidifies into solid ink.
+    if (dots) dots.style.opacity = String(nodes * (1 - 0.35 * draw) * (1 - s))
     if (main) {
       main.style.strokeDashoffset = String(L * (1 - draw))
-      main.style.opacity = draw > 0.002 ? '1' : '0'
+      main.style.opacity = String((draw > 0.002 ? 1 : 0) * (1 - s))
     }
     if (glow) {
       glow.style.strokeDashoffset = String(L * (1 - draw))
-      glow.style.opacity = String(draw * (0.4 + 0.5 * lit))
+      glow.style.opacity = String(draw * (0.4 + 0.5 * lit) * (1 - s))
     }
+    // Solid fill only ever appears once the word is essentially fully lit
+    // (setSolidify is only ever driven once draw/lit have already settled
+    // at 1), so it's safe to key its opacity on solidify progress alone.
+    if (solid) solid.style.opacity = String(s)
   }, [])
 
   const applySolo = useCallback(() => {
@@ -115,6 +127,10 @@ export const NeonLine = forwardRef<
     el.style.filter = t > 0.001 ? `blur(${(t * 12).toFixed(2)}px)` : 'none'
   }, [])
 
+  const applySolidify = useCallback(() => {
+    words.forEach((_, i) => applyWord(i))
+  }, [words, applyWord])
+
   useImperativeHandle(
     ref,
     () => ({
@@ -130,34 +146,53 @@ export const NeonLine = forwardRef<
         fadeRef.current = t
         applyFade()
       },
+      setSolidify: (t) => {
+        solidifyRef.current = clamp01(t)
+        applySolidify()
+      },
     }),
-    [applyWord, applySolo, applyFade],
+    [applyWord, applySolo, applyFade, applySolidify],
   )
 
   const measure = useCallback(() => {
     const el = rootRef.current
     if (!el) return
-    const rect = el.getBoundingClientRect()
-    if (rect.width < 10 || rect.height < 10) return
     const cs = window.getComputedStyle(el)
+    // The child <svg width="100%" height="100%"> only ever occupies the
+    // CONTENT box, not the padding — but both clientWidth/clientHeight and
+    // getBoundingClientRect() report the padding-INCLUSIVE box (they only
+    // differ from each other by border width, which this element has
+    // none of). Sizing/centering the layout against either of those would
+    // compute positions for a wider area than the SVG actually draws
+    // into, skewing everything off-center whenever this element has
+    // horizontal padding — subtract the real padding to get the content
+    // box the SVG is actually laid out in.
+    const w = el.clientWidth - parseFloat(cs.paddingLeft || '0') - parseFloat(cs.paddingRight || '0')
+    const h = el.clientHeight - parseFloat(cs.paddingTop || '0') - parseFloat(cs.paddingBottom || '0')
+    if (w < 10 || h < 10) return
     const ctx = document.createElement('canvas').getContext('2d')
     if (!ctx) return
     // Measure at a fixed 100px and scale — keeps the math font-load-proof
     // (document.fonts.ready re-runs this once the real font is in).
     ctx.font = `${cs.fontWeight || '700'} 100px ${cs.fontFamily || 'sans-serif'}`
-    const unit = words.map((w) => Math.max(1, ctx.measureText(w).width))
+    // ctx.measureText doesn't account for letter-spacing, so add it back
+    // per word (n-1 gaps of trackingEm, at the same 100px reference size).
+    const trackingPad = Math.max(0, trackingEm) * 100
+    const unit = words.map(
+      (word) => Math.max(1, ctx.measureText(word).width) + Math.max(0, word.length - 1) * trackingPad,
+    )
     const lineUnit =
       unit.reduce((a, b) => a + b, 0) + gapEm * 100 * (words.length - 1)
     const fs = Math.max(
       12,
-      Math.min(rect.height * 0.66, (rect.width * 0.92 * 100) / lineUnit),
+      Math.min(h * 0.66, (w * 0.92 * 100) / lineUnit),
     )
     const widths = unit.map((u) => (u * fs) / 100)
     const lineW = (lineUnit * fs) / 100
-    let cx = (rect.width - lineW) / 2
-    const xs = widths.map((w) => {
+    let cx = (w - lineW) / 2
+    const xs = widths.map((wd) => {
       const x = cx
-      cx += w + gapEm * fs
+      cx += wd + gapEm * fs
       return x
     })
     const next: Layout = {
@@ -166,12 +201,12 @@ export const NeonLine = forwardRef<
       widths,
       lineW,
       soloShift: (lineW - widths[0]) / 2,
-      w: rect.width,
-      h: rect.height,
+      w,
+      h,
     }
     layoutRef.current = next
     setLayout(next)
-  }, [words, gapEm])
+  }, [words, gapEm, trackingEm])
 
   useLayoutEffect(() => {
     measure()
@@ -201,6 +236,7 @@ export const NeonLine = forwardRef<
   const strokeMain = 'color-mix(in oklch, var(--blue) 55%, white)'
   const strokeGlow = 'color-mix(in oklch, var(--blue) 78%, white)'
   const strokeDots = 'color-mix(in oklch, var(--blue) 40%, white)'
+  const fillSolid = 'color-mix(in oklch, var(--purple) 55%, white)'
 
   return (
     <div ref={rootRef} className={className} aria-hidden>
@@ -231,6 +267,7 @@ export const NeonLine = forwardRef<
                 fill: 'none' as const,
                 dominantBaseline: 'central' as const,
               }
+              const tracking = trackingEm ? `${trackingEm}em` : undefined
               const L = layout.fs * 6
               return (
                 <g
@@ -249,6 +286,7 @@ export const NeonLine = forwardRef<
                     strokeDashoffset={L}
                     opacity={0}
                     filter={`url(#ng${uid})`}
+                    style={{ letterSpacing: tracking }}
                   >
                     {word}
                   </text>
@@ -266,6 +304,7 @@ export const NeonLine = forwardRef<
                       strokeDasharray={`0.01 ${(layout.fs * 0.165).toFixed(1)}`}
                       opacity={0}
                       style={{
+                        letterSpacing: tracking,
                         filter: `drop-shadow(0 0 ${(layout.fs * 0.045).toFixed(1)}px color-mix(in oklch, var(--blue) 85%, transparent))`,
                       }}
                     >
@@ -282,7 +321,26 @@ export const NeonLine = forwardRef<
                     strokeDashoffset={L}
                     opacity={0}
                     style={{
+                      letterSpacing: tracking,
                       filter: `drop-shadow(0 0 ${(layout.fs * 0.03).toFixed(1)}px color-mix(in oklch, var(--blue) 80%, transparent))`,
+                    }}
+                  >
+                    {word}
+                  </text>
+                  {/* solid filled ink — same glyphs/position/tracking as the
+                      layers above, purple to match the site-title target
+                      this line eventually hands off to. setSolidify fades
+                      this in as the outline fades out: a same-glyph,
+                      no-blur crossfade instead of a fade into a visibly
+                      different font/color/fill-style. */}
+                  <text
+                    {...common}
+                    data-solid
+                    fill={fillSolid}
+                    opacity={0}
+                    style={{
+                      letterSpacing: tracking,
+                      filter: `drop-shadow(0 0 ${(layout.fs * 0.12).toFixed(1)}px color-mix(in oklch, var(--purple) 90%, transparent))`,
                     }}
                   >
                     {word}

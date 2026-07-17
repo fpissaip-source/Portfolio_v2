@@ -168,7 +168,7 @@ export function About() {
                 My Story
               </span>
               <h3 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                Hi, I&apos;m Issa: 24, self-taught, and all in on AI.
+                Hi, I&apos;m Issa: 25, self-taught, and all in on AI.
               </h3>
               <div className="relative mt-6 flex flex-col gap-6 border-l border-white/10 pl-6">
                 {STORY.map((s) => (

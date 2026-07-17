@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -29,7 +29,36 @@ function LitWord({ word }: { word: string }) {
 export function Hero() {
   const t = useT()
   const sectionRef = useRef<HTMLElement>(null)
+  const h1Ref = useRef<HTMLHeadingElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
+
+  // The three heading words are sized generously via fixed Tailwind
+  // classes, tuned against the English copy. A translation's longest word
+  // (e.g. German "Intelligente" vs. English "Intelligent") can be wide
+  // enough to exceed the viewport at the same font-size, and since the
+  // section clips overflow, the excess — often the last letter — just
+  // gets cut off rather than wrapping. Shrink the heading's font-size only
+  // if its widest line would actually overflow, so the common case (fits
+  // fine) never changes.
+  useLayoutEffect(() => {
+    const section = sectionRef.current
+    const h1 = h1Ref.current
+    if (!section || !h1) return
+    const fit = () => {
+      h1.style.fontSize = ''
+      const cs = window.getComputedStyle(section)
+      const available =
+        section.clientWidth - parseFloat(cs.paddingLeft || '0') - parseFloat(cs.paddingRight || '0')
+      const needed = h1.getBoundingClientRect().width
+      if (needed > available) {
+        const base = parseFloat(window.getComputedStyle(h1).fontSize)
+        h1.style.fontSize = `${(base * available) / needed}px`
+      }
+    }
+    fit()
+    window.addEventListener('resize', fit)
+    return () => window.removeEventListener('resize', fit)
+  }, [t.hero.line1, t.hero.line2, t.hero.line3])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -59,7 +88,7 @@ export function Hero() {
       })
     }, section)
     return () => ctx.revert()
-  }, [])
+  }, [t.hero.line1, t.hero.line2, t.hero.line3])
 
   return (
     <section
@@ -80,7 +109,10 @@ export function Hero() {
           {t.hero.kicker}
         </motion.span>
 
-        <h1 className="mt-6 text-balance font-sans text-6xl font-semibold leading-[0.95] tracking-tight sm:text-8xl md:text-[9rem]">
+        <h1
+          ref={h1Ref}
+          className="mt-6 text-balance font-sans text-6xl font-semibold leading-[0.95] tracking-tight sm:text-8xl md:text-[9rem]"
+        >
           <LitWord word={t.hero.line1} />
           <br />
           <span className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent">

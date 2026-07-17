@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Html, Line } from '@react-three/drei'
+import { Html, Line, useTexture } from '@react-three/drei'
 import { AnimatePresence, motion } from 'motion/react'
 import * as THREE from 'three'
 import { roleFor, tierFor, ROLE_COLORS, type Tier as SizeTier } from './project-orbs-shared'
@@ -22,6 +22,9 @@ export type OrbProject = {
   status: string
   stack: string[]
   hobby?: boolean
+  /** Real product screenshot, wrapped fisheye-style around the node's glass
+   *  core instead of the plain glow used for projects without one. */
+  image?: string
 }
 
 /** Fixed, composed layout — GuardianGrid at the hub, the rest arranged
@@ -103,10 +106,38 @@ function seedFromName(name: string): number {
   return h / 1000
 }
 
-const geometry = new THREE.IcosahedronGeometry(1, 1)
-const edgesGeometry = new THREE.EdgesGeometry(geometry)
+/** Glass-marble node: a smooth core sphere (either a lit product screenshot,
+ *  fisheye-wrapped by ordinary spherical UVs, or a glowing role-colored
+ *  gradient for projects without one) sealed inside a slightly larger
+ *  transmissive shell for the actual "glass" refraction/highlight. */
+const coreGeometry = new THREE.SphereGeometry(1, 64, 64)
+const shellGeometry = new THREE.SphereGeometry(1.05, 48, 48)
 const dotGeometry = new THREE.SphereGeometry(1, 10, 10)
-const ringGeometry = new THREE.TorusGeometry(1.35, 0.012, 8, 64)
+
+type CoreMat = THREE.MeshStandardMaterial | THREE.MeshBasicMaterial
+
+/** The image-bearing variant of a node's core: an ordinary UV sphere, so a
+ *  flat screenshot wraps around it with exactly the pinched, globe-like
+ *  "fisheye" distortion the glass shell is meant to be looking into. */
+function ImageCore({ image, matRef }: { image: string; matRef: React.RefObject<CoreMat | null> }) {
+  const texture = useTexture(image)
+  useEffect(() => {
+    texture.colorSpace = THREE.SRGBColorSpace
+    texture.anisotropy = 8
+    texture.needsUpdate = true
+  }, [texture])
+  return (
+    <mesh geometry={coreGeometry}>
+      <meshBasicMaterial
+        ref={matRef as React.RefObject<THREE.MeshBasicMaterial>}
+        map={texture}
+        toneMapped={false}
+        transparent
+        opacity={0.88}
+      />
+    </mesh>
+  )
+}
 
 function Node({
   project,
@@ -127,9 +158,8 @@ function Node({
 }) {
   const outerRef = useRef<THREE.Group>(null)
   const spinRef = useRef<THREE.Group>(null)
-  const coreMatRef = useRef<THREE.MeshStandardMaterial>(null)
-  const wireMatRef = useRef<THREE.LineBasicMaterial>(null)
-  const ringMatRef = useRef<THREE.MeshBasicMaterial>(null)
+  const coreMatRef = useRef<CoreMat>(null)
+  const shellMatRef = useRef<THREE.MeshPhysicalMaterial>(null)
   const satMatRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([])
   const liftRef = useRef(0)
 
@@ -173,12 +203,10 @@ function Node({
     outer.position.set(basePos.x + floatX, basePos.y + floatY, basePos.z + liftRef.current)
 
     const k = Math.min(1, delta * 6)
-    const targetWire = dimmed ? cfg.dimFloor.wire : hovered ? 0.85 : 0.38
-    const targetCore = dimmed ? cfg.dimFloor.core : hovered ? 0.42 : 0.28
-    const targetRing = dimmed ? cfg.dimFloor.ring : hovered ? 0.75 : 0.3
-    if (wireMatRef.current) wireMatRef.current.opacity += (targetWire - wireMatRef.current.opacity) * k
+    const targetCore = dimmed ? cfg.dimFloor.core : hovered ? 1 : 0.88
+    const targetShell = dimmed ? cfg.dimFloor.ring : hovered ? 0.55 : 0.32
     if (coreMatRef.current) coreMatRef.current.opacity += (targetCore - coreMatRef.current.opacity) * k
-    if (ringMatRef.current) ringMatRef.current.opacity += (targetRing - ringMatRef.current.opacity) * k
+    if (shellMatRef.current) shellMatRef.current.opacity += (targetShell - shellMatRef.current.opacity) * k
     const targetSat = hovered ? 0.6 : 0
     for (const m of satMatRefs.current) {
       if (m) m.opacity += (targetSat - m.opacity) * k
@@ -190,9 +218,9 @@ function Node({
       {/* invisible, slightly oversized hit-area so hovering/clicking the
           visible sphere itself (not just the small label chip) drives the
           hover/expand state — the sphere reads much bigger on screen than
-          the wireframe edges' actual raycast footprint. */}
+          the glass shell's actual raycast footprint. */}
       <mesh
-        geometry={geometry}
+        geometry={coreGeometry}
         scale={scale * 1.12}
         onPointerOver={(e) => {
           e.stopPropagation()
@@ -210,30 +238,44 @@ function Node({
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
       <group ref={spinRef}>
-        <mesh geometry={geometry} scale={scale}>
-          <meshStandardMaterial
-            ref={coreMatRef}
-            color="#0a0a12"
-            emissive={colors.core}
-            emissiveIntensity={0.22}
-            roughness={0.6}
-            metalness={0.1}
-            transparent
-            opacity={0.28}
-          />
-        </mesh>
-        <lineSegments geometry={edgesGeometry} scale={scale}>
-          <lineBasicMaterial ref={wireMatRef} color={colors.ring} transparent opacity={0.38} />
-        </lineSegments>
-        <mesh geometry={ringGeometry} scale={scale} rotation={[1.15, 0.4, 0]}>
-          <meshBasicMaterial ref={ringMatRef} color={colors.ring} transparent opacity={0.3} />
-        </mesh>
+        <group scale={scale}>
+          {project.image ? (
+            <ImageCore image={project.image} matRef={coreMatRef} />
+          ) : (
+            <mesh geometry={coreGeometry}>
+              <meshStandardMaterial
+                ref={coreMatRef as React.RefObject<THREE.MeshStandardMaterial>}
+                color="#0a0a12"
+                emissive={colors.core}
+                emissiveIntensity={0.6}
+                roughness={0.4}
+                metalness={0.15}
+                transparent
+                opacity={0.88}
+              />
+            </mesh>
+          )}
+          {/* the actual "glass" — a transmissive shell sealed just outside
+              the core, so it refracts/highlights whatever's behind it
+              (the core image or glow) rather than sitting flat on top */}
+          <mesh geometry={shellGeometry}>
+            <meshPhysicalMaterial
+              ref={shellMatRef}
+              color={colors.ring}
+              transparent
+              opacity={0.32}
+              roughness={0.12}
+              metalness={0}
+              clearcoat={1}
+              clearcoatRoughness={0.08}
+              transmission={0.9}
+              thickness={0.5}
+              ior={1.45}
+              depthWrite={false}
+            />
+          </mesh>
+        </group>
       </group>
-
-      {/* small glowing center */}
-      <mesh geometry={dotGeometry} scale={0.1 * scale}>
-        <meshBasicMaterial color={colors.core} transparent opacity={0.9} />
-      </mesh>
 
       {/* backend satellites — near-invisible until this node is hovered */}
       {satelliteOffsets.map((offset, i) => (
@@ -511,29 +553,63 @@ function Scene({
   )
 }
 
-/** Cursor-anchored compact preview — name, tagline, up to three stack
- *  items, and a "View project" cue. Text only, per spec (the full media
- *  lives in the click-through detail panel, not the hover preview). */
-function HoverPreview({ project, x, y }: { project: OrbProject | null; x: number; y: number }) {
+/** Cursor-anchored compact preview — a thumbnail for projects that have a
+ *  real screenshot, name, tagline, up to three stack items, and a "View
+ *  project" cue. Clamped to the constellation's own bounds (not the
+ *  viewport) so it never overhangs the rounded card edge near the mouse. */
+function HoverPreview({
+  project,
+  x,
+  y,
+  containerWidth,
+  containerHeight,
+}: {
+  project: OrbProject | null
+  x: number
+  y: number
+  containerWidth: number
+  containerHeight: number
+}) {
+  const PREVIEW_W = 240
+  const PREVIEW_H = 264
+  const GAP = 22
+  const flipX = x + GAP + PREVIEW_W > containerWidth
+  const flipY = y - 20 + PREVIEW_H > containerHeight
+  const left = flipX ? x - GAP - PREVIEW_W : x + GAP
+  const top = flipY ? y - PREVIEW_H + 20 : y - 20
+  const colors = project ? ROLE_COLORS[roleFor(project)] : null
+
   return (
     <AnimatePresence>
-      {project && (
+      {project && colors && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="glass pointer-events-none absolute left-0 top-0 z-20 w-60 rounded-2xl p-4 shadow-[0_25px_70px_-20px_rgba(0,0,0,0.85)]"
-          style={{ transform: `translate3d(${x + 22}px, ${y - 20}px, 0)` }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="glass pointer-events-none absolute left-0 top-0 z-20 w-60 overflow-hidden rounded-2xl"
+          style={{
+            transform: `translate3d(${left}px, ${top}px, 0)`,
+            boxShadow: `0 25px 70px -20px rgba(0,0,0,0.85), 0 0 0 1px ${colors.glow}`,
+          }}
         >
-          <p className="font-semibold tracking-tight text-foreground">{project.name}</p>
-          <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
-            {project.tagline}
-          </p>
-          <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em] text-purple/80">
-            {project.stack.slice(0, 3).join(' · ')}
-          </p>
-          <p className="mt-2 text-[11px] font-medium text-blue">View project →</p>
+          {project.image && (
+            <div className="relative h-24 w-full overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={project.image} alt="" className="h-full w-full object-cover object-top" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+            </div>
+          )}
+          <div className="p-4">
+            <p className="font-semibold tracking-tight text-foreground">{project.name}</p>
+            <p className="mt-0.5 font-mono text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+              {project.tagline}
+            </p>
+            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: colors.core }}>
+              {project.stack.slice(0, 3).join(' · ')}
+            </p>
+            <p className="mt-2 text-[11px] font-medium text-blue">View project →</p>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
@@ -564,6 +640,7 @@ export default function ProjectOrbs({
   const [pointer, setPointer] = useState({ x: 0, y: 0 })
   const [inView, setInView] = useState(true)
   const [containerWidth, setContainerWidth] = useState(1280)
+  const [containerHeight, setContainerHeight] = useState(640)
   const wrapRef = useRef<HTMLDivElement>(null)
   const dragTarget = useRef({ yaw: 0, pitch: 0 })
   const dragging = useRef(false)
@@ -584,7 +661,10 @@ export default function ProjectOrbs({
   useEffect(() => {
     const el = wrapRef.current
     if (!el) return
-    const ro = new ResizeObserver(([entry]) => setContainerWidth(entry.contentRect.width))
+    const ro = new ResizeObserver(([entry]) => {
+      setContainerWidth(entry.contentRect.width)
+      setContainerHeight(entry.contentRect.height)
+    })
     ro.observe(el)
     return () => ro.disconnect()
   }, [])
@@ -667,7 +747,13 @@ export default function ProjectOrbs({
         </Suspense>
       </Canvas>
 
-      <HoverPreview project={hoveredProject} x={pointer.x} y={pointer.y} />
+      <HoverPreview
+        project={hoveredProject}
+        x={pointer.x}
+        y={pointer.y}
+        containerWidth={containerWidth}
+        containerHeight={containerHeight}
+      />
     </div>
   )
 }

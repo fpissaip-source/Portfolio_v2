@@ -84,7 +84,9 @@ export function CinematicIntro() {
   const line2Ref = useRef<NeonLineHandle>(null)
   const nameWrapRef = useRef<HTMLDivElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
-  const terminalRef = useRef<HTMLDivElement>(null)
+  /** Set once the user scrolls at all — permanently disengages the hidden
+   *  terminal reveal (read by the pointer-follow effect further down). */
+  const scrolledRef = useRef(false)
 
   useEffect(() => {
     const root = rootRef.current
@@ -102,10 +104,19 @@ export function CinematicIntro() {
     const video = videoRef.current
     if (!video) return
 
+    // canvas.clientWidth/clientHeight are layout reads — cheap in isolation,
+    // but drawFrame() runs on every single scroll-driven seek (tens of times
+    // a second during a fast scroll), and GSAP is writing transform/opacity
+    // to plenty of other elements on the same rAF tick. Reading a layout
+    // property from inside that hot path forces the browser to flush and
+    // recompute layout synchronously instead of batching it — real,
+    // measurable jank under a Chrome trace. Cache the size once (mount +
+    // resize) and have the hot path read the cached numbers instead.
+    let cw = 0
+    let ch = 0
+
     // object-fit: cover mapping of the video frame onto the canvas.
     const coverTransform = () => {
-      const cw = canvas.clientWidth
-      const ch = canvas.clientHeight
       const vw = video.videoWidth
       const vh = video.videoHeight
       const scale = Math.max(cw / vw, ch / vh)
@@ -117,8 +128,6 @@ export function CinematicIntro() {
     }
 
     const drawFrame = () => {
-      const cw = canvas.clientWidth
-      const ch = canvas.clientHeight
       if (!cw || !ch || !video.videoWidth) return
       const { scale, dx, dy } = coverTransform()
       ctx.clearRect(0, 0, cw, ch)
@@ -146,18 +155,18 @@ export function CinematicIntro() {
         width: `${w}px`,
         height: `${h}px`,
       })
-      const ox = ((x + w / 2) / canvas.clientWidth) * 100
-      const oy = ((y + h / 2) / canvas.clientHeight) * 100
+      const ox = ((x + w / 2) / cw) * 100
+      const oy = ((y + h / 2) / ch) * 100
       stage.style.transformOrigin = `${ox}% ${oy}%`
       // Scale needed for the screen rect to cover the viewport.
-      const target = Math.max(canvas.clientWidth / w, canvas.clientHeight / h) * 1.04
+      const target = Math.max(cw / w, ch / h) * 1.04
       stage.dataset.zoomTarget = String(target)
     }
 
     const sizeCanvas = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const cw = canvas.clientWidth
-      const ch = canvas.clientHeight
+      cw = canvas.clientWidth
+      ch = canvas.clientHeight
       canvas.width = Math.round(cw * dpr)
       canvas.height = Math.round(ch * dpr)
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -273,6 +282,7 @@ export function CinematicIntro() {
         onUpdate: (self) => {
           const p = Math.min(self.progress / FLIGHT_END, 1)
           seekTo(p * (video.duration || 0))
+          if (self.progress > 0.001) scrolledRef.current = true
           sparkGates.forEach((g, i) => {
             if (
               !sparkFired[i] &&
@@ -539,28 +549,32 @@ export function CinematicIntro() {
     }
   }, [])
 
-  // Cursor-follow terminal reveal — only during the opening plate (the
-  // very first shot, before the flythrough starts). It lives inside
-  // data-intro so it inherits that layer's own scroll-driven fade-out
-  // rather than needing its own scroll logic. A small "window" that trails
-  // the pointer with a soft lerp, as if a hidden code editor sits just
-  // behind the footage and the cursor is peeling back a corner of it.
+  // Hidden terminal reveal — a field of cryptic purple code sealed behind
+  // the flythrough footage. During the opening plate only (before scrolling
+  // starts), a soft circular window follows the cursor and is cut directly
+  // into the canvas via a CSS mask, so the code shows through only right
+  // around the pointer — as if the footage were thin enough to peel back at
+  // a glance. A lerped follow keeps it smooth; the moment the user actually
+  // scrolls (scrolledRef, set from the main flight ScrollTrigger below) the
+  // window closes back to nothing and stays closed, so it never intrudes on
+  // the real footage.
   useEffect(() => {
     const root = rootRef.current
-    const panel = terminalRef.current
-    if (!root || !panel) return
+    const canvas = canvasRef.current
+    if (!root || !canvas) return
     if (window.matchMedia('(pointer: coarse)').matches) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     let raf = 0
-    let inView = false
     let active = false
     let tx = 0
     let ty = 0
     let cx = 0
     let cy = 0
+    let radius = 0
 
     const onMove = (e: PointerEvent) => {
+      if (scrolledRef.current) return
       const r = root.getBoundingClientRect()
       tx = e.clientX - r.left
       ty = e.clientY - r.top
@@ -571,25 +585,33 @@ export function CinematicIntro() {
       }
     }
 
+    const clearMask = () => {
+      canvas.style.maskImage = ''
+      canvas.style.setProperty('-webkit-mask-image', '')
+    }
+
     const loop = () => {
-      cx += (tx - cx) * 0.16
-      cy += (ty - cy) * 0.16
-      panel.style.transform = `translate3d(${cx + 28}px, ${cy + 28}px, 0)`
-      panel.style.opacity = active && inView ? '1' : '0'
+      cx += (tx - cx) * 0.14
+      cy += (ty - cy) * 0.14
+      const targetRadius = active && !scrolledRef.current ? 160 : 0
+      radius += (targetRadius - radius) * 0.08
+      if (radius < 0.5) {
+        clearMask()
+      } else {
+        const mask = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, transparent 0%, transparent 55%, black 100%)`
+        canvas.style.maskImage = mask
+        canvas.style.setProperty('-webkit-mask-image', mask)
+      }
       raf = requestAnimationFrame(loop)
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
-      inView = entry.isIntersecting
-    })
-    observer.observe(root)
     root.addEventListener('pointermove', onMove)
     raf = requestAnimationFrame(loop)
 
     return () => {
-      observer.disconnect()
       root.removeEventListener('pointermove', onMove)
       cancelAnimationFrame(raf)
+      clearMask()
     }
   }, [])
 
@@ -603,6 +625,19 @@ export function CinematicIntro() {
         {/* Zoomable stage: frames + the website projected onto the monitor.
             Scaling this div dives the camera into the screen. */}
         <div ref={stageRef} className="absolute inset-0 will-transform">
+          {/* Hidden terminal layer — sealed behind the footage, sitting
+              underneath the canvas below (see the mask effect above). Never
+              interactive on its own; only ever seen through the reveal. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-80"
+            style={{
+              backgroundImage: 'url(/intro/terminal-rain.webp)',
+              backgroundRepeat: 'repeat',
+              backgroundSize: '260px auto',
+              animation: 'terminal-rain-flow 16s linear infinite',
+            }}
+          />
           <canvas
             ref={canvasRef}
             className="absolute inset-0 h-full w-full"
@@ -683,33 +718,6 @@ export function CinematicIntro() {
           >
             {t.cinematicIntro.introTitle}
           </p>
-
-          {/* Cursor-follow terminal reveal — a small window trailing the
-              pointer, as if the footage is hiding a code editor just
-              beneath it. Desktop-only (see effect above), fades with the
-              rest of this plate the moment scrolling begins. */}
-          <div
-            ref={terminalRef}
-            aria-hidden
-            className="absolute left-0 top-0 w-[280px] rounded-xl border border-white/10 bg-black/75 p-3 text-left font-mono text-[11px] leading-relaxed text-white/70 opacity-0 shadow-[0_25px_70px_-20px_rgba(0,0,0,0.85)] backdrop-blur-md will-transform"
-          >
-            <div className="mb-2 flex gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-red-400/60" />
-              <span className="h-2 w-2 rounded-full bg-yellow-400/60" />
-              <span className="h-2 w-2 rounded-full bg-green-400/60" />
-            </div>
-            <div>
-              <span className="text-purple">const</span> agent = <span className="text-blue">new</span> Agent()
-            </div>
-            <div>
-              <span className="text-purple">await</span> agent.<span className="text-blue">deploy</span>(<span className="text-emerald-300">&apos;production&apos;</span>)
-            </div>
-            <div className="text-white/35">// syncing knowledge graph…</div>
-            <div>
-              agent.memory.<span className="text-blue">write</span>(event)
-              <span className="ml-0.5 animate-pulse">▌</span>
-            </div>
-          </div>
         </div>
 
         {/* "I AM" / "ISSA HAREB" — outline-only neon titles that sketch
@@ -738,8 +746,15 @@ export function CinematicIntro() {
           />
         </div>
 
-        {/* Scene 2 — text phrases */}
-        <div className="pointer-events-none absolute inset-0 z-[10] flex items-center justify-center px-6">
+        {/* Scene 2 — text phrases. Anchored below the "I AM" / "ISSA HAREB"
+            neon title block (which spans roughly the top 9%–41% of the
+            viewport and holds fully lit for this whole window) rather than
+            true-centered — a vertically-centered phrase would grow upward
+            into that title on longer strings (e.g. the German "Alles
+            komplett auf dem iPhone gebaut. Kein PC. Kein Laptop!" wraps to
+            multiple lines), overlapping it. Top-pinned + items-start means
+            any wrap only grows further down, never back up into the title. */}
+        <div className="pointer-events-none absolute inset-x-0 top-[48%] z-[10] flex items-start justify-center px-6">
           {PHRASES.map((p, i) => (
             <p
               key={i}

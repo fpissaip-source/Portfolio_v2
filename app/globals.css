@@ -126,6 +126,18 @@ html.preloading {
   animation: preloader-marquee 22s linear infinite;
 }
 
+/* cinematic-intro hidden terminal layer — sealed behind the flythrough
+   footage, revealed only through a cursor-following window cut into it.
+   Tiles downward continuously so the code reads as "flowing", not static. */
+@keyframes terminal-rain-flow {
+  from {
+    background-position-y: 0;
+  }
+  to {
+    background-position-y: 1433px;
+  }
+}
+
 /* preloader insertion caret — blinks like a real text cursor */
 @keyframes caret-blink {
   0%,

@@ -296,6 +296,7 @@ export function Projects() {
     status: p.status,
     stack: p.stack,
     hobby: p.hobby,
+    image: p.image,
   }))
 
   return (

@@ -479,7 +479,7 @@ export const DE: Dictionary = {
   },
   cinematicIntro: {
     scrollToMeet: 'Scrollen zum Kennenlernen',
-    introTitle: 'Lass mich mich vorstellen.',
+    introTitle: 'Lass mich vorstellen, wer ich bin.',
     phrases: [
       'Baue intelligente Systeme',
       'KI-Automatisierung',
@@ -606,7 +606,7 @@ export const DE: Dictionary = {
       {
         flag: 'Seitdem',
         title: 'Jeden einzelnen Tag etwas Neues',
-        body: 'Ich bringe mir täglich neue Dinge bei und tue alles dafür, immer am aktuellen Stand dessen zu bleiben, was KI und Software leisten können.',
+        body: 'Ich bringe mir täglich neue Dinge bei und tue alles dafür, immer auf dem aktuellen Stand dessen zu bleiben, was KI und Software leisten können.',
       },
       {
         flag: 'Auf dem Papier',

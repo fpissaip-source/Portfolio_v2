@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -89,6 +89,28 @@ export function PhoneStory() {
 
     return () => ctx.revert()
   }, [])
+
+  // The screen text is fixed-size SVG type tuned against the English copy;
+  // a translation's longer words (e.g. German "KOMPLETT AUF DEM IPHONE
+  // GEBAUT.") can measure wider than the phone's own screen area at that
+  // size and spill past the outline. Shrink each line's font-size only if
+  // it would actually overflow, so the common case (fits fine) never
+  // changes — same measure-then-shrink approach as the hero heading.
+  useLayoutEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const maxWidth = 320
+    const els = Array.from(svg.querySelectorAll<SVGTextElement>('[data-screen-text]'))
+    for (const el of els) {
+      const base = el.dataset.baseSize ?? el.style.fontSize
+      el.dataset.baseSize = base
+      el.style.fontSize = base
+      const len = el.getComputedTextLength()
+      if (len > maxWidth) {
+        el.style.fontSize = `${(parseFloat(base) * maxWidth) / len}px`
+      }
+    }
+  }, [t.phoneStory.screenLine1, t.phoneStory.screenLine2, t.phoneStory.screenLine3])
 
   return (
     <section

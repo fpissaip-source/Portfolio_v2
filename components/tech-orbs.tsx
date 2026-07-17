@@ -104,23 +104,27 @@ function Orb({
   material,
   scale,
   seed,
+  bounds,
 }: {
   material: THREE.Material
   scale: number
   seed: number
+  bounds: { x: number; y: number }
 }) {
   const api = useRef<RapierRigidBody>(null)
   const vec = useMemo(() => new THREE.Vector3(), [])
 
   const position = useMemo<[number, number, number]>(() => {
-    // Start scattered INSIDE the visible frame (the walls keep them there)
+    // Start scattered INSIDE the frustum walls. The spread scales with the
+    // viewport — the old fixed ±5/±3 could spawn balls beyond the side
+    // walls on narrow phone screens, stranding them off screen for good.
     const a = seed * 2.3999
     return [
-      Math.cos(a) * 5 + THREE.MathUtils.randFloatSpread(4),
-      Math.sin(a * 1.7) * 3 + THREE.MathUtils.randFloatSpread(3),
-      THREE.MathUtils.randFloatSpread(6),
+      Math.cos(a) * bounds.x + THREE.MathUtils.randFloatSpread(bounds.x * 0.6),
+      Math.sin(a * 1.7) * bounds.y + THREE.MathUtils.randFloatSpread(bounds.y * 0.6),
+      THREE.MathUtils.randFloatSpread(3),
     ]
-  }, [seed])
+  }, [seed, bounds])
 
   useFrame((state, delta) => {
     const rb = api.current
@@ -163,28 +167,57 @@ function Orb({
   )
 }
 
-/** Invisible walls at the viewport edges — balls roam right up to the rim
- *  of the screen but never leave it (and bounce off it, rather than
- *  stopping dead — the default zero restitution above made a ball that
- *  drifted to the bottom edge just sit there against the floor, which
- *  read as it "disappearing" rather than roaming back into view).
+/** Invisible walls — balls roam right up to the rim of the screen but never
+ *  leave it (and bounce off, rather than stopping dead).
  *
- *  Wall faces are inset by MAX_R (max ball radius + small margin) so that
- *  ball *centres* stop inside the frustum and overflow-hidden never clips
- *  the visible sphere. */
+ *  The side walls lie IN the camera's frustum planes (tilted to match the
+ *  perspective), their blocking faces flush with the planes, so balls of
+ *  any size can roll right up to the visible screen edge at every depth
+ *  without ever crossing it.
+ *  The previous axis-aligned walls matched the frustum only at z=0 — any
+ *  ball drifting toward the camera crossed the narrower frustum there and
+ *  got clipped by overflow-hidden at the screen edges, most visibly on
+ *  tall/narrow phone viewports. */
 function Walls() {
   const { viewport } = useThree()
   const w = viewport.width / 2
   const h = viewport.height / 2
+  const dist = 20 // camera z — viewport is measured at the z=0 plane
   const t = 2
-  // Max scale from SCALES array (1.0) plus a small collision-resolution margin.
-  const MAX_R = 1.1
+  const aH = Math.atan(w / dist)
+  const aV = Math.atan(h / dist)
+  // Each wall slab is parallel to its frustum plane with its *blocking face
+  // lying exactly in the plane*: the centre sits t (the half-thickness)
+  // OUTSIDE the plane along its outward normal n = (±cos a, 0, sin a) /
+  // (0, ±cos a, sin a). Balls of any radius then rest with their surface
+  // flush against the visible screen edge at every depth — no dead margin,
+  // no collider protruding into the scene on narrow phone viewports.
+  const L = 70
   return (
     <RigidBody type="fixed" colliders={false} restitution={0.45}>
-      <CuboidCollider args={[t, h + 6, 8]} position={[w + t - MAX_R, 0, 0]} />
-      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t + MAX_R, 0, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t - MAX_R, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t + MAX_R, 0]} />
+      {/* right / left — frustum side planes */}
+      <CuboidCollider
+        args={[t, L, L]}
+        rotation={[0, -aH, 0]}
+        position={[w + t * Math.cos(aH), 0, t * Math.sin(aH)]}
+      />
+      <CuboidCollider
+        args={[t, L, L]}
+        rotation={[0, aH, 0]}
+        position={[-w - t * Math.cos(aH), 0, t * Math.sin(aH)]}
+      />
+      {/* top / bottom — frustum planes as well */}
+      <CuboidCollider
+        args={[L, t, L]}
+        rotation={[aV, 0, 0]}
+        position={[0, h + t * Math.cos(aV), t * Math.sin(aV)]}
+      />
+      <CuboidCollider
+        args={[L, t, L]}
+        rotation={[-aV, 0, 0]}
+        position={[0, -h - t * Math.cos(aV), t * Math.sin(aV)]}
+      />
+      {/* near / far caps */}
       <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 7 + t]} />
       <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -7 - t]} />
     </RigidBody>
@@ -216,7 +249,27 @@ function Pointer() {
 }
 
 function Scene({ count }: { count: number }) {
+  const { viewport } = useThree()
   const [materials, setMaterials] = useState<THREE.Material[] | null>(null)
+
+  // Spawn area guaranteed to sit inside the tilted frustum walls even on
+  // narrow phone viewports. Exact against the tilted planes: a centre at
+  // offset x with |z| <= 1.5 keeps a full MAX_R sphere inside the frustum
+  // when x <= half - (MAX_R + 1.5*sin a)/cos a. Frozen on mount — resizes
+  // move the walls, and the physics then herds the balls, so respawning
+  // isn't needed. Orb() spreads positions up to bounds * 1.3, hence /1.3.
+  const [bounds] = useState(() => {
+    const margin = (half: number) => {
+      const a = Math.atan(half / 20) // camera z = 20, matches Walls()
+      return (1.1 + 1.5 * Math.sin(a)) / Math.cos(a)
+    }
+    const w = viewport.width / 2
+    const h = viewport.height / 2
+    return {
+      x: Math.max(0.5, (w - margin(w)) / 1.3),
+      y: Math.max(0.5, (h - margin(h)) / 1.3),
+    }
+  })
 
   useEffect(() => {
     let alive = true
@@ -279,6 +332,7 @@ function Scene({ count }: { count: number }) {
             material={materials[o.techIndex]}
             scale={o.scale}
             seed={o.seed}
+            bounds={bounds}
           />
         ))}
       </Physics>

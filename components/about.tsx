@@ -28,6 +28,30 @@ const PILLARS = [
   },
 ]
 
+/** The personal side — Issa's own story, told as a short timeline. */
+const STORY: { flag: string; title: string; body: string }[] = [
+  {
+    flag: 'Roots',
+    title: 'Curious by default',
+    body: "I've been drawn to the digital world and everything it makes possible for as long as I can remember.",
+  },
+  {
+    flag: 'The spark',
+    title: 'ChatGPT set the stone rolling',
+    body: "When OpenAI kicked off the AI wave, it lit a passion I didn't know I had — suddenly all that curiosity had a direction.",
+  },
+  {
+    flag: 'Since then',
+    title: 'Something new every single day',
+    body: 'I teach myself new things daily and do everything I can to stay right at the edge of what AI and software can do.',
+  },
+  {
+    flag: 'On paper',
+    title: 'Grounded in the real world',
+    body: 'Fachabitur in business & administration, earned with good grades — plus full-time jobs along the way that taught me how work actually gets done.',
+  },
+]
+
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-20%' })
@@ -131,6 +155,39 @@ export function About() {
         </div>
 
         <div className="flex flex-col gap-3">
+          <Reveal y={30}>
+            <div className="glass relative mb-3 overflow-hidden rounded-2xl p-6 sm:p-8">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/15 blur-3xl"
+              />
+              <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
+                My Story
+              </span>
+              <h3 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+                Hi, I&apos;m Issa — 24, self-taught, and all in on AI.
+              </h3>
+              <div className="relative mt-6 flex flex-col gap-6 border-l border-white/10 pl-6">
+                {STORY.map((s) => (
+                  <div key={s.flag} className="relative">
+                    <span
+                      aria-hidden
+                      className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue shadow-[0_0_12px_2px_color-mix(in_oklch,var(--blue)_70%,transparent)]"
+                    />
+                    <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple/80">
+                      {s.flag}
+                    </div>
+                    <div className="mt-1 font-semibold tracking-tight">
+                      {s.title}
+                    </div>
+                    <p className="mt-1 text-pretty text-sm leading-relaxed text-muted-foreground">
+                      {s.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
           {PILLARS.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.05} y={30}>
               <div className="group glass rounded-2xl p-6 transition-colors hover:border-white/20">

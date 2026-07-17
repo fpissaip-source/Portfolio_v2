@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ShimmerTitle, type ShimmerTitleHandle } from './shimmer-title'
+import { NeonLine, type NeonLineHandle } from './neon-name'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -78,8 +78,8 @@ export function CinematicIntro() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
-  const iamRef = useRef<ShimmerTitleHandle>(null)
-  const nameRef = useRef<ShimmerTitleHandle>(null)
+  const line1Ref = useRef<NeonLineHandle>(null)
+  const line2Ref = useRef<NeonLineHandle>(null)
   const nameWrapRef = useRef<HTMLDivElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const terminalRef = useRef<HTMLDivElement>(null)
@@ -253,6 +253,17 @@ export function CinematicIntro() {
         scrub: prefersReduced ? (false as const) : 0.25,
       }
 
+      // A network spark punctuates each word the moment it finishes forming
+      // — the nodes "discharging" into the finished letterform. Re-armed
+      // when scrolling back above the gate so the moment replays.
+      const sparkGates = [
+        { at: 0.095, x: 0.5, y: 0.17 },
+        { at: 0.167, x: 0.54, y: 0.17 },
+        { at: 0.275, x: 0.5, y: 0.32 },
+        { at: 0.746, x: 0.57, y: 0.32 },
+      ]
+      const sparkFired = sparkGates.map(() => false)
+
       // Frame scrubbing — the flythrough completes at FLIGHT_END; the last
       // stretch is reserved for the dive into the monitor.
       ScrollTrigger.create({
@@ -260,6 +271,24 @@ export function CinematicIntro() {
         onUpdate: (self) => {
           const p = Math.min(self.progress / FLIGHT_END, 1)
           seekTo(p * (video.duration || 0))
+          sparkGates.forEach((g, i) => {
+            if (
+              !sparkFired[i] &&
+              self.progress >= g.at &&
+              self.progress < g.at + 0.09
+            ) {
+              sparkFired[i] = true
+              lightningRef.current?.strike({
+                style: 'network',
+                intensity: 1,
+                originX: g.x + (Math.random() - 0.5) * 0.05,
+                originY: g.y + (Math.random() - 0.5) * 0.04,
+                spread: 0.09,
+              })
+            } else if (sparkFired[i] && self.progress < g.at - 0.04) {
+              sparkFired[i] = false
+            }
+          })
         },
       })
 
@@ -329,64 +358,77 @@ export function CinematicIntro() {
         0.012,
       )
 
-      // "I AM" then "ISSA HAREB" — a single sentence assembling at the top:
-      // "I AM" writes in first and holds fully lit (ShimmerTitle's own life
-      // cycle only fades past p=0.78, so parking each proxy at 0.6 keeps it
-      // written-and-held), then "ISSA HAREB" writes in below it and holds
-      // too — both parts stay on screen together until a shared dissolve
-      // right at the end of the flight, instead of each fading on its own.
-      const HOLD = 0.6
-      const iamProxy = { p: 0 }
-      const nameProxy = { p: 0 }
+      // The name sequence — "I", then "AM", then "ISSA": each word sketches
+      // itself as flashing nodes dotted along the letter outlines, then a
+      // thin neon line connects them (outline only, blue glow bleeding
+      // inward and outward). Everything holds fully lit through the flight;
+      // at the very end "HAREB" assembles next to "ISSA" — the first ISSA
+      // slides into its slot inside "ISSA HAREB" — and the finished line
+      // dives into the monitor screen, becoming the site's own title.
+      const pI = { v: 0 }
+      const pAM = { v: 0 }
+      const pISSA = { v: 0 }
+      const pHAREB = { v: 0 }
+      const solo1 = { v: 1 }
+      const solo2 = { v: 1 }
+      const fade1 = { v: 0 }
       tl.to(
-        iamProxy,
-        {
-          p: HOLD,
-          duration: 0.16,
-          ease: 'none',
-          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
-        },
-        0.04,
+        pI,
+        { v: 1, duration: 0.06, onUpdate: () => line1Ref.current?.setWord(0, pI.v) },
+        0.035,
       )
       tl.to(
-        nameProxy,
-        {
-          p: HOLD,
-          duration: 0.16,
-          ease: 'none',
-          onUpdate: () => nameRef.current?.setProgress(nameProxy.p),
-        },
-        0.22,
+        solo1,
+        { v: 0, duration: 0.05, onUpdate: () => line1Ref.current?.setSolo(solo1.v) },
+        0.098,
       )
-      // Shared dissolve — both parts fade and blur away together.
       tl.to(
-        iamProxy,
-        {
-          p: 1,
-          duration: 0.08,
-          ease: 'none',
-          onUpdate: () => iamRef.current?.setProgress(iamProxy.p),
-        },
+        pAM,
+        { v: 1, duration: 0.065, onUpdate: () => line1Ref.current?.setWord(1, pAM.v) },
+        0.102,
+      )
+      tl.to(
+        pISSA,
+        { v: 1, duration: 0.1, onUpdate: () => line2Ref.current?.setWord(0, pISSA.v) },
+        0.175,
+      )
+      // Sequenced hand-off: first ISSA glides out of its solo-centered spot
+      // into its slot inside "ISSA HAREB", *then* HAREB sketches itself in
+      // the space that opened up — running both at once makes the words
+      // collide mid-transition.
+      tl.to(
+        solo2,
+        { v: 0, duration: 0.045, onUpdate: () => line2Ref.current?.setSolo(solo2.v) },
+        0.64,
+      )
+      tl.to(
+        pHAREB,
+        { v: 1, duration: 0.058, onUpdate: () => line2Ref.current?.setWord(1, pHAREB.v) },
+        0.688,
+      )
+      tl.to(
+        fade1,
+        { v: 1, duration: 0.06, onUpdate: () => line1Ref.current?.setFade(fade1.v) },
         0.72,
       )
-      // "ISSA HAREB" doesn't just fade in place — it slides and shrinks
-      // down toward its exact position inside the monitor's screen
-      // preview while it dissolves, landing right as the static preview
-      // text (data-screen) fades in at that same spot. One continuous
-      // hand-off instead of two independent pieces of text appearing.
+      // "ISSA HAREB" doesn't just fade in place — the assembled line slides
+      // and shrinks down toward its exact position inside the monitor's
+      // screen preview while it dissolves, landing right as the static
+      // preview text (data-screen) fades in at that same spot. One
+      // continuous hand-off instead of two independent pieces of text.
       let nameSlide: { dx: number; dy: number; scale: number } | null = null
+      const slideP = { v: 0 }
       tl.to(
-        nameProxy,
+        slideP,
         {
-          p: 1,
-          duration: 0.08,
+          v: 1,
+          duration: 0.075,
           ease: 'none',
           onUpdate: () => {
-            nameRef.current?.setProgress(nameProxy.p)
             const wrap = nameWrapRef.current
             if (!wrap) return
             if (!nameSlide) {
-              const textEl = wrap.querySelector<HTMLElement>('.shimmer-text')
+              const textEl = wrap.querySelector<SVGGElement>('[data-neon-text]')
               const targetEl = screen.querySelector<HTMLElement>('[data-screen-name]')
               if (!textEl || !targetEl) return
               const tr = textEl.getBoundingClientRect()
@@ -400,18 +442,16 @@ export function CinematicIntro() {
             }
             const slide = nameSlide
             if (!slide) return
-            // nameProxy.p runs HOLD..1 in this tween, not 0..1 — normalize
-            // to a clean 0..1 slide progress so it doesn't jump straight to
-            // 60% on the very first frame.
-            const t = Math.max(0, Math.min(1, (nameProxy.p - HOLD) / (1 - HOLD)))
+            const t = slideP.v
             gsap.set(wrap, {
               x: slide.dx * t,
               y: slide.dy * t,
               scale: 1 + (slide.scale - 1) * t,
             })
+            line2Ref.current?.setFade(Math.max(0, (t - 0.55) / 0.45))
           },
         },
-        0.72,
+        0.75,
       )
     }, root)
 
@@ -649,27 +689,28 @@ export function CinematicIntro() {
           </div>
         </div>
 
-        {/* "I AM" / "ISSA HAREB" — a persistent title stacked at the top of
-            the screen. Each part writes in, then holds fully lit while the
-            next writes below it; both stay until a shared dissolve at the
-            very end of the flight. */}
-        <ShimmerTitle
-          ref={iamRef}
-          text="I AM"
-          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] flex h-[15vh] w-full items-center justify-center text-center font-sans text-4xl font-bold tracking-tight sm:top-[11%] sm:h-[13vh] sm:text-6xl md:text-7xl"
+        {/* "I AM" / "ISSA HAREB" — outline-only neon titles that sketch
+            themselves out of flashing nodes dotted along the letterforms;
+            a thin blue line then connects the nodes and the glow settles
+            in, bleeding inward and outward. "I" forms first, then "AM",
+            then "ISSA" below. */}
+        <NeonLine
+          ref={line1Ref}
+          words={['I', 'AM']}
+          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full font-sans font-bold sm:top-[11%] sm:h-[13vh]"
         />
-        {/* Wrapped separately from ShimmerTitle's own opacity/blur life cycle
-            so it can also be slid + scaled down toward the monitor screen
-            as it dissolves — it becomes the real "ISSA HAREB" sitting in
-            the screen preview rather than fading away independently of it. */}
+        {/* Wrapped separately so the whole line can be slid + scaled down
+            toward the monitor screen as it dissolves — the first ISSA
+            becomes the ISSA of "ISSA HAREB" sitting in the screen preview
+            rather than fading away independently of it. */}
         <div
           ref={nameWrapRef}
           className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] sm:top-[25%]"
         >
-          <ShimmerTitle
-            ref={nameRef}
-            text="ISSA HAREB"
-            className="flex h-[17vh] w-full items-center justify-center px-4 text-center font-sans text-4xl font-bold tracking-tight sm:h-[15vh] sm:text-7xl md:text-9xl"
+          <NeonLine
+            ref={line2Ref}
+            words={['ISSA', 'HAREB']}
+            className="h-[17vh] w-full px-4 font-sans font-bold sm:h-[15vh]"
           />
         </div>
 

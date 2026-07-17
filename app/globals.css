@@ -144,41 +144,116 @@ html.preloading {
   animation: caret-blink 1s step-end infinite;
 }
 
-/* ambient shimmer sweep across bold title letters — a bright band drifts
-   across the text (background-clip: text), pausing off to each side so it
-   reads as a periodic flash rather than a constant scroll. */
+/* ─── Shimmer title: "I AM" / "ISSA HAREB" in cinematic-intro ───────────────
+ *
+ * Two layered effects:
+ *
+ * 1. GRADIENT SWEEP (.shimmer-text)
+ *    The text is rendered as a vivid blue→purple gradient via background-clip:
+ *    text. A bright white/purple band sweeps left→right across it on a 4.5 s
+ *    loop — the text changes hue as the band passes, from blue to purple.
+ *    background-clip: text works correctly across the inline letter <span>s
+ *    because they stay `display: inline` (the CSS default for <span>).
+ *
+ * 2. PER-LETTER GLOW WAVE (.shimmer-letter)
+ *    Each letter has a pulsing text-shadow keyed to `--i` (its index in the
+ *    word). The animation-delay staggers the glow across the letters, left →
+ *    right, creating a ripple of luminance — like electricity running through
+ *    the characters.
+ *    text-shadow renders relative to the letter outline and IS visible even
+ *    when -webkit-text-fill-color is transparent (the shadow is drawn first,
+ *    below the text fill layer).
+ *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Base gradient + sweep band ------------------------------------------------ */
 .shimmer-text {
+  /* Vivid blue→white-purple→purple gradient fills the text glyphs. The bright
+     band in the middle sweeps across via background-position animation. */
   background-image: linear-gradient(
     100deg,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.95) 45%,
-    color-mix(in oklch, var(--purple) 75%, white) 50%,
-    rgba(255, 255, 255, 0.95) 55%,
-    rgba(255, 255, 255, 0) 70%
+    /* far-left anchor: cool blue */
+    color-mix(in oklch, var(--blue) 85%, white) 0%,
+    color-mix(in oklch, var(--blue) 55%, white) 22%,
+    /* sweep band: white flare with a purple center */
+    rgba(255, 255, 255, 0.0) 36%,
+    rgba(255, 255, 255, 0.95) 44%,
+    color-mix(in oklch, var(--purple) 88%, white) 50%,
+    rgba(255, 255, 255, 0.95) 56%,
+    rgba(255, 255, 255, 0.0) 64%,
+    /* far-right anchor: rich purple */
+    color-mix(in oklch, var(--purple) 65%, white) 78%,
+    var(--purple) 100%
   );
-  background-size: 250% 100%;
+  background-size: 260% 100%;
   background-repeat: no-repeat;
   -webkit-background-clip: text;
   background-clip: text;
-  color: rgba(255, 255, 255, 0.88);
+  /* transparent fill lets the gradient show through fully */
+  -webkit-text-fill-color: transparent;
+  color: transparent;
   animation: title-shimmer 4.5s ease-in-out infinite;
 }
+
 @keyframes title-shimmer {
   0%,
   40% {
+    /* band starts off-screen right → text is blue */
     background-position: 200% 0;
   }
   70% {
+    /* band has swept off-screen left → text is purple */
     background-position: -70% 0;
   }
   100% {
     background-position: -70% 0;
   }
 }
+
+/* Per-letter glow wave ------------------------------------------------------- */
+.shimmer-letter {
+  /* display: inline (CSS default for <span>) — required so background-clip:text
+     on the parent spans all letters correctly. Do NOT add display: inline-block
+     here; it would break the gradient clipping. */
+
+  /* Staggered glow pulse: each letter lights up slightly after the previous
+     one, creating a left→right energy ripple. The cycle is long (3.8 s) to
+     stay subtle rather than distracting. */
+  animation: shimmer-letter-glow 3.8s ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 0.13s);
+}
+
+/* Non-breaking space between words — no animation, no glow. */
+.shimmer-letter-space {
+  display: inline;
+}
+
+@keyframes shimmer-letter-glow {
+  0%, 100% {
+    /* rest state: faint blue haze */
+    text-shadow:
+      0 0 35px color-mix(in oklch, var(--blue) 22%, transparent);
+  }
+  42%, 58% {
+    /* peak: vivid purple-blue burst with white core */
+    text-shadow:
+      0 0 20px rgba(255, 255, 255, 0.55),
+      0 0 50px color-mix(in oklch, var(--purple) 80%, var(--blue)),
+      0 0 90px color-mix(in oklch, var(--blue) 55%, transparent);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .shimmer-text {
     animation: none;
-    background-position: 0 0;
+    /* static center position: text renders mid-gradient (neither all-blue
+       nor all-purple — a balanced blended tone) */
+    background-position: 50% 0;
+  }
+  .shimmer-letter {
+    animation: none;
+    /* keep a gentle always-on glow so the text still reads as alive */
+    text-shadow: 0 0 30px color-mix(in oklch, var(--purple) 40%, var(--blue));
   }
 }
 

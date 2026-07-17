@@ -5,15 +5,25 @@ import { forwardRef, useImperativeHandle, useRef } from 'react'
 export type ShimmerTitleHandle = { setProgress: (p: number) => void }
 
 /**
- * Real bold site-typography title with a slow ambient shimmer sweep along
- * the letters (a `background-clip: text` gradient band, animated via CSS —
- * runs continuously and independently of scroll). A single progress value
- * 0→1 still drives the write-on/hold/dissolve life cycle exactly like the
- * generated GlowTitle it replaces, so the caller's scroll-scrubbed timeline
- * doesn't need to change:
- *   0 → WRITE_END : letters ease/blur into place
+ * Bold site-typography title with two layered effects:
+ *
+ * 1. Ambient shimmer sweep — a bright blue/white/purple gradient band drifts
+ *    across a vivid blue→purple gradient text (background-clip: text). The
+ *    sweep is CSS-driven and independent of scroll.
+ *
+ * 2. Per-letter glow wave — each letter has a pulsing text-shadow keyed to
+ *    `--i` (its index), creating a ripple of energy flowing left → right
+ *    across the word.
+ *
+ * A single progress value 0→1 still drives the write-on/hold/dissolve life
+ * cycle via setProgress, so the scroll-scrubbed timeline in cinematic-intro
+ * does not need to change:
+ *   0 → WRITE_END  : letters rise into place (translateY + blur)
  *   WRITE_END → FADE_START : hold, fully written
  *   FADE_START → 1 : dissolve (fade + soft blur)
+ *
+ * Letter spans keep `display: inline` (the default) so the parent's
+ * background-clip: text gradient spans the full word correctly.
  */
 const WRITE_END = 0.6
 const FADE_START = 0.78
@@ -44,7 +54,31 @@ export const ShimmerTitle = forwardRef<
 
   return (
     <span ref={rootRef} className={className} style={{ opacity: 0 }}>
-      <span className="shimmer-text">{text}</span>
+      {/*
+       * shimmer-text: background-clip gradient spans all letters at once.
+       * aria-label on this span provides the accessible text; the individual
+       * shimmer-letter spans are aria-hidden to avoid character-by-character
+       * screen reader output.
+       */}
+      <span className="shimmer-text" aria-label={text}>
+        {text.split('').map((ch, i) =>
+          ch === ' ' ? (
+            // Non-breaking space keeps word gaps; no animation needed.
+            <span key={i} aria-hidden className="shimmer-letter-space">
+              {'\u00A0'}
+            </span>
+          ) : (
+            <span
+              key={i}
+              aria-hidden
+              className="shimmer-letter"
+              style={{ '--i': i } as React.CSSProperties}
+            >
+              {ch}
+            </span>
+          ),
+        )}
+      </span>
     </span>
   )
 })

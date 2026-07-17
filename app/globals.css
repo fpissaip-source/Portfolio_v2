@@ -228,3 +228,160 @@ html.preloading {
   background: color-mix(in oklch, var(--blue) 35%, #111);
   border-radius: 99px;
 }
+
+/* ─── Preloader wipe stage (Phase 1: Loading → Willkommen) ─────────────────
+ *
+ * The stage fills the oval pill. Two layers stack absolutely at the exact
+ * same inset-0 position and center their content identically via
+ * `display: grid; place-items: center`, so both texts are at the same
+ * pixel-perfect center — no centering recalculation ever occurs.
+ *
+ * layer 1  loader-welcome   "Willkommen" — static, z-1, revealed by wipe
+ * layer 2  loader-mask      "Loading XX %" — z-2, solid black bg, clips away
+ * layer 3  loader-cursor-track  mirrors clip boundary with translateX
+ *
+ * Nothing that affects text position (width, height, padding, margin,
+ * justify-content, align-items, letter-spacing, font-size, line-height)
+ * is ever animated. Only clip-path and transform are transitioned.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.loader-stage {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  overflow: hidden; /* clips cursor-track at pill boundary */
+}
+
+.loader-welcome,
+.loader-mask {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  white-space: nowrap;
+}
+
+/* Willkommen: always at center, never animated, never moved */
+.loader-welcome {
+  z-index: 1;
+}
+
+/* Loading XX %: solid black bg covers Willkommen while loading.
+   clip-path wipes the mask away from right to left on activation.
+   Only clip-path is transitioned — no layout property changes. */
+.loader-mask {
+  z-index: 2;
+  background-color: #000000; /* matches oval bg-black */
+  clip-path: inset(0 0% 0 0);
+  transition: clip-path 1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.loader-wipe-active .loader-mask {
+  clip-path: inset(0 100% 0 0);
+}
+
+/* Cursor track: same absolute inset-0 dimensions as the stage.
+ *
+ * Sync proof:
+ *   clip-path inset-right goes from 0% → 100% (mask visible [0,W] → [0,0])
+ *   translateX goes from   0   → -100%  (= -W px, the track's own width)
+ *
+ *   At any progress p ∈ [0,1]:
+ *     mask right-edge  = W × (1 − p)
+ *     cursor position  = W − W×p = W × (1 − p)   ✓ exact match
+ *
+ * Both transitions share the same duration and easing curve — started
+ * by the same CSS class toggle — so they are always in sync.
+ *
+ * opacity transition (1.1 s delay) fades the cursor after the wipe ends.
+ */
+.loader-cursor-track {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  transform: translateX(0);
+  transition:
+    transform 1s cubic-bezier(0.65, 0, 0.35, 1),
+    opacity 0.3s 1.1s ease-out;
+}
+
+.loader-wipe-active .loader-cursor-track {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+/* The cursor — vertical bar pinned to the right edge of the track.
+   translate(-50%, -50%) centers it vertically; the 2 px right offset
+   keeps it just inside the pill boundary when at rest. */
+.loader-cursor {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  width: 3px;
+  height: 0.85em;
+  background: white;
+  transform: translateY(-50%);
+}
+
+@media (min-width: 640px) {
+  .loader-cursor {
+    width: 4px;
+  }
+}
+
+/* ─── Preloader expansion (Phase 2: Willkommen → fullscreen) ───────────────
+ *
+ * A dark circle positioned at the oval's center. When .loader-exit is added,
+ * transform: scale(var(--exit-scale)) expands it to cover the full viewport.
+ * Scale value is computed from viewport diagonal / circle size × 1.1.
+ *
+ * Only `transform` is transitioned — GPU-composited, zero layout reflow.
+ * The UI text (oval, caption) is a sibling of this layer, never a child,
+ * so it is never scaled or distorted.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.loader-expansion {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 132px;
+  height: 132px;
+  border-radius: 9999px;
+  background: var(--background);
+  transform: translate(-50%, -50%) scale(1);
+  transform-origin: center;
+  will-change: transform;
+  backface-visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  transition: transform 0.8s cubic-bezier(0.33, 0.11, 1, 0.72);
+}
+
+.loader-expansion.loader-exit {
+  transform: translate(-50%, -50%) scale(var(--exit-scale, 100));
+}
+
+/* Root fades out after expansion has covered the screen
+   (0.65 s delay lets expansion finish first, 0.25 s fade). */
+.loader-root-exit {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s 0.65s ease-out;
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────────────
+   All transitions collapse to near-instant; functional sequence preserved. */
+@media (prefers-reduced-motion: reduce) {
+  .loader-mask,
+  .loader-cursor-track,
+  .loader-expansion,
+  .loader-root-exit {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+  .loader-cursor {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

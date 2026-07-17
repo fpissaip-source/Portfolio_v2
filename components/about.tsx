@@ -54,7 +54,10 @@ const STORY: { flag: string; title: string; body: string }[] = [
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, margin: '-20%' })
+  // Vertical-only margin: '-20%' alone also shrinks the observed viewport
+  // horizontally, which on narrow phones pushed the first (left-edge) stat
+  // out of the observed zone entirely — it never fired and stayed at 0.
+  const inView = useInView(ref, { once: true, margin: '-20% 0px -20% 0px' })
   const [val, setVal] = useState(0)
 
   useEffect(() => {

@@ -43,6 +43,60 @@ const SCALE_FOR_TIER: Record<SizeTier, number> = {
   small: 0.85,
 }
 
+/** Portrait recomposition of the same constellation for phones — tighter
+ *  x-range, taller y-range, same hub-and-spokes hierarchy. Tuned so all
+ *  nodes and their name pills project inside a ~342x386 canvas. */
+const NODE_POSITIONS_MOBILE: Record<string, [number, number, number]> = {
+  GuardianGrid: [0, 0.55, 1.2],
+  'TaxiBB Essen': [-2.75, 2.45, -0.8],
+  Bewerbungsbot: [2.7, 2.3, -0.6],
+  StudyForge: [2.65, -1.9, -1.5],
+  'Team Operations Suite': [-2.65, -1.85, -1.3],
+  'Automation Systems': [0.85, -3.2, -2.2],
+}
+
+export type OrbVariant = 'desktop' | 'mobile'
+
+/** Per-variant tuning. Mobile: smaller nodes, fixed camera (the desktop
+ *  dolly formula assumes a wide container), name-only label pills, and a
+ *  higher dim floor so non-focused nodes stay visible on a small screen. */
+const VARIANTS: Record<
+  OrbVariant,
+  {
+    positions: Record<string, [number, number, number]>
+    scaleMul: number
+    dimFloor: { wire: number; core: number; ring: number }
+    lift: number
+    showCategory: boolean
+    nameSize: number
+    dollyCamera: boolean
+    /** On mobile the hub label sits ABOVE its orb (crown position) so the
+     *  bottom row of spoke labels has room. */
+    hubLabelAbove: boolean
+  }
+> = {
+  desktop: {
+    positions: NODE_POSITIONS,
+    scaleMul: 1,
+    dimFloor: { wire: 0.08, core: 0.08, ring: 0.06 },
+    lift: 0.55,
+    showCategory: true,
+    nameSize: 14,
+    dollyCamera: true,
+    hubLabelAbove: false,
+  },
+  mobile: {
+    positions: NODE_POSITIONS_MOBILE,
+    scaleMul: 0.72,
+    dimFloor: { wire: 0.2, core: 0.16, ring: 0.15 },
+    lift: 0.35,
+    showCategory: false,
+    nameSize: 11,
+    dollyCamera: false,
+    hubLabelAbove: true,
+  },
+}
+
 function seedFromName(name: string): number {
   let h = 0
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 1000
@@ -61,6 +115,7 @@ function Node({
   onExpand,
   expandedName,
   reduced,
+  variant,
 }: {
   project: OrbProject
   hoveredName: string | null
@@ -68,6 +123,7 @@ function Node({
   onExpand: () => void
   expandedName: string | null
   reduced: boolean
+  variant: OrbVariant
 }) {
   const outerRef = useRef<THREE.Group>(null)
   const spinRef = useRef<THREE.Group>(null)
@@ -77,13 +133,14 @@ function Node({
   const satMatRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([])
   const liftRef = useRef(0)
 
+  const cfg = VARIANTS[variant]
   const basePos = useMemo(
-    () => new THREE.Vector3(...(NODE_POSITIONS[project.name] ?? [0, 0, 0])),
-    [project.name],
+    () => new THREE.Vector3(...(cfg.positions[project.name] ?? [0, 0, 0])),
+    [project.name, cfg],
   )
   const role = useMemo(() => roleFor(project), [project.name])
   const colors = ROLE_COLORS[role]
-  const scale = SCALE_FOR_TIER[tierFor(project)]
+  const scale = SCALE_FOR_TIER[tierFor(project)] * cfg.scaleMul
   const seed = useMemo(() => seedFromName(project.name), [project.name])
 
   const hovered = hoveredName === project.name
@@ -111,14 +168,14 @@ function Node({
       floatX = Math.cos(t * 0.2 + seed * 6) * 0.09 * scale
       floatY = Math.sin(t * 0.25 + seed * 6) * 0.13 * scale
     }
-    const targetLift = hovered ? 0.55 : 0
+    const targetLift = hovered ? cfg.lift : 0
     liftRef.current += (targetLift - liftRef.current) * Math.min(1, delta * 6)
     outer.position.set(basePos.x + floatX, basePos.y + floatY, basePos.z + liftRef.current)
 
     const k = Math.min(1, delta * 6)
-    const targetWire = dimmed ? 0.08 : hovered ? 0.85 : 0.38
-    const targetCore = dimmed ? 0.08 : hovered ? 0.42 : 0.28
-    const targetRing = dimmed ? 0.06 : hovered ? 0.75 : 0.3
+    const targetWire = dimmed ? cfg.dimFloor.wire : hovered ? 0.85 : 0.38
+    const targetCore = dimmed ? cfg.dimFloor.core : hovered ? 0.42 : 0.28
+    const targetRing = dimmed ? cfg.dimFloor.ring : hovered ? 0.75 : 0.3
     if (wireMatRef.current) wireMatRef.current.opacity += (targetWire - wireMatRef.current.opacity) * k
     if (coreMatRef.current) coreMatRef.current.opacity += (targetCore - coreMatRef.current.opacity) * k
     if (ringMatRef.current) ringMatRef.current.opacity += (targetRing - ringMatRef.current.opacity) * k
@@ -197,7 +254,16 @@ function Node({
         </mesh>
       ))}
 
-      <Html center distanceFactor={8.5} zIndexRange={[10, 0]} position={[0, -1.55 * scale - 0.3, 0]}>
+      <Html
+        center
+        distanceFactor={8.5}
+        zIndexRange={[10, 0]}
+        position={[
+          0,
+          cfg.hubLabelAbove && role === 'hero' ? 1.55 * scale + 0.3 : -1.55 * scale - 0.3,
+          0,
+        ]}
+      >
         <button
           type="button"
           onPointerOver={(e) => {
@@ -226,16 +292,18 @@ function Node({
               className="h-1.5 w-1.5 shrink-0 rounded-full"
               style={{ background: colors.core, boxShadow: `0 0 6px 1px ${colors.glow}` }}
             />
-            <span className="font-semibold tracking-tight text-foreground" style={{ fontSize: 14 }}>
+            <span className="font-semibold tracking-tight text-foreground" style={{ fontSize: cfg.nameSize }}>
               {project.name}
             </span>
           </span>
-          <span
-            className="font-mono uppercase tracking-[0.12em] text-muted-foreground"
-            style={{ fontSize: 10 }}
-          >
-            {project.category}
-          </span>
+          {cfg.showCategory && (
+            <span
+              className="font-mono uppercase tracking-[0.12em] text-muted-foreground"
+              style={{ fontSize: 10 }}
+            >
+              {project.category}
+            </span>
+          )}
         </button>
       </Html>
     </group>
@@ -278,20 +346,22 @@ function Connections({
   projects,
   hoveredName,
   reduced,
+  positions,
 }: {
   projects: OrbProject[]
   hoveredName: string | null
   reduced: boolean
+  positions: Record<string, [number, number, number]>
 }) {
   const hero = projects.find((p) => roleFor(p) === 'hero')
   if (!hero) return null
-  const heroPos = new THREE.Vector3(...(NODE_POSITIONS[hero.name] ?? [0, 0, 0]))
+  const heroPos = new THREE.Vector3(...(positions[hero.name] ?? [0, 0, 0]))
   return (
     <>
       {projects
         .filter((p) => p.name !== hero.name)
         .map((p, i) => {
-          const pos = new THREE.Vector3(...(NODE_POSITIONS[p.name] ?? [0, 0, 0]))
+          const pos = new THREE.Vector3(...(positions[p.name] ?? [0, 0, 0]))
           const highlighted = hoveredName === hero.name || hoveredName === p.name
           const colors = ROLE_COLORS[roleFor(p)]
           return (
@@ -354,6 +424,7 @@ function Scene({
   onExpand,
   dragTarget,
   containerWidth,
+  variant,
 }: {
   projects: OrbProject[]
   reduced: boolean
@@ -363,6 +434,7 @@ function Scene({
   onExpand: (name: string) => void
   dragTarget: React.RefObject<{ yaw: number; pitch: number }>
   containerWidth: number
+  variant: OrbVariant
 }) {
   const dragGroupRef = useRef<THREE.Group>(null)
   const focusGroupRef = useRef<THREE.Group>(null)
@@ -373,11 +445,16 @@ function Scene({
   // closer to the edges — dolly the camera back proportionally so labels
   // keep clear margin instead of clipping against the rounded corners.
   useEffect(() => {
+    if (!VARIANTS[variant].dollyCamera) {
+      camera.position.z = 15
+      if (camera instanceof THREE.PerspectiveCamera) camera.updateProjectionMatrix()
+      return
+    }
     const baseWidth = 1280
     const z = THREE.MathUtils.clamp(15 * (baseWidth / Math.max(containerWidth, 1)), 15, 24)
     camera.position.z = z
     if (camera instanceof THREE.PerspectiveCamera) camera.updateProjectionMatrix()
-  }, [camera, containerWidth])
+  }, [camera, containerWidth, variant])
 
   useFrame((_, delta) => {
     const dg = dragGroupRef.current
@@ -390,7 +467,7 @@ function Scene({
     if (fg) {
       let targetX = 0
       let targetScale = 1
-      if (expandedName) {
+      if (expandedName && variant === 'desktop') {
         const basePos = NODE_POSITIONS[expandedName] ?? [0, 0, 0]
         targetX = -basePos[0] - 1.6
         targetScale = 1.1
@@ -410,7 +487,12 @@ function Scene({
       <Particles reduced={reduced} />
       <group ref={dragGroupRef}>
         <group ref={focusGroupRef}>
-          <Connections projects={projects} hoveredName={hoveredName} reduced={reduced} />
+          <Connections
+            projects={projects}
+            hoveredName={hoveredName}
+            reduced={reduced}
+            positions={VARIANTS[variant].positions}
+          />
           {projects.map((p) => (
             <Node
               key={p.name}
@@ -420,6 +502,7 @@ function Scene({
               onExpand={() => onExpand(p.name)}
               expandedName={expandedName}
               reduced={reduced}
+              variant={variant}
             />
           ))}
         </group>
@@ -461,10 +544,20 @@ export default function ProjectOrbs({
   projects,
   expandedName,
   onExpand,
+  variant = 'desktop',
+  activeName = null,
+  onContextLost,
 }: {
   projects: OrbProject[]
   expandedName: string | null
   onExpand: (name: string) => void
+  variant?: OrbVariant
+  /** Externally driven focus (e.g. the mobile card carousel) — highlights
+   *  that node exactly like a hover, without needing a pointer. */
+  activeName?: string | null
+  /** Called when the WebGL context is lost, so the parent can swap in a
+   *  non-WebGL fallback (mainly relevant for the mobile variant). */
+  onContextLost?: () => void
 }) {
   const [reduced, setReduced] = useState(false)
   const [hoveredName, setHoveredName] = useState<string | null>(null)
@@ -496,19 +589,29 @@ export default function ProjectOrbs({
     return () => ro.disconnect()
   }, [])
 
-  const hoveredProject = expandedName ? null : projects.find((p) => p.name === hoveredName) ?? null
+  const effectiveHover = hoveredName ?? activeName
+  const hoveredProject =
+    expandedName || variant !== 'desktop'
+      ? null
+      : projects.find((p) => p.name === hoveredName) ?? null
 
   return (
     <div
       ref={wrapRef}
-      className="relative h-full w-full cursor-grab touch-none active:cursor-grabbing"
+      className={`relative h-full w-full cursor-grab active:cursor-grabbing ${
+        variant === 'desktop' ? 'touch-none' : 'touch-pan-y'
+      }`}
       onPointerDown={(e) => {
         dragging.current = true
         lastPointer.current = { x: e.clientX, y: e.clientY }
       }}
       onPointerMove={(e) => {
-        const r = wrapRef.current?.getBoundingClientRect()
-        if (r) setPointer({ x: e.clientX - r.left, y: e.clientY - r.top })
+        // Pointer state only feeds the desktop hover preview — skip the
+        // re-renders entirely on touch variants.
+        if (variant === 'desktop') {
+          const r = wrapRef.current?.getBoundingClientRect()
+          if (r) setPointer({ x: e.clientX - r.left, y: e.clientY - r.top })
+        }
         if (dragging.current && !reduced) {
           const dx = e.clientX - lastPointer.current.x
           const dy = e.clientY - lastPointer.current.y
@@ -525,6 +628,11 @@ export default function ProjectOrbs({
       onPointerLeave={() => {
         dragging.current = false
       }}
+      onPointerCancel={() => {
+        // iOS fires pointercancel when the browser takes over the gesture
+        // (e.g. page scroll with touch-pan-y).
+        dragging.current = false
+      }}
     >
       <Canvas
         dpr={[1, 1.5]}
@@ -533,17 +641,28 @@ export default function ProjectOrbs({
         camera={{ position: [0, 0, 15], fov: 34, near: 1, far: 100 }}
         style={{ width: '100%', height: '100%' }}
         frameloop={inView ? 'always' : 'never'}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener(
+            'webglcontextlost',
+            (e) => {
+              e.preventDefault()
+              onContextLost?.()
+            },
+            false,
+          )
+        }}
       >
         <Suspense fallback={null}>
           <Scene
             projects={projects}
             reduced={reduced}
-            hoveredName={hoveredName}
+            hoveredName={effectiveHover}
             onHover={setHoveredName}
             expandedName={expandedName}
             onExpand={onExpand}
             dragTarget={dragTarget}
             containerWidth={containerWidth}
+            variant={variant}
           />
         </Suspense>
       </Canvas>

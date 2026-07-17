@@ -122,6 +122,7 @@ export default function ProjectConstellationMobile({
               onExpand={onExpand}
               variant="mobile"
               activeName={active}
+              onActivate={setActive}
               onContextLost={() => setWebglOk(false)}
             />
           </CanvasBoundary>

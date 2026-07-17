@@ -464,6 +464,7 @@ function Scene({
   onHover,
   expandedName,
   onExpand,
+  onActivate,
   dragTarget,
   containerWidth,
   variant,
@@ -474,6 +475,7 @@ function Scene({
   onHover: (name: string | null) => void
   expandedName: string | null
   onExpand: (name: string) => void
+  onActivate?: (name: string) => void
   dragTarget: React.RefObject<{ yaw: number; pitch: number }>
   containerWidth: number
   variant: OrbVariant
@@ -541,7 +543,10 @@ function Scene({
               project={p}
               hoveredName={hoveredName}
               onHover={(v) => onHover(v ? p.name : null)}
-              onExpand={() => onExpand(p.name)}
+              onExpand={() => {
+                onActivate?.(p.name)
+                onExpand(p.name)
+              }}
               expandedName={expandedName}
               reduced={reduced}
               variant={variant}
@@ -622,6 +627,7 @@ export default function ProjectOrbs({
   onExpand,
   variant = 'desktop',
   activeName = null,
+  onActivate,
   onContextLost,
 }: {
   projects: OrbProject[]
@@ -631,6 +637,11 @@ export default function ProjectOrbs({
   /** Externally driven focus (e.g. the mobile card carousel) — highlights
    *  that node exactly like a hover, without needing a pointer. */
   activeName?: string | null
+  /** Fired the instant a node is tapped, before onExpand — lets a touch
+   *  device (no real hover) show the same lift/highlight a mouse hover
+   *  gives on desktop, so a tap reads as "acknowledged" rather than
+   *  jumping straight to the detail view with no feedback. */
+  onActivate?: (name: string) => void
   /** Called when the WebGL context is lost, so the parent can swap in a
    *  non-WebGL fallback (mainly relevant for the mobile variant). */
   onContextLost?: () => void
@@ -740,6 +751,7 @@ export default function ProjectOrbs({
             onHover={setHoveredName}
             expandedName={expandedName}
             onExpand={onExpand}
+            onActivate={onActivate}
             dragTarget={dragTarget}
             containerWidth={containerWidth}
             variant={variant}

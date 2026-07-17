@@ -5,6 +5,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { NeonLine, type NeonLineHandle } from './neon-name'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
+import { useT } from './language-context'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -73,6 +74,7 @@ const PHRASE_ANIMS: Record<
 }
 
 export function CinematicIntro() {
+  const t = useT()
   const rootRef = useRef<HTMLDivElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -654,7 +656,7 @@ export function CinematicIntro() {
                 className="font-mono uppercase tracking-[0.3em] text-white/60"
                 style={{ fontSize: 'min(1.6cqw, 12px)' }}
               >
-                Building intelligent systems
+                {t.cinematicIntro.screenSubtitle}
               </span>
             </div>
           </div>
@@ -673,13 +675,13 @@ export function CinematicIntro() {
           className="pointer-events-none absolute inset-0 z-[15] flex flex-col items-center justify-center gap-4 px-6 text-center will-transform"
         >
           <span className="font-mono text-xs uppercase tracking-[0.35em] text-blue">
-            Scroll to meet
+            {t.cinematicIntro.scrollToMeet}
           </span>
           <p
             className="text-balance font-sans text-4xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl"
             style={{ textShadow: '0 2px 40px rgba(0,0,0,0.8)' }}
           >
-            Let me introduce myself.
+            {t.cinematicIntro.introTitle}
           </p>
 
           {/* Cursor-follow terminal reveal — a small window trailing the
@@ -745,7 +747,7 @@ export function CinematicIntro() {
               className="absolute max-w-4xl text-balance text-center font-sans text-4xl font-semibold leading-tight tracking-tight text-foreground opacity-0 will-transform sm:text-6xl md:text-7xl"
               style={{ textShadow: '0 2px 40px rgba(0,0,0,0.7)' }}
             >
-              {p.text}
+              {t.cinematicIntro.phrases[i] ?? p.text}
             </p>
           ))}
         </div>
@@ -766,7 +768,7 @@ export function CinematicIntro() {
           className="absolute bottom-10 left-1/2 z-[40] flex -translate-x-1/2 flex-col items-center gap-3 text-muted-foreground"
         >
           <span className="font-mono text-xs uppercase tracking-[0.3em]">
-            Scroll
+            {t.cinematicIntro.scroll}
           </span>
           <span className="relative flex h-10 w-6 items-start justify-center rounded-full border border-white/20 p-1.5">
             <span className="h-2 w-1 animate-bounce rounded-full bg-white/70" />

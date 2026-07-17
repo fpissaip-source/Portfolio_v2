@@ -3,29 +3,30 @@
 import { Mail, Phone, MapPin } from 'lucide-react'
 import { WordReveal, Reveal } from './anim'
 import { GradientOrbs } from './gradient-orbs'
-
-const DETAILS = [
-  {
-    icon: Mail,
-    label: 'Email',
-    value: 'info@hareb.org',
-    href: 'mailto:info@hareb.org',
-  },
-  {
-    icon: Phone,
-    label: 'Phone',
-    value: '01525 9559708',
-    href: 'tel:+4915259559708',
-  },
-  {
-    icon: MapPin,
-    label: 'Location',
-    value: 'Germany',
-    href: null,
-  },
-]
+import { useT } from './language-context'
 
 export function Contact() {
+  const t = useT()
+  const DETAILS = [
+    {
+      icon: Mail,
+      label: t.contact.emailLabel,
+      value: 'info@hareb.org',
+      href: 'mailto:info@hareb.org',
+    },
+    {
+      icon: Phone,
+      label: t.contact.phoneLabel,
+      value: '01525 9559708',
+      href: 'tel:+4915259559708',
+    },
+    {
+      icon: MapPin,
+      label: t.contact.locationLabel,
+      value: t.contact.locationValue,
+      href: null,
+    },
+  ]
   return (
     <section
       id="contact"
@@ -36,18 +37,17 @@ export function Contact() {
         <div className="mb-14 text-center">
           <Reveal>
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
-              Contact
+              {t.contact.kicker}
             </span>
           </Reveal>
           <WordReveal
             as="h2"
-            text="How to reach me."
+            text={t.contact.heading}
             className="mx-auto mt-4 max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-tight sm:text-7xl md:text-8xl"
           />
           <Reveal delay={0.1}>
             <p className="mx-auto mt-6 max-w-lg text-pretty text-muted-foreground">
-              Currently open to engineering and AI-focused roles and
-              collaborations.
+              {t.contact.subtitle}
             </p>
           </Reveal>
         </div>

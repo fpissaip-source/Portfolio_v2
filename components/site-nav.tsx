@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-
-const LINKS = [
-  { label: 'L.U.K.A.S.', href: '#lukas' },
-  { label: 'Work', href: '#work' },
-  { label: 'About', href: '#about' },
-  { label: 'Stack', href: '#stack' },
-  { label: 'Process', href: '#process' },
-  { label: 'Contact', href: '#contact' },
-]
+import { useT } from './language-context'
 
 export function SiteNav() {
+  const t = useT()
+  const LINKS = [
+    { label: t.nav.lukas, href: '#lukas' },
+    { label: t.nav.work, href: '#work' },
+    { label: t.nav.about, href: '#about' },
+    { label: t.nav.stack, href: '#stack' },
+    { label: t.nav.process, href: '#process' },
+    { label: t.nav.contact, href: '#contact' },
+  ]
   const [show, setShow] = useState(false)
 
   useEffect(() => {

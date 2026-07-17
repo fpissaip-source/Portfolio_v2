@@ -5,6 +5,7 @@ import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
+import { useT } from './language-context'
 import type { OrbProject } from './project-orbs'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
@@ -48,69 +49,48 @@ type Project = {
   githubUrl?: string
 }
 
-const PROJECTS: Project[] = [
+/** Structural fields only — name, media, stack, links. The translatable
+ *  copy (category/tagline/description/status) lives in
+ *  `useT().projects.projects`, keyed by `name`, and is merged in at render
+ *  time inside `Projects()` so it switches with the active language. */
+type ProjectMeta = Pick<
+  Project,
+  'name' | 'image' | 'video' | 'videoPlaybackRate' | 'stack' | 'featured' | 'hobby' | 'liveUrl' | 'githubUrl'
+>
+
+const PROJECT_META: ProjectMeta[] = [
   {
     name: 'GuardianGrid',
-    category: 'Destiny 2 Companion',
-    tagline: 'Destiny 2 Companion Platform',
-    description:
-      'A standalone AAA game companion built directly on the Bungie API: guardiangrid.io. Secure OAuth2 identity with Cloudflare Turnstile, character & inventory intelligence, loadouts, automated god-roll and build analysis, auto-loadout logic for boss rooms and a PvP DNA scan with near-real-time activity states.',
     image: '/projects/guardiangrid-login.jpg',
     video: '/videos/guardiangrid.mp4',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
-    status: 'Active Development',
     featured: true,
     liveUrl: 'https://guardiangrid.io',
   },
   {
     name: 'TaxiBB Essen',
-    category: 'Live Client System',
-    tagline: 'Live Commercial Case',
-    description:
-      'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
     image: '/projects/taxibb.png',
     video: '/videos/taxibb.mp4',
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
-    status: 'Live System',
   },
   {
     name: 'StudyForge',
-    category: 'AI Learning Platform',
-    tagline: 'AI Learning Platform',
-    description:
-      'A document-to-learning workflow: upload notes and PDFs, then generate structured summaries, key terms, comprehension questions and adaptive quizzes. Includes mock-exam simulation and a full learning history for long-term use.',
     stack: ['React', 'Tailwind CSS', 'TypeScript', 'AI Pipelines'],
-    status: 'Product Prototype',
     hobby: true,
   },
   {
     name: 'Team Operations Suite',
-    category: 'Ops Platform Concept',
-    tagline: 'Business Operations Platform',
-    description:
-      'An internal performance, CRM and workforce platform for any team-based business. Operational KPI dashboards, customer & CRM documentation, live leaderboards, shift planning, an internal chat and incentive systems, all behind configurable admin roles and permissions.',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
-    status: 'Full-Stack Concept',
     hobby: true,
   },
   {
     name: 'Automation Systems',
-    category: 'Bots & Trading R&D',
-    tagline: 'Bots, Scraping & Trading R&D',
-    description:
-      'A family of VPS-based automations: a Telegram scraper & distribution bot with a full link-ingestion pipeline, plus experimental Polymarket and trading research covering event-market discovery, CLOB order-book logic and a rule-based signal engine.',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
-    status: 'Deployed / Research',
   },
   {
     name: 'Bewerbungsbot',
-    category: 'AI Job Application Agent',
-    tagline: 'AI Job Application Assistant',
-    description:
-      'An AI-driven job search and application pipeline. Aggregates apprenticeship listings from the German Federal Employment Agency API, finds and ranks real company contact emails, then drafts a fully personalized German cover letter with GPT-4o grounded strictly in the applicant\'s own CV, generates the application PDF and sends it automatically. Includes bulk-apply with duplicate detection and offline retry queuing.',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
-    status: 'In Use',
     hobby: true,
   },
 ]
@@ -120,6 +100,7 @@ const PROJECTS: Project[] = [
  *  exist. Used by both the docked side panel (desktop/tablet) and the
  *  full-screen modal (mobile). */
 function ProjectDetailContent({ project }: { project: Project }) {
+  const t = useT()
   return (
     <>
       {project.image || project.video ? (
@@ -157,7 +138,7 @@ function ProjectDetailContent({ project }: { project: Project }) {
       ) : (
         <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-purple">
-            {project.hobby ? 'Hobby Project' : project.status}
+            {project.hobby ? t.projects.hobbyProject : project.status}
           </span>
           <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
             {project.tagline}
@@ -182,7 +163,7 @@ function ProjectDetailContent({ project }: { project: Project }) {
                 rel="noreferrer"
                 className="rounded-full bg-blue/15 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-blue transition-colors hover:bg-blue/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
               >
-                Live Project ↗
+                {t.projects.liveProject}
               </a>
             )}
             {project.githubUrl && (
@@ -192,7 +173,7 @@ function ProjectDetailContent({ project }: { project: Project }) {
                 rel="noreferrer"
                 className="rounded-full bg-white/10 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-foreground transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
-                GitHub ↗
+                {t.projects.github}
               </a>
             )}
           </div>
@@ -221,6 +202,7 @@ function useEscapeAndScrollLock(onClose: () => void) {
 /** Full-screen modal — used on mobile, where a docked side panel wouldn't
  *  leave enough room to be useful. Clicking the backdrop or Escape closes. */
 function ProjectDetailModal({ project, onClose }: { project: Project; onClose: () => void }) {
+  const t = useT()
   useEscapeAndScrollLock(onClose)
   return (
     <div
@@ -234,7 +216,7 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t.projects.close}
           className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 transition-colors hover:bg-black/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           &times;
@@ -250,6 +232,7 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
  *  a detached popup. Lives inside the gallery's own relatively-positioned
  *  container, not a page-level fixed overlay. */
 function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: () => void }) {
+  const t = useT()
   useEscapeAndScrollLock(onClose)
   return (
     <motion.div
@@ -262,7 +245,7 @@ function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: (
       <button
         type="button"
         onClick={onClose}
-        aria-label="Close"
+        aria-label={t.projects.close}
         className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 transition-colors hover:bg-black/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
       >
         &times;
@@ -271,16 +254,6 @@ function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: (
     </motion.div>
   )
 }
-
-/** The rest of the register — one line each, like a credits roll. */
-const REGISTER: { name: string; category: string; status: string }[] = [
-  { name: 'Polymarket / Trading Automation', category: 'Automation & Data R&D', status: 'Research Prototype' },
-  { name: 'Financial Transaction Tracker', category: 'FinTech UI', status: 'App Prototype' },
-  { name: 'TENSA. Digital Production System', category: 'Brand Operations', status: 'Active Brand Project' },
-  { name: 'MoncyDev / Portfolio Web Systems', category: 'Web Experience', status: 'Web Portfolio Work' },
-  { name: '3D Character & Rigging Preparation', category: 'Creative Pipeline', status: 'Visual Development' },
-  { name: 'Motion, Gaming & Interface Experiments', category: 'Prototype Lab', status: 'Ongoing Lab' },
-]
 
 type Tier = 'mobile' | 'tablet' | 'desktop'
 
@@ -302,6 +275,16 @@ function useTier(): Tier {
 }
 
 export function Projects() {
+  const t = useT()
+  const PROJECTS: Project[] = PROJECT_META.map((m) => ({
+    ...m,
+    ...(t.projects.projects[m.name] ?? {
+      category: '',
+      tagline: '',
+      description: '',
+      status: '',
+    }),
+  }))
   const [expanded, setExpanded] = useState<string | null>(null)
   const expandedProject = PROJECTS.find((p) => p.name === expanded) ?? null
   const tier = useTier()
@@ -320,17 +303,17 @@ export function Projects() {
       <div className="mb-16 flex flex-col gap-4">
         <Reveal>
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
-            Featured Work
+            {t.projects.kicker}
           </span>
         </Reveal>
         <WordReveal
           as="h2"
-          text="Selected Systems"
+          text={t.projects.heading}
           className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
         />
         <Reveal delay={0.1}>
           <p className="max-w-xl text-pretty text-muted-foreground">
-            A connected ecosystem of platforms, agents and automation systems.
+            {t.projects.subtitle}
           </p>
         </Reveal>
       </div>
@@ -343,7 +326,7 @@ export function Projects() {
       <div className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]">
         {tier !== 'mobile' && !expandedProject && (
           <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
-            Drag to explore · Select a node to inspect
+            {t.projects.dragHint}
           </span>
         )}
         {/* radial light behind the GuardianGrid hub, a barely-visible
@@ -390,13 +373,13 @@ export function Projects() {
         <Reveal>
           <div className="mb-8 flex items-center gap-4">
             <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
-              Complete Project Register
+              {t.projects.registerLabel}
             </span>
             <span className="h-px flex-1 bg-gradient-to-r from-purple/30 to-transparent" />
           </div>
         </Reveal>
         <ul className="divide-y divide-white/5">
-          {REGISTER.map((r, i) => (
+          {t.projects.register.map((r, i) => (
             <motion.li
               key={r.name}
               className="group grid gap-1 py-4 transition-colors hover:bg-white/[0.02] sm:grid-cols-[1.4fr_1fr_1fr] sm:items-baseline sm:gap-6 sm:px-3"

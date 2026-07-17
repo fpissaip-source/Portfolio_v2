@@ -3,6 +3,7 @@
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react'
 import ProjectOrbs, { type OrbProject } from './project-orbs'
 import { roleFor, ROLE_COLORS } from './project-orbs-shared'
+import { useT } from './language-context'
 
 /**
  * Mobile projects section — the real 3D constellation (same component as
@@ -76,6 +77,7 @@ export default function ProjectConstellationMobile({
   projects: OrbProject[]
   onExpand: (name: string) => void
 }) {
+  const t = useT()
   const listRef = useRef<HTMLUListElement>(null)
   const rafRef = useRef(0)
   const [active, setActive] = useState<string | null>(projects[0]?.name ?? null)
@@ -162,7 +164,7 @@ export default function ProjectConstellationMobile({
                     {p.category}
                   </span>
                   <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: colors.ring }}>
-                    {p.hobby ? 'Hobby Project' : p.status}
+                    {p.hobby ? t.projects.hobbyProject : p.status}
                   </span>
                 </button>
               </li>
@@ -170,7 +172,7 @@ export default function ProjectConstellationMobile({
           })}
         </ul>
         <p className="mt-1 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
-          Tap a system to inspect
+          {t.projectOrbsMobile.tapHint}
         </p>
       </div>
     </div>

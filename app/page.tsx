@@ -30,25 +30,25 @@ export default function Page() {
           <EdgeGlow />
           <IonTrail />
           <Hero />
-          <Scene label="L.U.K.A.S. · The Operating System Behind Everything">
+          <Scene labelKey="lukas">
             <Lukas />
           </Scene>
-          <Scene label="Selected Work" backdrop="ions">
+          <Scene labelKey="work" backdrop="ions">
             <Projects />
           </Scene>
-          <Scene label="Shipped Entirely From an iPhone" backdrop="rain">
+          <Scene labelKey="phone" backdrop="rain">
             <PhoneStory />
           </Scene>
-          <Scene label="The Person Behind the Systems" backdrop="dust">
+          <Scene labelKey="about" backdrop="dust">
             <About />
           </Scene>
-          <Scene label="Tools of the Trade">
+          <Scene labelKey="stack">
             <TechStack />
           </Scene>
-          <Scene label="From Idea to Production" backdrop="orbits">
+          <Scene labelKey="process" backdrop="orbits">
             <Process />
           </Scene>
-          <Scene label="Let's Build Together" backdrop="aurora">
+          <Scene labelKey="contact" backdrop="aurora">
             <Contact />
           </Scene>
           <SiteFooter />

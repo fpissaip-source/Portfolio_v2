@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LineReveal } from './anim'
+import { useT } from './language-context'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,6 +16,7 @@ gsap.registerPlugin(ScrollTrigger)
  * than a rendered product shot.
  */
 export function PhoneStory() {
+  const t = useT()
   const sectionRef = useRef<HTMLElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -92,7 +94,7 @@ export function PhoneStory() {
     <section
       ref={sectionRef}
       id="phone"
-      aria-label="Built entirely on a phone"
+      aria-label={t.phoneStory.ariaLabel}
       className="relative overflow-hidden px-6 py-40 sm:py-56"
     >
       {/* the instrument itself — a bare outline that draws itself in */}
@@ -184,7 +186,7 @@ export function PhoneStory() {
             style={{ opacity: 0, fontSize: '46px', fontWeight: 900, letterSpacing: '-0.01em' }}
             fill="#ffffff"
           >
-            NO PC.
+            {t.phoneStory.screenLine1}
           </text>
           <text
             data-screen-text
@@ -195,7 +197,7 @@ export function PhoneStory() {
             style={{ opacity: 0, fontSize: '46px', fontWeight: 900, letterSpacing: '-0.01em' }}
             fill="#ffffff"
           >
-            NO LAPTOP.
+            {t.phoneStory.screenLine2}
           </text>
           <text
             data-screen-text
@@ -206,7 +208,7 @@ export function PhoneStory() {
             style={{ opacity: 0, fontSize: '21px', fontWeight: 700, letterSpacing: '0.02em' }}
             fill="url(#screenText)"
           >
-            BUILT ENTIRELY ON IPHONE.
+            {t.phoneStory.screenLine3}
           </text>
         </svg>
         {/* melt the outline's edges into the page background */}
@@ -218,16 +220,16 @@ export function PhoneStory() {
           className="text-balance font-sans text-4xl font-semibold leading-[1.12] tracking-tight sm:text-6xl md:text-7xl"
           stagger={0.16}
           lines={[
-            <>Every system on this page,</>,
+            <>{t.phoneStory.lines[0]}</>,
             <>
               <span className="text-muted-foreground">
-                the agent, the platforms, the deployments,
+                {t.phoneStory.lines[1]}
               </span>
             </>,
-            <>was designed, written and shipped</>,
+            <>{t.phoneStory.lines[2]}</>,
             <>
               <span className="bg-gradient-to-br from-purple via-white to-blue bg-clip-text text-transparent">
-                on a phone.
+                {t.phoneStory.lines[3]}
               </span>
             </>,
           ]}

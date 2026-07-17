@@ -3,6 +3,7 @@
 import { motion } from 'motion/react'
 import type { ReactNode } from 'react'
 import { SceneBackdrop, type BackdropVariant } from './scene-backdrop'
+import { useT } from './language-context'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
@@ -13,14 +14,16 @@ const easeOut = [0.22, 1, 0.36, 1] as const
  * anchors/ids stay on the wrapped section components.
  */
 export function Scene({
-  label,
+  labelKey,
   backdrop,
   children,
 }: {
-  label: string
+  labelKey: keyof ReturnType<typeof useT>['scene']
   backdrop?: BackdropVariant
   children: ReactNode
 }) {
+  const t = useT()
+  const label = t.scene[labelKey]
   return (
     <div className="relative">
       {backdrop && <SceneBackdrop variant={backdrop} />}

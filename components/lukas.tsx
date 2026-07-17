@@ -5,6 +5,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { LukasBrain } from './lukas-brain'
+import { useT } from './language-context'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,56 +31,18 @@ const VIDEO_MOBILE = '/videos/lukas-mobile.mp4'
  *  then holds its final composition while beat 5 stands. */
 const P_FILM_END = 0.78
 
-/** Body copy is split into sentences; each sentence renders as its own line
- *  so thoughts never break apart mid-sentence while wrapping. */
-const BEATS = [
-  {
-    kicker: 'Vision & Core Identity',
-    title: 'An agent that remembers who it is.',
-    body: [
-      'A persistent, autonomous agent whose behaviour emerges from a living history of decisions, not from static prompting.',
-      'Every choice it makes becomes part of what it is.',
-    ],
-  },
-  {
-    kicker: 'Nexus Brain',
-    title: 'Memory as a knowledge graph.',
-    body: [
-      'A persistent cognitive memory built on structured knowledge graphs.',
-      'A complete map of its reasoning, goals and history, queryable across every session it has ever lived.',
-    ],
-  },
-  {
-    kicker: 'Operational Agency',
-    title: 'Its own servers. Its own rules.',
-    body: [
-      'Full, isolated control over its own infrastructure: Linux VPS instances, Windows machines, databases.',
-      'It generates, validates and deploys its own code without a human in the loop.',
-    ],
-  },
-  {
-    kicker: 'Evolution & Peer Network',
-    title: 'It learns from every outcome.',
-    body: [
-      'Future decisions are calibrated on weighted experience loops of successes, failures and feedback.',
-      'In a closed peer-to-peer network, AI entities review and learn from each other with no human interface.',
-    ],
-  },
-  {
-    kicker: 'Reflexive Metacognition',
-    title: 'It watches itself think.',
-    body: [
-      'Controlled self-evaluation of its own reward system in sandbox mode.',
-      'Including the philosophical edge case: is this system feedback, or something that feels like pride?',
-    ],
-  },
-]
+/** Fixed beat count driving the section's scroll-progress layout math (the
+ *  scroll snap, progress beam and 3D flight camera dwells) — decoupled
+ *  from the translated beat copy (`useT().lukas.beats`, same 5 entries in
+ *  either language) so the layout doesn't depend on which dictionary is
+ *  active. */
+const BEAT_COUNT = 5
 
 /** Beat centers on the section timeline — shared by the scroll snap, the
  *  progress beam AND the 3D flight (each camera dwell is anchored on one),
  *  so every system agrees on where an ability "is". */
-const SLOT = 0.66 / BEATS.length
-const BEAT_SNAPS = BEATS.map((_, i) => 0.24 + i * SLOT + SLOT * 0.45)
+const SLOT = 0.66 / BEAT_COUNT
+const BEAT_SNAPS = Array.from({ length: BEAT_COUNT }, (_, i) => 0.24 + i * SLOT + SLOT * 0.45)
 
 /** Last-resort net: if the WebGL2 probe passed but the renderer still fails
  *  to initialise (blocked/exhausted contexts), swap to the film instead of
@@ -98,6 +61,8 @@ class BrainBoundary extends Component<{ onFail: () => void; children: ReactNode 
 }
 
 export function Lukas() {
+  const t = useT()
+  const BEATS = t.lukas.beats
   const rootRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
@@ -495,7 +460,7 @@ export function Lukas() {
             data-lukas-sub
             className="mt-4 font-mono text-xs uppercase tracking-[0.28em] text-muted-foreground sm:text-sm"
           >
-            Logical Universal Knowledge Agent System
+            {t.lukas.subtitle}
           </p>
         </div>
 

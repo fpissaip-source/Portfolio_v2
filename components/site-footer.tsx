@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image'
 import { Mail } from 'lucide-react'
+import { useT } from './language-context'
 
 const SOCIALS = [
   { type: 'img' as const, src: '/logos/github.svg', href: '#', label: 'GitHub' },
@@ -13,6 +16,7 @@ const SOCIALS = [
 ]
 
 export function SiteFooter() {
+  const t = useT()
   return (
     <footer className="relative border-t border-white/5 px-6 py-12">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
@@ -20,7 +24,7 @@ export function SiteFooter() {
           <span className="font-semibold">Issa Hareb</span>
           <span className="text-blue">.</span>
           <span className="text-muted-foreground">
-            Autonomous systems &amp; full-stack architecture
+            {t.footer.tagline}
           </span>
         </div>
 
@@ -48,8 +52,7 @@ export function SiteFooter() {
         </div>
 
         <p className="font-mono text-xs text-muted-foreground">
-          &copy; {new Date().getFullYear()} · Directed, written &amp; built by
-          Issa Hareb. On a phone.
+          &copy; {new Date().getFullYear()} · {t.footer.copyright}
         </p>
       </div>
     </footer>

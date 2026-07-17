@@ -3,39 +3,11 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
-
-const STEPS = [
-  {
-    title: 'Idea',
-    body: 'Understand the real problem and the outcome that actually matters.',
-  },
-  {
-    title: 'Research',
-    body: 'Explore constraints, data, models and prior art before writing code.',
-  },
-  {
-    title: 'Architecture',
-    body: 'Design clean boundaries and data flow that scale without rework.',
-  },
-  {
-    title: 'Development',
-    body: 'Ship in tight iterations with quality and observability built in.',
-  },
-  {
-    title: 'Deployment',
-    body: 'Release safely with automated pipelines and zero-downtime rollouts.',
-  },
-  {
-    title: 'Automation',
-    body: 'Remove the manual steps so the system runs and heals itself.',
-  },
-  {
-    title: 'Continuous Improvement',
-    body: 'Measure, learn and refine. The loop never really ends.',
-  },
-]
+import { useT } from './language-context'
 
 export function Process() {
+  const t = useT()
+  const STEPS = t.process.steps
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -49,12 +21,12 @@ export function Process() {
       <div className="mb-20 flex flex-col items-center gap-4 text-center">
         <Reveal>
           <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
-            Production Phases
+            {t.process.kicker}
           </span>
         </Reveal>
         <WordReveal
           as="h2"
-          text="How an idea becomes a system."
+          text={t.process.heading}
           className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
         />
       </div>

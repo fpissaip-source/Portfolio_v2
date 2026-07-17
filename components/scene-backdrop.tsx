@@ -6,7 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export type BackdropVariant = 'ions' | 'dust' | 'aurora' | 'rain' | 'orbits'
+export type BackdropVariant = 'ions' | 'dust' | 'aurora' | 'rain' | 'orbits' | 'nodes'
 
 /**
  * Subtle cinematic background animation for a scene. A sticky full-viewport
@@ -17,6 +17,10 @@ export type BackdropVariant = 'ions' | 'dust' | 'aurora' | 'rain' | 'orbits'
  *  - 'aurora' — soft blue/purple light fields breathing at the edges
  *  - 'rain'   — sparse vertical light streaks falling like code
  *  - 'orbits' — thin elliptical paths with points of light riding them
+ *  - 'nodes'  — a dense, static field of glowing nodes wired together by
+ *    faint edges, the same visual language as the L.U.K.A.S. neuron field —
+ *    used where a section should read as a continuation of it (Projects),
+ *    not a cut to a different backdrop system
  *
  * Deliberately restrained: low alpha, few elements, no attention-grabbing.
  */
@@ -47,7 +51,17 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
 
     // deterministic per-variant seeds
     let s =
-      variant === 'ions' ? 7 : variant === 'dust' ? 21 : variant === 'rain' ? 33 : variant === 'orbits' ? 44 : 55
+      variant === 'ions'
+        ? 7
+        : variant === 'dust'
+          ? 21
+          : variant === 'rain'
+            ? 33
+            : variant === 'orbits'
+              ? 44
+              : variant === 'nodes'
+                ? 88
+                : 55
     const rand = () => {
       s = (s * 16807) % 2147483647
       return s / 2147483647
@@ -83,6 +97,37 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
       speed: (0.05 + rand() * 0.06) * (i % 2 ? 1 : -1),
       phase: rand() * Math.PI * 2,
     }))
+    // A dense, mostly-static field — "millions of nodes" is an impression,
+    // not a literal count: a few hundred small glowing points connected to
+    // their nearest neighbors reads as endless at this density and stays
+    // cheap to redraw every frame. Edges are computed once here rather than
+    // per-frame; nodes don't drift independently (only a small shared
+    // parallax) so connections never stretch or snap.
+    const nodeField = Array.from({ length: 220 }, () => ({
+      x: rand(),
+      y: rand(),
+      z: 0.3 + rand() * 0.7,
+      tw: rand() * Math.PI * 2,
+      r: 0.7 + rand() * 1.5,
+      hub: rand() > 0.95,
+    }))
+    const nodeEdges: [number, number][] = []
+    if (variant === 'nodes') {
+      const seen = new Set<string>()
+      for (let i = 0; i < nodeField.length; i++) {
+        const dists = nodeField
+          .map((n, j) => [j === i ? Infinity : Math.hypot(n.x - nodeField[i].x, n.y - nodeField[i].y), j] as const)
+          .sort((a, b) => a[0] - b[0])
+          .slice(0, 2)
+        for (const [d, j] of dists) {
+          if (d > 0.09) continue
+          const key = i < j ? `${i}-${j}` : `${j}-${i}`
+          if (seen.has(key)) continue
+          seen.add(key)
+          nodeEdges.push([i, j])
+        }
+      }
+    }
 
     const draw = (t: number) => {
       const cw = canvas.clientWidth
@@ -163,6 +208,52 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
           ctx.arc(px, py, 26, 0, Math.PI * 2)
           ctx.fill()
         }
+      } else if (variant === 'nodes') {
+        // Reveal ramp: the field "zooms into place" over the first slice of
+        // the section's own scroll-in instead of just being there from the
+        // start — the continuation of Lukas's own zoom-out dissolve.
+        const introRaw = Math.min(1, progress / 0.12)
+        const intro = introRaw * introRaw * (3 - 2 * introRaw)
+        const reveal = 0.3 + 0.7 * intro
+        const drift = (progress - 0.5) * ch * 0.035
+        const proj = nodeField.map((n) => ({
+          x: n.x * cw,
+          y: n.y * ch + drift * n.z,
+          z: n.z,
+          tw: n.tw,
+          r: n.r,
+          hub: n.hub,
+        }))
+        for (const [i, j] of nodeEdges) {
+          const a = proj[i]
+          const b = proj[j]
+          const avgZ = (a.z + b.z) / 2
+          ctx.strokeStyle = `rgba(160,175,230,${(0.05 + avgZ * 0.08) * reveal})`
+          ctx.lineWidth = 0.8
+          ctx.beginPath()
+          ctx.moveTo(a.x, a.y)
+          ctx.lineTo(b.x, b.y)
+          ctx.stroke()
+        }
+        for (const n of proj) {
+          const tw = 0.4 + 0.4 * Math.sin(t * 0.0006 + n.tw) ** 2
+          const col = n.tw > Math.PI ? '167,139,250' : '125,165,235'
+          const radius = (n.hub ? n.r * 3.2 : n.r) * n.z
+          const alpha = (n.hub ? 0.65 : 0.4) * tw * reveal
+          const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, radius * (n.hub ? 5 : 4))
+          g.addColorStop(0, `rgba(${col},${alpha})`)
+          g.addColorStop(1, `rgba(${col},0)`)
+          ctx.fillStyle = g
+          ctx.beginPath()
+          ctx.arc(n.x, n.y, radius * (n.hub ? 5 : 4), 0, Math.PI * 2)
+          ctx.fill()
+          if (n.hub) {
+            ctx.fillStyle = `rgba(${col},${0.7 * reveal})`
+            ctx.beginPath()
+            ctx.arc(n.x, n.y, radius * 0.6, 0, Math.PI * 2)
+            ctx.fill()
+          }
+        }
       } else {
         // aurora — two soft breathing light fields
         const cx1 = cw * (0.22 + 0.06 * Math.sin(t * 0.00012))
@@ -209,6 +300,17 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
     }
   }, [variant])
 
+  // Every other variant carves a hole out of the reading column so text
+  // stays clean; 'nodes' is the opposite intent — the field should read as
+  // continuous behind the (mostly transparent) project constellation panel,
+  // "millions of nodes" the projects sit among rather than a backdrop
+  // hidden away from the content. Only a gentle dimming near the top
+  // heading, not a hard hole.
+  const mask =
+    variant === 'nodes'
+      ? 'radial-gradient(60% 45% at 50% 16%, rgba(0,0,0,0.45) 0%, black 55%)'
+      : 'radial-gradient(ellipse 62% 60% at 50% 50%, transparent 28%, black 74%)'
+
   return (
     <div
       ref={wrapRef}
@@ -221,10 +323,8 @@ export function SceneBackdrop({ variant }: { variant: BackdropVariant }) {
         style={{
           // Same treatment as the ion trail: backdrops live at the frame
           // edges and stay out of the central reading column.
-          WebkitMaskImage:
-            'radial-gradient(ellipse 62% 60% at 50% 50%, transparent 28%, black 74%)',
-          maskImage:
-            'radial-gradient(ellipse 62% 60% at 50% 50%, transparent 28%, black 74%)',
+          WebkitMaskImage: mask,
+          maskImage: mask,
         }}
       />
     </div>

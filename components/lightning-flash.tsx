@@ -130,8 +130,9 @@ function generateNetwork(
   spreadX: number,
   spreadY: number,
   hue: Hue,
+  countOverride?: number,
 ): NetworkBolt {
-  const count = 6 + Math.floor(rand() * 3)
+  const count = countOverride ?? 6 + Math.floor(rand() * 3)
   const nodes: NetNode[] = []
   for (let i = 0; i < count; i++) {
     nodes.push({
@@ -428,15 +429,24 @@ export const LightningFlash = forwardRef<
       }
 
       // --- deterministic scroll-scrubbed handoff bolt ------------------
-      const handoffBolt = generateBolt(rand, 0.5, 0.15, 0.5, 0.42, 'mixed')
+      // A network cluster, not a linear bolt: so by the time it's fully
+      // drawn in it already reads as "a few glowing nodes," the same visual
+      // language as the neuron field it's about to become — the crossfade
+      // that follows is a continuation, not a shape-swap.
+      const handoffBolt = generateNetwork(rand, 0.5, 0.32, 0.16, 0.22, 'mixed', 16)
       const setHandoffProgress: LightningHandle['setHandoffProgress'] = (p) => {
         if (reduced) return
-        const growT = Math.max(0, Math.min(1, p / 0.5))
-        const alpha = p <= 0.5 ? 1 : Math.max(0, 1 - (p - 0.5) / 0.5)
+        // Draw-in finishes at 40% of the handoff window — right as the real
+        // neuron field (data-field) starts its own fade-in — then holds
+        // fully formed while it fades out across the REST of the window, so
+        // the two are simultaneously visible for a long, genuine crossfade
+        // instead of the cluster vanishing before the field ever appears.
+        const growT = Math.max(0, Math.min(1, p / 0.4))
+        const alpha = p <= 0.4 ? 1 : Math.max(0, 1 - (p - 0.4) / 0.6)
         const cw = canvas.clientWidth
         const ch = canvas.clientHeight
         ctx.clearRect(0, 0, cw, ch)
-        if (p > 0 && p < 1) drawBolt(handoffBolt, alpha, growT)
+        if (p > 0 && p < 1) drawBolt(handoffBolt, alpha, growT, p * 1.1)
         const now = performance.now()
         for (const a of active)
           drawBolt(a.bolt, a.alpha, a.growT, ((now - a.born) / 1000) * ROT_SPEED)

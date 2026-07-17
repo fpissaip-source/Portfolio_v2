@@ -33,7 +33,7 @@ export default function Page() {
           <Scene labelKey="lukas">
             <Lukas />
           </Scene>
-          <Scene labelKey="work" backdrop="ions">
+          <Scene labelKey="work" backdrop="nodes">
             <Projects />
           </Scene>
           <Scene labelKey="phone" backdrop="rain">

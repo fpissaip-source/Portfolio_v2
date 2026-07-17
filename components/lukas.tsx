@@ -281,12 +281,14 @@ export function Lukas() {
               seekTo(Math.min(self.progress / P_FILM_END, 1) * (video.duration || 0))
             }
             updateBeam(self.progress)
-            // The handoff: one lightning bolt draws in and decays across
-            // 0.02-0.12, overlapping data-field's own fade-in (which starts
-            // at 0.1) — the bolt becomes the neuron field rather than
-            // cutting to it, driven by the same scroll value as everything
-            // else here so it can't drift out of sync.
-            const handoffP = Math.max(0, Math.min(1, (self.progress - 0.02) / 0.1))
+            // The handoff: a cluster of glowing nodes draws in across
+            // 0.02-0.11, fully formed right as data-field's own fade-in
+            // begins (0.1), then fades out across 0.11-0.24 — matching
+            // data-field's fade-in window almost exactly, so the cluster
+            // and the real neuron field are both visible for a long,
+            // genuine crossfade instead of the cluster vanishing first and
+            // leaving a gap before the field appears.
+            const handoffP = Math.max(0, Math.min(1, (self.progress - 0.02) / 0.22))
             lightningRef.current?.setHandoffProgress(handoffP)
           },
         },
@@ -354,8 +356,13 @@ export function Lukas() {
         0.1,
       ).to(
         q('[data-field]'),
-        { opacity: 0.3, duration: 0.12, ease: 'power1.inOut' },
-        0.88,
+        // Zoom-out dissolve, not a settle-and-cut: the field pushes past
+        // the camera (scale up) as it fades fully away, so the handoff
+        // into Projects' own node backdrop reads as flying through the
+        // glow and out the other side rather than the brain scene just
+        // dimming and stopping.
+        { opacity: 0, scale: 1.35, duration: 0.16, ease: 'power2.in' },
+        0.84,
       )
     }, root)
 

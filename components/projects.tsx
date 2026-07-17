@@ -276,8 +276,6 @@ function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: (
 const REGISTER: { name: string; category: string; status: string }[] = [
   { name: 'Polymarket / Trading Automation', category: 'Automation & Data R&D', status: 'Research Prototype' },
   { name: 'Financial Transaction Tracker', category: 'FinTech UI', status: 'App Prototype' },
-  { name: 'Qibla One', category: 'Utility App', status: 'Product Concept' },
-  { name: 'Mercedes Assessment Web App', category: 'Assessment Platform', status: 'Web-App Prototype' },
   { name: 'TENSA. Digital Production System', category: 'Brand Operations', status: 'Active Brand Project' },
   { name: 'MoncyDev / Portfolio Web Systems', category: 'Web Experience', status: 'Web Portfolio Work' },
   { name: '3D Character & Rigging Preparation', category: 'Creative Pipeline', status: 'Visual Development' },

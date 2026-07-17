@@ -355,10 +355,16 @@ html.preloading {
   backface-visibility: hidden;
   pointer-events: none;
   z-index: 50;
-  transition: transform 0.8s cubic-bezier(0.33, 0.11, 1, 0.72);
+  opacity: 0;
+  /* opacity switches instantly (0s) so the circle appears the moment exit
+     starts — no fade-in that would reveal it before the expansion is underway */
+  transition:
+    transform 0.8s cubic-bezier(0.33, 0.11, 1, 0.72),
+    opacity 0s;
 }
 
 .loader-expansion.loader-exit {
+  opacity: 1;
   transform: translate(-50%, -50%) scale(var(--exit-scale, 100));
 }
 

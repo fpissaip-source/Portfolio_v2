@@ -36,6 +36,10 @@ type Project = {
   description: string
   /** Omitted for hobby projects — no screenshot, just the write-up. */
   image?: string
+  /** Generated mockup used ONLY as the orb's fisheye texture — never shown
+   *  in the detail panel/modal, since it's a staged illustration rather
+   *  than a real screenshot of the actual product. */
+  orbImage?: string
   /** Optional looping screen capture shown instead of the still image. */
   video?: string
   /** Playback speed multiplier for `video` — defaults to 1 (normal speed). */
@@ -55,7 +59,16 @@ type Project = {
  *  time inside `Projects()` so it switches with the active language. */
 type ProjectMeta = Pick<
   Project,
-  'name' | 'image' | 'video' | 'videoPlaybackRate' | 'stack' | 'featured' | 'hobby' | 'liveUrl' | 'githubUrl'
+  | 'name'
+  | 'image'
+  | 'orbImage'
+  | 'video'
+  | 'videoPlaybackRate'
+  | 'stack'
+  | 'featured'
+  | 'hobby'
+  | 'liveUrl'
+  | 'githubUrl'
 >
 
 const PROJECT_META: ProjectMeta[] = [
@@ -76,24 +89,24 @@ const PROJECT_META: ProjectMeta[] = [
   },
   {
     name: 'StudyForge',
-    image: '/projects/studyforge.png',
+    orbImage: '/projects/studyforge.png',
     stack: ['React', 'Tailwind CSS', 'TypeScript', 'AI Pipelines'],
     hobby: true,
   },
   {
     name: 'Team Operations Suite',
-    image: '/projects/teamops.png',
+    orbImage: '/projects/teamops.png',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
     hobby: true,
   },
   {
     name: 'Automation Systems',
-    image: '/projects/automation.png',
+    orbImage: '/projects/automation.png',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
   },
   {
     name: 'Bewerbungsbot',
-    image: '/projects/bewerbungsbot.png',
+    orbImage: '/projects/bewerbungsbot.png',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
     hobby: true,
   },
@@ -300,7 +313,7 @@ export function Projects() {
     status: p.status,
     stack: p.stack,
     hobby: p.hobby,
-    image: p.image,
+    image: p.orbImage ?? p.image,
   }))
 
   return (
@@ -365,7 +378,13 @@ export function Projects() {
           )}
         </div>
         {expandedProject && tier !== 'mobile' && (
-          <ProjectDetailPanel project={expandedProject} onClose={() => setExpanded(null)} />
+          <>
+            <div
+              className="absolute inset-0 z-20"
+              onClick={() => setExpanded(null)}
+            />
+            <ProjectDetailPanel project={expandedProject} onClose={() => setExpanded(null)} />
+          </>
         )}
       </div>
 

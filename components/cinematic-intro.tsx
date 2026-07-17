@@ -176,8 +176,10 @@ export function CinematicIntro() {
     const fastSeek = (
       video as HTMLVideoElement & { fastSeek?: (time: number) => void }
     ).fastSeek?.bind(video)
+    const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
     let pendingTime: number | null = null
     let seekBusy = false
+    let seekWatchdog = 0
     const seekTo = (t: number) => {
       const d = video.duration
       if (!d || Number.isNaN(d)) return
@@ -186,21 +188,35 @@ export function CinematicIntro() {
         pendingTime = clamped
         return
       }
+      // No-op guard: WebKit may swallow `seeked` for same-position seeks,
+      // which would wedge the queue behind a seekBusy that never clears.
+      if (Math.abs(video.currentTime - clamped) < SEEK_EPS) return
       seekBusy = true
+      // Watchdog: if `seeked` never arrives (dropped/interrupted seek),
+      // release the queue so the scrub can't freeze on a stale frame.
+      window.clearTimeout(seekWatchdog)
+      seekWatchdog = window.setTimeout(releaseSeek, 300)
       if (vrfc) vrfc(() => drawFrame())
       if (fastSeek) fastSeek(clamped)
       else video.currentTime = clamped
     }
-    const onSeeked = () => {
+    const releaseSeek = () => {
+      window.clearTimeout(seekWatchdog)
       seekBusy = false
-      if (!vrfc) drawFrame()
       if (pendingTime !== null) {
         const t = pendingTime
         pendingTime = null
         seekTo(t)
       }
     }
+    const onSeeked = () => {
+      // Always paint here too: drawFrame() is an idempotent blit, and on
+      // engines where paused-seek + rVFC is flaky this is the safety net.
+      drawFrame()
+      releaseSeek()
+    }
     video.addEventListener('seeked', onSeeked)
+    video.addEventListener('error', releaseSeek)
 
     // First paint + preview placement as soon as dimensions are known; a
     // muted inline play/pause primes the decode pipeline without a gesture.
@@ -404,7 +420,9 @@ export function CinematicIntro() {
 
     return () => {
       window.removeEventListener('resize', sizeCanvas)
+      window.clearTimeout(seekWatchdog)
       video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', releaseSeek)
       video.removeEventListener('loadedmetadata', onLoadedMeta)
       video.removeEventListener('loadeddata', onLoadedData)
       ctxAnim.revert()

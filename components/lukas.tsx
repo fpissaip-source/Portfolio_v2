@@ -99,8 +99,10 @@ export function Lukas() {
     const fastSeek = (
       video as HTMLVideoElement & { fastSeek?: (time: number) => void }
     ).fastSeek?.bind(video)
+    const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
     let pendingTime: number | null = null
     let seekBusy = false
+    let seekWatchdog = 0
     const seekTo = (t: number) => {
       const d = video.duration
       if (!d || Number.isNaN(d)) return
@@ -109,11 +111,20 @@ export function Lukas() {
         pendingTime = clamped
         return
       }
+      // No-op guard: WebKit may swallow `seeked` for same-position seeks,
+      // which would wedge the queue. The hold region past P_FILM_END maps
+      // to a constant end time, so this also skips redundant seek storms.
+      if (Math.abs(video.currentTime - clamped) < SEEK_EPS) return
       seekBusy = true
+      // Watchdog: if `seeked` never arrives (dropped/interrupted seek),
+      // release the queue so scrubbing can't lock onto a stale frame.
+      window.clearTimeout(seekWatchdog)
+      seekWatchdog = window.setTimeout(releaseSeek, 300)
       if (fastSeek) fastSeek(clamped)
       else video.currentTime = clamped
     }
-    const onSeeked = () => {
+    const releaseSeek = () => {
+      window.clearTimeout(seekWatchdog)
       seekBusy = false
       if (pendingTime !== null) {
         const t = pendingTime
@@ -121,7 +132,9 @@ export function Lukas() {
         seekTo(t)
       }
     }
+    const onSeeked = () => releaseSeek()
     video.addEventListener('seeked', onSeeked)
+    video.addEventListener('error', releaseSeek)
 
     // A muted inline play/pause primes the decode pipeline — allowed
     // without a gesture, and it makes iOS actually buffer the file.
@@ -317,7 +330,9 @@ export function Lukas() {
 
     requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
+      window.clearTimeout(seekWatchdog)
       video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', releaseSeek)
       video.removeEventListener('loadedmetadata', onLoadedMeta)
       ctx.revert()
       // Defensive: restore touch sensitivity if unmounted mid-section,

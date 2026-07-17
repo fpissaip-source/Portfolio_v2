@@ -250,7 +250,6 @@ export const EN: Dictionary = {
       'Building Intelligent Systems',
       'AI Automation',
       'Full Stack Development',
-      'I built everything entirely on iPhone. No PC. No Laptop!',
       'Software That Solves Real Problems',
     ],
     scroll: 'Scroll',
@@ -460,9 +459,9 @@ export const DE: Dictionary = {
     work: 'Ausgewählte Arbeiten',
     phone: 'Komplett vom iPhone aus umgesetzt',
     about: 'Die Person hinter den Systemen',
-    stack: 'Werkzeuge des Handwerks',
+    stack: 'Mein Handwerkszeug',
     process: 'Von der Idee zur Produktion',
-    contact: 'Lass uns etwas bauen',
+    contact: 'Lass uns gemeinsam etwas bauen',
   },
   preloader: {
     taglines: [
@@ -475,16 +474,15 @@ export const DE: Dictionary = {
     welcome: 'Willkommen',
     loading: 'Lädt',
     caption: 'Issa Hareb · Portfolio',
-    pcHint: 'Am besten auf einem PC oder Laptop erlebbar',
+    pcHint: 'Beste Erfahrung auf PC oder Laptop',
   },
   cinematicIntro: {
-    scrollToMeet: 'Scrollen zum Kennenlernen',
+    scrollToMeet: 'Scrollen, um mich kennenzulernen',
     introTitle: 'Lass mich vorstellen, wer ich bin.',
     phrases: [
       'Baue intelligente Systeme',
       'KI-Automatisierung',
       'Full-Stack-Entwicklung',
-      'Alles komplett auf dem iPhone gebaut. Kein PC. Kein Laptop!',
       'Software, die echte Probleme löst',
     ],
     scroll: 'Scrollen',
@@ -504,7 +502,7 @@ export const DE: Dictionary = {
         kicker: 'Vision & Kernidentität',
         title: 'Ein Agent, der weiß, wer er ist.',
         body: [
-          'Ein dauerhafter, autonomer Agent, dessen Verhalten aus einer lebendigen Entscheidungshistorie entsteht, nicht aus statischem Prompting.',
+          'Ein dauerhafter, autonomer Agent, dessen Verhalten aus einer gewachsenen Entscheidungshistorie entsteht, nicht aus statischem Prompting.',
           'Jede Entscheidung, die er trifft, wird Teil dessen, was er ist.',
         ],
       },
@@ -537,7 +535,7 @@ export const DE: Dictionary = {
         title: 'Er beobachtet sich selbst beim Denken.',
         body: [
           'Kontrollierte Selbstbewertung seines eigenen Belohnungssystems im Sandbox-Modus.',
-          'Einschließlich des philosophischen Grenzfalls: Ist das Systemfeedback, oder etwas, das sich wie Stolz anfühlt?',
+          'Einschließlich des philosophischen Grenzfalls: Ist das ein Systemfeedback, oder etwas, das sich wie Stolz anfühlt?',
         ],
       },
     ],
@@ -550,7 +548,7 @@ export const DE: Dictionary = {
     registerLabel: 'Vollständiges Projektregister',
     projects: projectsDE,
     register: [
-      { name: 'Polymarket / Trading-Automatisierung', category: 'Automatisierung & Daten-R&D', status: 'Forschungsprototyp' },
+      { name: 'Polymarket / Trading-Automatisierung', category: 'Automatisierung & Datenforschung', status: 'Forschungsprototyp' },
       { name: 'Finanztransaktions-Tracker', category: 'FinTech-UI', status: 'App-Prototyp' },
       { name: 'TENSA. Digitales Produktionssystem', category: 'Brand-Operations', status: 'Aktives Markenprojekt' },
       { name: 'MoncyDev / Portfolio-Websysteme', category: 'Web-Erlebnis', status: 'Web-Portfolio-Arbeit' },
@@ -629,7 +627,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'Künstliche Intelligenz',
-        body: 'Hier gehe ich am tiefsten. Ich baue KI in echte Systeme ein, mit richtigem Retrieval, Tooling und Guardrails, nicht nur als API-Wrapper. Das Ziel ist immer dasselbe: sie zuverlässig genug für den produktiven Einsatz zu machen.',
+        body: 'Hier tauche ich am tiefsten ein. Ich baue KI in echte Systeme ein, mit richtigem Retrieval, Tooling und Guardrails, nicht nur als API-Wrapper. Das Ziel ist immer dasselbe: sie zuverlässig genug für den produktiven Einsatz zu machen.',
       },
       {
         title: 'Systemdenken',

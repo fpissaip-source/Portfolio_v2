@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
 
@@ -12,6 +12,15 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-geist-mono',
+})
+
+// Distinctive display face used only for the "I AM ISSA HAREB" name reveal
+// in the cinematic intro — deliberately not the site's default Geist Sans,
+// so the name reads as a designed title moment rather than body type.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['700'],
+  variable: '--font-space-grotesk',
 })
 
 export const metadata: Metadata = {
@@ -42,7 +51,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} bg-background`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} bg-background`}
     >
       <body className="antialiased">
         <LanguageProvider>{children}</LanguageProvider>

@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { NeonLine, type NeonLineHandle } from './neon-name'
+import { DecodeName, type NeonLineHandle } from './decode-name'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
 
@@ -42,7 +42,6 @@ const PHRASES: { text: string; anim: PhraseAnim }[] = [
   { text: 'Building Intelligent Systems', anim: 'blurScale' },
   { text: 'AI Automation', anim: 'wipe' },
   { text: 'Full Stack Development', anim: 'flip3D' },
-  { text: 'I built everything entirely on iPhone. No PC. No Laptop!', anim: 'maskUp' },
   { text: 'Software That Solves Real Problems', anim: 'zoomOut' },
 ]
 
@@ -433,12 +432,12 @@ export function CinematicIntro() {
       )
       // "ISSA HAREB" doesn't just fade in place — the assembled line slides
       // and shrinks down toward its exact position inside the monitor's
-      // screen preview while it solidifies from a hollow blue outline into
-      // solid purple ink (same glyphs, same position, same tracking — see
-      // setSolidify in neon-name.tsx), landing right as the real
-      // [data-screen-name] element reveals itself at that same spot. One
-      // continuous hand-off instead of two independent pieces of text
-      // cross-fading — no blur anywhere in this sequence.
+      // screen preview while it solidifies from the decoded blue glow into
+      // solid purple ink (same glyphs, same position — see setSolidify in
+      // decode-name.tsx), landing right as the real [data-screen-name]
+      // element reveals itself at that same spot. One continuous hand-off
+      // instead of two independent pieces of text cross-fading — no blur
+      // anywhere in this sequence.
       let nameSlide: { dx: number; dy: number; scale: number } | null = null
       const slideP = { v: 0 }
       tl.to(
@@ -451,7 +450,7 @@ export function CinematicIntro() {
             const wrap = nameWrapRef.current
             if (!wrap) return
             if (!nameSlide) {
-              const textEl = wrap.querySelector<SVGGElement>('[data-neon-text]')
+              const textEl = wrap.querySelector<HTMLElement>('[data-neon-text]')
               const targetEl = screen.querySelector<HTMLElement>('[data-screen-name]')
               if (!textEl || !targetEl) return
               const tr = textEl.getBoundingClientRect()
@@ -791,15 +790,15 @@ export function CinematicIntro() {
           </p>
         </div>
 
-        {/* "I AM" / "ISSA HAREB" — outline-only neon titles that sketch
-            themselves out of flashing nodes dotted along the letterforms;
-            a thin blue line then connects the nodes and the glow settles
-            in, bleeding inward and outward. "I" forms first, then "AM",
+        {/* "I AM" / "ISSA HAREB" — a decode-style title reveal: a scan head
+            sweeps left to right through each word, letters just ahead of it
+            flicker through random glyphs, then lock into place with a
+            bright spark as the head passes. "I" forms first, then "AM",
             then "ISSA" below. */}
-        <NeonLine
+        <DecodeName
           ref={line1Ref}
           words={['I', 'AM']}
-          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full font-sans font-bold sm:top-[11%] sm:h-[13vh]"
+          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full text-6xl font-bold sm:top-[11%] sm:h-[13vh] sm:text-8xl md:text-9xl"
         />
         {/* Wrapped separately so the whole line can be slid + scaled down
             toward the monitor screen as it dissolves — the first ISSA
@@ -809,11 +808,10 @@ export function CinematicIntro() {
           ref={nameWrapRef}
           className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] sm:top-[25%]"
         >
-          <NeonLine
+          <DecodeName
             ref={line2Ref}
             words={['ISSA', 'HAREB']}
-            trackingEm={0.12}
-            className="h-[17vh] w-full px-4 font-sans font-bold sm:h-[15vh]"
+            className="h-[18vh] w-full text-6xl font-bold sm:h-[16vh] sm:text-8xl md:text-9xl"
           />
         </div>
 

@@ -80,6 +80,13 @@ export function CinematicIntro() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
+  /** The hidden terminal layer — a genuinely separate plane behind the
+   *  canvas (translateZ), drifting/tilting on its own for the reveal's
+   *  parallax while the canvas itself stays perfectly still. */
+  const terminalBgRef = useRef<HTMLDivElement>(null)
+  /** Dark rim drawn at the reveal window's edge, one plane above the canvas —
+   *  sells the window as an opening with real thickness. */
+  const revealRimRef = useRef<HTMLDivElement>(null)
   const line1Ref = useRef<NeonLineHandle>(null)
   const line2Ref = useRef<NeonLineHandle>(null)
   const nameWrapRef = useRef<HTMLDivElement>(null)
@@ -549,19 +556,31 @@ export function CinematicIntro() {
     }
   }, [])
 
-  // Hidden terminal reveal — a field of cryptic purple code sealed behind
-  // the flythrough footage. During the opening plate only (before scrolling
-  // starts), a soft circular window follows the cursor and is cut directly
-  // into the canvas via a CSS mask, so the code shows through only right
-  // around the pointer — as if the footage were thin enough to peel back at
-  // a glance. A lerped follow keeps it smooth; the moment the user actually
-  // scrolls (scrolledRef, set from the main flight ScrollTrigger below) the
-  // window closes back to nothing and stays closed, so it never intrudes on
-  // the real footage.
+  // Hidden terminal reveal — a field of cryptic purple code sealed on a
+  // genuinely separate plane behind the flythrough footage (translateZ,
+  // see the JSX below), not just a lower stacking order. During the
+  // opening plate only (before scrolling starts), a soft circular window
+  // follows the cursor and is cut directly into the canvas via a CSS mask,
+  // so the code shows through only right around the pointer.
+  //
+  // The canvas itself — the "screen" — never moves or tilts; it's the near,
+  // rigid pane. Only the terminal plane behind it drifts and tilts slightly
+  // as the cursor moves, the same way something loose sitting behind a
+  // fixed sheet of glass shifts on its own while the glass stays put. That
+  // relative motion between two things that both visibly exist at different
+  // depths is what actually reads as depth — a whole-scene tilt would just
+  // skew the footage itself, which isn't the effect at all. A rim shadow at
+  // the window's edge adds the last bit: it reads as an opening with real
+  // thickness, not a decal peeling back. Scrolling (scrolledRef, set from
+  // the main flight ScrollTrigger below) closes the window and settles the
+  // terminal plane back to neutral, permanently, so none of this intrudes
+  // on the footage.
   useEffect(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
-    if (!root || !canvas) return
+    const bg = terminalBgRef.current
+    const rim = revealRimRef.current
+    if (!root || !canvas || !bg || !rim) return
     if (window.matchMedia('(pointer: coarse)').matches) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
@@ -572,6 +591,9 @@ export function CinematicIntro() {
     let cx = 0
     let cy = 0
     let radius = 0
+    let shiftX = 0
+    let shiftY = 0
+    let rotZ = 0
 
     const onMove = (e: PointerEvent) => {
       if (scrolledRef.current) return
@@ -585,22 +607,41 @@ export function CinematicIntro() {
       }
     }
 
-    const clearMask = () => {
+    const PARALLAX = 55 // px the terminal plane drifts at full offset
+    const MAX_ROTZ = 2.5 // degrees, a loose-panel wobble, not a hard tilt
+
+    const clear = () => {
       canvas.style.maskImage = ''
       canvas.style.setProperty('-webkit-mask-image', '')
+      bg.style.transform = 'translateZ(-140px) scale(1.32)'
+      rim.style.opacity = '0'
     }
 
     const loop = () => {
+      const r = root.getBoundingClientRect()
       cx += (tx - cx) * 0.14
       cy += (ty - cy) * 0.14
       const targetRadius = active && !scrolledRef.current ? 160 : 0
       radius += (targetRadius - radius) * 0.08
-      if (radius < 0.5) {
-        clearMask()
+
+      const nx = (cx / r.width) - 0.5
+      const ny = (cy / r.height) - 0.5
+      const targetShiftX = active && !scrolledRef.current ? nx * PARALLAX * 2 : 0
+      const targetShiftY = active && !scrolledRef.current ? ny * PARALLAX * 2 : 0
+      const targetRotZ = active && !scrolledRef.current ? nx * MAX_ROTZ : 0
+      shiftX += (targetShiftX - shiftX) * 0.07
+      shiftY += (targetShiftY - shiftY) * 0.07
+      rotZ += (targetRotZ - rotZ) * 0.07
+
+      if (radius < 0.5 && Math.abs(shiftX) < 0.1 && Math.abs(shiftY) < 0.1) {
+        clear()
       } else {
         const mask = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, transparent 0%, transparent 55%, black 100%)`
         canvas.style.maskImage = mask
         canvas.style.setProperty('-webkit-mask-image', mask)
+        bg.style.transform = `translateZ(-140px) scale(1.32) translate(${shiftX}px, ${shiftY}px) rotateZ(${rotZ}deg)`
+        rim.style.opacity = radius > 0.5 ? '1' : '0'
+        rim.style.background = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, transparent 0%, transparent ${radius * 0.8}px, rgba(0,0,0,0.5) ${radius * 0.93}px, transparent ${radius * 1.08}px)`
       }
       raf = requestAnimationFrame(loop)
     }
@@ -611,7 +652,7 @@ export function CinematicIntro() {
     return () => {
       root.removeEventListener('pointermove', onMove)
       cancelAnimationFrame(raf)
-      clearMask()
+      clear()
     }
   }, [])
 
@@ -625,28 +666,53 @@ export function CinematicIntro() {
         {/* Zoomable stage: frames + the website projected onto the monitor.
             Scaling this div dives the camera into the screen. */}
         <div ref={stageRef} className="absolute inset-0 will-transform">
-          {/* Hidden terminal layer — sealed behind the footage, sitting
-              underneath the canvas below (see the mask effect above). Never
-              interactive on its own; only ever seen through the reveal. */}
-          <div
-            aria-hidden
-            className="absolute inset-0 opacity-80"
-            style={{
-              backgroundImage: 'url(/intro/terminal-rain.webp)',
-              backgroundRepeat: 'repeat',
-              backgroundSize: '260px auto',
-              animation: 'terminal-rain-flow 16s linear infinite',
-            }}
-          />
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 h-full w-full"
-            style={{
-              backgroundImage: `url(${POSTER_SRC})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
+          {/* Real 3D depth stage for the terminal reveal: a perspective
+              container with a preserve-3d child holding two genuinely
+              separated planes — the terminal layer sits pushed back in Z,
+              the canvas stays flat and static at the front the whole time
+              (it never transforms). Only the terminal plane drifts/tilts on
+              its own (see the effect above), which is what actually reads
+              as "a separate layer behind a fixed pane of glass" instead of
+              the whole footage warping. */}
+          <div className="absolute inset-0" style={{ perspective: '1000px' }}>
+            <div className="absolute inset-0" style={{ transformStyle: 'preserve-3d' }}>
+              {/* Hidden terminal layer — a real plane behind the canvas in
+                  3D space (translateZ), not just a lower stacking order.
+                  Scaled up to compensate for the perspective shrink from
+                  sitting further back, so it still fills the frame. */}
+              <div
+                ref={terminalBgRef}
+                aria-hidden
+                className="absolute inset-0 opacity-80"
+                style={{
+                  backgroundImage: 'url(/intro/terminal-rain.webp)',
+                  backgroundRepeat: 'repeat',
+                  backgroundSize: '260px auto',
+                  animation: 'terminal-rain-flow 16s linear infinite',
+                  transform: 'translateZ(-140px) scale(1.32)',
+                  willChange: 'transform',
+                }}
+              />
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 h-full w-full"
+                style={{
+                  backgroundImage: `url(${POSTER_SRC})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              />
+              {/* Shadowed rim right at the reveal's edge — sells the sense
+                  of looking down through an actual opening with thickness,
+                  rather than a flat sticker peeling back. Tracks the same
+                  cursor position/radius as the mask, one plane above it. */}
+              <div
+                ref={revealRimRef}
+                aria-hidden
+                className="pointer-events-none absolute inset-0 opacity-0"
+              />
+            </div>
+          </div>
 
           {/* Hidden frame source — decoded by the browser, painted onto the
               canvas above. Kept 1px + transparent instead of display:none so

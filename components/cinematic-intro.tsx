@@ -84,8 +84,9 @@ export function CinematicIntro() {
    *  canvas (translateZ), drifting/tilting on its own for the reveal's
    *  parallax while the canvas itself stays perfectly still. */
   const terminalBgRef = useRef<HTMLDivElement>(null)
-  /** Dark rim drawn at the reveal window's edge, one plane above the canvas —
-   *  sells the window as an opening with real thickness. */
+  /** Rim drawn at the reveal window's edge — a glowing scan-ring plus a dark
+   *  bezel, one plane above the canvas — sells the window as an actual
+   *  X-ray-style scan opening, not a flat cutout. */
   const revealRimRef = useRef<HTMLDivElement>(null)
   const line1Ref = useRef<NeonLineHandle>(null)
   const line2Ref = useRef<NeonLineHandle>(null)
@@ -561,7 +562,9 @@ export function CinematicIntro() {
   // see the JSX below), not just a lower stacking order. During the
   // opening plate only (before scrolling starts), a soft circular window
   // follows the cursor and is cut directly into the canvas via a CSS mask,
-  // so the code shows through only right around the pointer.
+  // so the code shows through only right around the pointer — an X-ray
+  // scanner reading, not a hole peeled open: a glowing cyan rim right at
+  // the edge reads as an active scan rather than a static cutout.
   //
   // The canvas itself — the "screen" — never moves or tilts; it's the near,
   // rigid pane. Only the terminal plane behind it drifts and tilts slightly
@@ -569,12 +572,10 @@ export function CinematicIntro() {
   // fixed sheet of glass shifts on its own while the glass stays put. That
   // relative motion between two things that both visibly exist at different
   // depths is what actually reads as depth — a whole-scene tilt would just
-  // skew the footage itself, which isn't the effect at all. A rim shadow at
-  // the window's edge adds the last bit: it reads as an opening with real
-  // thickness, not a decal peeling back. Scrolling (scrolledRef, set from
-  // the main flight ScrollTrigger below) closes the window and settles the
-  // terminal plane back to neutral, permanently, so none of this intrudes
-  // on the footage.
+  // skew the footage itself, which isn't the effect at all. Scrolling
+  // (scrolledRef, set from the main flight ScrollTrigger below) closes the
+  // window and settles the terminal plane back to neutral, permanently, so
+  // none of this intrudes on the footage.
   useEffect(() => {
     const root = rootRef.current
     const canvas = canvasRef.current
@@ -641,7 +642,10 @@ export function CinematicIntro() {
         canvas.style.setProperty('-webkit-mask-image', mask)
         bg.style.transform = `translateZ(-140px) scale(1.32) translate(${shiftX}px, ${shiftY}px) rotateZ(${rotZ}deg)`
         rim.style.opacity = radius > 0.5 ? '1' : '0'
-        rim.style.background = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, transparent 0%, transparent ${radius * 0.8}px, rgba(0,0,0,0.5) ${radius * 0.93}px, transparent ${radius * 1.08}px)`
+        // A glowing cyan-blue scan ring right at the boundary (an active
+        // X-ray reading), with a thin dark bezel just outside it for the
+        // sense of an actual opening with edge thickness.
+        rim.style.background = `radial-gradient(circle ${radius}px at ${cx}px ${cy}px, transparent 0%, transparent 78%, rgba(125,165,235,0.65) 88%, rgba(0,0,0,0.5) 96%, transparent 108%)`
       }
       raf = requestAnimationFrame(loop)
     }
@@ -702,10 +706,11 @@ export function CinematicIntro() {
                   backgroundPosition: 'center',
                 }}
               />
-              {/* Shadowed rim right at the reveal's edge — sells the sense
-                  of looking down through an actual opening with thickness,
-                  rather than a flat sticker peeling back. Tracks the same
-                  cursor position/radius as the mask, one plane above it. */}
+              {/* Glowing scan-ring + shadowed bezel right at the reveal's
+                  edge — sells the sense of an active X-ray reading with
+                  real thickness, rather than a flat sticker peeling back.
+                  Tracks the same cursor position/radius as the mask, one
+                  plane above it. */}
               <div
                 ref={revealRimRef}
                 aria-hidden

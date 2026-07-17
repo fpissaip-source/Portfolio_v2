@@ -167,18 +167,24 @@ function Orb({
  *  of the screen but never leave it (and bounce off it, rather than
  *  stopping dead — the default zero restitution above made a ball that
  *  drifted to the bottom edge just sit there against the floor, which
- *  read as it "disappearing" rather than roaming back into view). */
+ *  read as it "disappearing" rather than roaming back into view).
+ *
+ *  Wall faces are inset by MAX_R (max ball radius + small margin) so that
+ *  ball *centres* stop inside the frustum and overflow-hidden never clips
+ *  the visible sphere. */
 function Walls() {
   const { viewport } = useThree()
   const w = viewport.width / 2
   const h = viewport.height / 2
   const t = 2
+  // Max scale from SCALES array (1.0) plus a small collision-resolution margin.
+  const MAX_R = 1.1
   return (
     <RigidBody type="fixed" colliders={false} restitution={0.45}>
-      <CuboidCollider args={[t, h + 6, 8]} position={[w + t, 0, 0]} />
-      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t, 0, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t, 0]} />
-      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t, 0]} />
+      <CuboidCollider args={[t, h + 6, 8]} position={[w + t - MAX_R, 0, 0]} />
+      <CuboidCollider args={[t, h + 6, 8]} position={[-w - t + MAX_R, 0, 0]} />
+      <CuboidCollider args={[w + 6, t, 8]} position={[0, h + t - MAX_R, 0]} />
+      <CuboidCollider args={[w + 6, t, 8]} position={[0, -h - t + MAX_R, 0]} />
       <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 7 + t]} />
       <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -7 - t]} />
     </RigidBody>

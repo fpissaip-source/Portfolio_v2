@@ -20,7 +20,7 @@ const PILLARS = [
   },
   {
     title: 'Artificial Intelligence',
-    body: "This is where I go deepest. I build AI into real systems — with proper retrieval, tooling and guardrails, not just an API wrapper. The goal is always the same: make it dependable enough to ship.",
+    body: "This is where I go deepest. I build AI into real systems, with proper retrieval, tooling and guardrails, not just an API wrapper. The goal is always the same: make it dependable enough to ship.",
   },
   {
     title: 'System Thinking',
@@ -38,7 +38,7 @@ const STORY: { flag: string; title: string; body: string }[] = [
   {
     flag: 'The spark',
     title: 'ChatGPT set the stone rolling',
-    body: "When OpenAI kicked off the AI wave, it lit a passion I didn't know I had — suddenly all that curiosity had a direction.",
+    body: "When OpenAI kicked off the AI wave, it lit a passion I didn't know I had. Suddenly all that curiosity had a direction.",
   },
   {
     flag: 'Since then',
@@ -48,7 +48,7 @@ const STORY: { flag: string; title: string; body: string }[] = [
   {
     flag: 'On paper',
     title: 'Grounded in the real world',
-    body: 'Fachabitur in business & administration, earned with good grades — plus full-time jobs along the way that taught me how work actually gets done.',
+    body: 'Fachabitur in business & administration, earned with good grades, plus full-time jobs along the way that taught me how work actually gets done.',
   },
 ]
 
@@ -165,7 +165,7 @@ export function About() {
                 My Story
               </span>
               <h3 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
-                Hi, I&apos;m Issa — 24, self-taught, and all in on AI.
+                Hi, I&apos;m Issa: 24, self-taught, and all in on AI.
               </h3>
               <div className="relative mt-6 flex flex-col gap-6 border-l border-white/10 pl-6">
                 {STORY.map((s) => (

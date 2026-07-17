@@ -212,7 +212,7 @@ function Node({
             e.stopPropagation()
             onExpand()
           }}
-          aria-label={`${project.name} — ${project.category}`}
+          aria-label={`${project.name}, ${project.category}`}
           className="glass flex cursor-pointer flex-col items-center gap-1 whitespace-nowrap rounded-xl px-3.5 py-2 text-center transition-[transform,opacity] duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
           style={{
             transform: hovered ? 'scale(1.07)' : 'scale(1)',

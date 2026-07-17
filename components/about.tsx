@@ -20,7 +20,7 @@ const PILLARS = [
   },
   {
     title: 'Artificial Intelligence',
-    body: "This is where I go deepest. I've nearly mastered working with modern AI, using it as a genuine engineering partner to design, write and ship production systems, complete with the retrieval, tooling and guardrails that make it dependable.",
+    body: "This is where I go deepest. I build AI into real systems — with proper retrieval, tooling and guardrails, not just an API wrapper. The goal is always the same: make it dependable enough to ship.",
   },
   {
     title: 'System Thinking',
@@ -90,12 +90,14 @@ export function About() {
               </div>
               <p className="mt-3 text-pretty leading-relaxed text-foreground">
                 Here&apos;s what I&apos;m most proud of: I&apos;ve{' '}
-                <span className="font-semibold">nearly mastered the use of AI</span>,
-                and I&apos;ve done it without a computer. Every architecture
-                decision, every line of code and every deployment happens
-                entirely from my iPhone. It forced me to think sharper, lean on
-                AI as a real engineering partner, and prove that great software
-                is about how you think, not the hardware you own.
+                <span className="font-semibold">
+                  built all of this without a computer
+                </span>
+                . Every architecture decision, every line of code and every
+                deployment happens entirely from my iPhone. It forced me to
+                think sharper, lean on AI as a real engineering partner, and
+                prove that great software is about how you think, not the
+                hardware you own.
               </p>
             </div>
           </Reveal>

@@ -98,10 +98,9 @@ export function Hero() {
           transition={{ duration: 0.9, delay: 0.6, ease: easeOut }}
           className="mt-8 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg"
         >
-          I&apos;ve made AI a true engineering partner, and I&apos;ve nearly
-          mastered it. What makes that unusual: I don&apos;t own a PC or a
-          laptop. Every system I design, build and ship is created entirely from
-          my iPhone, end to end.
+          I build with AI as a genuine engineering partner. What makes that
+          unusual: I don&apos;t own a PC or a laptop. Every system I design,
+          build and ship is created entirely from my iPhone, end to end.
         </motion.p>
 
       </div>

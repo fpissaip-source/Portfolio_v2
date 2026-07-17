@@ -95,10 +95,16 @@ export const DecodeName = forwardRef<
       const el = wordRefs.current[wi]
       if (!el) return
       const t = 1 - soloRef.current
+      // The leading gap has to collapse in lockstep with the width — a
+      // flex `gap` would otherwise still reserve its full space next to a
+      // zero-width word, leaving the solo word sitting off-center by half
+      // that gap instead of dead-center.
+      const fontSize = parseFloat(window.getComputedStyle(el).fontSize) || 0
+      el.style.marginLeft = `${gapEm * fontSize * t}px`
       el.style.width = `${naturalWidths.current[wi] * t}px`
       el.style.opacity = String(t)
     })
-  }, [words])
+  }, [words, gapEm])
 
   const applyFade = useCallback(() => {
     const el = rootRef.current
@@ -136,6 +142,11 @@ export const DecodeName = forwardRef<
   )
 
   // Measure each secondary word's natural width once, for the solo collapse.
+  // Re-measures once the real display font is ready — Space Grotesk isn't
+  // loaded yet on first paint, so an initial measurement against the
+  // fallback font would cache the wrong target width for the rest of the
+  // sequence (the collapse/expand would land short of or past the real
+  // text).
   useEffect(() => {
     const measure = () => {
       wordRefs.current.forEach((el, i) => {
@@ -151,8 +162,15 @@ export const DecodeName = forwardRef<
       applySolo()
     }
     measure()
+    let alive = true
+    document.fonts?.ready?.then(() => {
+      if (alive) measure()
+    })
     window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
+    return () => {
+      alive = false
+      window.removeEventListener('resize', measure)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -185,12 +203,8 @@ export const DecodeName = forwardRef<
   }, [words])
 
   return (
-    <div ref={rootRef} className={className} aria-hidden>
-      <div
-        data-neon-text
-        className="flex h-full items-center justify-center"
-        style={{ gap: `${gapEm}em` }}
-      >
+    <div ref={rootRef} className={`${className ?? ''} select-none`} aria-hidden>
+      <div data-neon-text className="flex h-full items-center justify-center">
         {words.map((word, wi) => (
           <span
             key={`${word}-${wi}`}
@@ -201,6 +215,7 @@ export const DecodeName = forwardRef<
             style={{
               fontFamily: 'var(--font-space-grotesk)',
               letterSpacing: '0.01em',
+              marginLeft: wi === 0 ? undefined : 0,
             }}
           >
             {word.split('').map((ch, li) => (

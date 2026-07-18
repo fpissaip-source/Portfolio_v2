@@ -5,7 +5,7 @@ import { Mail } from 'lucide-react'
 import { useT } from './language-context'
 
 const SOCIALS = [
-  { type: 'img' as const, src: '/logos/github.svg', href: '#', label: 'GitHub' },
+  { type: 'img' as const, src: '/logos/github.svg', href: 'https://github.com/fpissaip-source', label: 'GitHub' },
   {
     type: 'img' as const,
     src: '/logos/linkedin.svg',
@@ -34,6 +34,7 @@ export function SiteFooter() {
               key={s.label}
               href={s.href}
               aria-label={s.label}
+              {...(s.type === 'img' ? { target: '_blank', rel: 'noreferrer' } : {})}
               className="glass flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
             >
               {s.type === 'img' ? (

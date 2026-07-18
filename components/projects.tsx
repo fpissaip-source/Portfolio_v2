@@ -84,6 +84,7 @@ const PROJECT_META: ProjectMeta[] = [
   {
     name: 'TaxiBB Essen',
     image: '/projects/taxibb.png',
+    orbImage: '/projects/orb-textures/taxibb.webp',
     video: '/videos/taxibb.mp4',
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
@@ -92,24 +93,24 @@ const PROJECT_META: ProjectMeta[] = [
   },
   {
     name: 'StudyForge',
-    orbImage: '/projects/studyforge.png',
+    orbImage: '/projects/orb-textures/studyforge.webp',
     stack: ['React', 'Tailwind CSS', 'TypeScript', 'AI Pipelines'],
     hobby: true,
   },
   {
     name: 'Team Operations Suite',
-    orbImage: '/projects/teamops.png',
+    orbImage: '/projects/orb-textures/teamops.webp',
     stack: ['React', 'Node.js', 'PostgreSQL', 'Zod'],
     hobby: true,
   },
   {
     name: 'Automation Systems',
-    orbImage: '/projects/automation.png',
+    orbImage: '/projects/orb-textures/automation.webp',
     stack: ['Python', 'Node.js', 'Telegram API', 'Webhooks', 'VPS'],
   },
   {
     name: 'Bewerbungsbot',
-    orbImage: '/projects/bewerbungsbot.png',
+    orbImage: '/projects/orb-textures/bewerbungsbot.webp',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
     hobby: true,
     githubUrl: 'https://github.com/fpissaip-source/Bewerbungsbot',

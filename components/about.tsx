@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'motion/react'
-import { Smartphone } from 'lucide-react'
 import { Reveal, WordReveal } from './anim'
 import { useT } from './language-context'
 
@@ -59,23 +58,7 @@ export function About() {
             </p>
           </Reveal>
 
-          <Reveal delay={0.15}>
-            <div className="mt-8 max-w-md rounded-2xl border border-blue/25 bg-blue/[0.06] p-6">
-              <div className="flex items-center gap-2 text-blue">
-                <Smartphone className="h-5 w-5" />
-                <span className="font-mono text-xs uppercase tracking-[0.25em]">
-                  {t.about.phoneBadge}
-                </span>
-              </div>
-              <p className="mt-3 text-pretty leading-relaxed text-foreground">
-                {t.about.phoneBodyPre}
-                <span className="font-semibold">{t.about.phoneBodyBold}</span>
-                {t.about.phoneBodyPost}
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="mt-10 grid grid-cols-3 gap-6">
+          <div className="mt-10 grid grid-cols-2 gap-6">
             <div>
               <div className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={15} suffix="+" />
@@ -90,14 +73,6 @@ export function About() {
               </div>
               <div className="mt-1 text-xs text-muted-foreground">
                 {t.about.stat2Label}
-              </div>
-            </div>
-            <div>
-              <div className="text-4xl font-semibold tracking-tight text-foreground">
-                <Counter to={100} suffix="%" />
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">
-                {t.about.stat3Label}
               </div>
             </div>
           </div>

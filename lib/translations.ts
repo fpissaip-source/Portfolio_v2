@@ -86,13 +86,8 @@ export type Dictionary = {
     kicker: string
     heading: string
     intro: string
-    phoneBadge: string
-    phoneBodyPre: string
-    phoneBodyBold: string
-    phoneBodyPost: string
     stat1Label: string
     stat2Label: string
-    stat3Label: string
     storyLabel: string
     storyHeading: string
     story: { flag: string; title: string; body: string }[]
@@ -239,7 +234,6 @@ export const EN: Dictionary = {
     taglines: [
       'I build automations',
       'I build intelligent systems',
-      'I ship on iPhone',
       'I build products end to end',
     ],
     welcome: 'Welcome',
@@ -264,7 +258,7 @@ export const EN: Dictionary = {
     line1: 'Building',
     line2: 'Intelligent',
     line3: 'Systems.',
-    body: "I build with AI as a genuine engineering partner. What makes that unusual: I don't own a PC or a laptop. Every system I design, build and ship is created entirely from my iPhone, end to end.",
+    body: 'I build with AI as a genuine engineering partner, designing, building and shipping every system end to end.',
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
@@ -321,8 +315,7 @@ export const EN: Dictionary = {
     register: [
       { name: 'Polymarket / Trading Automation', category: 'Automation & Data R&D', status: 'Research Prototype' },
       { name: 'Financial Transaction Tracker', category: 'FinTech UI', status: 'App Prototype' },
-      { name: 'TENSA. Digital Production System', category: 'Brand Operations', status: 'Active Brand Project' },
-      { name: 'MoncyDev / Portfolio Web Systems', category: 'Web Experience', status: 'Web Portfolio Work' },
+      { name: 'Custom Web Experiences', category: 'Commercial, Personal, Portfolios & More', status: 'Professional Backend' },
       { name: '3D Character & Rigging Preparation', category: 'Creative Pipeline', status: 'Visual Development' },
       { name: 'Motion, Gaming & Interface Experiments', category: 'Prototype Lab', status: 'Ongoing Lab' },
     ],
@@ -351,14 +344,8 @@ export const EN: Dictionary = {
     heading: 'I think in systems and ship in products.',
     intro:
       'My work connects technical architecture, product thinking, visual design, automation and commercial deployment. From autonomous agents to live client systems: I ship the whole loop, not just the demo.',
-    phoneBadge: 'No PC. No laptop. Just an iPhone.',
-    phoneBodyPre: "Here's what I'm most proud of: I've ",
-    phoneBodyBold: 'built all of this without a computer',
-    phoneBodyPost:
-      '. Every architecture decision, every line of code and every deployment happens entirely from my iPhone. It forced me to think sharper, lean on AI as a real engineering partner, and prove that great software is about how you think, not the hardware you own.',
     stat1Label: 'Systems built',
     stat2Label: 'Product domains',
-    stat3Label: 'Built on iPhone',
     storyLabel: 'The Short Version',
     storyHeading: "Hi, I'm Issa: 25, self-taught, and all in on AI.",
     story: [
@@ -445,7 +432,7 @@ export const EN: Dictionary = {
   },
   footer: {
     tagline: 'Autonomous systems & full-stack architecture',
-    copyright: 'Directed, written & built by Issa Hareb. On a phone.',
+    copyright: 'Directed, written & built by Issa Hareb.',
   },
 }
 
@@ -474,7 +461,6 @@ export const DE: Dictionary = {
     taglines: [
       'Ich baue Automatisierungen',
       'Ich baue intelligente Systeme',
-      'Ich entwickle auf dem iPhone',
       'Ich baue Produkte end-to-end',
     ],
     welcome: 'Willkommen',
@@ -499,7 +485,7 @@ export const DE: Dictionary = {
     line1: 'Baue',
     line2: 'Intelligente',
     line3: 'Systeme.',
-    body: 'Ich arbeite mit KI als echtem Engineering-Partner. Das Ungewöhnliche daran: Ich besitze weder PC noch Laptop. Jedes System, das ich entwerfe, baue und ausliefere, entsteht komplett auf meinem iPhone, von Anfang bis Ende.',
+    body: 'Ich arbeite mit KI als echtem Engineering-Partner und entwerfe, baue und liefere jedes System komplett aus, von Anfang bis Ende.',
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
@@ -556,8 +542,7 @@ export const DE: Dictionary = {
     register: [
       { name: 'Polymarket / Trading-Automatisierung', category: 'Automatisierung & Datenforschung', status: 'Forschungsprototyp' },
       { name: 'Finanztransaktions-Tracker', category: 'FinTech-UI', status: 'App-Prototyp' },
-      { name: 'TENSA. Digitales Produktionssystem', category: 'Brand-Operations', status: 'Aktives Markenprojekt' },
-      { name: 'MoncyDev / Portfolio-Websysteme', category: 'Web-Erlebnis', status: 'Web-Portfolio-Arbeit' },
+      { name: 'Individuelle Web-Erlebnisse', category: 'Kommerziell, Privat, Portfolios u.v.m.', status: 'Professionelles Backend' },
       { name: '3D-Charakter- & Rigging-Vorbereitung', category: 'Kreativ-Pipeline', status: 'Visuelle Entwicklung' },
       { name: 'Motion-, Gaming- & Interface-Experimente', category: 'Prototyp-Labor', status: 'Laufendes Labor' },
     ],
@@ -586,14 +571,8 @@ export const DE: Dictionary = {
     heading: 'Ich denke in Systemen und liefere Produkte.',
     intro:
       'Meine Arbeit verbindet technische Architektur, Produktdenken, visuelles Design, Automatisierung und kommerzielles Deployment. Von autonomen Agenten bis zu Live-Kundensystemen: Ich liefere den ganzen Kreislauf, nicht nur die Demo.',
-    phoneBadge: 'Kein PC. Kein Laptop. Nur ein iPhone.',
-    phoneBodyPre: 'Darauf bin ich am meisten stolz: Ich habe ',
-    phoneBodyBold: 'das alles ohne einen Computer gebaut',
-    phoneBodyPost:
-      '. Jede Architekturentscheidung, jede Zeile Code und jedes Deployment passiert komplett auf meinem iPhone. Es hat mich gezwungen, schärfer zu denken, KI als echten Engineering-Partner zu nutzen, und zu beweisen, dass gute Software davon abhängt, wie man denkt, nicht von der Hardware, die man besitzt.',
     stat1Label: 'Gebaute Systeme',
     stat2Label: 'Produktbereiche',
-    stat3Label: 'Auf dem iPhone gebaut',
     storyLabel: 'Die Kurzfassung',
     storyHeading: 'Hi, ich bin Issa: 25, Autodidakt und voll auf KI fokussiert.',
     story: [
@@ -680,6 +659,6 @@ export const DE: Dictionary = {
   },
   footer: {
     tagline: 'Autonome Systeme & Full-Stack-Architektur',
-    copyright: 'Konzipiert, geschrieben & gebaut von Issa Hareb. Auf einem Smartphone.',
+    copyright: 'Konzipiert, geschrieben & gebaut von Issa Hareb.',
   },
 }

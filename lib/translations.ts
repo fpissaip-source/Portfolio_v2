@@ -246,7 +246,7 @@ export const EN: Dictionary = {
     skipIntro: 'Skip Intro',
   },
   scene: {
-    services: 'What I Build',
+    services: 'My Offering',
     lukas: 'L.U.K.A.S. · The Operating System Behind Everything',
     work: 'Selected Work',
     phone: 'Shipped Entirely From an iPhone',
@@ -257,9 +257,9 @@ export const EN: Dictionary = {
   },
   preloader: {
     taglines: [
-      'I build automations',
-      'I build intelligent systems',
-      'I build products end to end',
+      'I automate workflows',
+      'I engineer intelligent systems',
+      'I ship products end to end',
     ],
     welcome: 'Welcome',
     loading: 'Loading',
@@ -270,13 +270,13 @@ export const EN: Dictionary = {
     scrollToMeet: 'Scroll to meet',
     introTitle: 'Let me introduce myself.',
     phrases: [
-      'Building Intelligent Systems',
+      'Intelligent Systems',
       'AI Automation',
       'Full Stack Development',
       'Software That Solves Real Problems',
     ],
     scroll: 'Scroll',
-    screenSubtitle: 'Building intelligent systems',
+    screenSubtitle: 'Full-Stack Engineer & AI Practitioner',
   },
   hero: {
     kicker: 'Issa Hareb · Curriculum Vitae',
@@ -287,7 +287,7 @@ export const EN: Dictionary = {
   },
   services: {
     kicker: 'Services',
-    heading: 'I build digital systems that do real work.',
+    heading: 'Digital systems that do real work.',
     intro:
       "I build modern websites, internal platforms, automations and AI-powered applications — not just as a concept or a polished prototype, but as a complete solution: from planning and UI through databases and APIs to deployment.",
     items: [
@@ -568,7 +568,7 @@ export const DE: Dictionary = {
     skipIntro: 'Intro überspringen',
   },
   scene: {
-    services: 'Was ich baue',
+    services: 'Mein Angebot',
     lukas: 'L.U.K.A.S. · Das Betriebssystem hinter allem',
     work: 'Ausgewählte Arbeiten',
     phone: 'Komplett vom iPhone aus umgesetzt',
@@ -579,9 +579,9 @@ export const DE: Dictionary = {
   },
   preloader: {
     taglines: [
-      'Ich baue Automatisierungen',
-      'Ich baue intelligente Systeme',
-      'Ich baue Produkte end-to-end',
+      'Ich automatisiere Workflows',
+      'Ich entwickle intelligente Systeme',
+      'Ich liefere Produkte end-to-end',
     ],
     welcome: 'Willkommen',
     loading: 'Lädt',
@@ -592,13 +592,13 @@ export const DE: Dictionary = {
     scrollToMeet: 'Scrollen, um mich kennenzulernen',
     introTitle: 'Lass mich vorstellen, wer ich bin.',
     phrases: [
-      'Baue intelligente Systeme',
+      'Intelligente Systeme',
       'KI-Automatisierung',
       'Full-Stack-Entwicklung',
       'Software, die echte Probleme löst',
     ],
     scroll: 'Scrollen',
-    screenSubtitle: 'Baue intelligente Systeme',
+    screenSubtitle: 'Full-Stack-Entwickler & KI-Praktiker',
   },
   hero: {
     kicker: 'Issa Hareb · Lebenslauf',
@@ -609,7 +609,7 @@ export const DE: Dictionary = {
   },
   services: {
     kicker: 'Leistungen',
-    heading: 'Ich baue digitale Systeme, die echte Arbeit erledigen.',
+    heading: 'Digitale Systeme, die echte Arbeit erledigen.',
     intro:
       'Ich entwickle moderne Websites, interne Plattformen, Automatisierungen und KI-gestützte Anwendungen. Nicht nur als Konzept oder hübschen Prototyp, sondern als vollständige Lösung – von der Planung und Benutzeroberfläche über Datenbanken und Schnittstellen bis zum Deployment.',
     items: [

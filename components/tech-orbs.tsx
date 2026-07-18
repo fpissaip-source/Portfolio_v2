@@ -1,26 +1,24 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import {
-  Physics,
-  RigidBody,
-  BallCollider,
-  CuboidCollider,
-  type RapierRigidBody,
-} from '@react-three/rapier'
 import * as THREE from 'three'
 
 /**
- * Real-time 3D tech stack: each technology is a physical sphere (Rapier
- * RigidBody + BallCollider) with its logo baked onto a dark glossy disc
- * texture. Gravity is zero — every frame a center-seeking impulse pulls the
- * spheres back to the middle, so they gather, collide, spin and bounce. An
- * invisible kinematic collider follows the pointer/finger and shoves them away.
+ * Real-time 3D tech stack: each technology is a sphere with its logo baked
+ * onto a dark glossy disc texture, floating in a small hand-rolled physics
+ * sim (center pull + wander + pairwise/wall/pointer repulsion) — no physics
+ * engine. A `@react-three/rapier` + WASM version of this used to ship a
+ * single ~2.2MB chunk (by far the heaviest thing on the page) just for
+ * these balls to bounce off each other, and the WASM had to fetch and
+ * compile before any of them appeared. This reproduces the same look with
+ * plain vector math over the ~20 spheres, which is trivially cheap at that
+ * count and has nothing to compile — the balls are ready as soon as their
+ * logo textures are.
  *
- * This is the single, real implementation. There is no 2D/DOM fallback and no
- * hardware detection — the scene is intentionally kept lightweight so it runs
- * on real devices in the published site.
+ * This is the single, real implementation. There is no 2D/DOM fallback and
+ * no hardware detection — the scene is intentionally kept lightweight so it
+ * runs on real devices in the published site.
  */
 
 type Tech = { name: string; logo: string; tint?: 'white' }
@@ -100,167 +98,68 @@ function createLogoTexture(tech: Tech): Promise<THREE.Texture> {
   })
 }
 
-function Orb({
-  material,
-  scale,
-  seed,
-  bounds,
-}: {
-  material: THREE.Material
+/** One sphere's simulation state — plain vectors, no physics-engine body. */
+type OrbBody = {
+  pos: THREE.Vector3
+  vel: THREE.Vector3
   scale: number
   seed: number
-  bounds: { x: number; y: number }
-}) {
-  const api = useRef<RapierRigidBody>(null)
-  const vec = useMemo(() => new THREE.Vector3(), [])
-
-  const position = useMemo<[number, number, number]>(() => {
-    // Start scattered INSIDE the frustum walls. The spread scales with the
-    // viewport — the old fixed ±5/±3 could spawn balls beyond the side
-    // walls on narrow phone screens, stranding them off screen for good.
-    const a = seed * 2.3999
-    return [
-      Math.cos(a) * bounds.x + THREE.MathUtils.randFloatSpread(bounds.x * 0.6),
-      Math.sin(a * 1.7) * bounds.y + THREE.MathUtils.randFloatSpread(bounds.y * 0.6),
-      THREE.MathUtils.randFloatSpread(3),
-    ]
-  }, [seed, bounds])
-
-  useFrame((state, delta) => {
-    const rb = api.current
-    if (!rb) return
-    delta = Math.min(0.1, delta)
-    // Gentle center pull keeps the flock on screen; the viewport walls stop
-    // them exactly at the frame edge, so they roam the full screen.
-    const impulse = vec
-      .copy(rb.translation() as THREE.Vector3)
-      .normalize()
-      .multiply(
-        new THREE.Vector3(
-          -20 * delta * scale,
-          -24 * delta * scale,
-          -30 * delta * scale,
-        ),
-      )
-    // Per-orb wander keeps everything floating on its own, no pointer needed.
-    const t = state.clock.elapsedTime
-    impulse.x += Math.sin(t * 0.45 + seed * 2.1) * 34 * delta * scale
-    impulse.y += Math.cos(t * 0.38 + seed * 1.3) * 34 * delta * scale
-    impulse.z += Math.sin(t * 0.31 + seed * 0.7) * 12 * delta * scale
-    rb.applyImpulse(impulse, true)
-  })
-
-  return (
-    <RigidBody
-      ref={api}
-      position={position}
-      linearDamping={0.75}
-      angularDamping={0.15}
-      friction={0.2}
-      restitution={0.45}
-      ccd
-      colliders={false}
-    >
-      <BallCollider args={[scale]} />
-      <mesh geometry={sphereGeometry} material={material} scale={scale} />
-    </RigidBody>
-  )
+  spinX: number
+  spinY: number
 }
 
-/** Invisible walls — balls roam right up to the rim of the screen but never
- *  leave it (and bounce off, rather than stopping dead).
- *
- *  The side walls lie IN the camera's frustum planes (tilted to match the
- *  perspective), their blocking faces flush with the planes, so balls of
- *  any size can roll right up to the visible screen edge at every depth
- *  without ever crossing it.
- *  The previous axis-aligned walls matched the frustum only at z=0 — any
- *  ball drifting toward the camera crossed the narrower frustum there and
- *  got clipped by overflow-hidden at the screen edges, most visibly on
- *  tall/narrow phone viewports. */
-function Walls() {
-  const { viewport } = useThree()
-  const w = viewport.width / 2
-  const h = viewport.height / 2
-  const dist = 20 // camera z — viewport is measured at the z=0 plane
-  const t = 2
+/** A wall as a plane (point + outward normal) instead of a physics
+ *  collider. Kept as the exact same tilted-frustum-plane geometry as
+ *  before: each plane matches the camera's frustum at that edge, so a
+ *  ball's surface can rest flush against the visible screen edge at any
+ *  depth without a physics engine's collider ever being involved. */
+type Wall = { point: THREE.Vector3; normal: THREE.Vector3 }
+
+function makeWalls(viewportWidth: number, viewportHeight: number): Wall[] {
+  const w = viewportWidth / 2
+  const h = viewportHeight / 2
+  const dist = 20 // camera z — matches the Canvas camera below
   const aH = Math.atan(w / dist)
   const aV = Math.atan(h / dist)
-  // Each wall slab is parallel to its frustum plane with its *blocking face
-  // lying exactly in the plane*: the centre sits t (the half-thickness)
-  // OUTSIDE the plane along its outward normal n = (±cos a, 0, sin a) /
-  // (0, ±cos a, sin a). Balls of any radius then rest with their surface
-  // flush against the visible screen edge at every depth — no dead margin,
-  // no collider protruding into the scene on narrow phone viewports.
-  const L = 70
-  return (
-    <RigidBody type="fixed" colliders={false} restitution={0.45}>
-      {/* right / left — frustum side planes */}
-      <CuboidCollider
-        args={[t, L, L]}
-        rotation={[0, -aH, 0]}
-        position={[w + t * Math.cos(aH), 0, t * Math.sin(aH)]}
-      />
-      <CuboidCollider
-        args={[t, L, L]}
-        rotation={[0, aH, 0]}
-        position={[-w - t * Math.cos(aH), 0, t * Math.sin(aH)]}
-      />
-      {/* top / bottom — frustum planes as well */}
-      <CuboidCollider
-        args={[L, t, L]}
-        rotation={[aV, 0, 0]}
-        position={[0, h + t * Math.cos(aV), t * Math.sin(aV)]}
-      />
-      <CuboidCollider
-        args={[L, t, L]}
-        rotation={[-aV, 0, 0]}
-        position={[0, -h - t * Math.cos(aV), t * Math.sin(aV)]}
-      />
-      {/* near / far caps */}
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, 7 + t]} />
-      <CuboidCollider args={[w + 6, h + 6, t]} position={[0, 0, -7 - t]} />
-    </RigidBody>
-  )
+  return [
+    { point: new THREE.Vector3(w, 0, 0), normal: new THREE.Vector3(Math.cos(aH), 0, Math.sin(aH)) },
+    { point: new THREE.Vector3(-w, 0, 0), normal: new THREE.Vector3(-Math.cos(aH), 0, Math.sin(aH)) },
+    { point: new THREE.Vector3(0, h, 0), normal: new THREE.Vector3(0, Math.cos(aV), Math.sin(aV)) },
+    { point: new THREE.Vector3(0, -h, 0), normal: new THREE.Vector3(0, -Math.cos(aV), Math.sin(aV)) },
+    { point: new THREE.Vector3(0, 0, 7), normal: new THREE.Vector3(0, 0, 1) },
+    { point: new THREE.Vector3(0, 0, -7), normal: new THREE.Vector3(0, 0, -1) },
+  ]
 }
 
-function Pointer() {
-  const ref = useRef<RapierRigidBody>(null)
-  const vec = useMemo(() => new THREE.Vector3(), [])
-  useFrame(({ pointer, viewport }) => {
-    const target = new THREE.Vector3(
-      (pointer.x * viewport.width) / 2,
-      (pointer.y * viewport.height) / 2,
-      0,
+const Orb = forwardRef<THREE.Group, { material: THREE.Material; scale: number }>(
+  function Orb({ material, scale }, ref) {
+    return (
+      <group ref={ref}>
+        <mesh geometry={sphereGeometry} material={material} scale={scale} />
+      </group>
     )
-    vec.lerp(target, 0.2)
-    ref.current?.setNextKinematicTranslation(vec)
-  })
-  return (
-    <RigidBody
-      type="kinematicPosition"
-      colliders={false}
-      ref={ref}
-      position={[0, 0, 0]}
-    >
-      <BallCollider args={[2]} />
-    </RigidBody>
-  )
-}
+  },
+)
 
 function Scene({ count }: { count: number }) {
   const { viewport } = useThree()
   const [materials, setMaterials] = useState<THREE.Material[] | null>(null)
+  const groupRefs = useRef<(THREE.Group | null)[]>([])
+  const bodies = useRef<OrbBody[]>([])
+  const pointerTarget = useRef(new THREE.Vector3())
+
+  // Scratch objects reused every frame — no per-frame allocation for a sim
+  // this small (<=20 orbs).
+  const scratchDir = useMemo(() => new THREE.Vector3(), [])
+  const scratchDelta = useMemo(() => new THREE.Vector3(), [])
+  const scratchPointer = useMemo(() => new THREE.Vector3(), [])
 
   // Spawn area guaranteed to sit inside the tilted frustum walls even on
-  // narrow phone viewports. Exact against the tilted planes: a centre at
-  // offset x with |z| <= 1.5 keeps a full MAX_R sphere inside the frustum
-  // when x <= half - (MAX_R + 1.5*sin a)/cos a. Frozen on mount — resizes
-  // move the walls, and the physics then herds the balls, so respawning
-  // isn't needed. Orb() spreads positions up to bounds * 1.3, hence /1.3.
+  // narrow phone viewports. Frozen on mount — resizes move the walls, and
+  // the sim then herds the balls, so respawning isn't needed.
   const [bounds] = useState(() => {
     const margin = (half: number) => {
-      const a = Math.atan(half / 20) // camera z = 20, matches Walls()
+      const a = Math.atan(half / 20) // camera z = 20, matches makeWalls()
       return (1.1 + 1.5 * Math.sin(a)) / Math.cos(a)
     }
     const w = viewport.width / 2
@@ -270,6 +169,45 @@ function Scene({ count }: { count: number }) {
       y: Math.max(0.5, (h - margin(h)) / 1.3),
     }
   })
+
+  const orbs = useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        techIndex: i % TECH.length,
+        scale: SCALES[Math.floor(Math.random() * SCALES.length)],
+        seed: i + 1,
+      })),
+    [count],
+  )
+
+  // Walls track the live viewport (recompute on resize), same as the
+  // physics version's Walls() component did.
+  const walls = useMemo(
+    () => makeWalls(viewport.width, viewport.height),
+    [viewport.width, viewport.height],
+  )
+
+  useEffect(() => {
+    bodies.current = orbs.map((o) => {
+      // Start scattered INSIDE the frustum walls, same distribution as
+      // before — the spread scales with the viewport so nothing spawns
+      // beyond the side walls on narrow phone screens.
+      const a = o.seed * 2.3999
+      const pos = new THREE.Vector3(
+        Math.cos(a) * bounds.x + THREE.MathUtils.randFloatSpread(bounds.x * 0.6),
+        Math.sin(a * 1.7) * bounds.y + THREE.MathUtils.randFloatSpread(bounds.y * 0.6),
+        THREE.MathUtils.randFloatSpread(3),
+      )
+      return {
+        pos,
+        vel: new THREE.Vector3(),
+        scale: o.scale,
+        seed: o.seed,
+        spinX: 0.12 + 0.1 * Math.sin(o.seed * 3.7),
+        spinY: 0.16 + 0.1 * Math.cos(o.seed * 2.1),
+      }
+    })
+  }, [orbs, bounds])
 
   useEffect(() => {
     let alive = true
@@ -305,15 +243,94 @@ function Scene({ count }: { count: number }) {
     }
   }, [])
 
-  const orbs = useMemo(
-    () =>
-      Array.from({ length: count }, (_, i) => ({
-        techIndex: i % TECH.length,
-        scale: SCALES[Math.floor(Math.random() * SCALES.length)],
-        seed: i + 1,
-      })),
-    [count],
-  )
+  useFrame((state, rawDelta) => {
+    const list = bodies.current
+    if (!list.length) return
+    const delta = Math.min(0.1, rawDelta)
+    const t = state.clock.elapsedTime
+
+    // Kinematic pointer target — same lerp-toward-pointer behaviour as the
+    // old kinematic RigidBody.
+    scratchPointer.set((state.pointer.x * viewport.width) / 2, (state.pointer.y * viewport.height) / 2, 0)
+    pointerTarget.current.lerp(scratchPointer, 0.2)
+
+    for (const b of list) {
+      // Gentle center pull (keeps the flock on screen) + per-orb wander
+      // (keeps everything floating on its own, no pointer needed) — same
+      // formula as the old per-frame impulse, applied as acceleration.
+      scratchDir.copy(b.pos)
+      if (scratchDir.lengthSq() > 1e-6) scratchDir.normalize()
+      b.vel.x += (-20 * b.scale * scratchDir.x + Math.sin(t * 0.45 + b.seed * 2.1) * 34 * b.scale) * delta
+      b.vel.y += (-24 * b.scale * scratchDir.y + Math.cos(t * 0.38 + b.seed * 1.3) * 34 * b.scale) * delta
+      b.vel.z += (-30 * b.scale * scratchDir.z + Math.sin(t * 0.31 + b.seed * 0.7) * 12 * b.scale) * delta
+
+      // Linear damping (matches the old RigidBody's linearDamping: 0.75).
+      b.vel.multiplyScalar(Math.exp(-2.2 * delta))
+
+      // Walls — reflect the ball back once its surface reaches the plane.
+      for (const wall of walls) {
+        const d =
+          (b.pos.x - wall.point.x) * wall.normal.x +
+          (b.pos.y - wall.point.y) * wall.normal.y +
+          (b.pos.z - wall.point.z) * wall.normal.z
+        const penetration = d + b.scale
+        if (penetration > 0) {
+          b.pos.addScaledVector(wall.normal, -penetration)
+          const vn = b.vel.dot(wall.normal)
+          if (vn > 0) b.vel.addScaledVector(wall.normal, -1.45 * vn)
+        }
+      }
+
+      // Pointer repulsion — an invisible radius-2 sphere shoves orbs away.
+      scratchDelta.copy(b.pos).sub(pointerTarget.current)
+      const pDist = scratchDelta.length()
+      const pMin = b.scale + 2
+      if (pDist < pMin && pDist > 1e-4) {
+        scratchDelta.multiplyScalar(1 / pDist)
+        b.pos.addScaledVector(scratchDelta, pMin - pDist)
+        const vn = b.vel.dot(scratchDelta)
+        if (vn < 0) b.vel.addScaledVector(scratchDelta, -1.2 * vn)
+      }
+    }
+
+    // Pairwise repulsion — soft positional correction + a velocity kick
+    // along the collision normal, standing in for rigid-body collision at
+    // this orb count (<=20, so this is a trivial O(n^2) pass).
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const a = list[i]
+        const b = list[j]
+        scratchDelta.copy(b.pos).sub(a.pos)
+        const dist = scratchDelta.length()
+        const minDist = a.scale + b.scale
+        if (dist < minDist && dist > 1e-4) {
+          scratchDelta.multiplyScalar(1 / dist)
+          const overlap = (minDist - dist) * 0.5
+          a.pos.addScaledVector(scratchDelta, -overlap)
+          b.pos.addScaledVector(scratchDelta, overlap)
+          const relVel = b.vel.dot(scratchDelta) - a.vel.dot(scratchDelta)
+          if (relVel < 0) {
+            const impulse = -relVel * 0.5
+            a.vel.addScaledVector(scratchDelta, -impulse)
+            b.vel.addScaledVector(scratchDelta, impulse)
+          }
+        }
+      }
+    }
+
+    // Integrate + push the result straight to each orb's Object3D — no
+    // React state/re-render involved.
+    for (let i = 0; i < list.length; i++) {
+      const b = list[i]
+      b.pos.addScaledVector(b.vel, delta)
+      const g = groupRefs.current[i]
+      if (g) {
+        g.position.copy(b.pos)
+        g.rotation.x += delta * b.spinX
+        g.rotation.y += delta * b.spinY
+      }
+    }
+  })
 
   if (!materials) return null
 
@@ -323,19 +340,16 @@ function Scene({ count }: { count: number }) {
       <directionalLight position={[10, 12, 8]} intensity={1.7} color="#efeaff" />
       <directionalLight position={[-10, -6, 6]} intensity={0.5} color="#e3edff" />
 
-      <Physics gravity={[0, 0, 0]}>
-        <Walls />
-        <Pointer />
-        {orbs.map((o, i) => (
-          <Orb
-            key={i}
-            material={materials[o.techIndex]}
-            scale={o.scale}
-            seed={o.seed}
-            bounds={bounds}
-          />
-        ))}
-      </Physics>
+      {orbs.map((o, i) => (
+        <Orb
+          key={i}
+          ref={(el) => {
+            groupRefs.current[i] = el
+          }}
+          material={materials[o.techIndex]}
+          scale={o.scale}
+        />
+      ))}
     </>
   )
 }

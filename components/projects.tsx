@@ -79,7 +79,7 @@ const PROJECT_META: ProjectMeta[] = [
     video: '/videos/guardiangrid.mp4',
     stack: ['React', 'Bungie API', 'OAuth2', 'Node.js', 'Cloudflare'],
     featured: true,
-    liveUrl: 'https://guardiangrid.io',
+    liveUrl: 'https://www.guardiangrid.io',
   },
   {
     name: 'TaxiBB Essen',

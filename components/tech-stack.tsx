@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic'
 import { Reveal, WordReveal } from './anim'
 import { useT } from './language-context'
+import { useNearViewport } from './use-near-viewport'
 
 const TechOrbs = dynamic(() => import('./tech-orbs'), {
   ssr: false,
@@ -41,15 +42,18 @@ const TECH: Tech[] = [
 
 export function TechStack() {
   const t = useT()
+  // Another WebGL scene — don't create its context until the section is
+  // actually close to scrolling into view.
+  const { ref: orbsRef, near: orbsNear } = useNearViewport<HTMLDivElement>()
   return (
     <section id="stack" className="relative py-24 sm:py-32">
       {/* Free-floating 3D balls, pinned to the visible screen while the
           section is in view — they roam the full frame right up to the
           viewport edges (invisible physics walls keep them on screen).
           touch-pan-y keeps vertical scrolling working on mobile. */}
-      <div className="absolute inset-0 z-10 overflow-hidden">
+      <div ref={orbsRef} className="absolute inset-0 z-10 overflow-hidden">
         <div className="sticky top-0 h-[100svh] w-full touch-pan-y md:touch-none">
-          <TechOrbs />
+          {orbsNear && <TechOrbs />}
         </div>
       </div>
 

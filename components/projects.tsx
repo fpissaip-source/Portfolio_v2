@@ -1,11 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
 import { useT } from './language-context'
+import { useNearViewport } from './use-near-viewport'
 import type { OrbProject } from './project-orbs'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
@@ -86,6 +87,7 @@ const PROJECT_META: ProjectMeta[] = [
     video: '/videos/taxibb.mp4',
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
+    liveUrl: 'https://taxibbessen.de',
   },
   {
     name: 'StudyForge',
@@ -200,17 +202,53 @@ function ProjectDetailContent({ project }: { project: Project }) {
   )
 }
 
-function useEscapeAndScrollLock(onClose: () => void) {
+/** Escape closes, scroll locks, and — while the dialog is open — focus is
+ *  trapped inside it (Tab/Shift+Tab cycle through its own focusable
+ *  elements only) and moved onto its first focusable element. On close,
+ *  focus returns to whatever had it before the dialog opened (the orb or
+ *  card that triggered it), instead of being lost to the document body. */
+function useModalA11y(containerRef: React.RefObject<HTMLElement | null>, onClose: () => void) {
   useEffect(() => {
     const lenisWin = window as unknown as { __lenis?: { stop: () => void; start: () => void } }
     lenisWin.__lenis?.stop()
+    const previouslyFocused = document.activeElement as HTMLElement | null
+
+    const focusableSelector =
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    const getFocusable = () =>
+      containerRef.current
+        ? Array.from(containerRef.current.querySelectorAll<HTMLElement>(focusableSelector))
+        : []
+
+    const raf = requestAnimationFrame(() => {
+      const focusables = getFocusable()
+      ;(focusables[0] ?? containerRef.current)?.focus()
+    })
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const items = getFocusable()
+      if (items.length === 0) return
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
     }
     window.addEventListener('keydown', onKey)
     return () => {
+      cancelAnimationFrame(raf)
       lenisWin.__lenis?.start()
       window.removeEventListener('keydown', onKey)
+      previouslyFocused?.focus()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -220,15 +258,21 @@ function useEscapeAndScrollLock(onClose: () => void) {
  *  leave enough room to be useful. Clicking the backdrop or Escape closes. */
 function ProjectDetailModal({ project, onClose }: { project: Project; onClose: () => void }) {
   const t = useT()
-  useEscapeAndScrollLock(onClose)
+  const containerRef = useRef<HTMLDivElement>(null)
+  useModalA11y(containerRef, onClose)
   return (
     <div
       className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-black/70 p-6 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={project.name}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="glass relative w-full max-w-2xl overflow-hidden rounded-3xl p-2"
+        className="glass relative w-full max-w-2xl overflow-hidden rounded-3xl p-2 focus:outline-none"
       >
         <button
           type="button"
@@ -250,13 +294,19 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
  *  container, not a page-level fixed overlay. */
 function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: () => void }) {
   const t = useT()
-  useEscapeAndScrollLock(onClose)
+  const containerRef = useRef<HTMLDivElement>(null)
+  useModalA11y(containerRef, onClose)
   return (
     <motion.div
+      ref={containerRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label={project.name}
+      tabIndex={-1}
       initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.55, ease: easeOut }}
-      className="glass absolute inset-y-3 right-3 z-30 w-[min(26rem,44%)] overflow-y-auto rounded-2xl"
+      className="glass absolute inset-y-3 right-3 z-30 w-[min(26rem,44%)] overflow-y-auto rounded-2xl focus:outline-none"
       onClick={(e) => e.stopPropagation()}
     >
       <button
@@ -305,6 +355,10 @@ export function Projects() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const expandedProject = PROJECTS.find((p) => p.name === expanded) ?? null
   const tier = useTier()
+  // The 3D constellation is the heaviest thing on the page after Lukas —
+  // don't create its WebGL context until the gallery is actually close to
+  // scrolling into view, rather than the moment the page hydrates.
+  const { ref: constellationRef, near: constellationNear } = useNearViewport<HTMLDivElement>()
 
   const orbProjects: OrbProject[] = PROJECTS.map((p) => ({
     name: p.name,
@@ -341,7 +395,10 @@ export function Projects() {
           see project-constellation-mobile.tsx). A soft ambient glow +
           stronger border give the section presence of its own so it
           doesn't blend into the surrounding page. */}
-      <div className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]">
+      <div
+        ref={constellationRef}
+        className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
+      >
         {tier !== 'mobile' && !expandedProject && (
           <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
             {t.projects.dragHint}
@@ -371,11 +428,11 @@ export function Projects() {
           className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_120px_30px_rgba(0,0,0,0.55)]"
         />
         <div className="absolute inset-0 touch-pan-y md:touch-none">
-          {tier === 'mobile' ? (
-            <ProjectConstellationMobile projects={orbProjects} onExpand={setExpanded} />
-          ) : (
-            <ProjectOrbs projects={orbProjects} expandedName={expanded} onExpand={setExpanded} />
-          )}
+          {!constellationNear
+            ? loadingFallback
+            : tier === 'mobile'
+              ? <ProjectConstellationMobile projects={orbProjects} onExpand={setExpanded} />
+              : <ProjectOrbs projects={orbProjects} expandedName={expanded} onExpand={setExpanded} />}
         </div>
         {expandedProject && tier !== 'mobile' && (
           <>

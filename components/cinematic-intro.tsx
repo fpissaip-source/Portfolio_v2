@@ -662,6 +662,7 @@ export function CinematicIntro() {
   return (
     <section
       ref={rootRef}
+      id="intro"
       aria-label="Cinematic introduction"
       className="relative h-[600vh] bg-background"
     >

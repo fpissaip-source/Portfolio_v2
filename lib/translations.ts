@@ -21,6 +21,9 @@ export type Dictionary = {
     stack: string
     process: string
     contact: string
+    openMenu: string
+    closeMenu: string
+    skipToContent: string
   }
   scene: {
     lukas: string
@@ -219,6 +222,9 @@ export const EN: Dictionary = {
     stack: 'Stack',
     process: 'Process',
     contact: 'Contact',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
+    skipToContent: 'Skip to content',
   },
   scene: {
     lukas: 'L.U.K.A.S. · The Operating System Behind Everything',
@@ -451,6 +457,9 @@ export const DE: Dictionary = {
     stack: 'Stack',
     process: 'Prozess',
     contact: 'Kontakt',
+    openMenu: 'Menü öffnen',
+    closeMenu: 'Menü schließen',
+    skipToContent: 'Zum Inhalt springen',
   },
   scene: {
     lukas: 'L.U.K.A.S. · Das Betriebssystem hinter allem',

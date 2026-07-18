@@ -15,12 +15,7 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
     ).matches
 
     const lenis = new Lenis({
-      // Heavier than before on purpose: a longer settle duration plus a
-      // reduced wheelMultiplier means even a burst of aggressive scroll
-      // input can't out-run the smoothing and skip past content — each
-      // wheel tick contributes less raw distance, so the page can only
-      // move so fast no matter how hard someone spins the wheel.
-      duration: 1.5,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: !prefersReduced,
       wheelMultiplier: 0.75,

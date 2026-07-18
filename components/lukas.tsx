@@ -72,6 +72,11 @@ export function Lukas() {
   /** '3d' on any WebGL-capable device (the intended experience); 'video'
    *  keeps the old pre-rendered film as a rare-device fallback. */
   const [mode, setMode] = useState<'3d' | 'video' | null>(null)
+  // The brain is the heaviest WebGL scene on the page — don't create its
+  // context until the section is actually close to scrolling into view,
+  // rather than the moment the page hydrates (Lukas sits well below the
+  // fold behind the entire cinematic intro + hero).
+  const [brainNear, setBrainNear] = useState(false)
 
   useEffect(() => {
     let ok = false
@@ -85,6 +90,23 @@ export function Lukas() {
     }
     setMode(ok ? '3d' : 'video')
   }, [])
+
+  useEffect(() => {
+    if (brainNear) return
+    const root = rootRef.current
+    if (!root) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setBrainNear(true)
+          obs.disconnect()
+        }
+      },
+      { rootMargin: '400px' },
+    )
+    obs.observe(root)
+    return () => obs.disconnect()
+  }, [brainNear])
 
   useEffect(() => {
     const root = rootRef.current
@@ -394,7 +416,7 @@ export function Lukas() {
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-0 will-transform"
         >
-          {mode === '3d' && (
+          {mode === '3d' && brainNear && (
             <BrainBoundary onFail={() => setMode('video')}>
               <LukasBrain progress={progressRef} snaps={BEAT_SNAPS} />
             </BrainBoundary>

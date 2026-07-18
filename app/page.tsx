@@ -8,6 +8,7 @@ import { LanguageToggle } from '@/components/language-toggle'
 import { SkipLink } from '@/components/skip-link'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
+import { Services } from '@/components/services'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
 import { PhoneStory } from '@/components/phone-story'
@@ -34,6 +35,9 @@ export default function Page() {
           <EdgeGlow />
           <IonTrail />
           <Hero />
+          <Scene labelKey="services" backdrop="ions">
+            <Services />
+          </Scene>
           <Scene labelKey="lukas">
             <Lukas />
           </Scene>

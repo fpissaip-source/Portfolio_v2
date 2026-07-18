@@ -15,6 +15,7 @@ export type ProjectCopy = {
 
 export type Dictionary = {
   nav: {
+    services: string
     lukas: string
     work: string
     about: string
@@ -26,6 +27,7 @@ export type Dictionary = {
     skipToContent: string
   }
   scene: {
+    services: string
     lukas: string
     work: string
     phone: string
@@ -54,6 +56,15 @@ export type Dictionary = {
     line2: string
     line3: string
     body: string
+  }
+  services: {
+    kicker: string
+    heading: string
+    intro: string
+    items: { title: string; body: string }[]
+    closingKicker: string
+    closingBody: string
+    closingHighlight: string
   }
   lukas: {
     subtitle: string
@@ -211,6 +222,7 @@ const projectsDE: Record<string, ProjectCopy> = {
 
 export const EN: Dictionary = {
   nav: {
+    services: 'Services',
     lukas: 'L.U.K.A.S.',
     work: 'Work',
     about: 'About',
@@ -222,6 +234,7 @@ export const EN: Dictionary = {
     skipToContent: 'Skip to content',
   },
   scene: {
+    services: 'What I Build',
     lukas: 'L.U.K.A.S. · The Operating System Behind Everything',
     work: 'Selected Work',
     phone: 'Shipped Entirely From an iPhone',
@@ -259,6 +272,35 @@ export const EN: Dictionary = {
     line2: 'Intelligent',
     line3: 'Systems.',
     body: 'I build with AI as a genuine engineering partner, designing, building and shipping every system end to end.',
+  },
+  services: {
+    kicker: 'Services',
+    heading: 'I build digital systems that do real work.',
+    intro:
+      "I build modern websites, internal platforms, automations and AI-powered applications — not just as a concept or a polished prototype, but as a complete solution: from planning and UI through databases and APIs to deployment.",
+    items: [
+      {
+        title: 'Websites & Digital Customer Processes',
+        body: "Professional business websites that don't just look good — they turn visitors into inquiries and bookings. Contact and booking forms, automated emails, customer portals, admin interfaces and real technical SEO.",
+      },
+      {
+        title: 'Custom Web Applications',
+        body: 'Digital tools built around one specific workflow: dashboards, admin interfaces, CRM functionality, booking systems, user accounts with roles and permissions, and data-driven platforms.',
+      },
+      {
+        title: 'AI Agents & Automation',
+        body: 'Systems that take over recurring work on their own — processing information, analyzing data, generating documents, triaging requests, drafting emails, or connecting different services together through APIs.',
+      },
+      {
+        title: 'MVPs & Product Prototypes',
+        body: "A product idea shouldn't sit on paper for months. I ship working first versions you can test workflows with, win early customers with, and use to plan the next steps on real data.",
+      },
+    ],
+    closingKicker: 'What makes my approach different',
+    closingBody:
+      "I work AI-native. That means using modern AI systems for more than individual lines of code — they're a fixed part of my entire development process. Architecture, implementation, testing and refinement are all steered and reviewed by me, then brought together into one working system.",
+    closingHighlight:
+      "What matters is the result: a system that's easy to understand, reliably works, and solves a real problem.",
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
@@ -438,6 +480,7 @@ export const EN: Dictionary = {
 
 export const DE: Dictionary = {
   nav: {
+    services: 'Leistungen',
     lukas: 'L.U.K.A.S.',
     work: 'Arbeiten',
     about: 'Über mich',
@@ -449,6 +492,7 @@ export const DE: Dictionary = {
     skipToContent: 'Zum Inhalt springen',
   },
   scene: {
+    services: 'Was ich baue',
     lukas: 'L.U.K.A.S. · Das Betriebssystem hinter allem',
     work: 'Ausgewählte Arbeiten',
     phone: 'Komplett vom iPhone aus umgesetzt',
@@ -486,6 +530,35 @@ export const DE: Dictionary = {
     line2: 'Intelligente',
     line3: 'Systeme.',
     body: 'Ich arbeite mit KI als echtem Engineering-Partner und entwerfe, baue und liefere jedes System komplett aus, von Anfang bis Ende.',
+  },
+  services: {
+    kicker: 'Leistungen',
+    heading: 'Ich baue digitale Systeme, die echte Arbeit erledigen.',
+    intro:
+      'Ich entwickle moderne Websites, interne Plattformen, Automatisierungen und KI-gestützte Anwendungen. Nicht nur als Konzept oder hübschen Prototyp, sondern als vollständige Lösung – von der Planung und Benutzeroberfläche über Datenbanken und Schnittstellen bis zum Deployment.',
+    items: [
+      {
+        title: 'Websites und digitale Kundenprozesse',
+        body: 'Professionelle Unternehmenswebsites, die nicht nur gut aussehen, sondern Anfragen und Buchungen ermöglichen. Dazu gehören beispielsweise Kontakt- und Buchungsformulare, automatisierte E-Mails, Kundenbereiche, Admin-Oberflächen sowie technische Suchmaschinenoptimierung.',
+      },
+      {
+        title: 'Individuelle Webanwendungen',
+        body: 'Digitale Werkzeuge, die genau auf einen bestimmten Arbeitsablauf zugeschnitten sind: Dashboards, Verwaltungsoberflächen, CRM-Funktionen, Buchungssysteme, Benutzerkonten, Rollen und Berechtigungen sowie datenbasierte Plattformen.',
+      },
+      {
+        title: 'KI-Agenten und Automatisierungen',
+        body: 'Ich entwickle Systeme, die wiederkehrende Aufgaben selbstständig übernehmen können – etwa Informationen verarbeiten, Daten auswerten, Dokumente erstellen, Anfragen vorsortieren, E-Mails vorbereiten oder verschiedene Dienste über Schnittstellen miteinander verbinden.',
+      },
+      {
+        title: 'MVPs und Produktprototypen',
+        body: 'Eine Produktidee soll nicht monatelang nur auf Papier existieren. Ich setze funktionierende erste Versionen um, mit denen sich Abläufe testen, Kunden gewinnen und die nächsten Entwicklungsschritte fundiert planen lassen.',
+      },
+    ],
+    closingKicker: 'Was meine Arbeitsweise besonders macht',
+    closingBody:
+      'Ich arbeite KI-nativ. Das bedeutet: Ich nutze moderne KI-Systeme nicht nur für einzelne Codezeilen, sondern als festen Bestandteil meines gesamten Entwicklungsprozesses. Architektur, Umsetzung, Tests und Verbesserungen werden von mir gesteuert, überprüft und zu einer funktionierenden Gesamtlösung verbunden.',
+    closingHighlight:
+      'Das Ergebnis zählt: ein System, das verständlich aufgebaut ist, zuverlässig funktioniert und ein konkretes Problem löst.',
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',

@@ -8,6 +8,7 @@ import { useT } from './language-context'
 export function SiteNav() {
   const t = useT()
   const LINKS = [
+    { label: t.nav.services, href: '#services' },
     { label: t.nav.lukas, href: '#lukas' },
     { label: t.nav.work, href: '#work' },
     { label: t.nav.about, href: '#about' },

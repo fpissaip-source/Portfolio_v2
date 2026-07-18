@@ -53,9 +53,9 @@ export type Dictionary = {
   }
   hero: {
     kicker: string
-    line1: string
-    line2: string
-    line3: string
+    headingStart: string
+    headingHighlight: string
+    headingEnd: string
     body: string
   }
   services: {
@@ -280,9 +280,9 @@ export const EN: Dictionary = {
   },
   hero: {
     kicker: 'Issa Hareb · Curriculum Vitae',
-    line1: 'Building',
-    line2: 'Intelligent',
-    line3: 'Systems.',
+    headingStart: 'Full-stack engineer for',
+    headingHighlight: 'complete digital systems',
+    headingEnd: '— from idea to production.',
     body: 'I build with AI as a genuine engineering partner, designing, building and shipping every system end to end.',
   },
   services: {
@@ -602,9 +602,9 @@ export const DE: Dictionary = {
   },
   hero: {
     kicker: 'Issa Hareb · Lebenslauf',
-    line1: 'Baue',
-    line2: 'Intelligente',
-    line3: 'Systeme.',
+    headingStart: 'Full-Stack-Entwickler für',
+    headingHighlight: 'vollständige digitale Systeme',
+    headingEnd: '– von der Idee bis zum produktiven Einsatz.',
     body: 'Ich arbeite mit KI als echtem Engineering-Partner und entwerfe, baue und liefere jedes System komplett aus, von Anfang bis Ende.',
   },
   services: {

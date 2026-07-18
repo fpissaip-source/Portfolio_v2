@@ -13,7 +13,10 @@ gsap.registerPlugin(ScrollTrigger)
 const easeOut = [0.22, 1, 0.36, 1] as const
 
 /** The word is always in the DOM; each letter starts dim and is lit up
- *  letter by letter as the hero scrolls into place. */
+ *  letter by letter as the hero scrolls into place. Adjacent per-letter
+ *  inline-blocks have no text node between them, so (as with normal text)
+ *  the browser never inserts a line-break inside a word — only `LitPhrase`
+ *  below relies on this to keep multi-word headings wrapping normally. */
 function LitWord({ word }: { word: string }) {
   return (
     <span className="inline-block">
@@ -23,6 +26,24 @@ function LitWord({ word }: { word: string }) {
         </span>
       ))}
     </span>
+  )
+}
+
+/** Same letter-by-letter reveal as `LitWord`, extended to a full phrase: each
+ *  word gets its own `LitWord` (so it never breaks mid-word), joined by
+ *  plain space text nodes (so the phrase still wraps normally between
+ *  words). */
+function LitPhrase({ text }: { text: string }) {
+  const words = text.split(' ')
+  return (
+    <>
+      {words.map((w, i) => (
+        <span key={i}>
+          <LitWord word={w} />
+          {i < words.length - 1 ? ' ' : ''}
+        </span>
+      ))}
+    </>
   )
 }
 
@@ -58,7 +79,7 @@ export function Hero() {
     fit()
     window.addEventListener('resize', fit)
     return () => window.removeEventListener('resize', fit)
-  }, [t.hero.line1, t.hero.line2, t.hero.line3])
+  }, [t.hero.headingStart, t.hero.headingHighlight, t.hero.headingEnd])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -88,7 +109,7 @@ export function Hero() {
       })
     }, section)
     return () => ctx.revert()
-  }, [t.hero.line1, t.hero.line2, t.hero.line3])
+  }, [t.hero.headingStart, t.hero.headingHighlight, t.hero.headingEnd])
 
   return (
     <section
@@ -111,15 +132,13 @@ export function Hero() {
 
         <h1
           ref={h1Ref}
-          className="mt-6 text-balance font-sans text-6xl font-semibold leading-[0.95] tracking-tight sm:text-8xl md:text-[9rem]"
+          className="mt-6 text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
         >
-          <LitWord word={t.hero.line1} />
-          <br />
+          <LitPhrase text={t.hero.headingStart} />{' '}
           <span className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent">
-            <LitWord word={t.hero.line2} />
-          </span>
-          <br />
-          <LitWord word={t.hero.line3} />
+            <LitPhrase text={t.hero.headingHighlight} />
+          </span>{' '}
+          <LitPhrase text={t.hero.headingEnd} />
         </h1>
 
         <motion.p

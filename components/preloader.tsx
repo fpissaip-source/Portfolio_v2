@@ -30,7 +30,7 @@ import { useLanguage, useT } from './language-context'
 const PRELOAD = ['/intro/cinematic-poster.jpg']
 
 const MIN_SHOW_MS = 900
-const PERCENT_DURATION = 2.2
+const PERCENT_DURATION = 1
 
 export function Preloader() {
   const { lang } = useLanguage()
@@ -41,8 +41,10 @@ export function Preloader() {
   const marqueeRef = useRef<HTMLDivElement>(null)
   const captionRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
+  const textRowRef = useRef<HTMLDivElement>(null)
 
   const [percent, setPercent] = useState(0)
+  const [cursorOffset, setCursorOffset] = useState<number | null>(null)
   const [readyForWipe, setReadyForWipe] = useState(false)
   const [wipeStarted, setWipeStarted] = useState(false)
   const [exitStarted, setExitStarted] = useState(false)
@@ -101,6 +103,28 @@ export function Preloader() {
     update()
     window.addEventListener('resize', update)
     return () => window.removeEventListener('resize', update)
+  }, [])
+
+  // Rest the cursor just after "Loading XX%" instead of pinned to the
+  // oval's outer edge — measured live (not a fixed offset) so it stays
+  // correct across locales ("Loading"/"Lädt") and as the percent's own
+  // digit count changes (0 → 100). A ResizeObserver on the text row
+  // naturally recomputes only when its rendered width actually changes.
+  useLayoutEffect(() => {
+    const textRow = textRowRef.current
+    const oval = ovalRef.current
+    if (!textRow || !oval) return
+    const update = () => {
+      const ovalRect = oval.getBoundingClientRect()
+      const textRect = textRow.getBoundingClientRect()
+      const CURSOR_GAP = 10
+      setCursorOffset(Math.max(2, ovalRect.right - textRect.right + CURSOR_GAP))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(textRow)
+    ro.observe(oval)
+    return () => ro.disconnect()
   }, [])
 
   // Kick off image preloads and the visual percentage tween — held until a
@@ -282,7 +306,7 @@ export function Preloader() {
 
             {/* layer 2 — Loading XX %: solid-black bg clips away right → left */}
             <div className="loader-mask">
-              <div className="flex items-center gap-3 sm:gap-4">
+              <div ref={textRowRef} className="flex items-center gap-3 sm:gap-4">
                 <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
                   {t.preloader.loading}
                 </span>
@@ -295,7 +319,10 @@ export function Preloader() {
 
             {/* layer 3 — cursor track: translateX mirrors clip-path progress */}
             <div className="loader-cursor-track" aria-hidden>
-              <div className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`} />
+              <div
+                className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`}
+                style={cursorOffset !== null ? { right: cursorOffset } : undefined}
+              />
             </div>
           </div>
         </div>

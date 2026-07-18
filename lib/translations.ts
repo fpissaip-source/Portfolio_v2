@@ -25,6 +25,7 @@ export type Dictionary = {
     openMenu: string
     closeMenu: string
     skipToContent: string
+    skipIntro: string
   }
   scene: {
     services: string
@@ -68,6 +69,7 @@ export type Dictionary = {
   }
   lukas: {
     subtitle: string
+    repoLink: string
     beats: { kicker: string; title: string; body: string[] }[]
   }
   projects: {
@@ -127,6 +129,15 @@ export type Dictionary = {
   footer: {
     tagline: string
     copyright: string
+    imprint: string
+    privacy: string
+  }
+  legal: {
+    back: string
+    impressumTitle: string
+    datenschutzTitle: string
+    impressum: { heading: string; body: string[] }[]
+    datenschutz: { heading: string; body: string[] }[]
   }
 }
 
@@ -232,6 +243,7 @@ export const EN: Dictionary = {
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
     skipToContent: 'Skip to content',
+    skipIntro: 'Skip Intro',
   },
   scene: {
     services: 'What I Build',
@@ -304,6 +316,7 @@ export const EN: Dictionary = {
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
+    repoLink: 'View source on GitHub',
     beats: [
       {
         kicker: 'Vision & Core Identity',
@@ -442,10 +455,10 @@ export const EN: Dictionary = {
     matrix: [
       { layer: 'Core & Logic', items: 'TypeScript, JavaScript, Node.js, Express.js, Python, rule engines' },
       { layer: 'Frontend & Motion', items: 'React, Vite, Tailwind CSS, Three.js, Framer Motion, GSAP' },
-      { layer: 'Data & APIs', items: 'PostgreSQL, Drizzle ORM, Zod, REST APIs, OAuth2, Bungie API' },
+      { layer: 'Data & Storage', items: 'PostgreSQL, Drizzle ORM, Zod, OAuth2' },
       { layer: 'AI & Memory', items: 'Autonomous agents, knowledge graphs, Nexus Brain, weighted experience loops' },
       { layer: 'Infrastructure', items: 'Linux/Ubuntu VPS, Windows instances, Railway, Render, Replit, Cloudflare' },
-      { layer: 'Messaging & Delivery', items: 'Telegram bots, Resend e-mail, webhooks, automated processing pipelines' },
+      { layer: 'Messaging & Delivery', items: 'Telegram bots, WhatsApp, Resend e-mail, webhooks, automated processing pipelines' },
       { layer: 'Search & Growth', items: 'Technical SEO, AEO, JSON-LD, sitemaps, local search architecture' },
       { layer: 'Product Domains', items: 'Gaming, EdTech, operations, logistics, FinTech, brand production, utilities' },
     ],
@@ -475,6 +488,68 @@ export const EN: Dictionary = {
   footer: {
     tagline: 'Autonomous systems & full-stack architecture',
     copyright: 'Directed, written & built by Issa Hareb.',
+    imprint: 'Imprint',
+    privacy: 'Privacy Policy',
+  },
+  legal: {
+    back: 'Back to home',
+    impressumTitle: 'Imprint',
+    datenschutzTitle: 'Privacy Policy',
+    impressum: [
+      {
+        heading: 'Information according to § 5 TMG',
+        body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Germany'],
+      },
+      {
+        heading: 'Contact',
+        body: ['Email: Impressum@hareb.org', 'Phone: +49 1525 9559708'],
+      },
+      {
+        heading: 'Responsible for content according to § 55 (2) RStV',
+        body: ['Issa Hareb, address as above.'],
+      },
+      {
+        heading: 'Disclaimer',
+        body: [
+          'Despite careful review of content, I assume no liability for the content of external links. The operators of linked pages are solely responsible for their content.',
+        ],
+      },
+    ],
+    datenschutz: [
+      {
+        heading: 'Data Controller',
+        body: [
+          'The controller responsible for data processing on this website is:',
+          'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Germany',
+          'Email: Impressum@hareb.org · Phone: +49 1525 9559708',
+        ],
+      },
+      {
+        heading: 'Hosting & Server Log Files',
+        body: [
+          'When you visit this website, the hosting provider automatically collects technical information such as IP address, date and time of access, the page requested and the browser used (server log files). This data is processed solely to ensure reliable operation and to improve the service, and is never merged with other data sources.',
+        ],
+      },
+      {
+        heading: 'Vercel Analytics',
+        body: [
+          'This website uses Vercel Web Analytics for anonymised, cookie-less page-view statistics. No personal profiles are created and no tracking cookies are set.',
+        ],
+      },
+      {
+        heading: 'Local Storage of Your Language Preference',
+        body: [
+          "Your chosen language (German/English) is stored only locally in your browser (localStorage) so it's remembered on your next visit. This information never leaves your device and is never transmitted to me.",
+        ],
+      },
+      {
+        heading: 'Your Rights',
+        body: [
+          'You have the right at any time to access, rectify, erase or restrict the processing of your personal data, as well as a right to data portability and objection. Feel free to reach out by email to Impressum@hareb.org.',
+          'You also have the right to lodge a complaint with your competent data protection supervisory authority.',
+        ],
+      },
+    ],
   },
 }
 
@@ -490,6 +565,7 @@ export const DE: Dictionary = {
     openMenu: 'Menü öffnen',
     closeMenu: 'Menü schließen',
     skipToContent: 'Zum Inhalt springen',
+    skipIntro: 'Intro überspringen',
   },
   scene: {
     services: 'Was ich baue',
@@ -562,6 +638,7 @@ export const DE: Dictionary = {
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
+    repoLink: 'Quellcode auf GitHub ansehen',
     beats: [
       {
         kicker: 'Vision & Kernidentität',
@@ -700,10 +777,10 @@ export const DE: Dictionary = {
     matrix: [
       { layer: 'Kern & Logik', items: 'TypeScript, JavaScript, Node.js, Express.js, Python, Regel-Engines' },
       { layer: 'Frontend & Motion', items: 'React, Vite, Tailwind CSS, Three.js, Framer Motion, GSAP' },
-      { layer: 'Daten & APIs', items: 'PostgreSQL, Drizzle ORM, Zod, REST-APIs, OAuth2, Bungie API' },
+      { layer: 'Daten & Speicher', items: 'PostgreSQL, Drizzle ORM, Zod, OAuth2' },
       { layer: 'KI & Gedächtnis', items: 'Autonome Agenten, Wissensgraphen, Nexus Brain, gewichtete Erfahrungsschleifen' },
       { layer: 'Infrastruktur', items: 'Linux/Ubuntu VPS, Windows-Instanzen, Railway, Render, Replit, Cloudflare' },
-      { layer: 'Messaging & Zustellung', items: 'Telegram-Bots, Resend-E-Mail, Webhooks, automatisierte Verarbeitungspipelines' },
+      { layer: 'Messaging & Zustellung', items: 'Telegram-Bots, WhatsApp, Resend-E-Mail, Webhooks, automatisierte Verarbeitungspipelines' },
       { layer: 'Suche & Wachstum', items: 'Technisches SEO, AEO, JSON-LD, Sitemaps, lokale Sucharchitektur' },
       { layer: 'Produktbereiche', items: 'Gaming, EdTech, Operations, Logistik, FinTech, Markenproduktion, Utilities' },
     ],
@@ -733,5 +810,67 @@ export const DE: Dictionary = {
   footer: {
     tagline: 'Autonome Systeme & Full-Stack-Architektur',
     copyright: 'Konzipiert, geschrieben & gebaut von Issa Hareb.',
+    imprint: 'Impressum',
+    privacy: 'Datenschutz',
+  },
+  legal: {
+    back: 'Zurück zur Startseite',
+    impressumTitle: 'Impressum',
+    datenschutzTitle: 'Datenschutzerklärung',
+    impressum: [
+      {
+        heading: 'Angaben gemäß § 5 TMG',
+        body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Deutschland'],
+      },
+      {
+        heading: 'Kontakt',
+        body: ['E-Mail: Impressum@hareb.org', 'Telefon: 01525 9559708'],
+      },
+      {
+        heading: 'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV',
+        body: ['Issa Hareb, Anschrift wie oben.'],
+      },
+      {
+        heading: 'Haftungsausschluss',
+        body: [
+          'Trotz sorgfältiger inhaltlicher Kontrolle übernehme ich keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.',
+        ],
+      },
+    ],
+    datenschutz: [
+      {
+        heading: 'Verantwortlicher',
+        body: [
+          'Verantwortlich für die Datenverarbeitung auf dieser Website ist:',
+          'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Deutschland',
+          'E-Mail: Impressum@hareb.org · Telefon: 01525 9559708',
+        ],
+      },
+      {
+        heading: 'Hosting und Server-Logfiles',
+        body: [
+          'Beim Aufruf dieser Website erfasst der Hosting-Provider automatisch technische Informationen wie IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite und verwendeten Browser (Server-Logfiles). Diese Daten werden ausschließlich zur Gewährleistung eines störungsfreien Betriebs sowie zur Verbesserung des Angebots verarbeitet und nicht mit anderen Datenquellen zusammengeführt.',
+        ],
+      },
+      {
+        heading: 'Vercel Analytics',
+        body: [
+          'Diese Website nutzt Vercel Web Analytics zur anonymisierten, cookie-losen Auswertung von Seitenaufrufen. Es werden keine personenbezogenen Profile erstellt und keine Tracking-Cookies gesetzt.',
+        ],
+      },
+      {
+        heading: 'Lokale Speicherung Ihrer Spracheinstellung',
+        body: [
+          'Ihre gewählte Sprache (Deutsch/Englisch) wird ausschließlich lokal in Ihrem Browser (localStorage) gespeichert, um sie bei einem erneuten Besuch beizubehalten. Diese Information verlässt Ihr Gerät nicht und wird nicht an mich übertragen.',
+        ],
+      },
+      {
+        heading: 'Ihre Rechte',
+        body: [
+          'Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung Ihrer personenbezogenen Daten sowie ein Recht auf Datenübertragbarkeit und Widerspruch. Wenden Sie sich hierzu gerne per E-Mail an Impressum@hareb.org.',
+          'Außerdem steht Ihnen ein Beschwerderecht bei der zuständigen Datenschutzaufsichtsbehörde zu.',
+        ],
+      },
+    ],
   },
 }

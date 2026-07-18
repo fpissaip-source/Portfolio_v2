@@ -1,13 +1,21 @@
 'use client'
 
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react'
+import dynamic from 'next/dynamic'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
-import { LukasBrain } from './lukas-brain'
 import { useT } from './language-context'
 
 gsap.registerPlugin(ScrollTrigger)
+
+// Dynamically imported (like project-orbs.tsx / tech-orbs.tsx) so its
+// Three.js-heavy JS is only fetched once the section is near-viewport
+// (gated below via `brainNear`), not bundled into the eagerly-loaded
+// chunk just because it's a static import.
+const LukasBrain = dynamic(() => import('./lukas-brain').then((mod) => mod.LukasBrain), {
+  ssr: false,
+})
 
 /**
  * Flagship scroll story for L.U.K.A.S. — pinned full-screen chapter that
@@ -69,6 +77,11 @@ export function Lukas() {
   /** Raw section progress, written by ScrollTrigger, read by the 3D scene
    *  every frame — the one channel that keeps flight and copy in sync. */
   const progressRef = useRef({ p: 0 })
+  /** The site-wide touchMultiplier as it was before this section dampened
+   *  it — read once when the dampening engages, restored both on normal
+   *  leave AND on unmount, so the two paths can never disagree with each
+   *  other (or with whatever smooth-scroll.tsx actually has it set to). */
+  const defaultTouchMultiplierRef = useRef(1.1)
   /** '3d' on any WebGL-capable device (the intended experience); 'video'
    *  keeps the old pre-rendered film as a rare-device fallback. */
   const [mode, setMode] = useState<'3d' | 'video' | null>(null)
@@ -222,7 +235,7 @@ export function Lukas() {
       updateBeam(0)
 
       // A fast mobile flick easily out-runs the snap: touch scroll is
-      // boosted site-wide (touchMultiplier 1.4 in smooth-scroll.tsx), so a
+      // boosted site-wide (touchMultiplier 1.1 in smooth-scroll.tsx), so a
       // single flick can cover more scroll distance than one beat's slot
       // before momentum decays enough for the snap to catch it, skipping a
       // beat entirely. Lenis reads touchMultiplier live on every touch
@@ -234,7 +247,7 @@ export function Lukas() {
         const lenisWin = window as unknown as {
           __lenis?: { options: { touchMultiplier: number } }
         }
-        const defaultTouchMultiplier = lenisWin.__lenis?.options.touchMultiplier ?? 1.4
+        defaultTouchMultiplierRef.current = lenisWin.__lenis?.options.touchMultiplier ?? 1.1
         const setTouchMultiplier = (v: number) => {
           if (lenisWin.__lenis) lenisWin.__lenis.options.touchMultiplier = v
         }
@@ -244,8 +257,8 @@ export function Lukas() {
           end: 'bottom bottom',
           onEnter: () => setTouchMultiplier(0.5),
           onEnterBack: () => setTouchMultiplier(0.5),
-          onLeave: () => setTouchMultiplier(defaultTouchMultiplier),
-          onLeaveBack: () => setTouchMultiplier(defaultTouchMultiplier),
+          onLeave: () => setTouchMultiplier(defaultTouchMultiplierRef.current),
+          onLeaveBack: () => setTouchMultiplier(defaultTouchMultiplierRef.current),
         })
       }
 
@@ -397,7 +410,7 @@ export function Lukas() {
       const lenisWin = window as unknown as {
         __lenis?: { options: { touchMultiplier: number } }
       }
-      if (lenisWin.__lenis) lenisWin.__lenis.options.touchMultiplier = 1.4
+      if (lenisWin.__lenis) lenisWin.__lenis.options.touchMultiplier = defaultTouchMultiplierRef.current
     }
   }, [mode])
 
@@ -463,6 +476,18 @@ export function Lukas() {
             ))}
           </div>
         </div>
+
+        {/* Repo link — small, persistent chrome (not part of the beat
+            timeline), tucked in the corner so it never competes with the
+            choreography. */}
+        <a
+          href="https://github.com/fpissaip-source/Lukas_autonom"
+          target="_blank"
+          rel="noreferrer"
+          className="absolute bottom-6 right-5 z-20 hidden items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-colors hover:border-purple/50 hover:text-foreground sm:right-9 sm:flex"
+        >
+          {t.lukas.repoLink} ↗
+        </a>
 
         {/* Title */}
         <div data-lukas-head className="relative z-10 text-center will-transform">

@@ -6,6 +6,7 @@ import { EdgeGlow } from '@/components/edge-glow'
 import { SiteNav } from '@/components/site-nav'
 import { LanguageToggle } from '@/components/language-toggle'
 import { SkipLink } from '@/components/skip-link'
+import { SkipIntroButton } from '@/components/skip-intro-button'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
 import { Services } from '@/components/services'
@@ -28,10 +29,13 @@ export default function Page() {
       <FilmGrain />
       <SiteNav />
       <LanguageToggle />
+      <SkipIntroButton />
       <main id="main-content" tabIndex={-1} className="relative">
         <CinematicIntro />
-        {/* The website — revealed as the monitor becomes the screen */}
-        <div className="relative z-10 bg-background">
+        {/* The website — revealed as the monitor becomes the screen. Also
+            the skip-link/skip-intro-button's landing target: tabIndex so
+            keyboard focus actually moves here, not just the scroll. */}
+        <div id="after-intro" tabIndex={-1} className="relative z-10 bg-background outline-none">
           <EdgeGlow />
           <IonTrail />
           <Hero />

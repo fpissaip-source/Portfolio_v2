@@ -1,6 +1,7 @@
 'use client'
 
-import { createContext, useContext, useLayoutEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { EN, DE, type Dictionary } from '@/lib/translations'
 
 export type Lang = 'en' | 'de'
@@ -39,6 +40,27 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     if (lang) document.documentElement.lang = lang
+  }, [lang])
+
+  // Switching language re-renders every section at once with (usually
+  // differently-sized) translated text, which shifts every scroll-trigger
+  // position below the change. Refresh once the new layout has settled so
+  // pinned/scrubbed sections don't stay keyed to the old (English or
+  // German) content's dimensions. Also a defensive unstick: nothing in
+  // this app should leave Lenis stopped across a language switch, but if
+  // it ever did, `.lenis-stopped` sets `overflow: hidden` on <html> and
+  // scrolling would appear to hang completely — cheap enough to guarantee.
+  const firstLangRef = useRef(true)
+  useEffect(() => {
+    if (!lang) return
+    if (firstLangRef.current) {
+      firstLangRef.current = false
+      return
+    }
+    const lenisWin = window as unknown as { __lenis?: { start: () => void } }
+    lenisWin.__lenis?.start()
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh())
+    return () => cancelAnimationFrame(raf)
   }, [lang])
 
   const setLang = (next: Lang) => {

@@ -405,7 +405,7 @@ html.preloading {
   position: absolute;
   top: 50%;
   right: 2px;
-  width: 3px;
+  width: 4px;
   height: 0.85em;
   background: white;
   transform: translateY(-50%);
@@ -413,7 +413,7 @@ html.preloading {
 
 @media (min-width: 640px) {
   .loader-cursor {
-    width: 4px;
+    width: 5px;
   }
 }
 

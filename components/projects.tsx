@@ -88,6 +88,7 @@ const PROJECT_META: ProjectMeta[] = [
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     liveUrl: 'https://taxibbessen.de',
+    githubUrl: 'https://github.com/fpissaip-source/Taxibbessen',
   },
   {
     name: 'StudyForge',
@@ -111,6 +112,7 @@ const PROJECT_META: ProjectMeta[] = [
     orbImage: '/projects/bewerbungsbot.png',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
     hobby: true,
+    githubUrl: 'https://github.com/fpissaip-source/Bewerbungsbot',
   },
 ]
 

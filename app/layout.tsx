@@ -23,16 +23,50 @@ const spaceGrotesk = Space_Grotesk({
   variable: '--font-space-grotesk',
 })
 
+const SITE_URL = 'https://issahareb.me'
+const SITE_TITLE = 'Issa Hareb | Building Intelligent Systems'
+const SITE_DESCRIPTION =
+  'Issa Hareb, full-stack product engineer in Essen, Germany, building autonomous agents, data-intensive platforms and high-end interfaces, end to end.'
+
 export const metadata: Metadata = {
-  title: 'Issa Hareb | Building Intelligent Systems',
-  description:
-    'Issa Hareb, full-stack product engineer in Essen, Germany, building autonomous agents, data-intensive platforms and high-end interfaces, end to end.',
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'Issa Hareb | Building Intelligent Systems',
+    title: SITE_TITLE,
     description:
       'Full-stack product engineer building autonomous agents, data-intensive platforms and high-end interfaces.',
+    url: SITE_URL,
+    siteName: 'Issa Hareb',
     type: 'website',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: SITE_TITLE,
+    description:
+      'Full-stack product engineer building autonomous agents, data-intensive platforms and high-end interfaces.',
+  },
+}
+
+/** Person structured data — helps search engines associate this site with
+ *  Issa Hareb as an entity (knowledge panel eligibility) rather than
+ *  reading it as anonymous marketing copy. */
+const personJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Issa Hareb',
+  url: SITE_URL,
+  jobTitle: 'Full-Stack Product Engineer',
+  description: SITE_DESCRIPTION,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Essen',
+    addressCountry: 'DE',
+  },
+  sameAs: ['https://github.com/fpissaip-source'],
 }
 
 export const viewport: Viewport = {
@@ -52,6 +86,13 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} bg-background`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
+        />
+      </head>
       <body className="antialiased">
         <LanguageProvider>{children}</LanguageProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

@@ -7,15 +7,14 @@ import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useLanguage, useT } from './language-context'
 
 /**
- * Opening curtain. Before anything else, a language picker (DE/EN) — the
- * choice is remembered (localStorage) so returning visitors skip straight
- * to the loading sequence. Once a language is known: a mouse-chasing
- * shimmer ring, a drifting tagline field behind it, and a fast percentage
- * count — which, at 100 %, triggers a CSS clip-path wipe (right → left)
- * that swaps "Loading 100 %" for "Willkommen"/"Welcome". A background
- * expansion layer then scale()-animates to swallow the screen (GPU-only,
- * zero layout reflow), before the overlay fades and reveals the hero
- * underneath.
+ * Opening curtain. Language is resolved automatically (browser language,
+ * remembered after that — see language-context.tsx) rather than asked, so
+ * the loading sequence starts immediately: a mouse-chasing shimmer ring, a
+ * drifting tagline field behind it, and a fast percentage count — which,
+ * at 100 %, triggers a CSS clip-path wipe (right → left) that swaps
+ * "Loading 100 %" for "Willkommen"/"Welcome". A background expansion layer
+ * then scale()-animates to swallow the screen (GPU-only, zero layout
+ * reflow), before the overlay fades and reveals the hero underneath.
  *
  * Two animation phases — both layout-stable:
  *   Phase 1 (wipe):      clip-path on loader-mask + matching translateX on
@@ -34,7 +33,7 @@ const MIN_SHOW_MS = 900
 const PERCENT_DURATION = 2.2
 
 export function Preloader() {
-  const { lang, setLang } = useLanguage()
+  const { lang } = useLanguage()
   const t = useT()
   const rootRef = useRef<HTMLDivElement>(null)
   const ovalRef = useRef<HTMLDivElement>(null)
@@ -145,7 +144,7 @@ export function Preloader() {
     }
     settle = window.setTimeout(tryStart, 200)
 
-    // Two ambient sparks during the count — L.U.K.A.S. waking up, not a storm.
+    // One ambient spark during the count — L.U.K.A.S. waking up, not a storm.
     const wake1 = window.setTimeout(() => {
       lightningRef.current?.strike({
         intensity: 0.7,
@@ -154,23 +153,13 @@ export function Preloader() {
         targetX: 0.15 + Math.random() * 0.2,
         targetY: 0.2 + Math.random() * 0.1,
       })
-    }, 600)
-    const wake2 = window.setTimeout(() => {
-      lightningRef.current?.strike({
-        intensity: 0.8,
-        originX: 0.65 + Math.random() * 0.2,
-        originY: 0.05 + Math.random() * 0.08,
-        targetX: 0.65 + Math.random() * 0.2,
-        targetY: 0.2 + Math.random() * 0.1,
-      })
-    }, 1500)
+    }, 900)
 
     return () => {
       cancelled = true
       tween.kill()
       if (settle) window.clearTimeout(settle)
       window.clearTimeout(wake1)
-      window.clearTimeout(wake2)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang])
@@ -268,76 +257,54 @@ export function Preloader() {
             }}
           />
 
-          {!lang ? (
-            /* Language gate — shown before any loading progress starts.
-               Picking a language commits it to localStorage and only then
-               does the percent/wipe sequence below begin. */
-            <div className="relative z-[2] flex items-center gap-3 sm:gap-4">
-              <button
-                type="button"
-                onClick={() => setLang('de')}
-                className="rounded-full border border-white/15 px-4 py-2 font-sans text-sm font-semibold text-foreground transition-colors hover:border-white/30 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-6 sm:py-2.5 sm:text-lg"
-              >
-                Deutsch
-              </button>
-              <button
-                type="button"
-                onClick={() => setLang('en')}
-                className="rounded-full border border-white/15 px-4 py-2 font-sans text-sm font-semibold text-foreground transition-colors hover:border-white/30 hover:bg-white/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:px-6 sm:py-2.5 sm:text-lg"
-              >
-                English
-              </button>
-            </div>
-          ) : (
-            /*
-             * ── Wipe stage ────────────────────────────────────────────────
-             *
-             * loader-welcome (z-1)        "Willkommen" — always centered,
-             *                             never moved, revealed by the wipe.
-             * loader-mask    (z-2)        "Loading XX %" on a solid black bg —
-             *                             clip-path: inset(0 0%→100% 0 0)
-             *                             wipes it away right → left.
-             * loader-cursor-track (z-3)  translateX(0→-100%) runs on the
-             *                             same easing/duration as clip-path,
-             *                             keeping the cursor pixel-perfect at
-             *                             the wipe edge with zero JS per frame.
-             *
-             * ────────────────────────────────────────────────────────────── */
-            <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
+          {/*
+           * ── Wipe stage ────────────────────────────────────────────────
+           *
+           * loader-welcome (z-1)        "Willkommen" — always centered,
+           *                             never moved, revealed by the wipe.
+           * loader-mask    (z-2)        "Loading XX %" on a solid black bg —
+           *                             clip-path: inset(0 0%→100% 0 0)
+           *                             wipes it away right → left.
+           * loader-cursor-track (z-3)  translateX(0→-100%) runs on the
+           *                             same easing/duration as clip-path,
+           *                             keeping the cursor pixel-perfect at
+           *                             the wipe edge with zero JS per frame.
+           *
+           * ────────────────────────────────────────────────────────────── */}
+          <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
 
-              {/* layer 1 — Willkommen: never moves, revealed as mask wipes */}
-              <div className="loader-welcome">
+            {/* layer 1 — Willkommen: never moves, revealed as mask wipes */}
+            <div className="loader-welcome">
+              <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
+                {t.preloader.welcome}
+              </span>
+            </div>
+
+            {/* layer 2 — Loading XX %: solid-black bg clips away right → left */}
+            <div className="loader-mask">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                  {t.preloader.welcome}
+                  {t.preloader.loading}
+                </span>
+                <span className="font-sans text-xl font-bold tabular-nums leading-none text-foreground sm:text-4xl">
+                  {percent}
+                  <span className="ml-1 text-purple">%</span>
                 </span>
               </div>
-
-              {/* layer 2 — Loading XX %: solid-black bg clips away right → left */}
-              <div className="loader-mask">
-                <div className="flex items-center gap-3 sm:gap-4">
-                  <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                    {t.preloader.loading}
-                  </span>
-                  <span className="font-sans text-xl font-bold tabular-nums leading-none text-foreground sm:text-4xl">
-                    {percent}
-                    <span className="ml-1 text-purple">%</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* layer 3 — cursor track: translateX mirrors clip-path progress */}
-              <div className="loader-cursor-track" aria-hidden>
-                <div className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`} />
-              </div>
             </div>
-          )}
+
+            {/* layer 3 — cursor track: translateX mirrors clip-path progress */}
+            <div className="loader-cursor-track" aria-hidden>
+              <div className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`} />
+            </div>
+          </div>
         </div>
 
         <span
           ref={captionRef}
           className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs"
         >
-          {lang ? t.preloader.caption : t.preloader.chooseLanguage}
+          {t.preloader.caption}
         </span>
         {lang && (
           <span className="max-w-[80vw] text-center font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 sm:hidden">

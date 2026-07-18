@@ -526,7 +526,7 @@ export function CinematicIntro() {
     let timer: number | undefined
 
     const scheduleNext = () => {
-      const delay = 1100 + Math.random() * 1400
+      const delay = 1900 + Math.random() * 2200
       timer = window.setTimeout(() => {
         if (inView) {
           const onLeft = Math.random() > 0.5

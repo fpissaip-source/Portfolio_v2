@@ -8,12 +8,11 @@ export type Lang = 'en' | 'de'
 const STORAGE_KEY = 'site-lang'
 
 type LanguageContextValue = {
-  /** null means "no stored preference — show the picker." The very first
-   *  client render always starts null (matching the server-rendered HTML,
-   *  which has no access to localStorage), but a returning visitor's
-   *  stored choice is read in useLayoutEffect — synchronously before the
-   *  browser paints the first frame — so their pick never visibly flashes
-   *  the picker first. */
+  /** null only for the instant before the layout effect below resolves it
+   *  (matching the server-rendered HTML, which can't know the browser's
+   *  language). Resolved synchronously before the browser paints the
+   *  first frame, so nothing ever visibly starts in one language and
+   *  flashes to another. */
   lang: Lang | null
   setLang: (lang: Lang) => void
 }
@@ -25,7 +24,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === 'en' || stored === 'de') setLangState(stored)
+    if (stored === 'en' || stored === 'de') {
+      setLangState(stored)
+      return
+    }
+    // No stored preference yet (first visit, or the toggle was never
+    // used) — auto-detect from the browser's own language instead of
+    // asking. German browsers get German; everything else gets English.
+    // The top-right toggle can still switch either way at any time.
+    const detected: Lang = navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
+    window.localStorage.setItem(STORAGE_KEY, detected)
+    setLangState(detected)
   }, [])
 
   useLayoutEffect(() => {

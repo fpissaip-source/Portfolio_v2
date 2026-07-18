@@ -4,6 +4,7 @@ import { IonTrail } from '@/components/ion-trail'
 import { MouseGlow } from '@/components/mouse-glow'
 import { EdgeGlow } from '@/components/edge-glow'
 import { SiteNav } from '@/components/site-nav'
+import { LanguageToggle } from '@/components/language-toggle'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
 import { Lukas } from '@/components/lukas'
@@ -23,6 +24,7 @@ export default function Page() {
       <MouseGlow />
       <FilmGrain />
       <SiteNav />
+      <LanguageToggle />
       <main className="relative">
         <CinematicIntro />
         {/* The website — revealed as the monitor becomes the screen */}

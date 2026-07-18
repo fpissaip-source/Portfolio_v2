@@ -33,7 +33,6 @@ export type Dictionary = {
   }
   preloader: {
     taglines: string[]
-    chooseLanguage: string
     welcome: string
     loading: string
     caption: string
@@ -237,7 +236,6 @@ export const EN: Dictionary = {
       'I ship on iPhone',
       'I build products end to end',
     ],
-    chooseLanguage: 'Choose your language',
     welcome: 'Welcome',
     loading: 'Loading',
     caption: 'Issa Hareb · Portfolio',
@@ -470,7 +468,6 @@ export const DE: Dictionary = {
       'Ich entwickle auf dem iPhone',
       'Ich baue Produkte end-to-end',
     ],
-    chooseLanguage: 'Wähle deine Sprache',
     welcome: 'Willkommen',
     loading: 'Lädt',
     caption: 'Issa Hareb · Portfolio',

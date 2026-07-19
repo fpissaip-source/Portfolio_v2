@@ -6,39 +6,16 @@ import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useLanguage, useT } from './language-context'
 
-/**
- * Opening curtain. Language is resolved automatically (browser language,
- * remembered after that — see language-context.tsx) rather than asked, so
- * the loading sequence starts immediately: a mouse-chasing shimmer ring, a
- * drifting tagline field behind it, and a fast percentage count — which,
- * at 100 %, triggers a CSS clip-path wipe (right → left) that swaps
- * "Loading 100 %" for "Willkommen"/"Welcome". A background expansion layer
- * then scale()-animates to swallow the screen (GPU-only, zero layout
- * reflow), before the overlay fades and reveals the hero underneath.
- *
- * Two animation phases — both layout-stable:
- *   Phase 1 (wipe):      clip-path on loader-mask + matching translateX on
- *                        loader-cursor-track, same easing, started together
- *                        → cursor stays pixel-perfect at the wipe edge.
- *   Phase 2 (expansion): transform: scale() on a separate loader-expansion
- *                        layer — the UI text is never scaled.
- */
-
-/** The cinematic intro's own <video preload="auto"> starts fetching the
- *  film the moment the page mounts beneath this overlay — only the poster
- *  needs to be guaranteed here so the intro canvas never flashes empty. */
 const PRELOAD = ['/intro/cinematic-poster.jpg']
-
 const MIN_SHOW_MS = 900
 const PERCENT_DURATION = 1
 
 export function Preloader() {
-  const { lang } = useLanguage()
+  const { lang, setLang } = useLanguage()
   const t = useT()
   const rootRef = useRef<HTMLDivElement>(null)
   const ovalRef = useRef<HTMLDivElement>(null)
   const expansionRef = useRef<HTMLDivElement>(null)
-  const marqueeRef = useRef<HTMLDivElement>(null)
   const captionRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const textRowRef = useRef<HTMLDivElement>(null)
@@ -58,6 +35,14 @@ export function Preloader() {
     (a) =>
       `conic-gradient(from ${a}deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.95) 16deg, color-mix(in oklch, var(--purple) 70%, white) 34deg, transparent 58deg, transparent 360deg)`,
   )
+
+  // Lock the document immediately, including while the first-visit language
+  // gate is visible. The existing loading effect also adds this class, so
+  // returning visitors keep the same behaviour as before.
+  useEffect(() => {
+    document.documentElement.classList.add('preloading')
+    return () => document.documentElement.classList.remove('preloading')
+  }, [])
 
   // Shimmer chases the pointer; idles into a slow auto-rotation without one.
   useEffect(() => {
@@ -105,12 +90,11 @@ export function Preloader() {
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  // Rest the cursor just after "Loading XX%" instead of pinned to the
-  // oval's outer edge — measured live (not a fixed offset) so it stays
-  // correct across locales ("Loading"/"Lädt") and as the percent's own
-  // digit count changes (0 → 100). A ResizeObserver on the text row
-  // naturally recomputes only when its rendered width actually changes.
+  // Rest the cursor just after the localized loading text. This runs again
+  // after a first-time visitor chooses a language, because the loading row
+  // does not exist while the picker is on screen.
   useLayoutEffect(() => {
+    if (!lang) return
     const textRow = textRowRef.current
     const oval = ovalRef.current
     if (!textRow || !oval) return
@@ -125,12 +109,9 @@ export function Preloader() {
     ro.observe(textRow)
     ro.observe(oval)
     return () => ro.disconnect()
-  }, [])
+  }, [lang])
 
-  // Kick off image preloads and the visual percentage tween — held until a
-  // language is known (either just picked, or already resolved from a
-  // returning visitor's stored preference), so the language gate always
-  // shows before any loading progress starts.
+  // Loading only begins after an explicit or remembered language exists.
   useEffect(() => {
     if (!lang) return
     document.documentElement.classList.add('preloading')
@@ -161,14 +142,13 @@ export function Preloader() {
       if (cancelled) return
       const elapsed = performance.now() - started
       if (loadedCount >= PRELOAD.length && visualProxy.p >= 100 && elapsed >= MIN_SHOW_MS) {
-        if (!cancelled) setReadyForWipe(true)
+        setReadyForWipe(true)
         return
       }
       settle = window.setTimeout(tryStart, 80)
     }
     settle = window.setTimeout(tryStart, 200)
 
-    // One ambient spark during the count — L.U.K.A.S. waking up, not a storm.
     const wake1 = window.setTimeout(() => {
       lightningRef.current?.strike({
         intensity: 0.7,
@@ -185,17 +165,14 @@ export function Preloader() {
       if (settle) window.clearTimeout(settle)
       window.clearTimeout(wake1)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lang])
 
-  // 600 ms hold at Loading 100 % → begin wipe.
   useEffect(() => {
     if (!readyForWipe) return
     const timer = window.setTimeout(() => setWipeStarted(true), 600)
     return () => window.clearTimeout(timer)
   }, [readyForWipe])
 
-  // Wipe starts → big lightning spark + schedule fullscreen expansion.
   useEffect(() => {
     if (!wipeStarted) return
     lightningRef.current?.strike({
@@ -206,15 +183,12 @@ export function Preloader() {
       targetX: 0.35 + Math.random() * 0.3,
       targetY: 0.22 + Math.random() * 0.1,
     })
-    // 1 000 ms wipe + 200 ms pause on Willkommen = 1 200 ms
     const timer = window.setTimeout(() => setExitStarted(true), 1200)
     return () => window.clearTimeout(timer)
   }, [wipeStarted])
 
-  // Expansion started → fade root + unmount when transitions complete.
   useEffect(() => {
     if (!exitStarted) return
-    // 800 ms expansion; root fades at 0.65 s delay + 0.25 s = 0.9 s.
     const timer = window.setTimeout(() => {
       document.documentElement.classList.remove('preloading')
       setGone(true)
@@ -238,9 +212,7 @@ export function Preloader() {
         }}
       />
 
-      {/* drifting taglines behind the oval */}
       <div
-        ref={marqueeRef}
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-center overflow-hidden opacity-[0.14]"
       >
@@ -254,18 +226,18 @@ export function Preloader() {
         </div>
       </div>
 
-      {/* signal sparks — L.U.K.A.S. waking up */}
       <LightningFlash
         ref={lightningRef}
         className="pointer-events-none absolute inset-0 z-[5]"
         blend="multiply"
       />
 
-      {/* foreground oval — shimmer chases the pointer around its edge */}
       <div className="relative z-10 flex flex-col items-center gap-6">
         <div
           ref={ovalRef}
-          className="relative flex h-[104px] w-[90vw] max-w-[620px] items-center justify-center rounded-full bg-black sm:h-[140px]"
+          className={`relative flex w-[90vw] max-w-[620px] items-center justify-center rounded-full bg-black ${
+            lang ? 'h-[104px] sm:h-[140px]' : 'min-h-[230px] px-8 py-10 sm:min-h-[280px] sm:px-14'
+          }`}
         >
           <div className="absolute inset-0 rounded-full border border-white/10 bg-black [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06),0_30px_60px_-20px_rgba(0,0,0,0.9)]" />
           <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
@@ -281,50 +253,62 @@ export function Preloader() {
             }}
           />
 
-          {/*
-           * ── Wipe stage ────────────────────────────────────────────────
-           *
-           * loader-welcome (z-1)        "Willkommen" — always centered,
-           *                             never moved, revealed by the wipe.
-           * loader-mask    (z-2)        "Loading XX %" on a solid black bg —
-           *                             clip-path: inset(0 0%→100% 0 0)
-           *                             wipes it away right → left.
-           * loader-cursor-track (z-3)  translateX(0→-100%) runs on the
-           *                             same easing/duration as clip-path,
-           *                             keeping the cursor pixel-perfect at
-           *                             the wipe edge with zero JS per frame.
-           *
-           * ────────────────────────────────────────────────────────────── */}
-          <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
-
-            {/* layer 1 — Willkommen: never moves, revealed as mask wipes */}
-            <div className="loader-welcome">
-              <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                {t.preloader.welcome}
+          {!lang ? (
+            <div className="relative z-10 flex w-full flex-col items-center text-center">
+              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-purple sm:text-xs">
+                Sprache · Language
               </span>
-            </div>
-
-            {/* layer 2 — Loading XX %: solid-black bg clips away right → left */}
-            <div className="loader-mask">
-              <div ref={textRowRef} className="flex items-center gap-3 sm:gap-4">
-                <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                  {t.preloader.loading}
-                </span>
-                <span className="font-sans text-xl font-bold tabular-nums leading-none text-foreground sm:text-4xl">
-                  {percent}
-                  <span className="ml-1 text-purple">%</span>
-                </span>
+              <h1 className="mt-4 text-balance font-sans text-2xl font-bold tracking-tight text-white sm:text-4xl">
+                Wählen Sie Ihre Sprache
+              </h1>
+              <p className="mt-1 font-sans text-sm text-white/50 sm:text-base">
+                Choose your language
+              </p>
+              <div className="mt-7 grid w-full max-w-md grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setLang('de')}
+                  className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-3 font-sans text-sm font-semibold text-white transition duration-300 hover:border-purple/70 hover:bg-purple/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple sm:py-4 sm:text-base"
+                >
+                  Deutsch
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLang('en')}
+                  className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-3 font-sans text-sm font-semibold text-white transition duration-300 hover:border-blue/70 hover:bg-blue/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue sm:py-4 sm:text-base"
+                >
+                  English
+                </button>
               </div>
             </div>
+          ) : (
+            <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
+              <div className="loader-welcome">
+                <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
+                  {t.preloader.welcome}
+                </span>
+              </div>
 
-            {/* layer 3 — cursor track: translateX mirrors clip-path progress */}
-            <div className="loader-cursor-track" aria-hidden>
-              <div
-                className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`}
-                style={cursorOffset !== null ? { right: cursorOffset } : undefined}
-              />
+              <div className="loader-mask">
+                <div ref={textRowRef} className="flex items-center gap-3 sm:gap-4">
+                  <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
+                    {t.preloader.loading}
+                  </span>
+                  <span className="font-sans text-xl font-bold tabular-nums leading-none text-foreground sm:text-4xl">
+                    {percent}
+                    <span className="ml-1 text-purple">%</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="loader-cursor-track" aria-hidden>
+                <div
+                  className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`}
+                  style={cursorOffset !== null ? { right: cursorOffset } : undefined}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <span
@@ -340,13 +324,6 @@ export function Preloader() {
         )}
       </div>
 
-      {/*
-       * Expansion layer — a dark circle positioned at the oval's center that
-       * scale()-animates to cover every viewport corner on exit.
-       * Only `transform` is animated → GPU-composited, zero layout reflow.
-       * The UI text (oval + caption) is a sibling, never a child — it is
-       * NOT scaled.
-       */}
       <div
         ref={expansionRef}
         aria-hidden

@@ -37,28 +37,34 @@ export function Scene({
         transition={{ duration: 1.1, ease: easeOut }}
       />
 
-      {/* slate */}
-      <div className="pointer-events-none relative z-10 mx-auto flex max-w-7xl items-center gap-4 px-6 pt-20">
+      {/* Elegant chapter marker: normal sans typography instead of terminal UI. */}
+      <div className="pointer-events-none relative z-10 mx-auto flex max-w-7xl items-center gap-4 px-6 pt-20 sm:gap-6">
         <motion.span
           aria-hidden
-          className="h-px flex-1 origin-left bg-gradient-to-r from-transparent via-purple/50 to-purple/10"
+          className="h-px flex-1 origin-left bg-gradient-to-r from-transparent via-purple/45 to-blue/20"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true, margin: '-10% 0px' }}
           transition={{ duration: 1.2, ease: easeOut }}
         />
-        <motion.span
-          className="max-w-[78vw] text-center font-mono text-[11px] uppercase tracking-[0.3em] text-purple/80 sm:max-w-none sm:whitespace-nowrap sm:tracking-[0.4em]"
-          initial={{ opacity: 0, filter: 'blur(6px)' }}
-          whileInView={{ opacity: 1, filter: 'blur(0px)' }}
+        <motion.div
+          className="flex max-w-[78vw] items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.025] px-4 py-2.5 text-center backdrop-blur-sm sm:max-w-none"
+          initial={{ opacity: 0, y: 8, filter: 'blur(6px)' }}
+          whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
           viewport={{ once: true, margin: '-10% 0px' }}
           transition={{ duration: 1, ease: easeOut }}
         >
-          {label}
-        </motion.span>
+          <span
+            aria-hidden
+            className="h-1.5 w-1.5 shrink-0 rounded-full bg-purple shadow-[0_0_14px_2px_color-mix(in_oklch,var(--purple)_55%,transparent)]"
+          />
+          <span className="text-sm font-medium tracking-[-0.01em] text-foreground/55">
+            {label}
+          </span>
+        </motion.div>
         <motion.span
           aria-hidden
-          className="h-px flex-1 origin-right bg-gradient-to-l from-transparent via-purple/50 to-purple/10"
+          className="h-px flex-1 origin-right bg-gradient-to-l from-transparent via-purple/45 to-blue/20"
           initial={{ scaleX: 0 }}
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true, margin: '-10% 0px' }}

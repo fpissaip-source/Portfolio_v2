@@ -1,0 +1,58 @@
+/* The fullscreen reveal begins as a pixel-identical layer inside the real
+   loading pill. It therefore has no separate-circle frame: the pill itself
+   grows outward until it covers the viewport. */
+.loader-expansion {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 9999px;
+  background-color: #000;
+  transform: translateZ(0) scale(1);
+  transform-origin: 50% 50%;
+  will-change: transform, background-color;
+  backface-visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transition:
+    transform 0.96s cubic-bezier(0.65, 0, 0.35, 1),
+    background-color 0.55s ease-out,
+    opacity 0s;
+}
+
+.loader-expansion.loader-exit {
+  opacity: 1;
+  background-color: var(--background);
+  transform: translateZ(0) scale(var(--exit-scale, 20));
+}
+
+/* The supporting caption disappears as the pill begins expanding, instead of
+   lingering over the growing dark surface. */
+.loader-meta {
+  transition:
+    opacity 0.18s ease-out,
+    transform 0.18s ease-out;
+}
+
+.loader-root-exit .loader-meta {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+/* Let the expanded pill finish covering the viewport before the white loader
+   root is removed. */
+.loader-root-exit {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.22s 0.8s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader-expansion,
+  .loader-meta,
+  .loader-root-exit {
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+  }
+}

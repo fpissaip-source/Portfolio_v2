@@ -2,14 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'motion/react'
-import { Reveal, WordReveal } from './anim'
+import { Reveal } from './anim'
 import { useT } from './language-context'
+import { SectionHeading } from './section-heading'
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
-  // Vertical-only margin: '-20%' alone also shrinks the observed viewport
-  // horizontally, which on narrow phones pushed the first (left-edge) stat
-  // out of the observed zone entirely — it never fired and stayed at 0.
   const inView = useInView(ref, { once: true, margin: '-20% 0px -20% 0px' })
   const [val, setVal] = useState(0)
 
@@ -42,28 +40,22 @@ export function About() {
     <section id="about" className="relative mx-auto max-w-7xl px-6 py-32">
       <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <Reveal>
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
-              {t.about.kicker}
-            </span>
-          </Reveal>
-          <WordReveal
-            as="h2"
-            text={t.about.heading}
-            className="mt-4 text-balance text-4xl font-semibold leading-tight tracking-tight sm:text-5xl"
+          <SectionHeading
+            label={t.about.kicker}
+            heading={t.about.heading}
+            description={t.about.intro}
+            align="left"
+            tone="purple"
+            headingClassName="sm:text-5xl"
+            descriptionClassName="max-w-md"
           />
-          <Reveal delay={0.1}>
-            <p className="mt-6 max-w-md text-pretty leading-relaxed text-muted-foreground">
-              {t.about.intro}
-            </p>
-          </Reveal>
 
           <div className="mt-10 grid grid-cols-2 gap-6">
             <div>
               <div className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={15} suffix="+" />
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">
+              <div className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
                 {t.about.stat1Label}
               </div>
             </div>
@@ -71,7 +63,7 @@ export function About() {
               <div className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={7} suffix="" />
               </div>
-              <div className="mt-1 text-xs text-muted-foreground">
+              <div className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
                 {t.about.stat2Label}
               </div>
             </div>
@@ -85,26 +77,30 @@ export function About() {
                 aria-hidden
                 className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/15 blur-3xl"
               />
-              <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
+              <div className="flex items-center gap-3 text-sm font-medium tracking-tight text-blue/80">
+                <span
+                  aria-hidden
+                  className="h-1.5 w-1.5 rounded-full bg-blue shadow-[0_0_14px_2px_color-mix(in_oklch,var(--blue)_55%,transparent)]"
+                />
                 {t.about.storyLabel}
-              </span>
-              <h3 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">
+              </div>
+              <h3 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
                 {t.about.storyHeading}
               </h3>
-              <div className="relative mt-6 flex flex-col gap-6 border-l border-white/10 pl-6">
+              <div className="relative mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">
                 {t.about.story.map((s) => (
                   <div key={s.flag} className="relative">
                     <span
                       aria-hidden
                       className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue shadow-[0_0_12px_2px_color-mix(in_oklch,var(--blue)_70%,transparent)]"
                     />
-                    <div className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple/80">
+                    <div className="text-sm font-medium tracking-tight text-purple/80">
                       {s.flag}
                     </div>
-                    <div className="mt-1 font-semibold tracking-tight">
+                    <div className="mt-1 text-lg font-semibold tracking-tight">
                       {s.title}
                     </div>
-                    <p className="mt-1 text-pretty text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
                       {s.body}
                     </p>
                   </div>
@@ -115,9 +111,9 @@ export function About() {
           {t.about.pillars.map((p, i) => (
             <Reveal key={p.title} delay={i * 0.05} y={30}>
               <div className="group glass rounded-2xl p-6 transition-colors hover:border-white/20">
-                <div className="flex items-baseline gap-4">
-                  <span className="font-mono text-sm text-blue">
-                    0{i + 1}
+                <div className="flex items-start gap-4">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue/20 bg-blue/[0.08] text-xs font-semibold tabular-nums text-blue">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
                   <div>
                     <h3 className="text-xl font-semibold tracking-tight">

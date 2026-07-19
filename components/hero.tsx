@@ -108,7 +108,18 @@ export function Hero() {
         },
       })
     }, section)
-    return () => ctx.revert()
+    // Everything above this section (the whole cinematic intro — video,
+    // images, web fonts) can still be settling its final height right as
+    // this trigger is created, especially on a slower mobile connection.
+    // Without a refresh once that layout has caught up, the trigger's
+    // start/end stay baked in against the stale height and the letters can
+    // end up fully lit (or never lighting at all) well before/after the
+    // section actually reaches that scroll position.
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh())
+    return () => {
+      cancelAnimationFrame(raf)
+      ctx.revert()
+    }
   }, [t.hero.headingStart, t.hero.headingHighlight, t.hero.headingEnd])
 
   return (

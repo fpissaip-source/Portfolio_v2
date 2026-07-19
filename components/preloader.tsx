@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { gsap } from 'gsap'
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
@@ -11,11 +11,10 @@ const MIN_SHOW_MS = 900
 const PERCENT_DURATION = 1
 
 export function Preloader() {
-  const { lang, setLang } = useLanguage()
+  const { lang } = useLanguage()
   const t = useT()
   const rootRef = useRef<HTMLDivElement>(null)
   const ovalRef = useRef<HTMLDivElement>(null)
-  const expansionRef = useRef<HTMLDivElement>(null)
   const captionRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const textRowRef = useRef<HTMLDivElement>(null)
@@ -26,7 +25,7 @@ export function Preloader() {
   const [wipeStarted, setWipeStarted] = useState(false)
   const [exitStarted, setExitStarted] = useState(false)
   const [gone, setGone] = useState(false)
-  const [exitScale, setExitScale] = useState(100)
+  const [exitScale, setExitScale] = useState(20)
 
   const angle = useMotionValue(0)
   const springAngle = useSpring(angle, { stiffness: 55, damping: 16, mass: 0.6 })
@@ -36,21 +35,19 @@ export function Preloader() {
       `conic-gradient(from ${a}deg at 50% 50%, transparent 0deg, rgba(255,255,255,0.95) 16deg, color-mix(in oklch, var(--purple) 70%, white) 34deg, transparent 58deg, transparent 360deg)`,
   )
 
-  // Lock the document immediately, including while the first-visit language
-  // gate is visible. The existing loading effect also adds this class, so
-  // returning visitors keep the same behaviour as before.
   useEffect(() => {
     document.documentElement.classList.add('preloading')
     return () => document.documentElement.classList.remove('preloading')
   }, [])
 
-  // Shimmer chases the pointer; idles into a slow auto-rotation without one.
+  // Shimmer chases the pointer and idles into a slow rotation without one.
   useEffect(() => {
     const oval = ovalRef.current
     if (!oval) return
     let raf = 0
     let autoAngle = 0
     let lastPointer = -Infinity
+
     const onMove = (e: PointerEvent) => {
       lastPointer = performance.now()
       const r = oval.getBoundingClientRect()
@@ -59,7 +56,9 @@ export function Preloader() {
       const deg = (Math.atan2(e.clientY - cy, e.clientX - cx) * 180) / Math.PI + 90
       angle.set(deg)
     }
+
     window.addEventListener('pointermove', onMove, { passive: true })
+
     const tick = () => {
       if (performance.now() - lastPointer > 1400) {
         autoAngle = (autoAngle + 0.5) % 360
@@ -67,6 +66,7 @@ export function Preloader() {
       }
       raf = requestAnimationFrame(tick)
     }
+
     raf = requestAnimationFrame(tick)
     return () => {
       window.removeEventListener('pointermove', onMove)
@@ -74,36 +74,54 @@ export function Preloader() {
     }
   }, [angle])
 
-  // Compute how far the expansion circle needs to scale to cover every
-  // viewport corner — derived from viewport diagonal / circle size × 1.1.
+  // The reveal layer is the full pill itself. Calculate how far that exact
+  // rounded rectangle must scale from its real screen position to cover every
+  // viewport edge; no detached circle is involved anymore.
   useLayoutEffect(() => {
-    const el = expansionRef.current
-    if (!el) return
-    const update = () => {
-      const rect = el.getBoundingClientRect()
-      const sourceSize = Math.max(Math.min(rect.width, rect.height), 1)
-      const diagonal = Math.hypot(window.innerWidth, window.innerHeight)
-      setExitScale((diagonal / sourceSize) * 1.1)
-    }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
+    const oval = ovalRef.current
+    if (!oval) return
 
-  // Rest the cursor just after the localized loading text. This runs again
-  // after a first-time visitor chooses a language, because the loading row
-  // does not exist while the picker is on screen.
+    const update = () => {
+      const rect = oval.getBoundingClientRect()
+      if (rect.width <= 0 || rect.height <= 0) return
+
+      const viewportWidth = Math.max(window.innerWidth, document.documentElement.clientWidth)
+      const viewportHeight = Math.max(window.innerHeight, document.documentElement.clientHeight)
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const scaleX = Math.max(centerX, viewportWidth - centerX) / (rect.width / 2)
+      const scaleY = Math.max(centerY, viewportHeight - centerY) / (rect.height / 2)
+
+      setExitScale(Math.max(scaleX, scaleY) * 1.1)
+    }
+
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(oval)
+    window.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('resize', update)
+
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('resize', update)
+    }
+  }, [lang])
+
+  // Rest the insertion cursor directly after the localized loading text.
   useLayoutEffect(() => {
     if (!lang) return
     const textRow = textRowRef.current
     const oval = ovalRef.current
     if (!textRow || !oval) return
+
     const update = () => {
       const ovalRect = oval.getBoundingClientRect()
       const textRect = textRow.getBoundingClientRect()
-      const CURSOR_GAP = 10
-      setCursorOffset(Math.max(2, ovalRect.right - textRect.right + CURSOR_GAP))
+      const cursorGap = 10
+      setCursorOffset(Math.max(2, ovalRect.right - textRect.right + cursorGap))
     }
+
     update()
     const ro = new ResizeObserver(update)
     ro.observe(textRow)
@@ -111,16 +129,17 @@ export function Preloader() {
     return () => ro.disconnect()
   }, [lang])
 
-  // Loading only begins after an explicit or remembered language exists.
   useEffect(() => {
     if (!lang) return
-    document.documentElement.classList.add('preloading')
+
     let cancelled = false
     let loadedCount = 0
 
     for (const src of PRELOAD) {
       const img = new Image()
-      const done = () => { if (!cancelled) loadedCount++ }
+      const done = () => {
+        if (!cancelled) loadedCount++
+      }
       img.onload = done
       img.onerror = done
       img.src = src
@@ -149,7 +168,7 @@ export function Preloader() {
     }
     settle = window.setTimeout(tryStart, 200)
 
-    const wake1 = window.setTimeout(() => {
+    const wake = window.setTimeout(() => {
       lightningRef.current?.strike({
         intensity: 0.7,
         originX: 0.15 + Math.random() * 0.2,
@@ -163,7 +182,7 @@ export function Preloader() {
       cancelled = true
       tween.kill()
       if (settle) window.clearTimeout(settle)
-      window.clearTimeout(wake1)
+      window.clearTimeout(wake)
     }
   }, [lang])
 
@@ -175,6 +194,7 @@ export function Preloader() {
 
   useEffect(() => {
     if (!wipeStarted) return
+
     lightningRef.current?.strike({
       intensity: 1.15,
       duration: 380,
@@ -183,6 +203,7 @@ export function Preloader() {
       targetX: 0.35 + Math.random() * 0.3,
       targetY: 0.22 + Math.random() * 0.1,
     })
+
     const timer = window.setTimeout(() => setExitStarted(true), 1200)
     return () => window.clearTimeout(timer)
   }, [wipeStarted])
@@ -192,7 +213,7 @@ export function Preloader() {
     const timer = window.setTimeout(() => {
       document.documentElement.classList.remove('preloading')
       setGone(true)
-    }, 950)
+    }, 1120)
     return () => window.clearTimeout(timer)
   }, [exitStarted])
 
@@ -235,53 +256,29 @@ export function Preloader() {
       <div className="relative z-10 flex flex-col items-center gap-6">
         <div
           ref={ovalRef}
-          className={`relative flex w-[90vw] max-w-[620px] items-center justify-center rounded-full bg-black ${
-            lang ? 'h-[104px] sm:h-[140px]' : 'min-h-[230px] px-8 py-10 sm:min-h-[280px] sm:px-14'
-          }`}
+          className="relative flex h-[104px] w-[90vw] max-w-[620px] items-center justify-center rounded-full bg-black sm:h-[140px]"
         >
-          <div className="absolute inset-0 rounded-full border border-white/10 bg-black [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06),0_30px_60px_-20px_rgba(0,0,0,0.9)]" />
-          <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
-          <motion.div
+          <div
             aria-hidden
-            className="absolute -inset-px rounded-full p-px"
-            style={{
-              background: shimmerBg,
-              WebkitMask:
-                'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
-              WebkitMaskComposite: 'xor',
-              maskComposite: 'exclude',
-            }}
+            className={`loader-expansion${exitStarted ? ' loader-exit' : ''}`}
+            style={{ '--exit-scale': exitScale } as CSSProperties}
           />
 
-          {!lang ? (
-            <div className="relative z-10 flex w-full flex-col items-center text-center">
-              <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-purple sm:text-xs">
-                Sprache · Language
-              </span>
-              <h1 className="mt-4 text-balance font-sans text-2xl font-bold tracking-tight text-white sm:text-4xl">
-                Wählen Sie Ihre Sprache
-              </h1>
-              <p className="mt-1 font-sans text-sm text-white/50 sm:text-base">
-                Choose your language
-              </p>
-              <div className="mt-7 grid w-full max-w-md grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setLang('de')}
-                  className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-3 font-sans text-sm font-semibold text-white transition duration-300 hover:border-purple/70 hover:bg-purple/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple sm:py-4 sm:text-base"
-                >
-                  Deutsch
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLang('en')}
-                  className="rounded-full border border-white/15 bg-white/[0.06] px-4 py-3 font-sans text-sm font-semibold text-white transition duration-300 hover:border-blue/70 hover:bg-blue/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue sm:py-4 sm:text-base"
-                >
-                  English
-                </button>
-              </div>
-            </div>
-          ) : (
+          <div className="loader-pill-content">
+            <div className="absolute inset-0 rounded-full border border-white/10 bg-black [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06),0_30px_60px_-20px_rgba(0,0,0,0.9)]" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-b from-white/[0.04] to-transparent" />
+            <motion.div
+              aria-hidden
+              className="absolute -inset-px rounded-full p-px"
+              style={{
+                background: shimmerBg,
+                WebkitMask:
+                  'linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)',
+                WebkitMaskComposite: 'xor',
+                maskComposite: 'exclude',
+              }}
+            />
+
             <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
               <div className="loader-welcome">
                 <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
@@ -308,28 +305,23 @@ export function Preloader() {
                 />
               </div>
             </div>
-          )}
+          </div>
         </div>
 
-        <span
-          ref={captionRef}
-          className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs"
-        >
-          {t.preloader.caption}
-        </span>
-        {lang && (
-          <span className="max-w-[80vw] text-center font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 sm:hidden">
-            {t.preloader.pcHint}
+        <div className="loader-meta flex flex-col items-center gap-3">
+          <span
+            ref={captionRef}
+            className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs"
+          >
+            {t.preloader.caption}
           </span>
-        )}
+          {lang && (
+            <span className="max-w-[80vw] text-center font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 sm:hidden">
+              {t.preloader.pcHint}
+            </span>
+          )}
+        </div>
       </div>
-
-      <div
-        ref={expansionRef}
-        aria-hidden
-        className={`loader-expansion${exitStarted ? ' loader-exit' : ''}`}
-        style={{ '--exit-scale': exitScale } as React.CSSProperties}
-      />
     </div>
   )
 }

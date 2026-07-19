@@ -21,7 +21,7 @@ export function SiteFooter() {
   return (
     <footer className="relative border-t border-white/5 px-6 py-12">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
-        <div className="flex items-center gap-2 font-mono text-sm">
+        <div className="flex items-center gap-2 text-sm tracking-tight">
           <span className="font-semibold">Issa Hareb</span>
           <span className="text-blue">.</span>
           <span className="text-muted-foreground">
@@ -53,7 +53,7 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4 font-mono text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-end">
           <Link href="/impressum" className="transition-colors hover:text-foreground">
             {t.footer.imprint}
           </Link>

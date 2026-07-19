@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
 import './loader-transition.css'
+import './elegant-headings.css'
 
 const geistSans = Geist({
   subsets: ['latin'],

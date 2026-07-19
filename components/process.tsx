@@ -2,8 +2,9 @@
 
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'motion/react'
-import { Reveal, WordReveal } from './anim'
+import { Reveal } from './anim'
 import { useT } from './language-context'
+import { SectionHeading } from './section-heading'
 
 export function Process() {
   const t = useT()
@@ -18,30 +19,21 @@ export function Process() {
 
   return (
     <section id="process" className="relative mx-auto max-w-4xl px-6 py-32">
-      <div className="mb-20 flex flex-col items-center gap-4 text-center">
-        <Reveal>
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple">
-            {t.process.kicker}
-          </span>
-        </Reveal>
-        <WordReveal
-          as="h2"
-          text={t.process.heading}
-          className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
-        />
-      </div>
+      <SectionHeading
+        label={t.process.kicker}
+        heading={t.process.heading}
+        tone="purple"
+        className="mb-20"
+      />
 
       <div ref={ref} className="relative pl-12 sm:pl-0">
-        {/* center rail */}
         <div className="absolute left-6 top-0 h-full w-px -translate-x-1/2 bg-white/8 sm:left-1/2">
-          {/* progress fill */}
           <motion.div
             style={{ scaleY: lineScale }}
             className="absolute inset-0 origin-top will-transform"
           >
             <div className="h-full w-full bg-gradient-to-b from-blue via-purple to-transparent" />
           </motion.div>
-          {/* moving particle */}
           <motion.div
             style={{ top: particleY }}
             className="absolute left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-white will-transform"
@@ -60,7 +52,6 @@ export function Process() {
                   left ? 'sm:self-start sm:pr-10' : 'sm:self-end sm:pl-10'
                 }`}
               >
-                {/* node */}
                 <span
                   className={`absolute top-2 z-10 flex h-4 w-4 items-center justify-center rounded-full border border-white/20 bg-background will-transform ${
                     left
@@ -72,17 +63,19 @@ export function Process() {
                 </span>
                 <Reveal className="w-full" y={30}>
                   <div className="glass rounded-2xl p-6">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-xs text-blue">
+                    <div className="flex items-start gap-4">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue/20 bg-blue/[0.08] text-xs font-semibold tabular-nums text-blue">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <h3 className="text-xl font-semibold tracking-tight">
-                        {s.title}
-                      </h3>
+                      <div>
+                        <h3 className="text-xl font-semibold tracking-tight">
+                          {s.title}
+                        </h3>
+                        <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
+                          {s.body}
+                        </p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-                      {s.body}
-                    </p>
                   </div>
                 </Reveal>
               </div>

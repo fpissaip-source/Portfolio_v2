@@ -6,8 +6,19 @@ import { useT } from './language-context'
 
 const ICONS = [Globe, LayoutDashboard, Bot, Rocket]
 
+function splitClosingHighlight(copy: string) {
+  const colon = copy.indexOf(':')
+  if (colon === -1) return { label: '', body: copy }
+  return {
+    label: copy.slice(0, colon + 1),
+    body: copy.slice(colon + 1).trim(),
+  }
+}
+
 export function Services() {
   const t = useT()
+  const closingHighlight = splitClosingHighlight(t.services.closingHighlight)
+
   return (
     <section id="services" className="relative mx-auto max-w-6xl px-6 py-32">
       <div className="mx-auto mb-16 flex max-w-2xl flex-col items-center gap-4 text-center">
@@ -61,8 +72,13 @@ export function Services() {
           <p className="mt-3 max-w-3xl text-pretty leading-relaxed text-muted-foreground">
             {t.services.closingBody}
           </p>
-          <p className="mt-4 max-w-3xl text-pretty text-lg font-semibold leading-relaxed tracking-tight text-foreground">
-            {t.services.closingHighlight}
+          {closingHighlight.label && (
+            <p className="mt-4 max-w-3xl text-pretty text-sm font-semibold uppercase tracking-[0.1em] text-purple">
+              {closingHighlight.label}
+            </p>
+          )}
+          <p className="mt-2 max-w-3xl text-pretty text-lg font-semibold leading-relaxed tracking-tight text-foreground">
+            {closingHighlight.body}
           </p>
         </div>
       </Reveal>

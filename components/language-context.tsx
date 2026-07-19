@@ -6,10 +6,10 @@ import { EN, DE, type Dictionary } from '@/lib/translations'
 
 export type Lang = 'en' | 'de'
 
+const STORAGE_KEY = 'site-lang'
+
 type LanguageContextValue = {
-  /** null only for the instant before the layout effect resolves the browser
-   *  language. This happens before the first painted frame, so the site does
-   *  not visibly flash between languages. */
+  /** null only for the instant before the layout effect resolves the language. */
   lang: Lang | null
   setLang: (lang: Lang) => void
 }
@@ -20,12 +20,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang | null>(null)
 
   useLayoutEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY)
+    if (stored === 'de' || stored === 'en') {
+      setLangState(stored)
+      return
+    }
+
+    // German browser languages get German. Every other browser language falls
+    // back to English, including unsupported languages.
     const browserLanguage = navigator.languages?.[0] ?? navigator.language
     const detected: Lang = browserLanguage.toLowerCase().startsWith('de') ? 'de' : 'en'
-
-    // Browser language is now the source of truth. Remove the old remembered
-    // picker value so it cannot override a visitor's current browser setting.
-    window.localStorage.removeItem('site-lang')
     setLangState(detected)
   }, [])
 
@@ -33,8 +37,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (lang) document.documentElement.lang = lang
   }, [lang])
 
-  // A language change re-renders every section with differently-sized copy.
-  // Refresh the scroll measurements once the new layout has settled.
+  // A voluntary language switch changes copy dimensions throughout the page,
+  // so refresh every scroll trigger after the new layout has settled.
   const firstLangRef = useRef(true)
   useEffect(() => {
     if (!lang) return
@@ -49,6 +53,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [lang])
 
   const setLang = (next: Lang) => {
+    window.localStorage.setItem(STORAGE_KEY, next)
     setLangState(next)
   }
 

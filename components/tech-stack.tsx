@@ -1,15 +1,16 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Reveal, WordReveal } from './anim'
+import { Reveal } from './anim'
 import { useT } from './language-context'
 import { useNearViewport } from './use-near-viewport'
+import { SectionHeading } from './section-heading'
 
 const TechOrbs = dynamic(() => import('./tech-orbs'), {
   ssr: false,
   loading: () => (
     <div className="absolute inset-0 grid place-items-center">
-      <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+      <span className="text-sm font-medium tracking-tight text-muted-foreground">
         Loading stack…
       </span>
     </div>
@@ -42,15 +43,9 @@ const TECH: Tech[] = [
 
 export function TechStack() {
   const t = useT()
-  // Another WebGL scene — don't create its context until the section is
-  // actually close to scrolling into view.
   const { ref: orbsRef, near: orbsNear } = useNearViewport<HTMLDivElement>()
   return (
     <section id="stack" className="relative py-24 sm:py-32">
-      {/* Free-floating 3D balls, pinned to the visible screen while the
-          section is in view — they roam the full frame right up to the
-          viewport edges (invisible physics walls keep them on screen).
-          touch-pan-y keeps vertical scrolling working on mobile. */}
       <div ref={orbsRef} className="absolute inset-0 z-10 overflow-hidden">
         <div className="sticky top-0 h-[100svh] w-full touch-pan-y md:touch-none">
           {orbsNear && <TechOrbs />}
@@ -58,58 +53,49 @@ export function TechStack() {
       </div>
 
       <div className="pointer-events-none relative z-20 mx-auto max-w-7xl px-6">
-      <div className="mb-12 flex flex-col items-center gap-4 text-center">
-        <Reveal>
-          <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
-            {t.techStack.kicker}
-          </span>
-        </Reveal>
-        <WordReveal
-          as="h2"
-          text={t.techStack.heading}
-          className="text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
+        <SectionHeading
+          label={t.techStack.kicker}
+          heading={t.techStack.heading}
+          description={t.techStack.subtitle}
+          tone="blue"
+          className="mb-12"
+          descriptionClassName="mx-auto max-w-md text-sm"
         />
+
+        <div className="h-[380px] sm:h-[480px]" aria-hidden />
+
         <Reveal delay={0.1}>
-          <p className="max-w-md text-pretty text-sm text-muted-foreground">
-            {t.techStack.subtitle}
-          </p>
+          <ul className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            {TECH.map((tech, i) => (
+              <li key={tech.name} className="flex items-center gap-4">
+                <span className="text-base font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground">
+                  {tech.name}
+                </span>
+                {i < TECH.length - 1 && (
+                  <span className="h-1 w-1 rounded-full bg-blue/50" aria-hidden />
+                )}
+              </li>
+            ))}
+          </ul>
         </Reveal>
-      </div>
 
-      {/* Open space for the balls to roam */}
-      <div className="h-[380px] sm:h-[480px]" aria-hidden />
-
-      {/* Clean, legible reference list */}
-      <Reveal delay={0.1}>
-        <ul className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-2">
-          {TECH.map((tech, i) => (
-            <li key={tech.name} className="flex items-center gap-4">
-              <span className="font-mono text-base text-muted-foreground transition-colors hover:text-foreground">
-                {tech.name}
-              </span>
-              {i < TECH.length - 1 && (
-                <span className="h-1 w-1 rounded-full bg-blue/50" aria-hidden />
-              )}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
-
-      {/* Delivery matrix — the layers behind the logos */}
-      <Reveal delay={0.15}>
-        <dl className="mx-auto mt-16 grid max-w-4xl gap-x-10 gap-y-5 sm:grid-cols-2">
-          {t.techStack.matrix.map((m) => (
-            <div key={m.layer} className="flex flex-col gap-1 border-l border-purple/25 pl-4">
-              <dt className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple/80">
-                {m.layer}
-              </dt>
-              <dd className="text-sm leading-relaxed text-muted-foreground">
-                {m.items}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </Reveal>
+        <Reveal delay={0.15}>
+          <dl className="mx-auto mt-16 grid max-w-4xl gap-x-10 gap-y-5 sm:grid-cols-2">
+            {t.techStack.matrix.map((m) => (
+              <div
+                key={m.layer}
+                className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5"
+              >
+                <dt className="text-sm font-semibold tracking-tight text-purple/85">
+                  {m.layer}
+                </dt>
+                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {m.items}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
       </div>
     </section>
   )

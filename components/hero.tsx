@@ -12,11 +12,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
-/** The word is always in the DOM; each letter starts dim and is lit up
- *  letter by letter as the hero scrolls into place. Adjacent per-letter
- *  inline-blocks have no text node between them, so (as with normal text)
- *  the browser never inserts a line-break inside a word — only `LitPhrase`
- *  below relies on this to keep multi-word headings wrapping normally. */
 function LitWord({ word }: { word: string }) {
   return (
     <span className="inline-block">
@@ -29,10 +24,6 @@ function LitWord({ word }: { word: string }) {
   )
 }
 
-/** Same letter-by-letter reveal as `LitWord`, extended to a full phrase: each
- *  word gets its own `LitWord` (so it never breaks mid-word), joined by
- *  plain space text nodes (so the phrase still wraps normally between
- *  words). */
 function LitPhrase({ text }: { text: string }) {
   const words = text.split(' ')
   return (
@@ -53,6 +44,7 @@ export function Hero() {
   const h1Ref = useRef<HTMLHeadingElement>(null)
   const highlightRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
+  const headingEnd = t.hero.headingEnd.replace(/^[—–-]\s*/, '')
 
   useLayoutEffect(() => {
     const section = sectionRef.current
@@ -72,7 +64,7 @@ export function Hero() {
     fit()
     window.addEventListener('resize', fit)
     return () => window.removeEventListener('resize', fit)
-  }, [t.hero.headingStart, t.hero.headingHighlight, t.hero.headingEnd])
+  }, [t.hero.headingStart, t.hero.headingHighlight, headingEnd])
 
   useEffect(() => {
     const section = sectionRef.current
@@ -115,7 +107,7 @@ export function Hero() {
       cancelAnimationFrame(raf)
       ctx.revert()
     }
-  }, [t.hero.headingStart, t.hero.headingHighlight, t.hero.headingEnd])
+  }, [t.hero.headingStart, t.hero.headingHighlight, headingEnd])
 
   return (
     <section
@@ -127,22 +119,9 @@ export function Hero() {
       <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: easeOut }}
-          className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.035] px-4 py-2 text-sm font-medium tracking-tight text-foreground/60 backdrop-blur-sm"
-        >
-          <span
-            aria-hidden
-            className="h-1.5 w-1.5 rounded-full bg-blue shadow-[0_0_14px_2px_color-mix(in_oklch,var(--blue)_55%,transparent)]"
-          />
-          {t.hero.kicker}
-        </motion.div>
-
         <h1
           ref={h1Ref}
-          className="mt-6 text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
+          className="text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
         >
           <LitPhrase text={t.hero.headingStart} />{' '}
           <span
@@ -152,7 +131,7 @@ export function Hero() {
           >
             {t.hero.headingHighlight}
           </span>{' '}
-          <LitPhrase text={t.hero.headingEnd} />
+          <LitPhrase text={headingEnd} />
         </h1>
 
         <motion.p

@@ -54,14 +54,6 @@ export function Hero() {
   const highlightRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
 
-  // The three heading words are sized generously via fixed Tailwind
-  // classes, tuned against the English copy. A translation's longest word
-  // (e.g. German "Intelligente" vs. English "Intelligent") can be wide
-  // enough to exceed the viewport at the same font-size, and since the
-  // section clips overflow, the excess — often the last letter — just
-  // gets cut off rather than wrapping. Shrink the heading's font-size only
-  // if its widest line would actually overflow, so the common case (fits
-  // fine) never changes.
   useLayoutEffect(() => {
     const section = sectionRef.current
     const h1 = h1Ref.current
@@ -99,9 +91,6 @@ export function Hero() {
           end: 'top 5%',
           scrub: 0.5,
           onUpdate: (self) => {
-            // One last spark bridging toward L.U.K.A.S., right as the
-            // headline finishes lighting up — deliberately just one; Hero
-            // is a reading section, not a place for a recurring loop.
             if (!sparked && self.progress >= 0.85) {
               sparked = true
               lightningRef.current?.strike({ intensity: 0.9 })
@@ -110,10 +99,6 @@ export function Hero() {
         },
       })
 
-      // Safari can drop a background-clip:text paint when the clipped
-      // element contains descendants whose opacity is continuously mutated.
-      // Keep the gradient phrase as one static text node and animate the
-      // phrase itself instead of promoting every letter onto its own layer.
       gsap.to(highlight, {
         opacity: 1,
         ease: 'none',
@@ -125,13 +110,6 @@ export function Hero() {
         },
       })
     }, section)
-    // Everything above this section (the whole cinematic intro — video,
-    // images, web fonts) can still be settling its final height right as
-    // this trigger is created, especially on a slower mobile connection.
-    // Without a refresh once that layout has caught up, the trigger's
-    // start/end stay baked in against the stale height and the letters can
-    // end up fully lit (or never lighting at all) well before/after the
-    // section actually reaches that scroll position.
     const raf = requestAnimationFrame(() => ScrollTrigger.refresh())
     return () => {
       cancelAnimationFrame(raf)
@@ -149,14 +127,18 @@ export function Hero() {
       <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
-        <motion.span
+        <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: easeOut }}
-          className="font-mono text-xs uppercase tracking-[0.35em] text-blue sm:text-sm"
+          className="inline-flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.035] px-4 py-2 text-sm font-medium tracking-tight text-foreground/60 backdrop-blur-sm"
         >
+          <span
+            aria-hidden
+            className="h-1.5 w-1.5 rounded-full bg-blue shadow-[0_0_14px_2px_color-mix(in_oklch,var(--blue)_55%,transparent)]"
+          />
           {t.hero.kicker}
-        </motion.span>
+        </motion.div>
 
         <h1
           ref={h1Ref}
@@ -181,7 +163,6 @@ export function Hero() {
         >
           {t.hero.body}
         </motion.p>
-
       </div>
     </section>
   )

@@ -4,6 +4,7 @@ import { IonTrail } from '@/components/ion-trail'
 import { MouseGlow } from '@/components/mouse-glow'
 import { EdgeGlow } from '@/components/edge-glow'
 import { SiteNav } from '@/components/site-nav'
+import { LanguageToggle } from '@/components/language-toggle'
 import { SkipLink } from '@/components/skip-link'
 import { SkipIntroButton } from '@/components/skip-intro-button'
 import { CinematicIntro } from '@/components/cinematic-intro'
@@ -27,6 +28,7 @@ export default function Page() {
       <MouseGlow />
       <FilmGrain />
       <SiteNav />
+      <LanguageToggle />
       <SkipIntroButton />
       <main id="main-content" tabIndex={-1} className="relative">
         <CinematicIntro />

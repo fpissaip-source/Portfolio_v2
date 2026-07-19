@@ -51,6 +51,7 @@ export function Hero() {
   const t = useT()
   const sectionRef = useRef<HTMLElement>(null)
   const h1Ref = useRef<HTMLHeadingElement>(null)
+  const highlightRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
 
   // The three heading words are sized generously via fixed Tailwind
@@ -83,7 +84,8 @@ export function Hero() {
 
   useEffect(() => {
     const section = sectionRef.current
-    if (!section) return
+    const highlight = highlightRef.current
+    if (!section || !highlight) return
     let sparked = false
     const ctx = gsap.context(() => {
       gsap.to(section.querySelectorAll('[data-lit]'), {
@@ -105,6 +107,21 @@ export function Hero() {
               lightningRef.current?.strike({ intensity: 0.9 })
             }
           },
+        },
+      })
+
+      // Safari can drop a background-clip:text paint when the clipped
+      // element contains descendants whose opacity is continuously mutated.
+      // Keep the gradient phrase as one static text node and animate the
+      // phrase itself instead of promoting every letter onto its own layer.
+      gsap.to(highlight, {
+        opacity: 1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top 90%',
+          end: 'top 5%',
+          scrub: 0.5,
         },
       })
     }, section)
@@ -146,8 +163,12 @@ export function Hero() {
           className="mt-6 text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
         >
           <LitPhrase text={t.hero.headingStart} />{' '}
-          <span className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent">
-            <LitPhrase text={t.hero.headingHighlight} />
+          <span
+            ref={highlightRef}
+            style={{ opacity: 0.12 }}
+            className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent"
+          >
+            {t.hero.headingHighlight}
           </span>{' '}
           <LitPhrase text={t.hero.headingEnd} />
         </h1>

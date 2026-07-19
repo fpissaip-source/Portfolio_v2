@@ -1,9 +1,10 @@
 'use client'
 
 import { Mail, Phone, MapPin } from 'lucide-react'
-import { WordReveal, Reveal } from './anim'
+import { Reveal } from './anim'
 import { GradientOrbs } from './gradient-orbs'
 import { useT } from './language-context'
+import { SectionHeading } from './section-heading'
 
 export function Contact() {
   const t = useT()
@@ -34,23 +35,15 @@ export function Contact() {
     >
       <GradientOrbs />
       <div className="relative z-10 mx-auto max-w-4xl">
-        <div className="mb-14 text-center">
-          <Reveal>
-            <span className="font-mono text-xs uppercase tracking-[0.3em] text-blue">
-              {t.contact.kicker}
-            </span>
-          </Reveal>
-          <WordReveal
-            as="h2"
-            text={t.contact.heading}
-            className="mx-auto mt-4 max-w-3xl text-balance text-5xl font-semibold leading-[0.98] tracking-tight sm:text-7xl md:text-8xl"
-          />
-          <Reveal delay={0.1}>
-            <p className="mx-auto mt-6 max-w-lg text-pretty text-muted-foreground">
-              {t.contact.subtitle}
-            </p>
-          </Reveal>
-        </div>
+        <SectionHeading
+          label={t.contact.kicker}
+          heading={t.contact.heading}
+          description={t.contact.subtitle}
+          tone="blue"
+          className="mb-14"
+          headingClassName="mx-auto max-w-3xl text-5xl leading-[0.98] sm:text-7xl md:text-8xl"
+          descriptionClassName="mx-auto max-w-lg"
+        />
 
         <Reveal delay={0.15}>
           <div className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-3">
@@ -60,7 +53,7 @@ export function Contact() {
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-blue/10">
                     <d.icon className="h-5 w-5 text-blue" />
                   </span>
-                  <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+                  <span className="text-sm font-medium tracking-tight text-muted-foreground">
                     {d.label}
                   </span>
                   <span className="text-base font-medium text-foreground">

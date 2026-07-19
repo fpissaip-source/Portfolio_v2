@@ -1,38 +1,27 @@
-/*
- * Editorial typography pass
- * -------------------------
- * Small uppercase monospace labels previously made many parts of the page
- * look like terminal chrome. Keep real code/terminal content untouched, but
- * turn interface labels inside the main experience into quiet, elegant sans
- * typography.
- */
-main .font-mono.uppercase {
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  text-transform: none;
-  letter-spacing: -0.01em !important;
-  font-weight: 600;
+/* Remove remaining duplicate or terminal-like labels without altering genuine
+   code/terminal elements elsewhere on the site. */
+
+/* Projects already has a full section headline; the old kicker is redundant. */
+#work > div:first-child > div:first-child {
+  display: none;
 }
 
-/* Project cards/register contain several compact metadata labels that should
-   feel editorial rather than like command-line output. */
+/* Project metadata stays compact, but uses the normal interface typeface. */
 #work .font-mono {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
-/* The Projects section already receives the new elegant chapter marker from
-   <Scene>; remove its old duplicate terminal kicker. */
-#work > div:first-child > div:first-child {
+/* L.U.K.A.S. beats are strong enough with title + body; remove the little
+   terminal-style kicker above each title. */
+#lukas [data-beat] > span {
   display: none;
 }
 
-/* L.U.K.A.S. remains cinematic, but its descriptive labels should use the
-   same refined typography as the rest of the portfolio. */
 #lukas [data-lukas-sub],
-#lukas [data-beat] > span,
 #lukas a.font-mono {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   text-transform: none;
   letter-spacing: -0.01em !important;
-  font-weight: 600;
+  font-weight: 500;
 }

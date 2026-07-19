@@ -9,14 +9,12 @@ import {
 } from 'react'
 
 /**
- * A cursor-decode title reveal — nothing like a hand-drawn outline. A
- * left-to-right "scan head" sweeps through each word; letters just ahead of
- * it flicker through random glyphs (a terminal decoding a signal), and each
- * one locks into its real character with a bright spark the instant the
- * head passes it, settling into a steady glow. Distinctive display font
- * (Space Grotesk, not the site's default), fully driven by an imperative
- * handle so a scroll-scrubbed GSAP timeline can scrub it — including
- * backwards, which un-locks letters back into the scramble.
+ * A cursor-decode title reveal. A left-to-right scan head sweeps through each
+ * word; letters just ahead of it flicker through random glyphs, and each one
+ * locks into its real character with a bright spark as the head passes it.
+ * The reveal uses the same Geist glyphs and tracking as the final monitor
+ * title, so the handoff remains one continuous piece of typography rather
+ * than visibly changing into a second font at the end.
  */
 
 export type NeonLineHandle = {
@@ -142,11 +140,8 @@ export const DecodeName = forwardRef<
   )
 
   // Measure each secondary word's natural width once, for the solo collapse.
-  // Re-measures once the real display font is ready — Space Grotesk isn't
-  // loaded yet on first paint, so an initial measurement against the
-  // fallback font would cache the wrong target width for the rest of the
-  // sequence (the collapse/expand would land short of or past the real
-  // text).
+  // Re-measures once the real site font is ready so the collapse/expand target
+  // is always based on the same glyph metrics used by the final title.
   useEffect(() => {
     const measure = () => {
       wordRefs.current.forEach((el, i) => {
@@ -213,8 +208,8 @@ export const DecodeName = forwardRef<
             }}
             className="inline-flex overflow-hidden whitespace-nowrap"
             style={{
-              fontFamily: 'var(--font-space-grotesk)',
-              letterSpacing: '0.01em',
+              fontFamily: 'var(--font-geist-sans)',
+              letterSpacing: '0.12em',
               marginLeft: wi === 0 ? undefined : 0,
             }}
           >

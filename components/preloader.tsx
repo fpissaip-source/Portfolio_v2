@@ -22,13 +22,19 @@ const PRELOAD = ['/intro/cinematic-poster.jpg']
 const SESSION_KEY = 'portfolio-welcome-seen'
 const GREETING_STEP_MS = 280
 
-const GREETINGS = [
+type Greeting = {
+  text: string
+  lang: string
+  dir?: 'ltr' | 'rtl'
+}
+
+const GREETINGS: Greeting[] = [
   { text: 'Welcome', lang: 'en' },
   { text: 'Willkommen', lang: 'de' },
   { text: 'Bienvenue', lang: 'fr' },
   { text: 'Bienvenido', lang: 'es' },
   { text: 'Benvenuto', lang: 'it' },
-  { text: 'مرحباً', lang: 'ar', dir: 'rtl' as const },
+  { text: 'مرحباً', lang: 'ar', dir: 'rtl' },
 ]
 
 export function Preloader() {
@@ -191,14 +197,16 @@ export function Preloader() {
 
     timers.push(
       window.setTimeout(() => {
-        lightningRef.current?.strike({
-          intensity: reducedMotion ? 0 : 0.9,
-          duration: 300,
-          originX: 0.35 + Math.random() * 0.3,
-          originY: 0.06 + Math.random() * 0.08,
-          targetX: 0.35 + Math.random() * 0.3,
-          targetY: 0.22 + Math.random() * 0.1,
-        })
+        if (!reducedMotion) {
+          lightningRef.current?.strike({
+            intensity: 0.9,
+            duration: 300,
+            originX: 0.35 + Math.random() * 0.3,
+            originY: 0.06 + Math.random() * 0.08,
+            targetX: 0.35 + Math.random() * 0.3,
+            targetY: 0.22 + Math.random() * 0.1,
+          })
+        }
         setExitStarted(true)
       }, exitDelay),
     )

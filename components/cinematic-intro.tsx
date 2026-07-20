@@ -768,9 +768,9 @@ export function CinematicIntro() {
           </div>
         </div>
 
-        {/* cinematic vignette */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/10 via-transparent to-background/70" />
-        <div className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_220px_60px_rgba(0,0,0,0.85)]" />
+        {/* cinematic vignette — softened only on phones; desktop stays unchanged */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/5 via-transparent to-background/25 sm:from-background/10 sm:to-background/70" />
+        <div className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_72px_12px_rgba(0,0,0,0.42)] sm:[box-shadow:inset_0_0_220px_60px_rgba(0,0,0,0.85)]" />
 
         {/* signal sparks recurring through the flight — L.U.K.A.S. staying awake */}
         <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[8]" />

@@ -1,5 +1,5 @@
 /* The fullscreen reveal begins as a pixel-identical layer inside the real
-   loading pill. No separate circle appears: the pill itself grows outward. */
+   welcome pill. No detached shape appears: the pill itself grows outward. */
 .loader-expansion {
   position: absolute;
   inset: 0;
@@ -15,8 +15,8 @@
   z-index: 0;
   opacity: 0;
   transition:
-    transform 0.96s cubic-bezier(0.65, 0, 0.35, 1),
-    background-color 0.55s ease-out,
+    transform 0.78s cubic-bezier(0.65, 0, 0.35, 1),
+    background-color 0.42s ease-out,
     opacity 0s;
 }
 
@@ -26,14 +26,14 @@
   transform: translateZ(0) scale(var(--exit-scale, 20));
 }
 
-/* The visible contents fade away while an identical black pill remains below
-   them, making the expansion read as one continuous object. */
+/* The greeting fades while an identical black pill remains below it, making
+   the expansion read as one continuous object. */
 .loader-pill-content {
   position: absolute;
   inset: 0;
   z-index: 1;
   border-radius: inherit;
-  transition: opacity 0.18s ease-out;
+  transition: opacity 0.16s ease-out;
 }
 
 .loader-root-exit .loader-pill-content {
@@ -42,8 +42,8 @@
 
 .loader-meta {
   transition:
-    opacity 0.18s ease-out,
-    transform 0.18s ease-out;
+    opacity 0.16s ease-out,
+    transform 0.16s ease-out;
 }
 
 .loader-root-exit .loader-meta {
@@ -51,11 +51,11 @@
   transform: translateY(4px);
 }
 
-/* Remove the white loader only after the expanded pill covers the viewport. */
+/* Remove the white shell only after the expanded pill covers the viewport. */
 .loader-root-exit {
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.22s 0.8s ease-out;
+  transition: opacity 0.18s 0.62s ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

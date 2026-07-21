@@ -6,6 +6,7 @@ import { Html, Line, useTexture } from '@react-three/drei'
 import { AnimatePresence, motion } from 'motion/react'
 import * as THREE from 'three'
 import { roleFor, tierFor, ROLE_COLORS, type Tier as SizeTier } from './project-orbs-shared'
+import { useT } from './language-context'
 
 /**
  * "Project Constellation" — a deliberately composed system/neuron network,
@@ -558,6 +559,17 @@ function Scene({
   )
 }
 
+/** Mounts only once the Suspense boundary above it has resolved (i.e. every
+ *  node texture finished loading), and reports that moment upward — the
+ *  dynamic-import loading fallback ends well before this, and without it
+ *  the stage sits as a big silent empty frame while textures stream in. */
+function SceneReady({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    onReady()
+  }, [onReady])
+  return null
+}
+
 /** Cursor-anchored compact preview — a thumbnail for projects that have a
  *  real screenshot, name, tagline, up to three stack items, and a "View
  *  project" cue. Clamped to the constellation's own bounds (not the
@@ -646,7 +658,9 @@ export default function ProjectOrbs({
    *  non-WebGL fallback (mainly relevant for the mobile variant). */
   onContextLost?: () => void
 }) {
+  const t = useT()
   const [reduced, setReduced] = useState(false)
+  const [sceneReady, setSceneReady] = useState(false)
   const [hoveredName, setHoveredName] = useState<string | null>(null)
   const [pointer, setPointer] = useState({ x: 0, y: 0 })
   const [inView, setInView] = useState(true)
@@ -756,8 +770,17 @@ export default function ProjectOrbs({
             containerWidth={containerWidth}
             variant={variant}
           />
+          <SceneReady onReady={() => setSceneReady(true)} />
         </Suspense>
       </Canvas>
+
+      {!sceneReady && (
+        <div className="pointer-events-none absolute inset-0 grid place-items-center">
+          <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+            {t.projects.loadingConstellation}
+          </span>
+        </div>
+      )}
 
       <HoverPreview
         project={hoveredProject}

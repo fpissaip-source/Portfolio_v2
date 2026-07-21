@@ -71,6 +71,27 @@ export function Services() {
             <p className="mt-2 max-w-3xl text-pretty text-xl font-semibold leading-relaxed tracking-tight text-foreground sm:text-2xl">
               {closingHighlight.body}
             </p>
+            {/* The shortcut for a convinced reader: interest peaks right
+                here, the contact section sits six scenes further down —
+                bridge it instead of hoping they scroll the whole way. */}
+            <a
+              href="#contact"
+              onClick={(e) => {
+                const el = document.getElementById('contact')
+                const lenis = (
+                  window as unknown as {
+                    __lenis?: { scrollTo: (t: Element, o?: object) => void }
+                  }
+                ).__lenis
+                if (el && lenis) {
+                  e.preventDefault()
+                  lenis.scrollTo(el, { offset: 0 })
+                }
+              }}
+              className="mt-7 inline-flex items-center gap-2 rounded-full border border-purple/40 bg-purple/10 px-6 py-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/70 hover:bg-purple/15"
+            >
+              {t.services.cta} →
+            </a>
           </div>
         </div>
       </Reveal>

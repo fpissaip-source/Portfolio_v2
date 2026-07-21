@@ -9,10 +9,36 @@ import { SectionHeading } from './section-heading'
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-20% 0px -20% 0px' })
+  const [started, setStarted] = useState(false)
   const [val, setVal] = useState(0)
 
+  // useInView alone misses jump navigation (a nav click lands the section
+  // via Lenis scrollTo almost instantly, and the observer can stay silent)
+  // — which left the stats frozen at "0", the exact opposite of what a
+  // trust number is for. Belt and braces: start when the observer fires,
+  // OR when the element is already inside the viewport on mount, OR after
+  // a fallback delay. A late (or even unseen) start is harmless — a never
+  // starting one shows "0 systems built".
   useEffect(() => {
-    if (!inView) return
+    if (started) return
+    if (inView) {
+      setStarted(true)
+      return
+    }
+    const el = ref.current
+    if (el) {
+      const r = el.getBoundingClientRect()
+      if (r.top < window.innerHeight && r.bottom > 0) {
+        setStarted(true)
+        return
+      }
+    }
+    const timer = window.setTimeout(() => setStarted(true), 2500)
+    return () => window.clearTimeout(timer)
+  }, [inView, started])
+
+  useEffect(() => {
+    if (!started) return
     let raf = 0
     const start = performance.now()
     const dur = 1600
@@ -24,7 +50,7 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [inView, to])
+  }, [started, to])
 
   return (
     <span ref={ref} className="tabular-nums">

@@ -11,22 +11,25 @@ import type { OrbProject } from './project-orbs'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
-const loadingFallback = (
-  <div className="absolute inset-0 grid place-items-center">
-    <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
-      Loading constellation…
-    </span>
-  </div>
-)
+function LoadingFallback() {
+  const t = useT()
+  return (
+    <div className="absolute inset-0 grid place-items-center">
+      <span className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
+        {t.projects.loadingConstellation}
+      </span>
+    </div>
+  )
+}
 
 const ProjectOrbs = dynamic(() => import('./project-orbs'), {
   ssr: false,
-  loading: () => loadingFallback,
+  loading: () => <LoadingFallback />,
 })
 
 const ProjectConstellationMobile = dynamic(() => import('./project-constellation-mobile'), {
   ssr: false,
-  loading: () => loadingFallback,
+  loading: () => <LoadingFallback />,
 })
 
 type Project = {
@@ -432,7 +435,7 @@ export function Projects() {
         />
         <div className="absolute inset-0 touch-pan-y md:touch-none">
           {!constellationNear
-            ? loadingFallback
+            ? <LoadingFallback />
             : tier === 'mobile'
               ? <ProjectConstellationMobile projects={orbProjects} onExpand={setExpanded} />
               : <ProjectOrbs projects={orbProjects} expandedName={expanded} onExpand={setExpanded} />}

@@ -71,6 +71,19 @@ export function Contact() {
             })}
           </div>
         </Reveal>
+
+        {/* One primary action — the info cards say how to reach me, this
+            says what to do next. */}
+        <Reveal delay={0.25}>
+          <div className="mt-10 flex justify-center">
+            <a
+              href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
+              className="inline-flex items-center gap-2 rounded-full border border-blue/40 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/70 hover:bg-blue/15"
+            >
+              {t.contact.cta} →
+            </a>
+          </div>
+        </Reveal>
       </div>
     </section>
   )

@@ -66,6 +66,7 @@ export type Dictionary = {
     closingKicker: string
     closingBody: string
     closingHighlight: string
+    cta: string
   }
   lukas: {
     subtitle: string
@@ -84,6 +85,7 @@ export type Dictionary = {
     github: string
     hobbyProject: string
     close: string
+    loadingConstellation: string
   }
   projectOrbsMobile: {
     tapHint: string
@@ -125,6 +127,8 @@ export type Dictionary = {
     phoneLabel: string
     locationLabel: string
     locationValue: string
+    cta: string
+    ctaSubject: string
   }
   footer: {
     tagline: string
@@ -279,7 +283,7 @@ export const EN: Dictionary = {
     screenSubtitle: 'Full-Stack Engineer & AI Practitioner',
   },
   hero: {
-    kicker: 'Issa Hareb · Curriculum Vitae',
+    kicker: 'Issa Hareb · Portfolio',
     headingStart: 'Full-stack engineer for',
     headingHighlight: 'complete digital systems',
     headingEnd: '— from idea to production.',
@@ -313,6 +317,7 @@ export const EN: Dictionary = {
       "I work AI-native. That means using modern AI systems for more than individual lines of code — they're a fixed part of my entire development process. Architecture, implementation, testing and refinement are all steered and reviewed by me, then brought together into one working system.",
     closingHighlight:
       "What matters is the result: a system that's easy to understand, reliably works, and solves a real problem.",
+    cta: 'Start a project',
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
@@ -378,6 +383,7 @@ export const EN: Dictionary = {
     github: 'GitHub ↗',
     hobbyProject: 'Hobby Project',
     close: 'Close',
+    loadingConstellation: 'Loading constellation…',
   },
   projectOrbsMobile: {
     tapHint: 'Tap a system to inspect',
@@ -479,11 +485,14 @@ export const EN: Dictionary = {
   contact: {
     kicker: 'Contact',
     heading: 'How to reach me.',
-    subtitle: 'Currently open to engineering and AI-focused roles and collaborations.',
+    subtitle:
+      "Whether it's a concrete project or a first idea — reach out and we'll figure out what to build.",
     emailLabel: 'Email',
     phoneLabel: 'Phone',
     locationLabel: 'Location',
     locationValue: 'Germany',
+    cta: 'Start a project',
+    ctaSubject: 'Project inquiry',
   },
   footer: {
     tagline: 'Autonomous systems & full-stack architecture',
@@ -607,7 +616,7 @@ export const DE: Dictionary = {
     screenSubtitle: 'Full-Stack-Entwickler & KI-Praktiker',
   },
   hero: {
-    kicker: 'Issa Hareb · Lebenslauf',
+    kicker: 'Issa Hareb · Portfolio',
     headingStart: 'Full-Stack-Entwickler für',
     headingHighlight: 'vollständige digitale Systeme',
     headingEnd: '– von der Idee bis zum produktiven Einsatz.',
@@ -641,6 +650,7 @@ export const DE: Dictionary = {
       'Ich arbeite KI-nativ. Das bedeutet: Ich nutze moderne KI-Systeme nicht nur für einzelne Codezeilen, sondern als festen Bestandteil meines gesamten Entwicklungsprozesses. Architektur, Umsetzung, Tests und Verbesserungen werden von mir gesteuert, überprüft und zu einer funktionierenden Gesamtlösung verbunden.',
     closingHighlight:
       'Das Ergebnis zählt: ein System, das verständlich aufgebaut ist, zuverlässig funktioniert und ein konkretes Problem löst.',
+    cta: 'Direkt anfragen',
   },
   lukas: {
     subtitle: 'Logical Universal Knowledge Agent System',
@@ -706,6 +716,7 @@ export const DE: Dictionary = {
     github: 'GitHub ↗',
     hobbyProject: 'Hobbyprojekt',
     close: 'Schließen',
+    loadingConstellation: 'Konstellation lädt…',
   },
   projectOrbsMobile: {
     tapHint: 'System antippen zum Ansehen',
@@ -807,11 +818,14 @@ export const DE: Dictionary = {
   contact: {
     kicker: 'Kontakt',
     heading: 'So erreichst du mich.',
-    subtitle: 'Aktuell offen für Engineering- und KI-fokussierte Rollen und Kooperationen.',
+    subtitle:
+      'Ob konkretes Projekt oder erste Idee – schreib mir, und wir finden heraus, was sich daraus bauen lässt.',
     emailLabel: 'E-Mail',
     phoneLabel: 'Telefon',
     locationLabel: 'Standort',
     locationValue: 'Deutschland',
+    cta: 'Projekt anfragen',
+    ctaSubject: 'Projektanfrage',
   },
   footer: {
     tagline: 'Autonome Systeme & Full-Stack-Architektur',

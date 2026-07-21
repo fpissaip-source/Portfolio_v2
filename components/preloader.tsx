@@ -7,21 +7,27 @@ import { useLanguage, useT } from './language-context'
 
 const PRELOAD = ['/intro/cinematic-poster.jpg']
 /** How long each quick greeting stays before the next one swaps in. */
-const GREETING_STEP_MS = 220
+const GREETING_STEP_MS = 190
 /** How long the final (browser-language) greeting stands before the exit. */
 const FINAL_HOLD_MS = 600
 /** Never wait on slow assets longer than this before exiting anyway. */
 const PRELOAD_CAP_MS = 2500
 
-/** Rapid multilingual hellos; the visitor's own browser language is pulled
- *  out of this list and shown LAST, as the note the sequence lands on. */
+/** Rapid multilingual hellos. Add more here any time — just append a
+ *  `{ lang, text }` entry, no other wiring needed. The visitor's own
+ *  browser language (matched against `lang` below) is pulled out and
+ *  shown both FIRST and LAST, bookending the quick tour through the rest. */
 const GREETINGS = [
   { lang: 'en', text: 'Welcome' },
   { lang: 'de', text: 'Willkommen' },
   { lang: 'fr', text: 'Bonjour' },
   { lang: 'es', text: 'Hola' },
   { lang: 'it', text: 'Ciao' },
+  { lang: 'pt', text: 'Olá' },
+  { lang: 'nl', text: 'Hallo' },
+  { lang: 'tr', text: 'Merhaba' },
   { lang: 'ja', text: 'こんにちは' },
+  { lang: 'ar', text: 'مرحباً' },
 ]
 
 export function Preloader() {
@@ -36,11 +42,13 @@ export function Preloader() {
   const [gone, setGone] = useState(false)
   const [exitScale, setExitScale] = useState(20)
 
-  // Quick hellos first, the browser's own language as the closing one.
+  // The visitor's own language opens the sequence, a quick tour through the
+  // rest follows, then the same greeting closes it — first and last frame.
   const orderedGreetings = useMemo(() => {
     const finalLang = lang === 'de' ? 'de' : 'en'
-    const final = GREETINGS.find((g) => g.lang === finalLang) ?? GREETINGS[0]
-    return [...GREETINGS.filter((g) => g !== final), final]
+    const home = GREETINGS.find((g) => g.lang === finalLang) ?? GREETINGS[0]
+    const others = GREETINGS.filter((g) => g !== home)
+    return [home, ...others, home]
   }, [lang])
 
   const activeGreeting = orderedGreetings[Math.min(greetingIndex, orderedGreetings.length - 1)]
@@ -261,23 +269,27 @@ export function Preloader() {
             {/* Rapid multilingual hellos, landing on the visitor's own
                 language. `mode="popLayout"` lets each word start entering
                 while the previous one is still leaving — at this pace a
-                serial wait would stutter. */}
+                serial wait would stutter. Gated on `lang` so a non-English
+                visitor never sees a flash of the English default while the
+                real language is still resolving. */}
             <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-full">
-              <AnimatePresence mode="popLayout" initial={false}>
-                <motion.span
-                  key={activeGreeting.text}
-                  initial={{ opacity: 0, y: 14, filter: 'blur(5px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: -14, filter: 'blur(5px)' }}
-                  transition={{
-                    duration: isFinalGreeting ? 0.2 : 0.13,
-                    ease: [0.32, 0.72, 0, 1],
-                  }}
-                  className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
-                >
-                  {activeGreeting.text}
-                </motion.span>
-              </AnimatePresence>
+              {lang && (
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={activeGreeting.text}
+                    initial={{ opacity: 0, y: 14, filter: 'blur(5px)' }}
+                    animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                    exit={{ opacity: 0, y: -14, filter: 'blur(5px)' }}
+                    transition={{
+                      duration: isFinalGreeting ? 0.2 : 0.13,
+                      ease: [0.32, 0.72, 0, 1],
+                    }}
+                    className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
+                  >
+                    {activeGreeting.text}
+                  </motion.span>
+                </AnimatePresence>
+              )}
             </div>
           </div>
         </div>

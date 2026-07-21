@@ -186,14 +186,22 @@ export function CinematicIntro() {
     // fires exactly when the seeked frame is ready to composite), with the
     // plain `seeked` event as fallback. All-Intra encoding makes each seek
     // a single-frame decode, so the queue drains at display rate.
+    //
+    // Deliberately NOT using `video.fastSeek()`: it trades precision for
+    // speed by seeking to the nearest keyframe boundary instead of the
+    // exact requested time — a real win on long-GOP footage, but every
+    // frame here already IS a keyframe, so there's no decode-cost upside
+    // to gain. What it does bring, especially on WebKit, is a
+    // non-standard, historically flaky implementation that can silently
+    // land on the wrong frame or drop the `seeked` event entirely — which
+    // reads exactly like "the scroll video is stuck/broken". A plain
+    // `currentTime` assignment is the well-specified, reliable path and
+    // costs nothing extra on this footage.
     const vrfc = (
       video as HTMLVideoElement & {
         requestVideoFrameCallback?: (cb: () => void) => number
       }
     ).requestVideoFrameCallback?.bind(video)
-    const fastSeek = (
-      video as HTMLVideoElement & { fastSeek?: (time: number) => void }
-    ).fastSeek?.bind(video)
     const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
     let pendingTime: number | null = null
     let seekBusy = false
@@ -215,8 +223,7 @@ export function CinematicIntro() {
       window.clearTimeout(seekWatchdog)
       seekWatchdog = window.setTimeout(releaseSeek, 300)
       if (vrfc) vrfc(() => drawFrame())
-      if (fastSeek) fastSeek(clamped)
-      else video.currentTime = clamped
+      video.currentTime = clamped
     }
     const releaseSeek = () => {
       window.clearTimeout(seekWatchdog)

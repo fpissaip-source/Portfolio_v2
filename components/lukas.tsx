@@ -145,10 +145,13 @@ export function Lukas() {
 
       // Seek queue — never issue overlapping seeks; the newest target wins.
       // With All-Intra encoding every frame is a keyframe, so each seek
-      // resolves in one decode and `fastSeek` (where available) is exact.
-      const fastSeek = (
-        video as HTMLVideoElement & { fastSeek?: (time: number) => void }
-      ).fastSeek?.bind(video)
+      // resolves in one decode already — no need for `video.fastSeek()`,
+      // whose whole point is trading precision for speed on long-GOP
+      // footage by snapping to the nearest keyframe. Here that trade buys
+      // nothing but inherits fastSeek's non-standard, historically flaky
+      // WebKit behavior (silently landing on the wrong frame or dropping
+      // `seeked` entirely), so a plain `currentTime` assignment is used
+      // unconditionally instead.
       const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
       let pendingTime: number | null = null
       let seekBusy = false
@@ -170,8 +173,7 @@ export function Lukas() {
         // release the queue so scrubbing can't lock onto a stale frame.
         window.clearTimeout(seekWatchdog)
         seekWatchdog = window.setTimeout(releaseSeek, 300)
-        if (fastSeek) fastSeek(clamped)
-        else video.currentTime = clamped
+        video.currentTime = clamped
       }
       const releaseSeek = () => {
         window.clearTimeout(seekWatchdog)

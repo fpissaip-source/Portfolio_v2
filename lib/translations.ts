@@ -543,6 +543,12 @@ export const EN: Dictionary = {
         ],
       },
       {
+        heading: 'ElevenLabs Voice Assistant',
+        body: [
+          'This website may include a voice assistant powered by ElevenLabs (Conversational AI). Only when you actively start a conversation with it are your microphone audio and the conversation content transmitted to ElevenLabs for processing and response generation. No audio is captured before you explicitly start the assistant.',
+        ],
+      },
+      {
         heading: 'Your Rights',
         body: [
           'You have the right at any time to access, rectify, erase or restrict the processing of your personal data, as well as a right to data portability and objection. Feel free to reach out by email to Impressum@hareb.org.',
@@ -862,6 +868,12 @@ export const DE: Dictionary = {
         heading: 'Lokale Speicherung Ihrer Spracheinstellung',
         body: [
           'Ihre gewählte Sprache (Deutsch/Englisch) wird ausschließlich lokal in Ihrem Browser (localStorage) gespeichert, um sie bei einem erneuten Besuch beizubehalten. Diese Information verlässt Ihr Gerät nicht und wird nicht an mich übertragen.',
+        ],
+      },
+      {
+        heading: 'ElevenLabs Sprachassistent',
+        body: [
+          'Diese Website kann einen Sprachassistenten auf Basis von ElevenLabs (Conversational AI) einbinden. Erst wenn Sie ein Gespräch aktiv starten, werden Ihre Mikrofonaufnahmen und Gesprächsinhalte zur Verarbeitung und Antworterzeugung an ElevenLabs übertragen. Vor dem aktiven Start des Assistenten werden keine Audiodaten erfasst.',
         ],
       },
       {

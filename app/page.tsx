@@ -7,6 +7,7 @@ import { SiteNav } from '@/components/site-nav'
 import { LanguageToggle } from '@/components/language-toggle'
 import { SkipLink } from '@/components/skip-link'
 import { SkipIntroButton } from '@/components/skip-intro-button'
+import { LukasVoiceWidget } from '@/components/lukas-voice-widget'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
 import { Services } from '@/components/services'
@@ -30,6 +31,7 @@ export default function Page() {
       <SiteNav />
       <LanguageToggle />
       <SkipIntroButton />
+      <LukasVoiceWidget />
       <main id="main-content" tabIndex={-1} className="relative">
         <CinematicIntro />
         {/* The website — revealed as the monitor becomes the screen. Also

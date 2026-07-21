@@ -292,7 +292,7 @@ export function Lukas() {
                   const last = BEAT_SNAPS[BEAT_SNAPS.length - 1]
                   if (value < first - 0.05 || value > last + 0.05) return value
                   let best = value
-                  let bestD = 0.045
+                  let bestD = 0.058
                   for (const s of BEAT_SNAPS) {
                     const d = Math.abs(value - s)
                     if (d < bestD) {

@@ -797,10 +797,14 @@ export function CinematicIntro() {
             flicker through random glyphs, then lock into place with a
             bright spark as the head passes. "I" forms first, then "AM",
             then "ISSA" below. */}
+        {/* The two lines form ONE tight lockup — their containers are sized
+            and stacked so the visual gap between the lines stays roughly a
+            quarter line-height at every breakpoint, instead of two loose
+            fragments floating far apart. */}
         <DecodeName
           ref={line1Ref}
           words={['I', 'AM']}
-          className="pointer-events-none absolute inset-x-0 top-[9%] z-[16] h-[15vh] w-full text-6xl font-bold sm:top-[11%] sm:h-[13vh] sm:text-8xl md:text-9xl"
+          className="pointer-events-none absolute inset-x-0 top-[13%] z-[16] h-[12vh] w-full text-6xl font-bold sm:top-[12%] sm:h-[12vh] sm:text-8xl md:text-9xl"
         />
         {/* Wrapped separately so the whole line can be slid + scaled down
             toward the monitor screen as it dissolves — the first ISSA
@@ -808,17 +812,17 @@ export function CinematicIntro() {
             rather than fading away independently of it. */}
         <div
           ref={nameWrapRef}
-          className="pointer-events-none absolute inset-x-0 top-[24%] z-[16] sm:top-[25%]"
+          className="pointer-events-none absolute inset-x-0 top-[21%] z-[16] sm:top-[22%] md:top-[24%]"
         >
           <DecodeName
             ref={line2Ref}
             words={['ISSA', 'HAREB']}
-            className="h-[18vh] w-full text-6xl font-bold sm:h-[16vh] sm:text-8xl md:text-9xl"
+            className="h-[12vh] w-full text-6xl font-bold sm:h-[13vh] sm:text-8xl md:text-9xl"
           />
         </div>
 
         {/* Scene 2 — text phrases. Anchored below the "I AM" / "ISSA HAREB"
-            neon title block (which spans roughly the top 9%–41% of the
+            neon title block (which spans roughly the top 13%–35% of the
             viewport and holds fully lit for this whole window) rather than
             true-centered — a vertically-centered phrase would grow upward
             into that title on longer strings (e.g. the German "Alles

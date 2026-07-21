@@ -748,8 +748,9 @@ export function CinematicIntro() {
             >
               <span
                 data-screen-name
-                className="font-sans font-bold tracking-[0.12em] opacity-0"
+                className="font-bold tracking-[0.05em] opacity-0"
                 style={{
+                  fontFamily: 'var(--font-space-grotesk)',
                   fontSize: 'min(4cqw, 28px)',
                   color: 'color-mix(in oklch, var(--purple) 55%, white)',
                   textShadow:

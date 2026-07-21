@@ -1,31 +1,50 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { gsap } from 'gsap'
-import { motion, useMotionValue, useSpring, useTransform } from 'motion/react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'motion/react'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useLanguage, useT } from './language-context'
 
 const PRELOAD = ['/intro/cinematic-poster.jpg']
-const MIN_SHOW_MS = 900
-const PERCENT_DURATION = 1
+/** How long each quick greeting stays before the next one swaps in. */
+const GREETING_STEP_MS = 220
+/** How long the final (browser-language) greeting stands before the exit. */
+const FINAL_HOLD_MS = 600
+/** Never wait on slow assets longer than this before exiting anyway. */
+const PRELOAD_CAP_MS = 2500
+
+/** Rapid multilingual hellos; the visitor's own browser language is pulled
+ *  out of this list and shown LAST, as the note the sequence lands on. */
+const GREETINGS = [
+  { lang: 'en', text: 'Welcome' },
+  { lang: 'de', text: 'Willkommen' },
+  { lang: 'fr', text: 'Bonjour' },
+  { lang: 'es', text: 'Hola' },
+  { lang: 'it', text: 'Ciao' },
+  { lang: 'ja', text: 'こんにちは' },
+]
 
 export function Preloader() {
   const { lang } = useLanguage()
   const t = useT()
-  const rootRef = useRef<HTMLDivElement>(null)
   const ovalRef = useRef<HTMLDivElement>(null)
-  const captionRef = useRef<HTMLSpanElement>(null)
   const lightningRef = useRef<LightningHandle>(null)
-  const textRowRef = useRef<HTMLDivElement>(null)
+  const loadedRef = useRef(0)
 
-  const [percent, setPercent] = useState(0)
-  const [cursorOffset, setCursorOffset] = useState<number | null>(null)
-  const [readyForWipe, setReadyForWipe] = useState(false)
-  const [wipeStarted, setWipeStarted] = useState(false)
+  const [greetingIndex, setGreetingIndex] = useState(0)
   const [exitStarted, setExitStarted] = useState(false)
   const [gone, setGone] = useState(false)
   const [exitScale, setExitScale] = useState(20)
+
+  // Quick hellos first, the browser's own language as the closing one.
+  const orderedGreetings = useMemo(() => {
+    const finalLang = lang === 'de' ? 'de' : 'en'
+    const final = GREETINGS.find((g) => g.lang === finalLang) ?? GREETINGS[0]
+    return [...GREETINGS.filter((g) => g !== final), final]
+  }, [lang])
+
+  const activeGreeting = orderedGreetings[Math.min(greetingIndex, orderedGreetings.length - 1)]
+  const isFinalGreeting = greetingIndex >= orderedGreetings.length - 1
 
   const angle = useMotionValue(0)
   const springAngle = useSpring(angle, { stiffness: 55, damping: 16, mass: 0.6 })
@@ -38,6 +57,20 @@ export function Preloader() {
   useEffect(() => {
     document.documentElement.classList.add('preloading')
     return () => document.documentElement.classList.remove('preloading')
+  }, [])
+
+  // Warm the intro poster under the greetings — the sequence is not gated on
+  // it (except for a soft cap below), it just gets a head start.
+  useEffect(() => {
+    for (const src of PRELOAD) {
+      const img = new Image()
+      const done = () => {
+        loadedRef.current++
+      }
+      img.onload = done
+      img.onerror = done
+      img.src = src
+    }
   }, [])
 
   // Shimmer chases the pointer and idles into a slow rotation without one.
@@ -108,105 +141,52 @@ export function Preloader() {
     }
   }, [lang])
 
-  // Rest the insertion cursor directly after the localized loading text.
-  useLayoutEffect(() => {
-    if (!lang) return
-    const textRow = textRowRef.current
-    const oval = ovalRef.current
-    if (!textRow || !oval) return
-
-    const update = () => {
-      const ovalRect = oval.getBoundingClientRect()
-      const textRect = textRow.getBoundingClientRect()
-      const cursorGap = 10
-      setCursorOffset(Math.max(2, ovalRect.right - textRect.right + cursorGap))
-    }
-
-    update()
-    const ro = new ResizeObserver(update)
-    ro.observe(textRow)
-    ro.observe(oval)
-    return () => ro.disconnect()
-  }, [lang])
-
+  // The whole show: rapid hellos → the browser's own language → exit. Kicks
+  // off as soon as the language is resolved (a layout effect on first paint).
   useEffect(() => {
     if (!lang) return
 
-    let cancelled = false
-    let loadedCount = 0
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const timers: number[] = []
+    const started = performance.now()
 
-    for (const src of PRELOAD) {
-      const img = new Image()
-      const done = () => {
-        if (!cancelled) loadedCount++
+    if (!reduced) {
+      for (let i = 1; i < orderedGreetings.length; i++) {
+        timers.push(window.setTimeout(() => setGreetingIndex(i), GREETING_STEP_MS * i))
       }
-      img.onload = done
-      img.onerror = done
-      img.src = src
+    } else {
+      // Reduced motion: no cycling — land directly on the final greeting.
+      setGreetingIndex(orderedGreetings.length - 1)
     }
 
-    const visualProxy = { p: 0 }
-    const tween = gsap.to(visualProxy, {
-      p: 100,
-      duration: PERCENT_DURATION,
-      ease: 'power1.inOut',
-      onUpdate: () => {
-        if (!cancelled) setPercent(Math.round(visualProxy.p))
-      },
-    })
+    const cycleMs = reduced ? 450 : GREETING_STEP_MS * (orderedGreetings.length - 1) + FINAL_HOLD_MS
 
-    const started = performance.now()
-    let settle: number | undefined
-    const tryStart = () => {
-      if (cancelled) return
+    // Soft gate: don't exit into a not-yet-loaded intro poster, but never
+    // stall past the hard cap either.
+    let poll: number | undefined
+    const tryExit = () => {
       const elapsed = performance.now() - started
-      if (loadedCount >= PRELOAD.length && visualProxy.p >= 100 && elapsed >= MIN_SHOW_MS) {
-        setReadyForWipe(true)
+      if (loadedRef.current >= PRELOAD.length || elapsed >= PRELOAD_CAP_MS) {
+        lightningRef.current?.strike({
+          intensity: 1.15,
+          duration: 380,
+          originX: 0.35 + Math.random() * 0.3,
+          originY: 0.06 + Math.random() * 0.08,
+          targetX: 0.35 + Math.random() * 0.3,
+          targetY: 0.22 + Math.random() * 0.1,
+        })
+        setExitStarted(true)
         return
       }
-      settle = window.setTimeout(tryStart, 80)
+      poll = window.setTimeout(tryExit, 80)
     }
-    settle = window.setTimeout(tryStart, 200)
-
-    const wake = window.setTimeout(() => {
-      lightningRef.current?.strike({
-        intensity: 0.7,
-        originX: 0.15 + Math.random() * 0.2,
-        originY: 0.05 + Math.random() * 0.08,
-        targetX: 0.15 + Math.random() * 0.2,
-        targetY: 0.2 + Math.random() * 0.1,
-      })
-    }, 900)
+    timers.push(window.setTimeout(tryExit, cycleMs))
 
     return () => {
-      cancelled = true
-      tween.kill()
-      if (settle) window.clearTimeout(settle)
-      window.clearTimeout(wake)
+      timers.forEach((id) => window.clearTimeout(id))
+      if (poll) window.clearTimeout(poll)
     }
-  }, [lang])
-
-  useEffect(() => {
-    if (!readyForWipe) return
-    const timer = window.setTimeout(() => setWipeStarted(true), 600)
-    return () => window.clearTimeout(timer)
-  }, [readyForWipe])
-
-  useEffect(() => {
-    if (!wipeStarted) return
-
-    lightningRef.current?.strike({
-      intensity: 1.15,
-      duration: 380,
-      originX: 0.35 + Math.random() * 0.3,
-      originY: 0.06 + Math.random() * 0.08,
-      targetX: 0.35 + Math.random() * 0.3,
-      targetY: 0.22 + Math.random() * 0.1,
-    })
-
-    const timer = window.setTimeout(() => setExitStarted(true), 1200)
-    return () => window.clearTimeout(timer)
-  }, [wipeStarted])
+  }, [lang, orderedGreetings])
 
   useEffect(() => {
     if (!exitStarted) return
@@ -221,7 +201,6 @@ export function Preloader() {
 
   return (
     <div
-      ref={rootRef}
       className={`fixed inset-0 z-[120] flex items-center justify-center overflow-hidden bg-white${exitStarted ? ' loader-root-exit' : ''}`}
     >
       <div
@@ -279,40 +258,32 @@ export function Preloader() {
               }}
             />
 
-            <div className={`loader-stage${wipeStarted ? ' loader-wipe-active' : ''}`}>
-              <div className="loader-welcome">
-                <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                  {t.preloader.welcome}
-                </span>
-              </div>
-
-              <div className="loader-mask">
-                <div ref={textRowRef} className="flex items-center gap-3 sm:gap-4">
-                  <span className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl">
-                    {t.preloader.loading}
-                  </span>
-                  <span className="font-sans text-xl font-bold tabular-nums leading-none text-foreground sm:text-4xl">
-                    {percent}
-                    <span className="ml-1 text-purple">%</span>
-                  </span>
-                </div>
-              </div>
-
-              <div className="loader-cursor-track" aria-hidden>
-                <div
-                  className={`loader-cursor${!wipeStarted ? ' caret-blink' : ''}`}
-                  style={cursorOffset !== null ? { right: cursorOffset } : undefined}
-                />
-              </div>
+            {/* Rapid multilingual hellos, landing on the visitor's own
+                language. `mode="popLayout"` lets each word start entering
+                while the previous one is still leaving — at this pace a
+                serial wait would stutter. */}
+            <div className="absolute inset-0 grid place-items-center overflow-hidden rounded-full">
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span
+                  key={activeGreeting.text}
+                  initial={{ opacity: 0, y: 14, filter: 'blur(5px)' }}
+                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: -14, filter: 'blur(5px)' }}
+                  transition={{
+                    duration: isFinalGreeting ? 0.2 : 0.13,
+                    ease: [0.32, 0.72, 0, 1],
+                  }}
+                  className="font-sans text-xl font-bold leading-none tracking-tight text-foreground sm:text-4xl"
+                >
+                  {activeGreeting.text}
+                </motion.span>
+              </AnimatePresence>
             </div>
           </div>
         </div>
 
         <div className="loader-meta flex flex-col items-center gap-3">
-          <span
-            ref={captionRef}
-            className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs"
-          >
+          <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs">
             {t.preloader.caption}
           </span>
           {lang && (

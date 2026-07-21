@@ -12,9 +12,9 @@ import {
  * A cursor-decode title reveal. A left-to-right scan head sweeps through each
  * word; letters just ahead of it flicker through random glyphs, and each one
  * locks into its real character with a bright spark as the head passes it.
- * The reveal uses the same Geist glyphs and tracking as the final monitor
- * title, so the handoff remains one continuous piece of typography rather
- * than visibly changing into a second font at the end.
+ * The reveal uses the same Space Grotesk glyphs and tracking as the final
+ * monitor title, so the handoff remains one continuous piece of typography
+ * rather than visibly changing into a second font at the end.
  */
 
 export type NeonLineHandle = {
@@ -208,8 +208,8 @@ export const DecodeName = forwardRef<
             }}
             className="inline-flex overflow-hidden whitespace-nowrap"
             style={{
-              fontFamily: 'var(--font-geist-sans)',
-              letterSpacing: '0.12em',
+              fontFamily: 'var(--font-space-grotesk)',
+              letterSpacing: '0.05em',
               marginLeft: wi === 0 ? undefined : 0,
             }}
           >

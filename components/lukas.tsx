@@ -130,6 +130,7 @@ export function Lukas() {
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
     ).matches
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
 
     // --- fallback film: scroll-scrubbed video --------------------------
     // Only wired up when WebGL is unavailable; WebGL devices never touch
@@ -145,13 +146,10 @@ export function Lukas() {
 
       // Seek queue — never issue overlapping seeks; the newest target wins.
       // With All-Intra encoding every frame is a keyframe, so each seek
-      // resolves in one decode already — no need for `video.fastSeek()`,
-      // whose whole point is trading precision for speed on long-GOP
-      // footage by snapping to the nearest keyframe. Here that trade buys
-      // nothing but inherits fastSeek's non-standard, historically flaky
-      // WebKit behavior (silently landing on the wrong frame or dropping
-      // `seeked` entirely), so a plain `currentTime` assignment is used
-      // unconditionally instead.
+      // resolves in one decode and `fastSeek` (where available) is exact.
+      const fastSeek = (
+        video as HTMLVideoElement & { fastSeek?: (time: number) => void }
+      ).fastSeek?.bind(video)
       const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
       let pendingTime: number | null = null
       let seekBusy = false
@@ -173,12 +171,8 @@ export function Lukas() {
         // release the queue so scrubbing can't lock onto a stale frame.
         window.clearTimeout(seekWatchdog)
         seekWatchdog = window.setTimeout(releaseSeek, 300)
-        // The priming play() below can still be mid-flight (promise not yet
-        // resolved) when the first scroll-driven seek arrives — force a
-        // pause first every time so real-time playback can't keep silently
-        // advancing underneath the seek.
-        if (!video.paused) video.pause()
-        video.currentTime = clamped
+        if (fastSeek) fastSeek(clamped)
+        else video.currentTime = clamped
       }
       const releaseSeek = () => {
         window.clearTimeout(seekWatchdog)
@@ -193,30 +187,12 @@ export function Lukas() {
       video.addEventListener('seeked', onSeeked)
       video.addEventListener('error', releaseSeek)
 
-      // Where the scroll position says the film should be right now — used
-      // to correct the frame after the priming play() below.
-      const currentTargetTime = () => {
-        const rect = root.getBoundingClientRect()
-        const span = rect.height - window.innerHeight
-        const progress = span > 0 ? Math.max(0, Math.min(1, -rect.top / span)) : 0
-        return Math.min(progress / P_FILM_END, 1) * (video.duration || 0)
-      }
-
       // A muted inline play/pause primes the decode pipeline — allowed
-      // without a gesture, and it makes iOS actually buffer the file. That
-      // play() runs in real time until its promise resolves, which can take
-      // long enough on a slow connection to carry the frame well past 0
-      // before pause() lands — re-seeking to the scroll-driven target right
-      // after corrects whatever drift happened during that window.
+      // without a gesture, and it makes iOS actually buffer the file.
       const onLoadedMeta = () => {
         seekTo(0)
         const p = video.play()
-        if (p) {
-          p.then(() => {
-            video.pause()
-            seekTo(currentTargetTime())
-          }).catch(() => {})
-        }
+        if (p) p.then(() => video.pause()).catch(() => {})
       }
       video.addEventListener('loadedmetadata', onLoadedMeta)
       video.src = isPortraitPhone ? VIDEO_MOBILE : VIDEO_DESKTOP
@@ -297,7 +273,11 @@ export function Lukas() {
           // so a heavy scrub here double-lags the frame sequence behind the
           // mouse wheel specifically (a notched desktop wheel arrives in
           // discrete bursts, unlike a continuous touch/trackpad stream).
-          scrub: prefersReduced ? (false as const) : 0.25,
+          // Touch is that continuous stream AND the heaviest render target
+          // (mobile GPU), where dropped frames read as stutter — a slightly
+          // longer scrub there interpolates across them for a smoother feel
+          // without the wheel-lag downside desktop would get from it.
+          scrub: prefersReduced ? (false as const) : isTouch ? 0.5 : 0.25,
           // Gentle magnet: once scrolling settles very near a beat, it's
           // eased the rest of the way there — but this rides on top of the
           // normal scrub rather than freezing it, so the camera flight

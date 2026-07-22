@@ -50,6 +50,7 @@ export type Dictionary = {
     phrases: string[]
     scroll: string
     screenSubtitle: string
+    lowPowerHint: string
   }
   hero: {
     kicker: string
@@ -281,6 +282,7 @@ export const EN: Dictionary = {
     ],
     scroll: 'Scroll',
     screenSubtitle: 'Full-Stack Engineer & AI Practitioner',
+    lowPowerHint: 'Low Power Mode is on — turn it off for the full intro animation.',
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
@@ -614,6 +616,7 @@ export const DE: Dictionary = {
     ],
     scroll: 'Scrollen',
     screenSubtitle: 'Full-Stack-Entwickler & KI-Praktiker',
+    lowPowerHint: 'Stromsparmodus ist an — für die volle Intro-Animation bitte deaktivieren.',
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',

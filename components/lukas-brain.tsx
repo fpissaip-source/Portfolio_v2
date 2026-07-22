@@ -682,8 +682,14 @@ export function LukasBrain({
   return (
     <Canvas
       className="!absolute inset-0"
-      dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      // Mobile GPUs (and high-DPR phone screens, often 3x) choke on this
+      // volume of glowing particles rendered at a high pixel ratio with
+      // MSAA — the frame rate drops and the scroll-scrub reads as stuttery.
+      // Cap the pixel ratio lower and drop antialiasing on mobile: far more
+      // fluid there, and the glow/fog hides the softer edges. Desktop keeps
+      // the crisp, high-DPR look.
+      dpr={dense ? [1, 1.75] : [1, 1.25]}
+      gl={{ antialias: dense, alpha: true, powerPreference: 'high-performance' }}
       camera={{ fov: BASE_FOV, near: 0.1, far: 260, position: START.toArray() }}
     >
       <fogExp2 attach="fog" args={[BG, FOG_DENSITY]} />

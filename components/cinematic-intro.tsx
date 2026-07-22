@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { DecodeName, type NeonLineHandle } from './decode-name'
@@ -94,6 +94,11 @@ export function CinematicIntro() {
   /** Set once the user scrolls at all — permanently disengages the hidden
    *  terminal reveal (read by the pointer-follow effect further down). */
   const scrolledRef = useRef(false)
+  /** True only when iOS Low Power Mode is detected (it blocks the muted
+   *  autoplay that primes video decoding, so the scroll-scrubbed frames
+   *  never advance). Drives a single, quiet hint — nothing renders
+   *  otherwise, so the normal experience is completely untouched. */
+  const [lowPowerMode, setLowPowerMode] = useState(false)
 
   useEffect(() => {
     const root = rootRef.current
@@ -110,39 +115,6 @@ export function CinematicIntro() {
 
     const video = videoRef.current
     if (!video) return
-
-    // iOS Safari refuses to decode a video element that isn't actually
-    // rendered on screen (opacity:0 / near-zero size / off-screen) — a
-    // power-saving measure — so the hidden-video → drawImage(canvas) scrub
-    // pipeline silently produces no frames there: the canvas only ever
-    // shows its poster and the intro looks frozen no matter how far you
-    // scroll, even though the page itself scrolls fine (exactly the
-    // reported iOS symptom). On touch / coarse-pointer devices we instead
-    // promote the video itself to the visible base layer and scrub it
-    // natively via currentTime — the reliable iOS pattern. It lives inside
-    // the same zoom `stage` and shares the canvas's object-cover framing,
-    // so the monitor-dive zoom and the screen projection still line up. The
-    // cursor-follow X-ray reveal is pointer-only and never ran here anyway.
-    // Desktop keeps the canvas pipeline (and its reveal mask) untouched.
-    const isCoarsePointer = window.matchMedia(
-      '(hover: none) and (pointer: coarse)',
-    ).matches
-    if (isCoarsePointer) {
-      Object.assign(video.style, {
-        position: 'absolute',
-        inset: '0',
-        left: '0',
-        top: '0',
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-        opacity: '1',
-      })
-      // The canvas sits just behind it showing the poster until the first
-      // frame decodes; once the video paints, it covers the canvas.
-      canvas.style.zIndex = '0'
-      video.style.zIndex = '1'
-    }
 
     // canvas.clientWidth/clientHeight are layout reads — cheap in isolation,
     // but drawFrame() runs on every single scroll-driven seek (tens of times
@@ -219,22 +191,14 @@ export function CinematicIntro() {
     // fires exactly when the seeked frame is ready to composite), with the
     // plain `seeked` event as fallback. All-Intra encoding makes each seek
     // a single-frame decode, so the queue drains at display rate.
-    //
-    // Deliberately NOT using `video.fastSeek()`: it trades precision for
-    // speed by seeking to the nearest keyframe boundary instead of the
-    // exact requested time — a real win on long-GOP footage, but every
-    // frame here already IS a keyframe, so there's no decode-cost upside
-    // to gain. What it does bring, especially on WebKit, is a
-    // non-standard, historically flaky implementation that can silently
-    // land on the wrong frame or drop the `seeked` event entirely — which
-    // reads exactly like "the scroll video is stuck/broken". A plain
-    // `currentTime` assignment is the well-specified, reliable path and
-    // costs nothing extra on this footage.
     const vrfc = (
       video as HTMLVideoElement & {
         requestVideoFrameCallback?: (cb: () => void) => number
       }
     ).requestVideoFrameCallback?.bind(video)
+    const fastSeek = (
+      video as HTMLVideoElement & { fastSeek?: (time: number) => void }
+    ).fastSeek?.bind(video)
     const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
     let pendingTime: number | null = null
     let seekBusy = false
@@ -256,25 +220,11 @@ export function CinematicIntro() {
       window.clearTimeout(seekWatchdog)
       seekWatchdog = window.setTimeout(releaseSeek, 300)
       if (vrfc) vrfc(() => drawFrame())
-      // The priming play() below can still be mid-flight (promise not yet
-      // resolved) when the first scroll-driven seek arrives — assigning
-      // currentTime while the video is actively playing lets real-time
-      // playback keep silently advancing underneath the seek, so force a
-      // pause first every time, regardless of why it might still be playing.
-      if (!video.paused) video.pause()
-      video.currentTime = clamped
+      if (fastSeek) fastSeek(clamped)
+      else video.currentTime = clamped
     }
     const releaseSeek = () => {
       window.clearTimeout(seekWatchdog)
-      // Always repaint here, not just from `onSeeked`: this also runs when
-      // the 300ms watchdog fires because WebKit swallowed `seeked` for a
-      // seek that DID actually land on the video element (currentTime is
-      // already correct) — without this, the canvas keeps showing
-      // whichever frame was drawn last (e.g. `loadeddata`'s first paint,
-      // mid-flight from the priming play()) even though the video itself
-      // is sitting on the right frame underneath. drawFrame() is an
-      // idempotent blit, so calling it unconditionally here is free.
-      drawFrame()
       seekBusy = false
       if (pendingTime !== null) {
         const t = pendingTime
@@ -282,39 +232,32 @@ export function CinematicIntro() {
         seekTo(t)
       }
     }
-    const onSeeked = () => releaseSeek()
+    const onSeeked = () => {
+      // Always paint here too: drawFrame() is an idempotent blit, and on
+      // engines where paused-seek + rVFC is flaky this is the safety net.
+      drawFrame()
+      releaseSeek()
+    }
     video.addEventListener('seeked', onSeeked)
     video.addEventListener('error', releaseSeek)
 
-    // Where the scroll position says the flight should be right now, in
-    // video-time seconds — used to correct the frame after the priming
-    // play() below, whether the visitor is still at the very top or has
-    // already scrolled some before the video finished loading.
-    const currentTargetTime = () => {
-      const rect = root.getBoundingClientRect()
-      const span = rect.height - window.innerHeight
-      const progress = span > 0 ? Math.max(0, Math.min(1, -rect.top / span)) : 0
-      return Math.min(progress / FLIGHT_END, 1) * (video.duration || 0)
-    }
-
     // First paint + preview placement as soon as dimensions are known; a
-    // muted inline play/pause primes the decode pipeline without a gesture
-    // (required for iOS to actually buffer the file). That play() runs in
-    // real time until its promise resolves, though, which can take long
-    // enough on a slow connection to visibly carry the frame well past 0
-    // before pause() lands — exactly the "starts mid-flight, frozen" bug.
-    // Re-seeking to the scroll-driven target right after pausing corrects
-    // whatever drift happened during that window.
+    // muted inline play/pause primes the decode pipeline without a gesture.
+    // A rejected play() on a muted, inline video is the reliable signal for
+    // iOS Low Power Mode (it blocks exactly this autoplay), which is what
+    // stops the scrubbed frames from ever advancing. Only touch devices can
+    // be in that mode, and only there is the hint useful — desktop never
+    // trips it, so the normal experience is never touched.
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
     const onLoadedMeta = () => {
       sizeCanvas()
-      seekTo(0)
       const p = video.play()
       if (p) {
-        p.then(() => {
-          video.pause()
-          seekTo(currentTargetTime())
-        }).catch(() => {})
+        p.then(() => video.pause()).catch(() => {
+          if (isTouch) setLowPowerMode(true)
+        })
       }
+      seekTo(0)
     }
     const onLoadedData = () => {
       drawFrame()
@@ -791,23 +734,17 @@ export function CinematicIntro() {
             </div>
           </div>
 
-          {/* Frame source for the flythrough. On desktop it's a hidden
-              decode buffer painted onto the canvas above (transparent, tiny
-              — but not 1px, since some WebKit builds deprioritize decoding
-              near-zero-sized elements). On touch / coarse-pointer devices
-              the effect promotes THIS element to the visible, natively
-              scrubbed base layer instead (see the effect), because iOS
-              won't decode a hidden video for canvas drawing. The `poster`
-              gives it the correct opening frame before the first decode. */}
+          {/* Hidden frame source — decoded by the browser, painted onto the
+              canvas above. Kept 1px + transparent instead of display:none so
+              Safari doesn't deprioritize decoding it. */}
           <video
             ref={videoRef}
             aria-hidden
             muted
             playsInline
             preload="auto"
-            poster={POSTER_SRC}
             disablePictureInPicture
-            className="pointer-events-none absolute left-0 top-0 h-16 w-16 opacity-0"
+            className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
           />
 
           {/* Website preview glued onto the monitor's chroma-green screen. */}
@@ -942,6 +879,18 @@ export function CinematicIntro() {
             <span className="h-2 w-1 animate-bounce rounded-full bg-white/70" />
           </span>
         </div>
+
+        {/* Low Power Mode hint — rendered ONLY when iOS Low Power Mode is
+            detected (the muted autoplay that primes the scrubbed video is
+            blocked there). Nothing renders in the normal case, so this can
+            never affect anyone not actually in Low Power Mode. */}
+        {lowPowerMode && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-24 z-[45] flex justify-center px-6">
+            <span className="max-w-[86%] text-balance rounded-full border border-white/15 bg-black/55 px-4 py-2 text-center font-mono text-[10px] uppercase leading-relaxed tracking-[0.15em] text-white/70 backdrop-blur-sm">
+              {t.cinematicIntro.lowPowerHint}
+            </span>
+          </div>
+        )}
       </div>
     </section>
   )

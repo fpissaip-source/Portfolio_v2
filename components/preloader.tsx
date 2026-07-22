@@ -63,35 +63,8 @@ export function Preloader() {
   )
 
   useEffect(() => {
-    const html = document.documentElement
-    html.classList.add('preloading')
-    const unlock = () => html.classList.remove('preloading')
-
-    // Scroll is locked (`html.preloading { overflow: hidden }`) only while
-    // the intro sequence plays. The normal exit path below removes the
-    // class, but it runs off a chain of setTimeout()s, and iOS Safari
-    // throttles timers hard while a heavy page is still loading — if that
-    // chain stalls, the lock would stick and the whole page would feel
-    // frozen. Two independent failsafes guarantee it never does:
-    //   1. Any real intent to move the page (touch/wheel/scroll) releases
-    //      the lock immediately — if the visitor is trying to scroll, they
-    //      never stay stuck, whatever the timers are doing.
-    //   2. A hard wall-clock cap releases it no matter what.
-    const releaseOnIntent = () => {
-      unlock()
-      window.removeEventListener('touchmove', releaseOnIntent)
-      window.removeEventListener('wheel', releaseOnIntent)
-    }
-    window.addEventListener('touchmove', releaseOnIntent, { passive: true })
-    window.addEventListener('wheel', releaseOnIntent, { passive: true })
-    const hardCap = window.setTimeout(unlock, 6000)
-
-    return () => {
-      window.clearTimeout(hardCap)
-      window.removeEventListener('touchmove', releaseOnIntent)
-      window.removeEventListener('wheel', releaseOnIntent)
-      unlock()
-    }
+    document.documentElement.classList.add('preloading')
+    return () => document.documentElement.classList.remove('preloading')
   }, [])
 
   // Warm the intro poster under the greetings — the sequence is not gated on

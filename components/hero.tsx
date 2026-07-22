@@ -69,8 +69,19 @@ export function Hero() {
   useEffect(() => {
     const section = sectionRef.current
     const highlight = highlightRef.current
-    if (!section || !highlight) return
+    const h1 = h1Ref.current
+    if (!section || !highlight || !h1) return
     let sparked = false
+    // Trigger on the HEADLINE itself, not the whole min-h-screen section.
+    // The heading sits in the section's vertical center, so a
+    // section-top-based trigger (start 'top 90%') begins reacting while the
+    // text is still far below the fold — on a phone the reveal was already
+    // finishing by the time the words were comfortably on screen, so the
+    // visitor only ever caught its tail. Anchoring to the heading and
+    // starting once it's fully in view means the reveal actually plays out
+    // while you're reading it: begins when the whole headline has entered
+    // ('bottom bottom') and completes as it reaches center.
+    const revealTrigger = { trigger: h1, start: 'bottom bottom', end: 'center 45%', scrub: 0.5 }
     const ctx = gsap.context(() => {
       gsap.to(section.querySelectorAll('[data-lit]'), {
         opacity: 1,
@@ -78,10 +89,7 @@ export function Hero() {
         duration: 0.35,
         stagger: 0.045,
         scrollTrigger: {
-          trigger: section,
-          start: 'top 90%',
-          end: 'top 5%',
-          scrub: 0.5,
+          ...revealTrigger,
           onUpdate: (self) => {
             if (!sparked && self.progress >= 0.85) {
               sparked = true
@@ -94,12 +102,7 @@ export function Hero() {
       gsap.to(highlight, {
         opacity: 1,
         ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 90%',
-          end: 'top 5%',
-          scrub: 0.5,
-        },
+        scrollTrigger: { ...revealTrigger },
       })
     }, section)
     const raf = requestAnimationFrame(() => ScrollTrigger.refresh())

@@ -173,6 +173,11 @@ export function Lukas() {
         // release the queue so scrubbing can't lock onto a stale frame.
         window.clearTimeout(seekWatchdog)
         seekWatchdog = window.setTimeout(releaseSeek, 300)
+        // The priming play() below can still be mid-flight (promise not yet
+        // resolved) when the first scroll-driven seek arrives — force a
+        // pause first every time so real-time playback can't keep silently
+        // advancing underneath the seek.
+        if (!video.paused) video.pause()
         video.currentTime = clamped
       }
       const releaseSeek = () => {
@@ -188,12 +193,30 @@ export function Lukas() {
       video.addEventListener('seeked', onSeeked)
       video.addEventListener('error', releaseSeek)
 
+      // Where the scroll position says the film should be right now — used
+      // to correct the frame after the priming play() below.
+      const currentTargetTime = () => {
+        const rect = root.getBoundingClientRect()
+        const span = rect.height - window.innerHeight
+        const progress = span > 0 ? Math.max(0, Math.min(1, -rect.top / span)) : 0
+        return Math.min(progress / P_FILM_END, 1) * (video.duration || 0)
+      }
+
       // A muted inline play/pause primes the decode pipeline — allowed
-      // without a gesture, and it makes iOS actually buffer the file.
+      // without a gesture, and it makes iOS actually buffer the file. That
+      // play() runs in real time until its promise resolves, which can take
+      // long enough on a slow connection to carry the frame well past 0
+      // before pause() lands — re-seeking to the scroll-driven target right
+      // after corrects whatever drift happened during that window.
       const onLoadedMeta = () => {
         seekTo(0)
         const p = video.play()
-        if (p) p.then(() => video.pause()).catch(() => {})
+        if (p) {
+          p.then(() => {
+            video.pause()
+            seekTo(currentTargetTime())
+          }).catch(() => {})
+        }
       }
       video.addEventListener('loadedmetadata', onLoadedMeta)
       video.src = isPortraitPhone ? VIDEO_MOBILE : VIDEO_DESKTOP

@@ -223,6 +223,12 @@ export function CinematicIntro() {
       window.clearTimeout(seekWatchdog)
       seekWatchdog = window.setTimeout(releaseSeek, 300)
       if (vrfc) vrfc(() => drawFrame())
+      // The priming play() below can still be mid-flight (promise not yet
+      // resolved) when the first scroll-driven seek arrives — assigning
+      // currentTime while the video is actively playing lets real-time
+      // playback keep silently advancing underneath the seek, so force a
+      // pause first every time, regardless of why it might still be playing.
+      if (!video.paused) video.pause()
       video.currentTime = clamped
     }
     const releaseSeek = () => {
@@ -243,13 +249,35 @@ export function CinematicIntro() {
     video.addEventListener('seeked', onSeeked)
     video.addEventListener('error', releaseSeek)
 
+    // Where the scroll position says the flight should be right now, in
+    // video-time seconds — used to correct the frame after the priming
+    // play() below, whether the visitor is still at the very top or has
+    // already scrolled some before the video finished loading.
+    const currentTargetTime = () => {
+      const rect = root.getBoundingClientRect()
+      const span = rect.height - window.innerHeight
+      const progress = span > 0 ? Math.max(0, Math.min(1, -rect.top / span)) : 0
+      return Math.min(progress / FLIGHT_END, 1) * (video.duration || 0)
+    }
+
     // First paint + preview placement as soon as dimensions are known; a
-    // muted inline play/pause primes the decode pipeline without a gesture.
+    // muted inline play/pause primes the decode pipeline without a gesture
+    // (required for iOS to actually buffer the file). That play() runs in
+    // real time until its promise resolves, though, which can take long
+    // enough on a slow connection to visibly carry the frame well past 0
+    // before pause() lands — exactly the "starts mid-flight, frozen" bug.
+    // Re-seeking to the scroll-driven target right after pausing corrects
+    // whatever drift happened during that window.
     const onLoadedMeta = () => {
       sizeCanvas()
-      const p = video.play()
-      if (p) p.then(() => video.pause()).catch(() => {})
       seekTo(0)
+      const p = video.play()
+      if (p) {
+        p.then(() => {
+          video.pause()
+          seekTo(currentTargetTime())
+        }).catch(() => {})
+      }
     }
     const onLoadedData = () => {
       drawFrame()

@@ -111,6 +111,39 @@ export function CinematicIntro() {
     const video = videoRef.current
     if (!video) return
 
+    // iOS Safari refuses to decode a video element that isn't actually
+    // rendered on screen (opacity:0 / near-zero size / off-screen) — a
+    // power-saving measure — so the hidden-video → drawImage(canvas) scrub
+    // pipeline silently produces no frames there: the canvas only ever
+    // shows its poster and the intro looks frozen no matter how far you
+    // scroll, even though the page itself scrolls fine (exactly the
+    // reported iOS symptom). On touch / coarse-pointer devices we instead
+    // promote the video itself to the visible base layer and scrub it
+    // natively via currentTime — the reliable iOS pattern. It lives inside
+    // the same zoom `stage` and shares the canvas's object-cover framing,
+    // so the monitor-dive zoom and the screen projection still line up. The
+    // cursor-follow X-ray reveal is pointer-only and never ran here anyway.
+    // Desktop keeps the canvas pipeline (and its reveal mask) untouched.
+    const isCoarsePointer = window.matchMedia(
+      '(hover: none) and (pointer: coarse)',
+    ).matches
+    if (isCoarsePointer) {
+      Object.assign(video.style, {
+        position: 'absolute',
+        inset: '0',
+        left: '0',
+        top: '0',
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        opacity: '1',
+      })
+      // The canvas sits just behind it showing the poster until the first
+      // frame decodes; once the video paints, it covers the canvas.
+      canvas.style.zIndex = '0'
+      video.style.zIndex = '1'
+    }
+
     // canvas.clientWidth/clientHeight are layout reads — cheap in isolation,
     // but drawFrame() runs on every single scroll-driven seek (tens of times
     // a second during a fast scroll), and GSAP is writing transform/opacity
@@ -758,18 +791,21 @@ export function CinematicIntro() {
             </div>
           </div>
 
-          {/* Hidden frame source — decoded by the browser, painted onto the
-              canvas above. Fully transparent and non-interactive, but given
-              real (if tiny) dimensions rather than 1px: some WebKit versions
-              apply the same loading-deprioritization to near-zero-sized
-              video elements that they apply to display:none ones, which
-              would explain metadata never arriving on some devices. */}
+          {/* Frame source for the flythrough. On desktop it's a hidden
+              decode buffer painted onto the canvas above (transparent, tiny
+              — but not 1px, since some WebKit builds deprioritize decoding
+              near-zero-sized elements). On touch / coarse-pointer devices
+              the effect promotes THIS element to the visible, natively
+              scrubbed base layer instead (see the effect), because iOS
+              won't decode a hidden video for canvas drawing. The `poster`
+              gives it the correct opening frame before the first decode. */}
           <video
             ref={videoRef}
             aria-hidden
             muted
             playsInline
             preload="auto"
+            poster={POSTER_SRC}
             disablePictureInPicture
             className="pointer-events-none absolute left-0 top-0 h-16 w-16 opacity-0"
           />

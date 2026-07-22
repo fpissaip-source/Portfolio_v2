@@ -6,6 +6,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
+import { markLukasReached } from '@/lib/lukas-presence'
+import { OPEN_CHAT_EVENT } from './lukas-voice-widget'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -49,8 +51,18 @@ const BEAT_COUNT = 5
 /** Beat centers on the section timeline — shared by the scroll snap, the
  *  progress beam AND the 3D flight (each camera dwell is anchored on one),
  *  so every system agrees on where an ability "is". */
+/** Beats begin here. Pushed back from the old 0.24 to leave a clean chapter
+ *  for the "talk to L.U.K.A.S." invite between the title settling and the
+ *  first ability (the beat-to-beat spacing, SLOT, is unchanged — only the
+ *  start offset moved, so the abilities' own feel is identical). */
+const BEATS_START = 0.3
 const SLOT = 0.66 / BEAT_COUNT
-const BEAT_SNAPS = Array.from({ length: BEAT_COUNT }, (_, i) => 0.24 + i * SLOT + SLOT * 0.45)
+const BEAT_SNAPS = Array.from({ length: BEAT_COUNT }, (_, i) => BEATS_START + i * SLOT + SLOT * 0.45)
+
+/** The invite chapter's resting point — its own snap so a scroll naturally
+ *  settles on it (panel holds still ⇒ its CTA is tappable) before the
+ *  abilities begin. */
+const INVITE_SNAP = 0.25
 
 /** Last-resort net: if the WebGL2 probe passed but the renderer still fails
  *  to initialise (blocked/exhausted contexts), swap to the film instead of
@@ -209,6 +221,16 @@ export function Lukas() {
     const ctx = gsap.context(() => {
       const q = gsap.utils.selector(root)
 
+      // The invite panel only accepts clicks while it's the resting chapter
+      // (roughly its snap window); the rest of the time it's a fading
+      // pass-through so it never eats scroll or taps meant for the beats.
+      const inviteEl = q('[data-lukas-invite]')[0] as HTMLElement | undefined
+      const updateInvite = (p: number) => {
+        if (!inviteEl) return
+        inviteEl.style.pointerEvents = p > 0.21 && p < 0.29 ? 'auto' : 'none'
+      }
+      updateInvite(0)
+
       // Left-side beam: fills toward the next beat as scroll approaches it,
       // then resets — a visible cue for "how close is the next section".
       const beamFill = q('[data-beam-fill]')[0] as HTMLElement | undefined
@@ -293,12 +315,13 @@ export function Lukas() {
             ? undefined
             : {
                 snapTo: (value: number) => {
-                  const first = BEAT_SNAPS[0]
+                  // Candidates = the invite chapter plus the ability beats.
+                  const first = INVITE_SNAP
                   const last = BEAT_SNAPS[BEAT_SNAPS.length - 1]
                   if (value < first - 0.05 || value > last + 0.05) return value
                   let best = value
                   let bestD = 0.058
-                  for (const s of BEAT_SNAPS) {
+                  for (const s of [INVITE_SNAP, ...BEAT_SNAPS]) {
                     const d = Math.abs(value - s)
                     if (d < bestD) {
                       bestD = d
@@ -321,6 +344,7 @@ export function Lukas() {
               seekTo(Math.min(self.progress / P_FILM_END, 1) * (video.duration || 0))
             }
             updateBeam(self.progress)
+            updateInvite(self.progress)
             // The handoff: a cluster of glowing nodes draws in across
             // 0.02-0.11, fully formed right as data-field's own fade-in
             // begins (0.1), then fades out across 0.11-0.24 — matching
@@ -330,6 +354,11 @@ export function Lukas() {
             // leaving a gap before the field appears.
             const handoffP = Math.max(0, Math.min(1, (self.progress - 0.02) / 0.22))
             lightningRef.current?.setHandoffProgress(handoffP)
+            // Once the abilities have essentially all played, mark the
+            // section "travelled through" — this is what lets the floating
+            // voice launcher appear (it stays hidden until L.U.K.A.S. has
+            // introduced himself).
+            if (self.progress >= 0.9) markLukasReached()
           },
         },
       })
@@ -355,16 +384,31 @@ export function Lukas() {
         )
         .to(
           q('[data-lukas-head]'),
-          { scale: 0.28, y: '-34vh', opacity: 0.85, duration: 0.1, ease: 'power2.inOut' },
+          { scale: 0.28, y: '-34vh', opacity: 0.85, duration: 0.06, ease: 'power2.inOut' },
           0.16,
         )
         .to(q('[data-lukas-sub]'), { opacity: 0, duration: 0.04 }, 0.16)
+
+      // "Talk to L.U.K.A.S." invite — its own chapter between the title (fully
+      // shrunk to its small top header by ~0.22) and the first ability beat
+      // (0.30). Rises in, holds through its snap point (0.25, pointer-events
+      // on so its CTA is tappable while it rests), then clears before beats.
+      tl.fromTo(
+        q('[data-lukas-invite]'),
+        { opacity: 0, yPercent: 6, filter: 'blur(10px)' },
+        { opacity: 1, yPercent: 0, filter: 'blur(0px)', duration: 0.03, ease: 'power2.out' },
+        0.215,
+      ).to(
+        q('[data-lukas-invite]'),
+        { opacity: 0, yPercent: -6, filter: 'blur(10px)', duration: 0.03, ease: 'power2.in' },
+        0.285,
+      )
 
       // Beats crossfade like cut scenes.
       const beats = q('[data-beat]')
       const slot = 0.66 / beats.length
       beats.forEach((el, i) => {
-        const start = 0.24 + i * slot
+        const start = BEATS_START + i * slot
         tl.fromTo(
           el,
           { opacity: 0, yPercent: 8, filter: 'blur(10px)' },
@@ -556,6 +600,56 @@ export function Lukas() {
               </p>
             </div>
           ))}
+        </div>
+
+        {/* "Talk to L.U.K.A.S." invite — its own chapter before the abilities.
+            Opacity/enter are scroll-driven (data-lukas-invite tween); pointer
+            events are toggled on only around its snap point so the CTA is
+            tappable while it rests, and inert otherwise. */}
+        <div
+          data-lukas-invite
+          className="pointer-events-none absolute inset-0 z-[12] flex items-center justify-center px-6 opacity-0 will-transform"
+        >
+          <div className="relative w-full max-w-lg">
+            {/* Light-absorbing pocket, same trick as the beats, so the glass
+                panel reads cleanly over bright filaments. */}
+            <div
+              aria-hidden
+              className="absolute -inset-8 -z-10 rounded-[2rem] blur-2xl"
+              style={{
+                background:
+                  'radial-gradient(closest-side, rgba(5,5,5,0.9), rgba(5,5,5,0.5) 60%, transparent 100%)',
+              }}
+            />
+            <div className="glass relative overflow-hidden rounded-3xl border border-purple/25 p-8 text-center shadow-[0_40px_120px_-40px_rgba(167,139,250,0.5)] sm:p-10">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/20 blur-3xl"
+              />
+              {/* Pulsing neuron node — the section motif. */}
+              <span className="relative mx-auto flex h-12 w-12 items-center justify-center">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-purple/25 [animation-duration:2.6s]" />
+                <span className="relative h-4 w-4 rounded-full bg-[color-mix(in_oklch,var(--purple)_60%,white)] shadow-[0_0_20px_5px_color-mix(in_oklch,var(--purple)_70%,transparent)]" />
+              </span>
+              <div className="mt-5 font-mono text-xs uppercase tracking-[0.3em] text-purple/80">
+                {t.lukas.inviteKicker}
+              </div>
+              <h3 className="mt-3 text-balance text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {t.lukas.inviteTitle}
+              </h3>
+              <p className="mx-auto mt-4 max-w-md text-pretty leading-relaxed text-muted-foreground">
+                {t.lukas.inviteBody}
+              </p>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}
+                className="group mt-7 inline-flex items-center gap-2 rounded-full border border-purple/50 bg-purple/15 px-7 py-3.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/80 hover:bg-purple/25"
+              >
+                {t.lukas.inviteCta}
+                <span className="transition-transform group-hover:translate-x-0.5">→</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

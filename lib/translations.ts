@@ -73,6 +73,15 @@ export type Dictionary = {
     subtitle: string
     repoLink: string
     beats: { kicker: string; title: string; body: string[] }[]
+    inviteKicker: string
+    inviteTitle: string
+    inviteBody: string
+    inviteCta: string
+  }
+  lukasVoice: {
+    launcherKicker: string
+    launcherLabel: string
+    launcherAria: string
   }
   projects: {
     kicker: string
@@ -366,6 +375,16 @@ export const EN: Dictionary = {
         ],
       },
     ],
+    inviteKicker: 'Live Access',
+    inviteTitle: 'Talk to L.U.K.A.S. yourself.',
+    inviteBody:
+      "Don't just read about him — ask him. He answers from his own memory and knowledge, by voice or in writing.",
+    inviteCta: 'Start a conversation',
+  },
+  lukasVoice: {
+    launcherKicker: 'Live Agent',
+    launcherLabel: 'Talk to L.U.K.A.S.',
+    launcherAria: 'Open the L.U.K.A.S. conversation',
   },
   projects: {
     kicker: 'Featured Work',
@@ -700,6 +719,16 @@ export const DE: Dictionary = {
         ],
       },
     ],
+    inviteKicker: 'Live-Zugang',
+    inviteTitle: 'Sprich selbst mit L.U.K.A.S.',
+    inviteBody:
+      'Lies nicht nur über ihn – frag ihn. Er antwortet aus seinem eigenen Gedächtnis und Wissen, per Sprache oder im Chat.',
+    inviteCta: 'Gespräch starten',
+  },
+  lukasVoice: {
+    launcherKicker: 'Live-Agent',
+    launcherLabel: 'Mit L.U.K.A.S. sprechen',
+    launcherAria: 'Das L.U.K.A.S.-Gespräch öffnen',
   },
   projects: {
     kicker: 'Ausgewählte Arbeiten',

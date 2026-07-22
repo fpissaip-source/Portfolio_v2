@@ -233,6 +233,15 @@ export function CinematicIntro() {
     }
     const releaseSeek = () => {
       window.clearTimeout(seekWatchdog)
+      // Always repaint here, not just from `onSeeked`: this also runs when
+      // the 300ms watchdog fires because WebKit swallowed `seeked` for a
+      // seek that DID actually land on the video element (currentTime is
+      // already correct) — without this, the canvas keeps showing
+      // whichever frame was drawn last (e.g. `loadeddata`'s first paint,
+      // mid-flight from the priming play()) even though the video itself
+      // is sitting on the right frame underneath. drawFrame() is an
+      // idempotent blit, so calling it unconditionally here is free.
+      drawFrame()
       seekBusy = false
       if (pendingTime !== null) {
         const t = pendingTime
@@ -240,12 +249,7 @@ export function CinematicIntro() {
         seekTo(t)
       }
     }
-    const onSeeked = () => {
-      // Always paint here too: drawFrame() is an idempotent blit, and on
-      // engines where paused-seek + rVFC is flaky this is the safety net.
-      drawFrame()
-      releaseSeek()
-    }
+    const onSeeked = () => releaseSeek()
     video.addEventListener('seeked', onSeeked)
     video.addEventListener('error', releaseSeek)
 

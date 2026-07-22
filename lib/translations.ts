@@ -282,7 +282,7 @@ export const EN: Dictionary = {
     ],
     scroll: 'Scroll',
     screenSubtitle: 'Full-Stack Engineer & AI Practitioner',
-    lowPowerHint: 'Low Power Mode is on — turn it off for the full intro animation.',
+    lowPowerHint: 'Low Power Mode is on — tap to start the intro animation.',
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
@@ -616,7 +616,7 @@ export const DE: Dictionary = {
     ],
     scroll: 'Scrollen',
     screenSubtitle: 'Full-Stack-Entwickler & KI-Praktiker',
-    lowPowerHint: 'Stromsparmodus ist an — für die volle Intro-Animation bitte deaktivieren.',
+    lowPowerHint: 'Stromsparmodus ist an — zum Starten der Intro-Animation tippen.',
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',

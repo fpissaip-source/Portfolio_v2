@@ -127,6 +127,22 @@ export function CinematicIntro() {
     let cw = 0
     let ch = 0
 
+    // Low Power Mode only: once the video is gesture-unlocked it becomes the
+    // visible, natively-scrubbed layer (iOS won't decode the hidden video
+    // for the canvas there), and the canvas is retired. Stays false — and
+    // the whole canvas pipeline stays exactly as-is — in every normal case.
+    let videoIsVisibleBase = false
+
+    // Where the flythrough should sit right now, in video-time seconds,
+    // derived from live scroll position (matches the onUpdate formula
+    // below). Used to place the frame the instant the video is unlocked.
+    const currentTargetTime = () => {
+      const rect = root.getBoundingClientRect()
+      const span = rect.height - window.innerHeight
+      const progress = span > 0 ? Math.max(0, Math.min(1, -rect.top / span)) : 0
+      return Math.min(progress / FLIGHT_END, 1) * (video.duration || 0)
+    }
+
     // object-fit: cover mapping of the video frame onto the canvas.
     const coverTransform = () => {
       const vw = video.videoWidth
@@ -140,6 +156,9 @@ export function CinematicIntro() {
     }
 
     const drawFrame = () => {
+      // After a Low Power Mode gesture-unlock the video paints itself; the
+      // canvas is retired, so there's nothing to blit.
+      if (videoIsVisibleBase) return
       if (!cw || !ch || !video.videoWidth) return
       const { scale, dx, dy } = coverTransform()
       ctx.clearRect(0, 0, cw, ch)
@@ -249,12 +268,60 @@ export function CinematicIntro() {
     // be in that mode, and only there is the hint useful — desktop never
     // trips it, so the normal experience is never touched.
     const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+
+    // Low Power Mode recovery (touch only). iOS deliberately blocks the
+    // muted autoplay that primes decoding, so the canvas never advances.
+    // WebKit *does* allow video.play() when it's called synchronously
+    // inside a real user gesture — even in Low Power Mode. So on the first
+    // genuine touch we unlock the video, promote it to the visible layer
+    // (a hidden video still won't decode for the canvas in this mode) and
+    // hand scrubbing over to it natively. Registered ONLY after autoplay
+    // was actually refused, so nothing here runs in the normal case.
+    let unlockArmed = false
+    const unlockVideo = () => {
+      window.removeEventListener('touchend', unlockVideo)
+      window.removeEventListener('pointerup', unlockVideo)
+      const p = video.play() // MUST be the first call inside the gesture
+      if (!p) return
+      p.then(() => {
+        video.pause()
+        video.removeAttribute('poster')
+        // Promote to the visible, natively-scrubbed base layer and retire
+        // the (never-decoding) canvas.
+        Object.assign(video.style, {
+          position: 'absolute',
+          inset: '0',
+          left: '0',
+          top: '0',
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          opacity: '1',
+          zIndex: '1',
+        })
+        canvas.style.visibility = 'hidden'
+        videoIsVisibleBase = true
+        video.currentTime = currentTargetTime()
+        setLowPowerMode(false) // unlocked — the hint is no longer needed
+      }).catch(() => {
+        // Still refused even inside a gesture — leave the hint up; the
+        // static poster (correct opening frame) remains a clean fallback.
+      })
+    }
+
     const onLoadedMeta = () => {
       sizeCanvas()
       const p = video.play()
       if (p) {
         p.then(() => video.pause()).catch(() => {
-          if (isTouch) setLowPowerMode(true)
+          if (isTouch && !unlockArmed) {
+            unlockArmed = true
+            setLowPowerMode(true)
+            // Arm the one-shot gesture unlock — the visitor's first touch
+            // (a tap or the first scroll-swipe's touchend) frees the video.
+            window.addEventListener('touchend', unlockVideo, { passive: true })
+            window.addEventListener('pointerup', unlockVideo, { passive: true })
+          }
         })
       }
       seekTo(0)
@@ -515,6 +582,8 @@ export function CinematicIntro() {
 
     return () => {
       window.removeEventListener('resize', sizeCanvas)
+      window.removeEventListener('touchend', unlockVideo)
+      window.removeEventListener('pointerup', unlockVideo)
       window.clearTimeout(seekWatchdog)
       video.removeEventListener('seeked', onSeeked)
       video.removeEventListener('error', releaseSeek)

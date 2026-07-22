@@ -8,25 +8,24 @@ import { useT } from './language-context'
 /**
  * L.U.K.A.S. voice/chat launcher.
  *
- * The conversation itself is powered by the Lukas-Autonom backend's own
- * embed (`<lukas-domain>/widget.js`, configured through its data-* API and
- * an ElevenLabs agent id). This component owns only the on-brand *entry*
- * experience around it: a floating launcher that fades in after the visitor
- * has travelled through the L.U.K.A.S. scroll story (never before — see
- * lib/lukas-presence.ts), plus a shared open trigger so the in-section
- * "Sprich mit L.U.K.A.S." panel opens the exact same thing.
+ * The conversation itself is the Lukas-Autonom backend's own embeddable
+ * widget (`<domain>/widget.js` — a self-contained chat/voice panel with an
+ * ElevenLabs agent for speech). This component owns the on-brand *entry*:
+ *   • the backend widget is loaded only once the visitor has travelled
+ *     through the L.U.K.A.S. scroll story (see lib/lukas-presence.ts);
+ *   • the widget's own default button is hidden (CSS — it has no shadow
+ *     DOM), and our branded launcher pill takes its place;
+ *   • the in-section "Sprich mit L.U.K.A.S." panel opens the same thing.
  *
- * Config (both public, so NEXT_PUBLIC_, inlined at build time on Railway):
- *   NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN  the backend origin serving widget.js
- *                                    (e.g. https://lukas.issahareb.me).
- *                                    Unset ⇒ the launcher never renders and
- *                                    the site ships exactly as before.
- *   NEXT_PUBLIC_LUKAS_AGENT_ID       overrides the default agent id below.
- *
- * On first activation we inject widget.js with its data-* attributes; the
- * backend widget then takes over the actual chat/voice surface.
+ * Config (public → NEXT_PUBLIC_, inlined at build time):
+ *   NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN  backend origin serving widget.js +
+ *                                    the chat API. Defaults to the current
+ *                                    Railway deployment; override to move it.
+ *   NEXT_PUBLIC_LUKAS_AGENT_ID       ElevenLabs agent id for voice.
  */
-const WIDGET_DOMAIN = process.env.NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN
+const WIDGET_DOMAIN =
+  process.env.NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN ||
+  'https://portfoliov2-production-992f.up.railway.app'
 const AGENT_ID =
   process.env.NEXT_PUBLIC_LUKAS_AGENT_ID || 'agent_4501ky1q2tgvepx906k5waew8bwk'
 
@@ -37,50 +36,74 @@ export const OPEN_CHAT_EVENT = 'lukas:open-chat'
 export function LukasVoiceWidget() {
   const t = useT()
   const [reached, setReached] = useState(false)
-  const [activated, setActivated] = useState(false)
-  const scriptInjected = useRef(false)
+  const loadedRef = useRef(false)
 
   // Appear only once the visitor has been through the L.U.K.A.S. section.
   useEffect(() => onLukasReached(() => setReached(true)), [])
 
-  // Inject the backend widget script exactly once, on the first open (from
-  // the launcher or the in-section panel). The backend's widget.js reads
-  // these data-* attributes off its own <script> tag.
-  const activate = () => {
-    if (!WIDGET_DOMAIN) return
-    if (!scriptInjected.current) {
-      scriptInjected.current = true
-      const s = document.createElement('script')
-      s.src = `${WIDGET_DOMAIN}/widget.js`
-      s.async = true
-      s.defer = true
-      s.setAttribute('data-api', WIDGET_DOMAIN)
-      s.setAttribute('data-voice', 'agent')
-      s.setAttribute('data-agent-id', AGENT_ID)
-      document.body.appendChild(s)
+  // Load the backend widget once, when the section is reached. Hide its own
+  // default button and lift its panel above our launcher pill.
+  useEffect(() => {
+    if (!reached || loadedRef.current) return
+    loadedRef.current = true
+
+    const style = document.createElement('style')
+    style.setAttribute('data-lukas-widget-style', '')
+    style.textContent =
+      '.lukas-btn{display:none!important}.lukas-panel{bottom:92px!important}'
+    document.head.appendChild(style)
+
+    const s = document.createElement('script')
+    s.src = `${WIDGET_DOMAIN}/widget.js`
+    s.defer = true
+    const attrs: Record<string, string> = {
+      'data-api': WIDGET_DOMAIN,
+      'data-voice': 'agent',
+      'data-agent-id': AGENT_ID,
+      'data-theme': 'dark',
+      'data-accent': '#a78bfa',
+      'data-accent2': '#5b93f6',
+      'data-radius': '20px',
+      'data-position': 'bottom-right',
+      'data-title': 'L.U.K.A.S.',
+      'data-subtitle': t.lukasVoice.panelSubtitle,
+      'data-greeting': t.lukasVoice.panelGreeting,
+      'data-placeholder': t.lukasVoice.panelPlaceholder,
     }
-    setActivated(true)
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v)
+    document.body.appendChild(s)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reached])
+
+  // Toggle the widget panel via its (hidden) button. The script loads async,
+  // so retry briefly if it isn't ready the instant the visitor clicks.
+  const openChat = () => {
+    let attempts = 20
+    const tryClick = () => {
+      const btn = document.querySelector<HTMLElement>('.lukas-btn')
+      if (btn) {
+        btn.click()
+        return
+      }
+      if (attempts-- > 0) window.setTimeout(tryClick, 150)
+    }
+    tryClick()
   }
 
   // Shared open trigger for the in-section CTA.
   useEffect(() => {
-    if (!WIDGET_DOMAIN) return
-    const open = () => activate()
+    const open = () => openChat()
     window.addEventListener(OPEN_CHAT_EVENT, open)
     return () => window.removeEventListener(OPEN_CHAT_EVENT, open)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Nothing to show until configured and until the section has been reached.
-  // Once activated, the backend widget owns the on-screen surface, so the
-  // branded launcher steps aside rather than sitting on top of it.
-  if (!WIDGET_DOMAIN || !reached || activated) return null
+  if (!reached) return null
 
   return (
     <AnimatePresence>
       <motion.button
         type="button"
-        onClick={activate}
+        onClick={openChat}
         aria-label={t.lukasVoice.launcherAria}
         initial={{ opacity: 0, y: 24, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

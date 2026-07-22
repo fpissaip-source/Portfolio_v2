@@ -82,6 +82,9 @@ export type Dictionary = {
     launcherKicker: string
     launcherLabel: string
     launcherAria: string
+    panelSubtitle: string
+    panelGreeting: string
+    panelPlaceholder: string
   }
   projects: {
     kicker: string
@@ -385,6 +388,10 @@ export const EN: Dictionary = {
     launcherKicker: 'Live Agent',
     launcherLabel: 'Talk to L.U.K.A.S.',
     launcherAria: 'Open the L.U.K.A.S. conversation',
+    panelSubtitle: "Issa's AI agent — ask me anything",
+    panelGreeting:
+      "Hey! I'm L.U.K.A.S., Issa's AI agent. Ask me about him or his projects — type, or tap the mic to talk.",
+    panelPlaceholder: 'Ask me about Issa…',
   },
   projects: {
     kicker: 'Featured Work',
@@ -729,6 +736,10 @@ export const DE: Dictionary = {
     launcherKicker: 'Live-Agent',
     launcherLabel: 'Mit L.U.K.A.S. sprechen',
     launcherAria: 'Das L.U.K.A.S.-Gespräch öffnen',
+    panelSubtitle: 'Issas KI-Agent — frag mich was',
+    panelGreeting:
+      'Hey! Ich bin L.U.K.A.S., Issas KI-Agent. Frag mich etwas über ihn oder seine Projekte — tippen oder aufs Mikro drücken.',
+    panelPlaceholder: 'Frag mich etwas über Issa…',
   },
   projects: {
     kicker: 'Ausgewählte Arbeiten',

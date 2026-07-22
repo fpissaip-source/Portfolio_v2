@@ -755,8 +755,11 @@ export function CinematicIntro() {
           </div>
 
           {/* Hidden frame source — decoded by the browser, painted onto the
-              canvas above. Kept 1px + transparent instead of display:none so
-              Safari doesn't deprioritize decoding it. */}
+              canvas above. Fully transparent and non-interactive, but given
+              real (if tiny) dimensions rather than 1px: some WebKit versions
+              apply the same loading-deprioritization to near-zero-sized
+              video elements that they apply to display:none ones, which
+              would explain metadata never arriving on some devices. */}
           <video
             ref={videoRef}
             aria-hidden
@@ -764,7 +767,7 @@ export function CinematicIntro() {
             playsInline
             preload="auto"
             disablePictureInPicture
-            className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
+            className="pointer-events-none absolute left-0 top-0 h-16 w-16 opacity-0"
           />
 
           {/* Website preview glued onto the monitor's chroma-green screen. */}

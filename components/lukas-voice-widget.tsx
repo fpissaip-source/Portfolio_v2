@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { onLukasReached } from '@/lib/lukas-presence'
+import { mountLukasVoiceViz } from '@/lib/lukas-voice-viz'
 import { useT } from './language-context'
 
 /**
@@ -37,6 +38,7 @@ export function LukasVoiceWidget() {
   const t = useT()
   const [reached, setReached] = useState(false)
   const loadedRef = useRef(false)
+  const vizCleanupRef = useRef<(() => void) | null>(null)
 
   // Appear only once the visitor has been through the L.U.K.A.S. section.
   useEffect(() => onLukasReached(() => setReached(true)), [])
@@ -72,8 +74,15 @@ export function LukasVoiceWidget() {
     }
     for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v)
     document.body.appendChild(s)
+
+    // Voice visualiser: injects itself into the chat panel once widget.js
+    // has built it, and animates to L.U.K.A.S.'s speaking/listening state.
+    const disposeViz = mountLukasVoiceViz()
+    vizCleanupRef.current = disposeViz
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reached])
+
+  useEffect(() => () => vizCleanupRef.current?.(), [])
 
   // Toggle the widget panel via its (hidden) button. The script loads async,
   // so retry briefly if it isn't ready the instant the visitor clicks.

@@ -10,8 +10,8 @@ import { useT } from './language-context'
  * L.U.K.A.S. voice/chat launcher.
  *
  * The conversation itself is the Lukas-Autonom backend's own embeddable
- * widget (`<domain>/widget.js` — a self-contained chat/voice panel with an
- * ElevenLabs agent for speech). This component owns the on-brand *entry*:
+ * widget (`<domain>/widget.js` — a self-contained chat/voice panel, voice via
+ * the OpenAI Realtime API). This component owns the on-brand *entry*:
  *   • the backend widget is loaded only once the visitor has travelled
  *     through the L.U.K.A.S. scroll story (see lib/lukas-presence.ts);
  *   • the widget's own default button is hidden (CSS — it has no shadow
@@ -22,13 +22,10 @@ import { useT } from './language-context'
  *   NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN  backend origin serving widget.js +
  *                                    the chat API. Defaults to the current
  *                                    Railway deployment; override to move it.
- *   NEXT_PUBLIC_LUKAS_AGENT_ID       ElevenLabs agent id for voice.
  */
 const WIDGET_DOMAIN =
   process.env.NEXT_PUBLIC_LUKAS_WIDGET_DOMAIN ||
   'https://portfoliov2-production-992f.up.railway.app'
-const AGENT_ID =
-  process.env.NEXT_PUBLIC_LUKAS_AGENT_ID || 'agent_4501ky1q2tgvepx906k5waew8bwk'
 
 /** Fired by the in-section invite panel (components/lukas.tsx) so its CTA
  *  opens the same conversation as the floating launcher. */
@@ -62,7 +59,6 @@ export function LukasVoiceWidget() {
     const attrs: Record<string, string> = {
       'data-api': WIDGET_DOMAIN,
       'data-voice': 'agent',
-      'data-agent-id': AGENT_ID,
       'data-theme': 'dark',
       'data-accent': '#a78bfa',
       'data-accent2': '#5b93f6',

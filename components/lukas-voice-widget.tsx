@@ -43,10 +43,11 @@ export function LukasVoiceWidget() {
   // Appear only once the visitor has been through the L.U.K.A.S. section.
   useEffect(() => onLukasReached(() => setReached(true)), [])
 
-  // Load the backend widget once, when the section is reached. Hide its own
-  // default button and lift its panel above our launcher pill.
-  useEffect(() => {
-    if (!reached || loadedRef.current) return
+  // Load the backend widget (idempotent — safe to call from both the
+  // "reached" preload below AND directly from a click, see openChat). Hide
+  // its own default button and lift its panel above our launcher pill.
+  const loadWidget = () => {
+    if (loadedRef.current) return
     loadedRef.current = true
 
     const style = document.createElement('style')
@@ -79,15 +80,25 @@ export function LukasVoiceWidget() {
     // has built it, and animates to L.U.K.A.S.'s speaking/listening state.
     const disposeViz = mountLukasVoiceViz()
     vizCleanupRef.current = disposeViz
+  }
+
+  // Preload once the section is reached (so the floating launcher opens
+  // instantly), but the in-section invite CTA can fire long before that —
+  // openChat() below loads on demand too, so clicking it never no-ops.
+  useEffect(() => {
+    if (reached) loadWidget()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reached])
 
   useEffect(() => () => vizCleanupRef.current?.(), [])
 
-  // Toggle the widget panel via its (hidden) button. The script loads async,
-  // so retry briefly if it isn't ready the instant the visitor clicks.
+  // Toggle the widget panel via its (hidden) button. Loads the widget first
+  // if it isn't already (e.g. the invite CTA fires long before "reached"),
+  // then retries briefly since the script + its button take a moment to
+  // appear once injected.
   const openChat = () => {
-    let attempts = 20
+    loadWidget()
+    let attempts = 30
     const tryClick = () => {
       const btn = document.querySelector<HTMLElement>('.lukas-btn')
       if (btn) {

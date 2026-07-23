@@ -1,8 +1,15 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
+import Script from 'next/script'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
+
+// L.U.K.A.S. chat/voice widget — vanilla script served by the Lukas
+// backend (fpissaip-source/lukas_autonom), self-injects a floating
+// button + panel into document.body. lazyOnload: not critical for first
+// paint, and the backend's own origin-check only allows this domain.
+const LUKAS_API = 'https://portfoliov2-production-992f.up.railway.app'
 
 const geistSans = Geist({
   subsets: ['latin'],
@@ -55,6 +62,13 @@ export default function RootLayout({
       <body className="antialiased">
         <LanguageProvider>{children}</LanguageProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
+        <Script
+          src={`${LUKAS_API}/widget.js`}
+          data-api={LUKAS_API}
+          data-voice="agent"
+          data-agent-id="agent_4501ky1q2tgvepx906k5waew8bwk"
+          strategy="lazyOnload"
+        />
       </body>
     </html>
   )

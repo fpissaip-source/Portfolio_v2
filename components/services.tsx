@@ -1,11 +1,11 @@
 'use client'
 
-import { Globe, LayoutDashboard, Bot, Rocket } from 'lucide-react'
+import { Globe, LayoutDashboard, Bot, Rocket, Phone } from 'lucide-react'
 import { Reveal } from './anim'
 import { useT } from './language-context'
 import { SectionHeading } from './section-heading'
 
-const ICONS = [Globe, LayoutDashboard, Bot, Rocket]
+const ICONS = [Globe, LayoutDashboard, Bot, Rocket, Phone]
 
 function splitClosingHighlight(copy: string) {
   const colon = copy.indexOf(':')

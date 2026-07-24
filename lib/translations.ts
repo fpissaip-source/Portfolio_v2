@@ -324,6 +324,10 @@ export const EN: Dictionary = {
         title: 'MVPs & Product Prototypes',
         body: "A product idea shouldn't sit on paper for months. I ship working first versions you can test workflows with, win early customers with, and use to plan the next steps on real data.",
       },
+      {
+        title: 'Phone & Support AI Agents',
+        body: 'Voice assistants that listen in real time and respond in milliseconds — natural conversation instead of a rigid script bot, available over chat or directly by phone. Great for customer support, appointment booking or first-line consultation, available around the clock.',
+      },
     ],
     closingKicker: 'What makes my approach different',
     closingBody:
@@ -670,6 +674,10 @@ export const DE: Dictionary = {
       {
         title: 'MVPs und Produktprototypen',
         body: 'Eine Produktidee soll nicht monatelang nur auf Papier existieren. Ich setze funktionierende erste Versionen um, mit denen sich Abläufe testen, Kunden gewinnen und die nächsten Entwicklungsschritte fundiert planen lassen.',
+      },
+      {
+        title: 'Telefon- und Support-KI-Agenten',
+        body: 'Sprachassistenten, die in Echtzeit zuhören und im Millisekundenbereich antworten – natürliche Gesprächsführung statt starrer Skript-Bot, wahlweise per Chat oder direkt am Telefon. Ideal für Kundensupport, Terminvereinbarung oder Erstberatung, rund um die Uhr erreichbar.',
       },
     ],
     closingKicker: 'Was meine Arbeitsweise besonders macht',

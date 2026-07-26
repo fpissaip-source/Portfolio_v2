@@ -45,42 +45,47 @@ export function Contact() {
           descriptionClassName="mx-auto max-w-lg"
         />
 
+        {/* Contact details as fields on the canvas, not cards (DESIGN.md §5).
+            The reachable ones are large, underlined-on-hover links so the
+            affordance is obvious — the previous bordered boxes hid the fact
+            that the address and number were tappable at all. */}
         <Reveal delay={0.15}>
-          <div className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-3">
-            {DETAILS.map((d) => {
-              const inner = (
-                <div className="glass flex h-full flex-col items-center gap-3 rounded-2xl p-6 text-center transition-colors hover:border-white/20">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-blue/10">
-                    <d.icon className="h-5 w-5 text-blue" />
-                  </span>
-                  <span className="text-sm font-medium tracking-tight text-muted-foreground">
-                    {d.label}
-                  </span>
-                  <span className="text-base font-medium text-foreground">
-                    {d.value}
-                  </span>
-                </div>
-              )
-              return d.href ? (
-                <a key={d.label} href={d.href} className="block">
-                  {inner}
-                </a>
-              ) : (
-                <div key={d.label}>{inner}</div>
-              )
-            })}
-          </div>
+          <dl className="mx-auto grid max-w-3xl gap-x-10 gap-y-8 border-t border-white/10 pt-10 sm:grid-cols-3">
+            {DETAILS.map((d) => (
+              <div key={d.label} className="text-center sm:text-left">
+                <dt className="flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground sm:justify-start">
+                  <d.icon className="h-3.5 w-3.5 text-blue/70" aria-hidden />
+                  {d.label}
+                </dt>
+                <dd className="mt-3">
+                  {d.href ? (
+                    <a
+                      href={d.href}
+                      className="inline-block font-display text-lg font-medium tracking-tight text-foreground underline decoration-blue/40 decoration-1 underline-offset-[6px] transition-colors hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:text-xl"
+                    >
+                      {d.value}
+                    </a>
+                  ) : (
+                    <span className="font-display text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
+                      {d.value}
+                    </span>
+                  )}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </Reveal>
 
-        {/* One primary action — the info cards say how to reach me, this
+        {/* One primary action — the details above say how to reach me, this
             says what to do next. */}
         <Reveal delay={0.25}>
-          <div className="mt-10 flex justify-center">
+          <div className="mt-14 flex justify-center">
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
-              className="inline-flex items-center gap-2 rounded-full border border-blue/40 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/70 hover:bg-blue/15"
+              className="inline-flex items-center gap-2 rounded-full border border-blue/40 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/70 hover:bg-blue/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
-              {t.contact.cta} →
+              {t.contact.cta}
+              <span aria-hidden>→</span>
             </a>
           </div>
         </Reveal>

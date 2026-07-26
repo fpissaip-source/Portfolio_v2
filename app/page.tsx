@@ -7,6 +7,7 @@ import { SiteNav } from '@/components/site-nav'
 import { LanguageToggle } from '@/components/language-toggle'
 import { SkipLink } from '@/components/skip-link'
 import { SkipIntroButton } from '@/components/skip-intro-button'
+import { TopScrim } from '@/components/top-scrim'
 import { LukasVoiceWidget } from '@/components/lukas-voice-widget'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
@@ -38,6 +39,9 @@ export default function Page() {
             the skip-link/skip-intro-button's landing target: tabIndex so
             keyboard focus actually moves here, not just the scroll. */}
         <div id="after-intro" tabIndex={-1} className="relative z-10 bg-background outline-none">
+          {/* Fades content out under the fixed nav / language toggle so copy
+              never scrolls visibly through them (DESIGN.md anti-pattern #1). */}
+          <TopScrim />
           <EdgeGlow />
           <IonTrail />
           <Hero />

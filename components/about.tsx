@@ -97,20 +97,19 @@ export function About() {
         </div>
 
         <div className="flex flex-col gap-3">
+          {/* The story is a field, not a card — it sits in the same column as
+              the competency list below it, and one boxed block beside an
+              unboxed one reads as two unrelated systems (DESIGN.md §5). */}
           <Reveal y={30}>
-            <div className="glass relative mb-3 overflow-hidden rounded-2xl p-6 sm:p-8">
+            <div className="relative mb-6">
               <div
                 aria-hidden
-                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/15 blur-3xl"
+                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/10 blur-3xl"
               />
-              <div className="flex items-center gap-3 text-sm font-medium tracking-tight text-blue/80">
-                <span
-                  aria-hidden
-                  className="h-1.5 w-1.5 rounded-full bg-blue shadow-[0_0_14px_2px_color-mix(in_oklch,var(--blue)_55%,transparent)]"
-                />
+              <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue/90">
                 {t.about.storyLabel}
               </div>
-              <h3 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+              <h3 className="mt-3 text-balance font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
                 {t.about.storyHeading}
               </h3>
               <div className="relative mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">
@@ -120,13 +119,13 @@ export function About() {
                       aria-hidden
                       className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue shadow-[0_0_12px_2px_color-mix(in_oklch,var(--blue)_70%,transparent)]"
                     />
-                    <div className="text-sm font-medium tracking-tight text-purple/80">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-purple/80">
                       {s.flag}
                     </div>
-                    <div className="mt-1 text-lg font-semibold tracking-tight">
+                    <div className="mt-2 font-display text-lg font-semibold tracking-tight">
                       {s.title}
                     </div>
-                    <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">
                       {s.body}
                     </p>
                   </div>
@@ -134,25 +133,24 @@ export function About() {
               </div>
             </div>
           </Reveal>
-          {t.about.pillars.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.05} y={30}>
-              <div className="group glass rounded-2xl p-6 transition-colors hover:border-white/20">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue/20 bg-blue/[0.08] text-xs font-semibold tabular-nums text-blue">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <div>
-                    <h3 className="text-xl font-semibold tracking-tight">
-                      {p.title}
-                    </h3>
-                    <p className="mt-2 text-pretty leading-relaxed text-muted-foreground">
-                      {p.body}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+          {/* Competencies as a specification list (DESIGN.md §5, #4). These
+              are parallel capabilities, not a sequence — the old 01/02/03
+              markers promised an order that does not exist, and the card
+              per item turned a list into a pricing page. */}
+          <div className="mt-3">
+            {t.about.pillars.map((p, i) => (
+              <Reveal key={p.title} delay={Math.min(i, 3) * 0.05} y={24}>
+                <article className="group border-t border-white/10 py-7 transition-colors duration-200 hover:border-blue/30">
+                  <h3 className="font-display text-lg font-semibold tracking-tight sm:text-xl">
+                    {p.title}
+                  </h3>
+                  <p className="mt-2 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
+                    {p.body}
+                  </p>
+                </article>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>

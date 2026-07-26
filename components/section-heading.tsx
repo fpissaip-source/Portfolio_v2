@@ -14,15 +14,22 @@ type SectionHeadingProps = {
 }
 
 /**
- * A deliberately quiet section heading. The old kicker/terminal labels are
- * still accepted in the API so translated dictionaries do not need a schema
- * migration, but they are no longer rendered. Hierarchy now comes only from
- * typography and spacing.
+ * The one section header used site-wide (DESIGN.md §2, §4, §6).
+ *
+ * Three typographic roles in one block: a mono "instrument" label, a
+ * Space Grotesk display heading, and Geist body copy — always in that
+ * order, always at the same offsets. That constant is most of what makes
+ * the page read as systematic rather than assembled.
+ *
+ * `tone` is semantic, not decorative: blue = craft (services, work),
+ * purple = mind (L.U.K.A.S., AI).
  */
 export function SectionHeading({
+  label,
   heading,
   description,
   align = 'center',
+  tone = 'blue',
   className = '',
   headingClassName = '',
   descriptionClassName = '',
@@ -33,16 +40,28 @@ export function SectionHeading({
     <div
       className={`${centered ? 'items-center text-center' : 'items-start text-left'} flex flex-col ${className}`}
     >
+      {label && (
+        <Reveal>
+          <span
+            className={`font-mono text-[11px] uppercase tracking-[0.3em] ${
+              tone === 'purple' ? 'text-purple/90' : 'text-blue/90'
+            }`}
+          >
+            {label}
+          </span>
+        </Reveal>
+      )}
+
       <WordReveal
         as="h2"
         text={heading}
-        className={`text-balance text-4xl font-semibold leading-[1.02] tracking-tight sm:text-6xl ${headingClassName}`}
+        className={`mt-3 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl ${headingClassName}`}
       />
 
       {description && (
         <Reveal delay={0.1}>
           <p
-            className={`mt-6 max-w-2xl text-pretty leading-relaxed text-muted-foreground ${descriptionClassName}`}
+            className={`mt-4 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground ${descriptionClassName}`}
           >
             {description}
           </p>

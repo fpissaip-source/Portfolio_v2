@@ -16,6 +16,18 @@ function splitClosingHighlight(copy: string) {
   }
 }
 
+/**
+ * Services as a capability sheet, not a card grid (DESIGN.md §5, §6).
+ *
+ * The previous 2-column card grid stranded the fifth offering alone in the
+ * last row and dressed every item in the same icon-in-a-tinted-circle box —
+ * the most template-coded component on the web. A rule-separated list can
+ * hold any number of entries without orphaning, and reads as a technical
+ * specification: exactly the "instrument, not shop window" posture.
+ *
+ * No numbering: these are parallel offerings, not a sequence, and numbers
+ * would promise an order that does not exist (anti-pattern #4).
+ */
 export function Services() {
   const t = useT()
   const closingHighlight = splitClosingHighlight(t.services.closingHighlight)
@@ -27,48 +39,53 @@ export function Services() {
         heading={t.services.heading}
         description={t.services.intro}
         tone="blue"
-        className="mx-auto mb-16 max-w-3xl"
-        descriptionClassName="mx-auto"
+        align="left"
+        className="mb-16 max-w-3xl"
       />
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div>
         {t.services.items.map((item, i) => {
           const Icon = ICONS[i % ICONS.length]
           return (
-            <Reveal key={item.title} delay={i * 0.05} y={30}>
-              <div className="group glass h-full rounded-2xl p-6 transition-colors hover:border-white/20 sm:p-7">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue/10 text-blue">
-                  <Icon className="h-5 w-5" aria-hidden />
+            <Reveal key={item.title} delay={Math.min(i, 3) * 0.05} y={24}>
+              <article className="group grid gap-x-10 gap-y-3 border-t border-white/10 py-8 transition-colors duration-200 hover:border-blue/30 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:py-10">
+                <div className="flex items-start gap-3">
+                  <Icon
+                    className="mt-1 h-4 w-4 shrink-0 text-blue/70 transition-colors duration-200 group-hover:text-blue"
+                    aria-hidden
+                  />
+                  <h3 className="text-balance font-display text-xl font-semibold leading-snug tracking-tight sm:text-2xl">
+                    {item.title}
+                  </h3>
                 </div>
-                <h3 className="mt-4 text-xl font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-pretty leading-relaxed text-muted-foreground">
+                <p className="max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
                   {item.body}
                 </p>
-              </div>
+              </article>
             </Reveal>
           )
         })}
       </div>
 
-      <Reveal delay={0.2} y={30}>
-        <div className="glass mt-4 rounded-2xl p-6 sm:p-9">
-          <h3 className="max-w-3xl text-balance text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
+      {/* Closing statement — a field with a heavier rule, not another card.
+          It is the section's one moment of emphasis, so it gets the space. */}
+      <Reveal delay={0.15} y={24}>
+        <div className="mt-20 border-t border-white/20 pt-12">
+          <h3 className="max-w-3xl text-balance font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
             {t.services.closingKicker}
           </h3>
 
-          <p className="mt-5 max-w-3xl text-pretty leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
             {t.services.closingBody}
           </p>
 
-          <div className="mt-8 border-t border-white/10 pt-6">
+          <div className="mt-10">
             {closingHighlight.label && (
-              <p className="text-sm font-medium text-purple/80">
-                {closingHighlight.label}
+              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-purple/90">
+                {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}
-            <p className="mt-2 max-w-3xl text-pretty text-xl font-semibold leading-relaxed tracking-tight text-foreground sm:text-2xl">
+            <p className="mt-3 max-w-3xl text-balance font-display text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
               {closingHighlight.body}
             </p>
             {/* The shortcut for a convinced reader: interest peaks right
@@ -88,9 +105,10 @@ export function Services() {
                   lenis.scrollTo(el, { offset: 0 })
                 }
               }}
-              className="mt-7 inline-flex items-center gap-2 rounded-full border border-purple/40 bg-purple/10 px-6 py-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/70 hover:bg-purple/15"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-purple/40 bg-purple/10 px-6 py-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/70 hover:bg-purple/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
             >
-              {t.services.cta} →
+              {t.services.cta}
+              <span aria-hidden>→</span>
             </a>
           </div>
         </div>

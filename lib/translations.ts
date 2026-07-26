@@ -169,7 +169,7 @@ const projectsEN: Record<string, ProjectCopy> = {
     category: 'Live Client System',
     tagline: 'Live Commercial Case',
     description:
-      'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and uncompromising technical SEO with JSON-LD Answer Engine Optimization.',
+      'A transport & logistics platform delivered end-to-end for a real client, the first B2B/B2C deployment. Instant and scheduled bookings, a PostgreSQL-backed admin area, Resend email workflows, and technical SEO done properly, down to JSON-LD Answer Engine Optimization.',
     status: 'Live System',
   },
   StudyForge: {
@@ -214,7 +214,7 @@ const projectsDE: Record<string, ProjectCopy> = {
     category: 'Live-Kundensystem',
     tagline: 'Live-Projekt für echten Kunden',
     description:
-      'Eine Transport- & Logistikplattform, End-to-End für einen echten Kunden umgesetzt, das erste B2B/B2C-Deployment. Sofort- und geplante Buchungen, ein PostgreSQL-basierter Admin-Bereich, Resend-E-Mail-Workflows und kompromisslose technische SEO mit JSON-LD Answer Engine Optimization.',
+      'Eine Transport- & Logistikplattform, End-to-End für einen echten Kunden umgesetzt, das erste B2B/B2C-Deployment. Sofort- und geplante Buchungen, ein PostgreSQL-basierter Admin-Bereich, Resend-E-Mail-Workflows und technische SEO, die sauber gemacht ist, bis hin zu JSON-LD Answer Engine Optimization.',
     status: 'Live im Einsatz',
   },
   StudyForge: {
@@ -300,17 +300,17 @@ export const EN: Dictionary = {
     headingStart: 'Full-stack engineer for',
     headingHighlight: 'complete digital systems',
     headingEnd: '— from idea to production.',
-    body: 'I build with AI as a genuine engineering partner, designing, building and shipping every system end to end.',
+    body: 'I use AI as a real part of how I build, and I take every system all the way to production myself.',
   },
   services: {
     kicker: 'Services',
     heading: 'Digital systems that do real work.',
     intro:
-      "I build modern websites, internal platforms, automations and AI-powered applications — not just as a concept or a polished prototype, but as a complete solution: from planning and UI through databases and APIs to deployment.",
+      'I build websites, internal platforms, automations and AI-powered apps, and I take them all the way to a live system. Planning, interface, the database, the APIs in between, deployment. Not a concept. Not a demo.',
     items: [
       {
         title: 'Websites & Digital Customer Processes',
-        body: "Professional business websites that don't just look good — they turn visitors into inquiries and bookings. Contact and booking forms, automated emails, customer portals, admin interfaces and real technical SEO.",
+        body: 'Business websites that turn visitors into inquiries and bookings. Contact and booking forms, automated emails, customer portals, admin interfaces, and technical SEO that actually ranks.',
       },
       {
         title: 'Custom Web Applications',
@@ -318,7 +318,7 @@ export const EN: Dictionary = {
       },
       {
         title: 'AI Agents & Automation',
-        body: 'Systems that take over recurring work on their own — processing information, analyzing data, generating documents, triaging requests, drafting emails, or connecting different services together through APIs.',
+        body: 'Systems that take over recurring work on their own: processing information, analyzing data, generating documents, triaging requests, drafting emails, or wiring different services together through APIs.',
       },
       {
         title: 'MVPs & Product Prototypes',
@@ -326,14 +326,14 @@ export const EN: Dictionary = {
       },
       {
         title: 'Phone & Support AI Agents',
-        body: 'Voice assistants that listen in real time and respond in milliseconds — natural conversation instead of a rigid script bot, available over chat or directly by phone. Great for customer support, appointment booking or first-line consultation, available around the clock.',
+        body: 'Voice assistants that listen and answer in real time, so it feels like a conversation, not a script bot reading options. Reachable by chat or straight over the phone, day or night. Good for support, appointment booking or a first round of questions.',
       },
     ],
     closingKicker: 'What makes my approach different',
     closingBody:
-      "I work AI-native. That means using modern AI systems for more than individual lines of code — they're a fixed part of my entire development process. Architecture, implementation, testing and refinement are all steered and reviewed by me, then brought together into one working system.",
+      "I work AI-native. AI runs through my whole process, not only the odd line of code: architecture, implementation, testing, refinement. I drive and check all of it, then bring it together into one system that actually works.",
     closingHighlight:
-      "What matters is the result: a system that's easy to understand, reliably works, and solves a real problem.",
+      'What matters is the result: a system people understand, that holds up in daily use and solves a real problem.',
     cta: 'Start a project',
   },
   lukas: {
@@ -434,7 +434,7 @@ export const EN: Dictionary = {
     kicker: 'About',
     heading: 'I think in systems and ship in products.',
     intro:
-      'My work connects technical architecture, product thinking, visual design, automation and commercial deployment. From autonomous agents to live client systems: I ship the whole loop, not just the demo.',
+      'My work sits where technical architecture, product thinking, design and automation meet. Autonomous agents, live client systems, everything in between: I ship the whole loop, not the demo.',
     stat1Label: 'Systems built',
     stat2Label: 'Product domains',
     storyLabel: 'The Short Version',
@@ -476,11 +476,11 @@ export const EN: Dictionary = {
       },
       {
         title: 'Artificial Intelligence',
-        body: 'This is where I go deepest. I build AI into real systems, with proper retrieval, tooling and guardrails, not just an API wrapper. The goal is always the same: make it dependable enough to ship.',
+        body: 'This is where I go deepest. Real AI inside real systems, with proper retrieval, tooling and guardrails behind it, not an API wrapper with a nice prompt. The goal never changes: make it dependable enough to actually ship.',
       },
       {
         title: 'System Thinking',
-        body: 'I design for the whole loop, from inputs and feedback to failure and recovery, not just the happy path.',
+        body: 'I design for what happens when things go wrong, too: inputs, feedback, failure, recovery. The happy path is the easy part.',
       },
     ],
   },
@@ -651,17 +651,17 @@ export const DE: Dictionary = {
     headingStart: 'Full-Stack-Entwickler für',
     headingHighlight: 'vollständige digitale Systeme',
     headingEnd: '– von der Idee bis zum produktiven Einsatz.',
-    body: 'Ich arbeite mit KI als echtem Engineering-Partner und entwerfe, baue und liefere jedes System komplett aus, von Anfang bis Ende.',
+    body: 'KI ist bei mir fester Teil, wie ich baue. Jedes System bringe ich selbst bis in den produktiven Einsatz.',
   },
   services: {
     kicker: 'Leistungen',
     heading: 'Digitale Systeme, die echte Arbeit erledigen.',
     intro:
-      'Ich entwickle moderne Websites, interne Plattformen, Automatisierungen und KI-gestützte Anwendungen. Nicht nur als Konzept oder hübschen Prototyp, sondern als vollständige Lösung – von der Planung und Benutzeroberfläche über Datenbanken und Schnittstellen bis zum Deployment.',
+      'Ich baue Websites, interne Plattformen, Automatisierungen und KI-gestützte Anwendungen, und bringe sie bis zum laufenden System. Planung, Oberfläche, Datenbank, die Schnittstellen dazwischen, Deployment. Kein Konzept. Keine Demo.',
     items: [
       {
         title: 'Websites und digitale Kundenprozesse',
-        body: 'Professionelle Unternehmenswebsites, die nicht nur gut aussehen, sondern Anfragen und Buchungen ermöglichen. Dazu gehören beispielsweise Kontakt- und Buchungsformulare, automatisierte E-Mails, Kundenbereiche, Admin-Oberflächen sowie technische Suchmaschinenoptimierung.',
+        body: 'Unternehmenswebsites, die aus Besuchern Anfragen und Buchungen machen. Kontakt- und Buchungsformulare, automatisierte E-Mails, Kundenbereiche, Admin-Oberflächen und technische Suchmaschinenoptimierung, die auch wirklich rankt.',
       },
       {
         title: 'Individuelle Webanwendungen',
@@ -669,7 +669,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'KI-Agenten und Automatisierungen',
-        body: 'Ich entwickle Systeme, die wiederkehrende Aufgaben selbstständig übernehmen können – etwa Informationen verarbeiten, Daten auswerten, Dokumente erstellen, Anfragen vorsortieren, E-Mails vorbereiten oder verschiedene Dienste über Schnittstellen miteinander verbinden.',
+        body: 'Systeme, die wiederkehrende Aufgaben selbstständig übernehmen: Informationen verarbeiten, Daten auswerten, Dokumente erstellen, Anfragen vorsortieren, E-Mails vorbereiten oder verschiedene Dienste über Schnittstellen miteinander verbinden.',
       },
       {
         title: 'MVPs und Produktprototypen',
@@ -677,14 +677,14 @@ export const DE: Dictionary = {
       },
       {
         title: 'Telefon- und Support-KI-Agenten',
-        body: 'Sprachassistenten, die in Echtzeit zuhören und im Millisekundenbereich antworten – natürliche Gesprächsführung statt starrer Skript-Bot, wahlweise per Chat oder direkt am Telefon. Ideal für Kundensupport, Terminvereinbarung oder Erstberatung, rund um die Uhr erreichbar.',
+        body: 'Sprachassistenten, die in Echtzeit zuhören und antworten, sodass es sich wie ein Gespräch anfühlt und nicht wie ein Skript-Bot, der Optionen vorliest. Erreichbar per Chat oder direkt am Telefon, Tag und Nacht. Passt für Support, Terminvereinbarung oder eine erste Runde Fragen.',
       },
     ],
     closingKicker: 'Was meine Arbeitsweise besonders macht',
     closingBody:
-      'Ich arbeite KI-nativ. Das bedeutet: Ich nutze moderne KI-Systeme nicht nur für einzelne Codezeilen, sondern als festen Bestandteil meines gesamten Entwicklungsprozesses. Architektur, Umsetzung, Tests und Verbesserungen werden von mir gesteuert, überprüft und zu einer funktionierenden Gesamtlösung verbunden.',
+      'Ich arbeite KI-nativ. KI zieht sich durch meinen ganzen Prozess, nicht nur durch einzelne Codezeilen: Architektur, Umsetzung, Tests, Verbesserungen. Ich steuere und prüfe alles selbst und füge es zu einem System zusammen, das wirklich läuft.',
     closingHighlight:
-      'Das Ergebnis zählt: ein System, das verständlich aufgebaut ist, zuverlässig funktioniert und ein konkretes Problem löst.',
+      'Am Ende zählt das Ergebnis: ein System, das man versteht, das im Alltag hält und ein echtes Problem löst.',
     cta: 'Direkt anfragen',
   },
   lukas: {
@@ -785,7 +785,7 @@ export const DE: Dictionary = {
     kicker: 'Über mich',
     heading: 'Ich denke in Systemen und liefere Produkte.',
     intro:
-      'Meine Arbeit verbindet technische Architektur, Produktdenken, visuelles Design, Automatisierung und kommerzielles Deployment. Von autonomen Agenten bis zu Live-Kundensystemen: Ich liefere den ganzen Kreislauf, nicht nur die Demo.',
+      'Meine Arbeit liegt da, wo technische Architektur, Produktdenken, Design und Automatisierung zusammenkommen. Autonome Agenten, Live-Kundensysteme, alles dazwischen: Ich liefere den ganzen Kreislauf, nicht die Demo.',
     stat1Label: 'Gebaute Systeme',
     stat2Label: 'Produktbereiche',
     storyLabel: 'Die Kurzfassung',
@@ -823,15 +823,15 @@ export const DE: Dictionary = {
       },
       {
         title: 'Automatisierung',
-        body: 'Wenn es zweimal passiert, sollte es von selbst laufen. Ich verwandle repetitive Arbeit in robuste, beobachtbare Pipelines.',
+        body: 'Wenn es zweimal passiert, sollte es von selbst laufen. Ich verwandle repetitive Arbeit in Pipelines, die halten und die man im Blick behält.',
       },
       {
         title: 'Künstliche Intelligenz',
-        body: 'Hier tauche ich am tiefsten ein. Ich baue KI in echte Systeme ein, mit richtigem Retrieval, Tooling und Guardrails, nicht nur als API-Wrapper. Das Ziel ist immer dasselbe: sie zuverlässig genug für den produktiven Einsatz zu machen.',
+        body: 'Hier tauche ich am tiefsten ein. Echte KI in echten Systemen, mit ordentlichem Retrieval, Tooling und Guardrails dahinter, nicht ein API-Wrapper mit hübschem Prompt. Das Ziel bleibt gleich: zuverlässig genug, um sie wirklich in Betrieb zu nehmen.',
       },
       {
         title: 'Systemdenken',
-        body: 'Ich entwerfe für den ganzen Kreislauf, von Eingaben und Feedback bis zu Fehlern und Wiederherstellung, nicht nur für den Idealfall.',
+        body: 'Ich entwerfe auch für den Fall, dass etwas schiefgeht: Eingaben, Feedback, Fehler, Wiederherstellung. Der Idealfall ist der einfache Teil.',
       },
     ],
   },

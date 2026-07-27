@@ -11,13 +11,20 @@ gsap.registerPlugin(ScrollTrigger)
 
 /**
  * Scroll-scrubbed cinematic intro. A generated 3-shot flythrough (city →
- * glowing purple window → room → green-screen monitor) is a 4K All-Intra
+ * glowing purple window → room → green-screen monitor) is a 720p60 All-Intra
  * MP4 used as a pure frame source: scroll seeks a hidden <video>, and each
- * decoded frame is drawn onto the <canvas> — the same Apple-style canvas
- * pipeline as before, but fed by hardware video decode instead of 182
- * separate JPEG requests. All-Intra (every frame a keyframe) means every
- * seek resolves in a single decode, which keeps scrubbing responsive even
- * on iOS Safari, where video seeking during scroll is historically fragile.
+ * decoded frame is drawn onto the <canvas> — an Apple-style canvas pipeline
+ * fed by hardware video decode rather than hundreds of JPEG requests.
+ * All-Intra (every frame a keyframe) means every seek resolves in a single
+ * decode, which keeps scrubbing responsive even on iOS Safari, where video
+ * seeking during scroll is historically fragile.
+ *
+ * Frame rate is a scrubbing concern, not a playback one: the flight spans
+ * ~3700px of scroll, so at the original 24fps (182 frames) there were ~20px
+ * of scroll between frames and slow scrolling visibly stepped. The master is
+ * now motion-interpolated to 60fps (453 frames, ~8px per frame). Note that a
+ * plain re-encode to 60fps would have changed nothing — it only duplicates
+ * frames; the frames here are genuinely new.
  *
  * The final shot ends on an ultrawide monitor. The footage is pre-processed
  * so the screen carries the website's dark blue→purple tones; SCREEN_FRAC
@@ -218,14 +225,18 @@ export function CinematicIntro() {
     const fastSeek = (
       video as HTMLVideoElement & { fastSeek?: (time: number) => void }
     ).fastSeek?.bind(video)
-    const SEEK_EPS = 1 / 48 // half a frame @24fps — treat as "already there"
+    // Half a frame at the source's 60fps — treat anything closer as "already
+    // there". This has to track the footage: at the old 1/48 (half a frame at
+    // 24fps) the guard would swallow real 60fps steps and throw away exactly
+    // the extra temporal resolution the 60fps master was made for.
+    const SEEK_EPS = 1 / 120
     let pendingTime: number | null = null
     let seekBusy = false
     let seekWatchdog = 0
     const seekTo = (t: number) => {
       const d = video.duration
       if (!d || Number.isNaN(d)) return
-      const clamped = Math.max(0, Math.min(d - 1 / 24, t))
+      const clamped = Math.max(0, Math.min(d - 1 / 60, t))
       if (seekBusy) {
         pendingTime = clamped
         return

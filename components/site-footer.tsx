@@ -36,7 +36,7 @@ export function SiteFooter() {
               href={s.href}
               aria-label={s.label}
               {...(s.type === 'img' ? { target: '_blank', rel: 'noreferrer' } : {})}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {s.type === 'img' ? (
                 <Image

@@ -34,7 +34,13 @@ gsap.registerPlugin(ScrollTrigger)
  * scales until the monitor swallows the viewport — that zoom IS the
  * transition onto the real site.
  */
+/** Same 60fps master at two sizes (the pattern lukas.tsx already uses).
+ *  Phones get 960×540: on a phone-sized canvas it is visually equivalent,
+ *  it downloads a third less, and — the reason that actually matters here —
+ *  a smaller frame decodes faster, so each scrub seek resolves quicker on
+ *  exactly the devices with the least decode headroom. */
 const VIDEO_SRC = '/videos/intro.mp4'
+const VIDEO_SRC_MOBILE = '/videos/intro-mobile.mp4'
 const POSTER_SRC = '/intro/cinematic-poster.jpg'
 
 /** Scroll share reserved for the flythrough; the rest is the monitor zoom. */
@@ -343,7 +349,10 @@ export function CinematicIntro() {
     }
     video.addEventListener('loadedmetadata', onLoadedMeta)
     video.addEventListener('loadeddata', onLoadedData)
-    video.src = VIDEO_SRC
+    // Picked once on mount — the source must not change mid-scrub.
+    video.src = window.matchMedia('(max-width: 768px)').matches
+      ? VIDEO_SRC_MOBILE
+      : VIDEO_SRC
 
     window.addEventListener('resize', sizeCanvas)
 

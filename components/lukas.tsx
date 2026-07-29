@@ -629,7 +629,7 @@ export function Lukas() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}
-              className="group relative mt-9 inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-b from-white to-white/90 px-9 py-4 text-sm font-semibold tracking-tight text-black shadow-[0_20px_60px_-16px_color-mix(in_oklch,var(--purple)_65%,transparent)] transition-all duration-300 ease-out hover:scale-[1.04] hover:shadow-[0_26px_74px_-14px_color-mix(in_oklch,var(--purple)_85%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple active:scale-[0.97]"
+              className="group relative mt-9 inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-b from-white to-white/90 px-9 py-4 text-sm font-semibold tracking-tight text-black shadow-[0_20px_60px_-16px_color-mix(in_oklch,var(--purple)_65%,transparent)] transition-[transform,box-shadow] duration-300 ease-out hover:scale-[1.04] hover:shadow-[0_26px_74px_-14px_color-mix(in_oklch,var(--purple)_85%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple active:scale-[0.97]"
             >
               {/* Sheen sweep on hover — the one bit of "motion polish" a
                   frameless, minimal CTA needs to still read as interactive. */}

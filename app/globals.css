@@ -75,6 +75,23 @@
   body {
     touch-action: pan-y pinch-zoom;
   }
+  /* Controls opt out of the ~300ms double-tap-zoom wait, and set their own
+     tap highlight rather than inheriting the OS default blue-grey box, which
+     reads as a rendering glitch on a black canvas. */
+  a,
+  button,
+  [role='button'],
+  summary {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: color-mix(in oklch, var(--blue) 18%, transparent);
+  }
+  /* Anchor targets clear the fixed nav pill when the browser does the jump
+     itself — nav clicks go through Lenis with its own offset, but a pasted
+     #contact link, a bookmark or a no-JS load does not. */
+  section[id],
+  [id='after-intro'] {
+    scroll-margin-top: 6rem;
+  }
   ::selection {
     background: color-mix(in oklch, var(--blue) 40%, transparent);
     color: white;

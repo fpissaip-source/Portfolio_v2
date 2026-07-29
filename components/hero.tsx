@@ -8,6 +8,8 @@ import { GradientOrbs } from './gradient-orbs'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
 import { handleAnchorClick } from '@/lib/scroll-to'
+import { SideRays } from './side-rays'
+import { SpecularButton } from './specular-button'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -120,6 +122,12 @@ export function Hero() {
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24"
     >
       <GradientOrbs />
+      {/* Light from off-frame, top right — the hero is the largest expanse of
+          bare canvas on the page, and the intro has just flown the visitor
+          toward a lit window, so a source outside the frame is consistent
+          rather than decorative (DESIGN.md §3). Kept low: it must read as one
+          lamp, not as a colour wash. */}
+      <SideRays />
       <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
@@ -158,13 +166,9 @@ export function Hero() {
           transition={{ duration: 0.8, delay: 0.85, ease: easeOut }}
           className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:gap-7"
         >
-          <a
-            href="#contact"
-            onClick={(e) => handleAnchorClick(e, '#contact')}
-            className="rounded-full bg-blue/15 px-6 py-3 text-sm font-semibold tracking-tight text-blue transition-colors hover:bg-blue/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
-          >
+          <SpecularButton href="#contact" onClick={(e) => handleAnchorClick(e, '#contact')}>
             {t.hero.ctaPrimary}
-          </a>
+          </SpecularButton>
           <a
             href="#work"
             onClick={(e) => handleAnchorClick(e, '#work')}

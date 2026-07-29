@@ -763,3 +763,85 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
     animation: none;
   }
 }
+
+/* ─── Specular button (components/specular-button.tsx) ───────────────────────
+ * The upstream React Bits CSS is reworked here rather than copied: its
+ * `box-shadow: 0 8px 24px rgba(0,0,0,.25)` is a decorative shadow, which
+ * DESIGN.md §5 does not allow (glow-as-light-source and floating-chrome depth
+ * are the only two sanctioned uses), and its 18px radius is not one of the
+ * site's three radii. The shape is a pill, and the only light on it is the
+ * one the shader draws.
+ *
+ * The visible ring is a real CSS border, so the control still reads as a
+ * button with WebGL unavailable, with reduced motion requested, or before
+ * the canvas has mounted — the shader adds the specular travel on top.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.specular-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  margin: 0;
+  padding: 14px 30px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: var(--foreground);
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.specular-btn:hover {
+  border-color: color-mix(in oklch, var(--blue) 45%, transparent);
+}
+
+.specular-btn:active {
+  transform: scale(0.97);
+}
+
+.specular-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 3px;
+}
+
+/* Violet variant for the L.U.K.A.S. chapter — one accent per section (§3) */
+.specular-btn--mind:hover {
+  border-color: color-mix(in oklch, var(--purple) 45%, transparent);
+}
+.specular-btn--mind:focus-visible {
+  outline-color: var(--purple);
+}
+
+/* The canvas overhangs the button so the rim light can bleed past the edge */
+.specular-btn__fx {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.specular-btn__fx canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.specular-btn__label {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .specular-btn:active {
+    transform: none;
+  }
+}

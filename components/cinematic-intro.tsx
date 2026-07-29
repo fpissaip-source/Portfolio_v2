@@ -889,7 +889,7 @@ export function CinematicIntro() {
             {t.cinematicIntro.scrollToMeet}
           </span>
           <p
-            className="text-balance font-sans text-4xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl"
+            className="text-balance font-display text-4xl font-semibold tracking-tight text-foreground sm:text-6xl md:text-7xl"
             style={{ textShadow: '0 2px 40px rgba(0,0,0,0.8)' }}
           >
             {t.cinematicIntro.introTitle}
@@ -938,7 +938,7 @@ export function CinematicIntro() {
             <p
               key={i}
               data-phrase
-              className="absolute max-w-4xl text-balance text-center font-sans text-4xl font-semibold leading-tight tracking-tight text-foreground opacity-0 will-transform sm:text-6xl md:text-7xl"
+              className="absolute max-w-4xl text-balance text-center font-display text-4xl font-semibold leading-tight tracking-tight text-foreground opacity-0 will-transform sm:text-6xl md:text-7xl"
               style={{ textShadow: '0 2px 40px rgba(0,0,0,0.7)' }}
             >
               {t.cinematicIntro.phrases[i] ?? p.text}

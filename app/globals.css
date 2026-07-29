@@ -799,7 +799,15 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  /* --border is white at 8%, which on #050505 is a 1.16:1 edge — WCAG 1.4.11
+     wants 3:1 for a control's boundary, and the shader's rim only lights
+     within 250px of a pointer, so on touch, under reduced motion, or without
+     WebGL2 that edge was the ONLY thing defining the button. blue/60 measures
+     3.46:1 and the tint gives the shape a surface of its own; the shader now
+     adds travel on top of a legible control instead of being what makes it
+     legible. */
+  border: 1px solid color-mix(in oklch, var(--blue) 60%, transparent);
+  background: color-mix(in oklch, var(--blue) 10%, transparent);
   border-radius: 9999px;
   margin: 0;
   padding: 14px 30px;
@@ -809,7 +817,6 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
   letter-spacing: -0.01em;
   line-height: 1;
   color: var(--foreground);
-  background: transparent;
   cursor: pointer;
   outline: none;
   transition:
@@ -818,7 +825,8 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
 }
 
 .specular-btn:hover {
-  border-color: color-mix(in oklch, var(--blue) 45%, transparent);
+  border-color: color-mix(in oklch, var(--blue) 85%, transparent);
+  background: color-mix(in oklch, var(--blue) 16%, transparent);
 }
 
 .specular-btn:active {
@@ -861,4 +869,27 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
   .specular-btn:active {
     transform: none;
   }
+}
+
+/* ─── Mobile chrome: the menu button steps above the L.U.K.A.S. launcher ─────
+ * Measured at 390x844: the launcher is 220x58 at bottom-6/z-95, the mobile
+ * menu button 48x48 at bottom-5/z-50 — the launcher covered 92% of it, and
+ * it appears about 40% into the page, so for most of the scroll a phone
+ * visitor's only navigation control was hidden underneath an unrelated pill.
+ *
+ * Keyed on the launcher actually being in the DOM (it mounts only after the
+ * L.U.K.A.S. chapter), so the button keeps its natural position until there
+ * is something to avoid.
+ * ─────────────────────────────────────────────────────────────────────────── */
+body:has([data-lukas-launcher]) [data-mobile-menu] {
+  bottom: 6rem;
+}
+[data-mobile-menu] {
+  transition: bottom 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The launcher floats over the end of the page; without this the footer's
+   copyright line sits underneath it (verified clipped mid-word at 1440). */
+body:has([data-lukas-launcher]) footer {
+  padding-bottom: 6rem;
 }

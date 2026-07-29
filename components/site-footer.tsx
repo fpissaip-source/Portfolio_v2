@@ -7,12 +7,9 @@ import { useT } from './language-context'
 
 const SOCIALS = [
   { type: 'img' as const, src: '/logos/github.svg', href: 'https://github.com/fpissaip-source', label: 'GitHub' },
-  {
-    type: 'img' as const,
-    src: '/logos/linkedin.svg',
-    href: '#',
-    label: 'LinkedIn',
-  },
+  // LinkedIn intentionally absent: it shipped as href="#", which looks like
+  // a live profile link and instead jumps to the top of a 21,000px page.
+  // Restore it here with the real profile URL when there is one.
   { type: 'icon' as const, href: 'mailto:info@hareb.org', label: 'Email' },
 ]
 

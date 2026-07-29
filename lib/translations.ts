@@ -42,7 +42,6 @@ export type Dictionary = {
     welcome: string
     loading: string
     caption: string
-    pcHint: string
   }
   cinematicIntro: {
     scrollToMeet: string
@@ -131,6 +130,7 @@ export type Dictionary = {
     kicker: string
     heading: string
     subtitle: string
+    loading: string
     matrix: { layer: string; items: string }[]
   }
   process: {
@@ -287,7 +287,6 @@ export const EN: Dictionary = {
     welcome: 'Welcome',
     loading: 'Loading',
     caption: 'Issa Hareb · Portfolio',
-    pcHint: 'Best experienced on a PC or laptop',
   },
   cinematicIntro: {
     scrollToMeet: 'Scroll to meet',
@@ -502,6 +501,7 @@ export const EN: Dictionary = {
     kicker: 'Toolkit',
     heading: 'The stack behind the systems.',
     subtitle: 'The tools I use to design, build and ship complete systems, end to end.',
+    loading: 'Loading stack…',
     matrix: [
       { layer: 'Core & Logic', items: 'TypeScript, JavaScript, Node.js, Express.js, Python, rule engines' },
       { layer: 'Frontend & Motion', items: 'React, Vite, Tailwind CSS, Three.js, Framer Motion, GSAP' },
@@ -645,7 +645,6 @@ export const DE: Dictionary = {
     welcome: 'Willkommen',
     loading: 'Lädt',
     caption: 'Issa Hareb · Portfolio',
-    pcHint: 'Beste Erfahrung auf PC oder Laptop',
   },
   cinematicIntro: {
     scrollToMeet: 'Scrollen, um mich kennenzulernen',
@@ -860,6 +859,7 @@ export const DE: Dictionary = {
     kicker: 'Werkzeugkasten',
     heading: 'Der Stack hinter den Systemen.',
     subtitle: 'Die Werkzeuge, mit denen ich komplette Systeme entwerfe, baue und end-to-end ausliefere.',
+    loading: 'Stack lädt…',
     matrix: [
       { layer: 'Kern & Logik', items: 'TypeScript, JavaScript, Node.js, Express.js, Python, Regel-Engines' },
       { layer: 'Frontend & Motion', items: 'React, Vite, Tailwind CSS, Three.js, Framer Motion, GSAP' },

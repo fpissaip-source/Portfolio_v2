@@ -6,15 +6,22 @@ import { useT } from './language-context'
 import { useNearViewport } from './use-near-viewport'
 import { SectionHeading } from './section-heading'
 
-const TechOrbs = dynamic(() => import('./tech-orbs'), {
-  ssr: false,
-  loading: () => (
+/** Own component, not an inline element: dynamic()'s `loading` is called as a
+ *  render function, so a hook used directly inside it would not be valid. */
+function StackLoading() {
+  const t = useT()
+  return (
     <div className="absolute inset-0 grid place-items-center">
       <span className="text-sm font-medium tracking-tight text-muted-foreground">
-        Loading stack…
+        {t.techStack.loading}
       </span>
     </div>
-  ),
+  )
+}
+
+const TechOrbs = dynamic(() => import('./tech-orbs'), {
+  ssr: false,
+  loading: () => <StackLoading />,
 })
 
 type Tech = { name: string; logo: string; tint?: 'white' }

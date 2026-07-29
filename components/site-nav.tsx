@@ -103,6 +103,7 @@ export function SiteNav() {
             onClick={() => setMenuOpen(true)}
             aria-label={t.nav.openMenu}
             aria-expanded={menuOpen}
+            data-mobile-menu
             className="glass fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:hidden"
           >
             <Menu className="h-5 w-5" aria-hidden />
@@ -146,7 +147,8 @@ export function SiteNav() {
               type="button"
               onClick={() => setMenuOpen(false)}
               aria-label={t.nav.closeMenu}
-              className="glass fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              data-mobile-menu
+            className="glass fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               <X className="h-5 w-5" aria-hidden />
             </button>

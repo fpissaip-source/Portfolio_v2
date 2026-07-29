@@ -224,7 +224,7 @@ export function Preloader() {
         aria-hidden
         className="pointer-events-none absolute inset-0 flex items-center overflow-hidden opacity-[0.14]"
       >
-        <div className="preloader-marquee flex w-max items-center gap-16 whitespace-nowrap font-sans text-5xl font-bold tracking-tight text-black/60 sm:text-7xl">
+        <div className="preloader-marquee flex w-max items-center gap-16 whitespace-nowrap font-display text-5xl font-bold tracking-tight text-black/60 sm:text-7xl">
           {[...t.preloader.taglines, ...t.preloader.taglines, ...t.preloader.taglines].map((tagline, i) => (
             <span key={i} className="flex items-center gap-16">
               {tagline}
@@ -298,11 +298,6 @@ export function Preloader() {
           <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-neutral-500 sm:text-xs">
             {t.preloader.caption}
           </span>
-          {lang && (
-            <span className="max-w-[80vw] text-center font-mono text-[9px] uppercase tracking-[0.25em] text-neutral-400 sm:hidden">
-              {t.preloader.pcHint}
-            </span>
-          )}
         </div>
       </div>
     </div>

@@ -239,7 +239,7 @@ export function PhoneStory() {
 
       <div className="relative z-10 mx-auto max-w-4xl text-center">
         <LineReveal
-          className="text-balance font-sans text-4xl font-semibold leading-[1.12] tracking-tight sm:text-6xl md:text-7xl"
+          className="text-balance font-display text-4xl font-semibold leading-[1.12] tracking-tight sm:text-6xl md:text-7xl"
           stagger={0.16}
           lines={[
             <>{t.phoneStory.lines[0]}</>,

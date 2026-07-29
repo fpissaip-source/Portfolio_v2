@@ -539,7 +539,7 @@ export function Lukas() {
 
         {/* Title */}
         <div data-lukas-head className="relative z-10 text-center will-transform">
-          <h2 className="font-sans text-[17vw] font-bold leading-none tracking-tight sm:text-[12vw]">
+          <h2 className="font-display text-[17vw] font-bold leading-none tracking-tight sm:text-[12vw]">
             {'L.U.K.A.S.'.split('').map((ch, i) => (
               <span
                 key={i}
@@ -587,7 +587,7 @@ export function Lukas() {
               <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
                 {b.kicker}
               </span>
-              <h3 className="mt-4 text-balance text-4xl font-semibold tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
+              <h3 className="mt-4 text-balance font-display text-4xl font-semibold tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
                 {b.title}
               </h3>
               <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
@@ -620,7 +620,7 @@ export function Lukas() {
                   'radial-gradient(closest-side, color-mix(in oklch, var(--purple) 22%, transparent), transparent 72%)',
               }}
             />
-            <h3 className="text-balance text-4xl font-semibold tracking-tight text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
+            <h3 className="text-balance font-display text-4xl font-semibold tracking-tight text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
               {t.lukas.inviteTitle}
             </h3>
             <p className="mx-auto mt-4 max-w-md text-pretty leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
@@ -629,13 +629,13 @@ export function Lukas() {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}
-              className="group relative mt-9 inline-flex items-center gap-2.5 overflow-hidden rounded-full bg-gradient-to-b from-white to-white/90 px-9 py-4 text-sm font-semibold tracking-tight text-black shadow-[0_20px_60px_-16px_color-mix(in_oklch,var(--purple)_65%,transparent)] transition-[transform,box-shadow] duration-300 ease-out hover:scale-[1.04] hover:shadow-[0_26px_74px_-14px_color-mix(in_oklch,var(--purple)_85%,transparent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple active:scale-[0.97]"
+              className="group relative mt-9 inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-purple/65 bg-purple/10 px-9 py-4 text-sm font-semibold tracking-tight text-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklch,var(--purple)_55%,transparent)] transition-[border-color,background-color] duration-300 ease-out hover:border-purple/90 hover:bg-purple/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple active:scale-[0.97]"
             >
               {/* Sheen sweep on hover — the one bit of "motion polish" a
                   frameless, minimal CTA needs to still read as interactive. */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-black/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 ease-out group-hover:translate-x-full"
               />
               <span className="relative">{t.lukas.inviteCta}</span>
               <span className="relative text-base leading-none transition-transform duration-300 ease-out group-hover:translate-x-1">

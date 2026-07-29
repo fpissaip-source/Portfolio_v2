@@ -82,7 +82,7 @@ export function Contact() {
           <div className="mt-14 flex justify-center">
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
-              className="inline-flex items-center gap-2 rounded-full border border-blue/40 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/70 hover:bg-blue/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              className="inline-flex items-center gap-2 rounded-full border border-blue/60 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/80 hover:bg-blue/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {t.contact.cta}
               <span aria-hidden>→</span>

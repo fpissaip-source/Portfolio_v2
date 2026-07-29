@@ -133,9 +133,9 @@ export function Hero() {
         className="pointer-events-none absolute inset-0"
         style={{
           maskImage:
-            'linear-gradient(to bottom, black 0%, black 55%, transparent 94%)',
+            'linear-gradient(to bottom, transparent 0%, black 14%, black 55%, transparent 94%)',
           WebkitMaskImage:
-            'linear-gradient(to bottom, black 0%, black 55%, transparent 94%)',
+            'linear-gradient(to bottom, transparent 0%, black 14%, black 55%, transparent 94%)',
         }}
       >
         <GradientOrbs />

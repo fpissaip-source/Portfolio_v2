@@ -121,13 +121,31 @@ export function Hero() {
       ref={sectionRef}
       className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-24"
     >
-      <GradientOrbs />
-      {/* Light from off-frame, top right — the hero is the largest expanse of
-          bare canvas on the page, and the intro has just flown the visitor
-          toward a lit window, so a source outside the frame is consistent
-          rather than decorative (DESIGN.md §3). Kept low: it must read as one
-          lamp, not as a colour wash. */}
-      <SideRays />
+      {/* Both ambient layers are masked to fade out before the section ends.
+          The hero is `overflow-hidden`, so anything lighting it gets cut off
+          dead straight at the bottom edge — invisible while the hero was
+          near-black, but a hard full-width seam against the black services
+          section as soon as SideRays lit it. The mask ends the light inside
+          the hero instead of letting the section boundary end it.
+          -webkit- prefix included: Safari still needs it. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          maskImage:
+            'linear-gradient(to bottom, black 0%, black 55%, transparent 94%)',
+          WebkitMaskImage:
+            'linear-gradient(to bottom, black 0%, black 55%, transparent 94%)',
+        }}
+      >
+        <GradientOrbs />
+        {/* Light from off-frame, top right — the hero is the largest expanse
+            of bare canvas on the page, and the intro has just flown the
+            visitor toward a lit window, so a source outside the frame is
+            consistent rather than decorative (DESIGN.md §3). Kept low: it
+            must read as one lamp, not as a colour wash. */}
+        <SideRays />
+      </div>
       <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">

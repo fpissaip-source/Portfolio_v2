@@ -1,4 +1,3 @@
-import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
@@ -97,7 +96,13 @@ export default function RootLayout({
       </head>
       <body className="antialiased">
         <LanguageProvider>{children}</LanguageProvider>
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* @vercel/analytics is deliberately not mounted. This site is
+            deployed on Railway, not Vercel, so the script it injects —
+            /_vercel/insights/script.js — is served by nothing: verified 404
+            on the live domain, i.e. a failed request on every single visit
+            that collected no data in return. The dependency stays in
+            package.json so this is one line to restore if the site ever
+            moves to Vercel. */}
       </body>
     </html>
   )

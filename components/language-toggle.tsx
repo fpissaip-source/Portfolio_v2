@@ -21,7 +21,7 @@ export function LanguageToggle() {
           onClick={() => setLang(l)}
           aria-pressed={lang === l}
           aria-label={l === 'de' ? 'Deutsch' : 'English'}
-          className={`rounded-full px-2 py-1 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
+          className={`rounded-full px-2.5 py-1.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
             lang === l
               ? 'bg-white/15 text-foreground'
               : 'text-muted-foreground hover:text-foreground'

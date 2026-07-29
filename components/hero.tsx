@@ -168,7 +168,7 @@ export function Hero() {
           <a
             href="#work"
             onClick={(e) => handleAnchorClick(e, '#work')}
-            className="text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-8 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+            className="py-1.5 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-8 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
           >
             {t.hero.ctaSecondary}
           </a>

@@ -74,7 +74,11 @@ export function SiteNav() {
                     key={l.href}
                     href={l.href}
                     onClick={(e) => go(e, l.href)}
-                    className="rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    // whitespace-nowrap: at tablet widths the pill gets tight
+                    // enough that "Über mich" wrapped to a second line, which
+                    // pushed that one item off the shared baseline and made
+                    // the pill visibly taller than its own padding.
+                    className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {l.label}
                   </a>

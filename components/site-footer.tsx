@@ -54,10 +54,10 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-end">
-          <Link href="/impressum" className="transition-colors hover:text-foreground">
+          <Link href="/impressum" className="py-1.5 transition-colors hover:text-foreground">
             {t.footer.imprint}
           </Link>
-          <Link href="/datenschutz" className="transition-colors hover:text-foreground">
+          <Link href="/datenschutz" className="py-1.5 transition-colors hover:text-foreground">
             {t.footer.privacy}
           </Link>
           <p>

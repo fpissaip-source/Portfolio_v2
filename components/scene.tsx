@@ -2,6 +2,7 @@
 
 import type { ReactNode } from 'react'
 import { SceneBackdrop, type BackdropVariant } from './scene-backdrop'
+import { CursorGrid } from './cursor-grid'
 import type { Dictionary } from '@/lib/translations'
 
 /**
@@ -14,12 +15,22 @@ export function Scene({
   children,
 }: {
   labelKey: keyof Dictionary['scene']
-  backdrop?: BackdropVariant
+  /** 'cursor-grid' is not a SceneBackdrop variant: those are sticky
+   *  viewport canvases that drift on scroll, while the grid is bound to the
+   *  section box and driven by the pointer instead. */
+  backdrop?: BackdropVariant | 'cursor-grid'
   children: ReactNode
 }) {
   return (
     <div className="relative">
-      {backdrop && <SceneBackdrop variant={backdrop} />}
+      {backdrop === 'cursor-grid' ? (
+        // The wrapper is the positioned ancestor the grid fills, and also the
+        // element whose pointer events drive it — so the lattice keeps
+        // responding over the section's own text, not just around it.
+        <CursorGrid />
+      ) : (
+        backdrop && <SceneBackdrop variant={backdrop} />
+      )}
       {children}
     </div>
   )

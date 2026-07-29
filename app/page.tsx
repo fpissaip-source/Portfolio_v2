@@ -45,7 +45,10 @@ export default function Page() {
           <EdgeGlow />
           <IonTrail />
           <Hero />
-          <Scene labelKey="services" backdrop="ions">
+          {/* The cursor-lit lattice replaces this section's ion backdrop
+              rather than stacking on it — with the global MouseGlow that
+              would have been three ambient systems in one viewport. */}
+          <Scene labelKey="services" backdrop="cursor-grid">
             <Services />
           </Scene>
           <Scene labelKey="lukas">

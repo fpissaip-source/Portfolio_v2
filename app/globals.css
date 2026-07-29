@@ -744,6 +744,20 @@ body:has(.lukas-panel.open) [data-lukas-launcher] {
   transition: opacity 0.25s ease;
 }
 
+/* Fixed chrome yields to anything covering the page. The language toggle
+   lives at top-right and was drawing straight over the project modal's own
+   close button and over the L.U.K.A.S. panel header — two controls stacked
+   in the same 44px corner, one of them belonging to a surface the visitor
+   is not currently looking at. */
+body:has(.lukas-panel.open) [data-page-chrome],
+body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
+  opacity: 0;
+  pointer-events: none;
+}
+[data-page-chrome] {
+  transition: opacity 0.2s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lukas-w .lukas-ic.rec {
     animation: none;

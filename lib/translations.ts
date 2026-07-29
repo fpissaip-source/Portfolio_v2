@@ -58,6 +58,8 @@ export type Dictionary = {
     headingHighlight: string
     headingEnd: string
     body: string
+    ctaPrimary: string
+    ctaSecondary: string
   }
   services: {
     kicker: string
@@ -98,6 +100,11 @@ export type Dictionary = {
     hobbyProject: string
     close: string
     loadingConstellation: string
+    auditOnpage: string
+    auditTech: string
+    auditStructure: string
+    auditContent: string
+    auditSource: string
   }
   projectOrbsMobile: {
     tapHint: string
@@ -301,6 +308,8 @@ export const EN: Dictionary = {
     headingHighlight: 'complete digital systems',
     headingEnd: '— from idea to production.',
     body: 'I use AI as a real part of how I build, and I take every system all the way to production myself.',
+    ctaPrimary: 'Start a project',
+    ctaSecondary: 'See the work',
   },
   services: {
     kicker: 'Services',
@@ -414,6 +423,11 @@ export const EN: Dictionary = {
     hobbyProject: 'Hobby Project',
     close: 'Close',
     loadingConstellation: 'Loading constellation…',
+    auditOnpage: 'Onpage score',
+    auditTech: 'Tech & meta',
+    auditStructure: 'Structure',
+    auditContent: 'Content',
+    auditSource: 'Audited with',
   },
   projectOrbsMobile: {
     tapHint: 'Tap a system to inspect',
@@ -652,6 +666,8 @@ export const DE: Dictionary = {
     headingHighlight: 'vollständige digitale Systeme',
     headingEnd: '– von der Idee bis zum produktiven Einsatz.',
     body: 'KI ist bei mir fester Teil, wie ich baue. Jedes System bringe ich selbst bis in den produktiven Einsatz.',
+    ctaPrimary: 'Projekt anfragen',
+    ctaSecondary: 'Arbeiten ansehen',
   },
   services: {
     kicker: 'Leistungen',
@@ -765,6 +781,11 @@ export const DE: Dictionary = {
     hobbyProject: 'Hobbyprojekt',
     close: 'Schließen',
     loadingConstellation: 'Konstellation lädt…',
+    auditOnpage: 'Onpage-Score',
+    auditTech: 'Technik & Meta',
+    auditStructure: 'Struktur',
+    auditContent: 'Inhalt',
+    auditSource: 'Geprüft mit',
   },
   projectOrbsMobile: {
     tapHint: 'System antippen zum Ansehen',

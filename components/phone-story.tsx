@@ -117,7 +117,7 @@ export function PhoneStory() {
       ref={sectionRef}
       id="phone"
       aria-label={t.phoneStory.ariaLabel}
-      className="relative overflow-hidden px-6 py-40 sm:py-56"
+      className="relative overflow-hidden px-6 py-40"
     >
       {/* the instrument itself — a bare outline that draws itself in */}
       <motion.div

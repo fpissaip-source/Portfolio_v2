@@ -5,11 +5,69 @@ import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { motion } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
-import { useT } from './language-context'
+import { useLanguage, useT } from './language-context'
 import { useNearViewport } from './use-near-viewport'
 import type { OrbProject } from './project-orbs'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
+
+/** Measured third-party audit of a deployed project, rendered as a spec
+ *  readout rather than a badge: the numbers are the point, and a badge would
+ *  read as a sticker the site awarded itself. The headline score is the one
+ *  large figure; the three sub-scores sit under it at label scale. Source and
+ *  crawl date are shown, not hidden — an unattributed number is a claim. */
+function ProjectAudit({ audit }: { audit: NonNullable<Project['audit']> }) {
+  const t = useT()
+  const { lang } = useLanguage()
+  const subScores = [
+    { label: t.projects.auditTech, value: audit.tech },
+    { label: t.projects.auditStructure, value: audit.structure },
+    { label: t.projects.auditContent, value: audit.content },
+  ]
+  return (
+    <div className="mt-6 border-t border-white/10 pt-5">
+      <div className="flex items-baseline gap-3">
+        <span className="font-display text-4xl font-semibold tabular-nums tracking-tight text-blue">
+          {audit.onpage}%
+        </span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+          {t.projects.auditOnpage}
+        </span>
+      </div>
+      <dl className="mt-4 grid grid-cols-3 gap-x-4 gap-y-1">
+        {subScores.map((s) => (
+          <div key={s.label}>
+            <dd className="font-display text-lg font-semibold tabular-nums tracking-tight">
+              {s.value}%
+            </dd>
+            <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+              {s.label}
+            </dt>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
+        {t.projects.auditSource}{' '}
+        <a
+          href={audit.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="underline decoration-white/25 underline-offset-4 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+        >
+          {audit.sourceName}
+        </a>{' '}
+        ·{' '}
+        <time dateTime={audit.crawledOn}>
+          {new Date(audit.crawledOn).toLocaleDateString(lang ?? 'en', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          })}
+        </time>
+      </p>
+    </div>
+  )
+}
 
 function LoadingFallback() {
   const t = useT()
@@ -55,6 +113,20 @@ type Project = {
   hobby?: boolean
   liveUrl?: string
   githubUrl?: string
+  /** Third-party audit of the *deployed* site. Only ever set from a real
+   *  report — the point of showing figures at all is that they are measured
+   *  rather than claimed (DESIGN.md §1), so the source and crawl date are
+   *  part of the data, not decoration. */
+  audit?: {
+    onpage: number
+    tech: number
+    structure: number
+    content: number
+    /** ISO date of the crawl the figures come from. */
+    crawledOn: string
+    sourceName: string
+    sourceUrl: string
+  }
 }
 
 /** Structural fields only — name, media, stack, links. The translatable
@@ -73,6 +145,7 @@ type ProjectMeta = Pick<
   | 'hobby'
   | 'liveUrl'
   | 'githubUrl'
+  | 'audit'
 >
 
 const PROJECT_META: ProjectMeta[] = [
@@ -93,6 +166,15 @@ const PROJECT_META: ProjectMeta[] = [
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     liveUrl: 'https://taxibbessen.de',
     githubUrl: 'https://github.com/fpissaip-source/Taxibbessen',
+    audit: {
+      onpage: 92,
+      tech: 99,
+      structure: 97,
+      content: 80,
+      crawledOn: '2026-07-28',
+      sourceName: 'seobility.net',
+      sourceUrl: 'https://www.seobility.net',
+    },
   },
   {
     name: 'StudyForge',
@@ -179,6 +261,7 @@ function ProjectDetailContent({ project }: { project: Project }) {
         <p className="mt-5 font-mono text-xs leading-relaxed text-muted-foreground/80">
           {project.stack.join(' · ')}
         </p>
+        {project.audit && <ProjectAudit audit={project.audit} />}
         {(project.liveUrl || project.githubUrl) && (
           <div className="mt-5 flex flex-wrap gap-3">
             {project.liveUrl && (
@@ -278,7 +361,7 @@ function ProjectDetailModal({ project, onClose }: { project: Project; onClose: (
         aria-label={project.name}
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="glass relative w-full max-w-2xl overflow-hidden rounded-3xl p-2 focus:outline-none"
+        className="glass relative w-full max-w-2xl overflow-hidden rounded-2xl p-2 focus:outline-none"
       >
         <button
           type="button"
@@ -403,7 +486,7 @@ export function Projects() {
           doesn't blend into the surrounding page. */}
       <div
         ref={constellationRef}
-        className="relative h-[560px] w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
+        className="relative h-[560px] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
       >
         {tier !== 'mobile' && !expandedProject && (
           <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">

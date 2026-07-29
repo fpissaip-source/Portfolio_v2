@@ -132,7 +132,7 @@ export function SiteNav() {
                     go(e, l.href)
                     setMenuOpen(false)
                   }}
-                  className="rounded-xl px-5 py-2.5 text-right text-sm text-foreground transition-colors hover:bg-white/5"
+                  className="rounded-full px-5 py-2.5 text-right text-sm text-foreground transition-colors hover:bg-white/5"
                 >
                   {l.label}
                 </a>

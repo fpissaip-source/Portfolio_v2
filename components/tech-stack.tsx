@@ -45,7 +45,7 @@ export function TechStack() {
   const t = useT()
   const { ref: orbsRef, near: orbsNear } = useNearViewport<HTMLDivElement>()
   return (
-    <section id="stack" className="relative py-24 sm:py-32">
+    <section id="stack" className="relative py-32">
       <div ref={orbsRef} className="absolute inset-0 z-10 overflow-hidden">
         <div className="sticky top-0 h-[100svh] w-full touch-pan-y md:touch-none">
           {orbsNear && <TechOrbs />}
@@ -53,6 +53,20 @@ export function TechStack() {
       </div>
 
       <div className="pointer-events-none relative z-20 mx-auto max-w-7xl px-6">
+        {/* The tech orbs are near-white spheres drifting through the whole
+            section, and they pass directly behind this heading — white
+            display type on a white sphere is not a contrast problem at the
+            margins, it is invisible. This scrim keeps the canvas readable
+            without hiding the orbs: opaque under the words, gone by the time
+            it reaches the orbs' own space. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -top-16 h-[420px] -z-10"
+          style={{
+            background:
+              'radial-gradient(60% 55% at 50% 32%, var(--background) 0%, color-mix(in oklch, var(--background) 88%, transparent) 45%, transparent 78%)',
+          }}
+        />
         <SectionHeading
           label={t.techStack.kicker}
           heading={t.techStack.heading}
@@ -80,16 +94,17 @@ export function TechStack() {
         </Reveal>
 
         <Reveal delay={0.15}>
-          <dl className="mx-auto mt-16 grid max-w-4xl gap-x-10 gap-y-5 sm:grid-cols-2">
+          {/* A technical listing, so it is set as a register: hairline rules,
+              no boxes (DESIGN.md §5). Layer names are instrument labels in
+              the section's own accent — this section is blue, and giving the
+              layer names violet put two accents in one viewport (§3). */}
+          <dl className="mx-auto mt-16 grid max-w-4xl gap-x-12 sm:grid-cols-2">
             {t.techStack.matrix.map((m) => (
-              <div
-                key={m.layer}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.025] p-5"
-              >
-                <dt className="text-sm font-semibold tracking-tight text-purple/85">
+              <div key={m.layer} className="border-t border-white/10 py-5">
+                <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90">
                   {m.layer}
                 </dt>
-                <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                <dd className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
                   {m.items}
                 </dd>
               </div>

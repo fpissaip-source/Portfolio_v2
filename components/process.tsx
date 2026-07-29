@@ -61,21 +61,24 @@ export function Process() {
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-blue" />
                 </span>
+                {/* No card here: `.glass` is reserved for floating chrome
+                    that overlaps content, not a section style, and a process
+                    step is not object-like (DESIGN.md §5). The rail and its
+                    node already do the grouping a box was doing twice. The
+                    step number stays — unlike the competencies, this really
+                    is a sequence — but as an instrument label rather than a
+                    filled chip. */}
                 <Reveal className="w-full" y={30}>
-                  <div className="glass rounded-2xl p-6">
-                    <div className="flex items-start gap-4">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-blue/20 bg-blue/[0.08] text-xs font-semibold tabular-nums text-blue">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      <div>
-                        <h3 className="text-xl font-semibold tracking-tight">
-                          {s.title}
-                        </h3>
-                        <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
-                          {s.body}
-                        </p>
-                      </div>
+                  <div className="pt-1">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-blue/90">
+                      {String(i + 1).padStart(2, '0')}
                     </div>
+                    <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
+                      {s.title}
+                    </h3>
+                    <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+                      {s.body}
+                    </p>
                   </div>
                 </Reveal>
               </div>

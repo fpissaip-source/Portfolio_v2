@@ -10,7 +10,10 @@ export function LanguageToggle() {
   if (!lang) return null
 
   return (
-    <div className="fixed right-4 top-4 z-50 flex items-center gap-0.5 rounded-full border border-white/10 bg-black/30 p-0.5 font-mono text-[10px] uppercase tracking-[0.1em] backdrop-blur-sm">
+    <div
+      data-page-chrome
+      className="fixed right-4 top-4 z-50 flex items-center gap-0.5 rounded-full border border-white/10 bg-black/30 p-0.5 font-mono text-[10px] uppercase tracking-[0.1em] backdrop-blur-sm"
+    >
       {(['de', 'en'] as const).map((l) => (
         <button
           key={l}

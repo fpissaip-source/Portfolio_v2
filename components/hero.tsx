@@ -7,6 +7,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { GradientOrbs } from './gradient-orbs'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
+import { handleAnchorClick } from '@/lib/scroll-to'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -124,7 +125,7 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex max-w-5xl flex-col items-center text-center">
         <h1
           ref={h1Ref}
-          className="text-balance font-sans text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
+          className="text-balance font-display text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl md:text-7xl"
         >
           <LitPhrase text={t.hero.headingStart} />{' '}
           <span
@@ -145,6 +146,33 @@ export function Hero() {
         >
           {t.hero.body}
         </motion.p>
+
+        {/* The hero had no action at all — the first one a visitor could take
+            sat eight sections below. One primary (blue: this is craft/work,
+            DESIGN.md §3) and one quiet secondary; the secondary is a text
+            link rather than a second button so the pair never reads as two
+            equal choices. */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.85, ease: easeOut }}
+          className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:gap-7"
+        >
+          <a
+            href="#contact"
+            onClick={(e) => handleAnchorClick(e, '#contact')}
+            className="rounded-full bg-blue/15 px-6 py-3 text-sm font-semibold tracking-tight text-blue transition-colors hover:bg-blue/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+          >
+            {t.hero.ctaPrimary}
+          </a>
+          <a
+            href="#work"
+            onClick={(e) => handleAnchorClick(e, '#work')}
+            className="text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-8 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+          >
+            {t.hero.ctaSecondary}
+          </a>
+        </motion.div>
       </div>
     </section>
   )

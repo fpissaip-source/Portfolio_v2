@@ -16,7 +16,7 @@ export function LegalPage({
   return (
     <div className="relative flex min-h-screen flex-col bg-background">
       <LanguageToggle />
-      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-24 sm:py-32">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-32">
         <Link
           href="/"
           className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"

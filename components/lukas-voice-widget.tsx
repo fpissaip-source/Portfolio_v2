@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { onLukasReached } from '@/lib/lukas-presence'
 import { mountLukasVoiceViz } from '@/lib/lukas-voice-viz'
+import { skinLukasPanel } from '@/lib/lukas-panel-skin'
 import { useT } from './language-context'
 
 /**
@@ -47,6 +48,12 @@ export function LukasVoiceWidget() {
     if (loadedRef.current) return
     loadedRef.current = true
 
+    // Only the two rules that depend on *this* component existing stay
+    // inline — they hide the widget's own button in favour of our launcher
+    // and lift its panel clear of it. The panel's appearance is re-skinned in
+    // app/globals.css (see the `.lukas-w` block); widget.js injects its own
+    // stylesheet after ours, which is why those rules are scoped by class
+    // rather than shouted down with !important.
     const style = document.createElement('style')
     style.setAttribute('data-lukas-widget-style', '')
     style.textContent =
@@ -72,10 +79,16 @@ export function LukasVoiceWidget() {
     for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v)
     document.body.appendChild(s)
 
-    // Voice visualiser: injects itself into the chat panel once widget.js
-    // has built it, and animates to L.U.K.A.S.'s speaking/listening state.
+    // Both wait for widget.js to build the panel, then patch it: the
+    // visualiser injects the equalizer and tracks his speaking/listening
+    // state, the skin restores scrolling (Lenis) and swaps the emoji glyphs
+    // for real icons.
     const disposeViz = mountLukasVoiceViz()
-    vizCleanupRef.current = disposeViz
+    const disposeSkin = skinLukasPanel()
+    vizCleanupRef.current = () => {
+      disposeViz()
+      disposeSkin()
+    }
   }
 
   // Preload once the section is reached (so the floating launcher opens
@@ -120,6 +133,7 @@ export function LukasVoiceWidget() {
       <motion.button
         type="button"
         onClick={openChat}
+        data-lukas-launcher
         aria-label={t.lukasVoice.launcherAria}
         initial={{ opacity: 0, y: 24, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}

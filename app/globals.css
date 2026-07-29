@@ -482,3 +482,270 @@ html.preloading {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ─── L.U.K.A.S. chat panel re-skin ──────────────────────────────────────────
+ * The panel is built by the backend's widget.js (not in this repo). It ships
+ * deliberately without a shadow DOM so the host page can restyle it, and its
+ * defaults are generic-chatbot: system-ui type, a saturated violet→blue
+ * gradient on every user bubble, a red record button, a green status dot,
+ * emoji glyphs, opaque slab backgrounds.
+ *
+ * Everything below re-states it in the site's own language: one accent
+ * (violet — L.U.K.A.S. is MIND, DESIGN.md §3), glass over the black canvas
+ * because it is floating chrome that overlaps content (§5), the two sanctioned
+ * radii, and instrument type for every label and status line (§2).
+ *
+ * widget.js appends its stylesheet at runtime, i.e. *after* this file, so
+ * equal-specificity rules would lose. Every selector here is therefore scoped
+ * with `.lukas-w` to outrank the widget's own single-class rules; where the
+ * widget already uses two classes (`.lukas-m.u`, `.lukas-ic.rec`) the scope
+ * puts us one step ahead again. No `!important` is needed anywhere.
+ *
+ * Structural fixes that CSS cannot make — restoring scroll past Lenis, and
+ * swapping the emoji for real icons — live in lib/lukas-panel-skin.ts.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Doubled class (0,2,0) so these beat widget.js's own `.lukas-w { … }`
+   variable block, which is injected later in the document. */
+.lukas-w.lukas-w {
+  /* Body face, not system-ui: the panel is part of the site, not a guest. */
+  --lukas-font: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --lukas-accent: var(--purple);
+  --lukas-text: var(--foreground);
+  --lukas-muted: var(--muted-foreground);
+  --lukas-border: var(--border);
+  --lukas-radius: calc(var(--radius) * 1.8); /* rounded-2xl — a real surface */
+}
+
+/* Panel. Opaque by default: below 640px widget.js makes it `inset:0`, a
+   full-screen sheet, and glass there means reading the page through the
+   conversation. Glass is for chrome that *floats over* content (DESIGN.md
+   §5) — which is only true of the desktop card, handled below. */
+.lukas-w .lukas-panel {
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 50px -16px rgb(0 0 0 / 0.85);
+}
+
+@media (min-width: 641px) {
+  .lukas-w .lukas-panel {
+    /* Kept high enough (88%) that the panel stays readable even where the
+       blur is unavailable — backdrop-filter is an enhancement, not the
+       thing legibility depends on. */
+    background: color-mix(in oklch, var(--background) 88%, transparent);
+    backdrop-filter: blur(28px) saturate(150%);
+    -webkit-backdrop-filter: blur(28px) saturate(150%);
+  }
+}
+
+/* Header — a hairline, not a second filled bar stacked on the first */
+.lukas-w .lukas-head {
+  background: transparent;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 12px 16px 16px;
+  gap: 12px;
+}
+.lukas-w .lukas-head b {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+/* Subtitle becomes an instrument label: uppercase, tracked, small (§2) */
+.lukas-w .lukas-head span {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: color-mix(in oklch, var(--purple) 65%, var(--muted-foreground));
+  margin-top: 3px;
+}
+
+/* Status dot — the launcher's lit neuron, not a green "online" LED */
+.lukas-w .lukas-dot {
+  width: 7px;
+  height: 7px;
+  margin-left: 4px;
+  background: color-mix(in oklch, var(--purple) 60%, white);
+  box-shadow: 0 0 12px 2px color-mix(in oklch, var(--purple) 70%, transparent);
+}
+
+.lukas-w .lukas-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  color: var(--muted-foreground);
+}
+.lukas-w .lukas-close:hover {
+  background: color-mix(in oklch, white 6%, transparent);
+  border-color: var(--border);
+  color: var(--foreground);
+}
+
+/* Message list */
+.lukas-w .lukas-msgs {
+  padding: 18px 16px;
+  gap: 12px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklch, white 14%, transparent) transparent;
+}
+.lukas-w .lukas-msgs::-webkit-scrollbar {
+  width: 6px;
+}
+.lukas-w .lukas-msgs::-webkit-scrollbar-thumb {
+  background: color-mix(in oklch, white 14%, transparent);
+  border-radius: 999px;
+}
+
+.lukas-w .lukas-m {
+  max-width: 88%;
+  padding: 11px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  border-radius: 18px;
+}
+/* His voice: a quiet field, no border box (§5 — fields over cards) */
+.lukas-w .lukas-m.a {
+  background: color-mix(in oklch, white 5%, transparent);
+  border: none;
+  border-bottom-left-radius: 6px;
+  color: var(--foreground);
+}
+/* The visitor's voice: one flat violet tint. The stock gradient fill put two
+   accents at equal prominence in a 380px box — exactly the "generic gradient
+   site" read DESIGN.md §3 rules out. */
+.lukas-w .lukas-m.u {
+  background: color-mix(in oklch, var(--purple) 26%, transparent);
+  border: 1px solid color-mix(in oklch, var(--purple) 34%, transparent);
+  border-bottom-right-radius: 6px;
+  color: var(--foreground);
+}
+
+/* Starter questions — site pills */
+.lukas-w .lukas-suggest {
+  padding: 0 16px 14px;
+  gap: 8px;
+}
+.lukas-w .lukas-chip {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-size: 12px;
+  padding: 8px 14px;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+.lukas-w .lukas-chip:hover {
+  background: transparent;
+  border-color: color-mix(in oklch, var(--purple) 55%, transparent);
+  color: var(--foreground);
+}
+
+/* "Lukas hört zu…" — status is instrument text (§2) */
+.lukas-w .lukas-status {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted-foreground);
+  padding: 2px 16px 12px;
+}
+
+/* Composer */
+.lukas-w .lukas-form {
+  background: transparent;
+  border-top: 1px solid var(--border);
+  gap: 10px;
+  padding: 12px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+.lukas-w .lukas-in {
+  background: color-mix(in oklch, white 5%, transparent);
+  border: 1px solid transparent;
+  color: var(--foreground);
+  padding: 12px 16px;
+}
+.lukas-w .lukas-in::placeholder {
+  color: var(--muted-foreground);
+}
+/* The widget autofocuses the input on open, so this state is what the panel
+   looks like the moment it appears — a hairline lift, not a lit ring. */
+.lukas-w .lukas-in:focus {
+  border-color: color-mix(in oklch, var(--purple) 30%, transparent);
+  background: color-mix(in oklch, white 7%, transparent);
+}
+
+.lukas-w .lukas-ic {
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted-foreground);
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+}
+.lukas-w .lukas-ic:hover {
+  border-color: color-mix(in oklch, var(--purple) 55%, transparent);
+  color: var(--foreground);
+}
+/* Send is the one filled control in the panel — it earns the fill (§3) */
+.lukas-w .lukas-send {
+  background: color-mix(in oklch, var(--purple) 82%, black);
+  border-color: transparent;
+  color: white;
+}
+.lukas-w .lukas-send:hover {
+  background: var(--purple);
+  border-color: transparent;
+  color: white;
+}
+/* Recording: violet, breathing — the section's own colour, not a red
+   record light borrowed from a tape deck */
+.lukas-w .lukas-ic.rec {
+  background: color-mix(in oklch, var(--purple) 30%, transparent);
+  border-color: color-mix(in oklch, var(--purple) 70%, transparent);
+  color: color-mix(in oklch, var(--purple) 45%, white);
+  animation: lukas-listen 1.8s ease-in-out infinite;
+}
+@keyframes lukas-listen {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--purple) 45%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+/* Focus visibility — the widget ships none (DESIGN.md §10).
+   The text input is deliberately not in this list: widget.js focuses it
+   programmatically on open, and a browser always treats a focused text field
+   as focus-visible, so an outline here would fire as decoration every single
+   time the panel appears. Its own `:focus` border above carries the state. */
+.lukas-w .lukas-ic:focus-visible,
+.lukas-w .lukas-chip:focus-visible,
+.lukas-w .lukas-close:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 2px;
+}
+
+/* While the conversation is open, our launcher is stale chrome — it still
+   invites the visitor to start the thing already in front of them.
+   `!important` is load-bearing here, not laziness: the launcher is a
+   motion/react element whose entry animation writes `opacity` as an inline
+   style, which a stylesheet rule cannot outrank on its own. */
+body:has(.lukas-panel.open) [data-lukas-launcher] {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lukas-w .lukas-ic.rec {
+    animation: none;
+  }
+}

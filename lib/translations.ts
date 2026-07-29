@@ -695,7 +695,7 @@ export const DE: Dictionary = {
         kicker: 'Vision & Kernidentität',
         title: 'Ein Agent, der weiß, wer er ist.',
         body: [
-          'Ein dauerhafter, autonomer Agent, dessen Verhalten aus einer gewachsenen Entscheidungshistorie entsteht, nicht aus statischem Prompting.',
+          'Ein dauerhafter, autonomer Agent, dessen Verhalten aus einer wachsenden Entscheidungshistorie entsteht, nicht aus statischem Prompting.',
           'Jede Entscheidung, die er trifft, wird Teil dessen, was er ist.',
         ],
       },

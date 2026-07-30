@@ -1,13 +1,23 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import Image from 'next/image'
-import dynamic from 'next/dynamic'
+
+
+
 import { motion } from 'motion/react'
 import { Reveal, WordReveal } from './anim'
 import { useLanguage, useT } from './language-context'
 import { useNearViewport } from './use-near-viewport'
-import type { OrbProject } from './project-orbs'
+import { StellarGallery, type GalleryCard } from './stellar-gallery'
+
+/** Self-directed design explorations, in the same order as
+ *  `t.projects.directions` — the copy that names and describes each one
+ *  lives there so it switches with the language. */
+const DESIGN_DIRECTIONS = [
+  { image: '/design-directions/vantiq.webp' },
+  { image: '/design-directions/novasynth.webp' },
+  { image: '/design-directions/kelvin-roe.webp' },
+  { image: '/design-directions/heliodyne.webp' },
+]
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
@@ -79,16 +89,6 @@ function LoadingFallback() {
     </div>
   )
 }
-
-const ProjectOrbs = dynamic(() => import('./project-orbs'), {
-  ssr: false,
-  loading: () => <LoadingFallback />,
-})
-
-const ProjectConstellationMobile = dynamic(() => import('./project-constellation-mobile'), {
-  ssr: false,
-  loading: () => <LoadingFallback />,
-})
 
 type Project = {
   name: string
@@ -202,232 +202,32 @@ const PROJECT_META: ProjectMeta[] = [
   },
 ]
 
-/** Shared inner content for the project detail view — media, name,
- *  tagline/status, description, stack, and live/GitHub links where they
- *  exist. Used by both the docked side panel (desktop/tablet) and the
- *  full-screen modal (mobile). */
-function ProjectDetailContent({ project }: { project: Project }) {
+/** The written substance of a project — description, stack and status.
+ *  Rendered inside the gallery's detail card under the screenshot, so
+ *  nothing that the old docked panel carried is lost in the move. */
+function ProjectExtras({ project }: { project: Project }) {
   const t = useT()
   return (
     <>
-      {project.image || project.video ? (
-        <div className="relative aspect-[16/10] overflow-hidden rounded-2xl">
-          {project.video ? (
-            <video
-              key={project.video}
-              ref={(el) => {
-                if (el) el.playbackRate = project.videoPlaybackRate ?? 1
-              }}
-              src={project.video}
-              poster={project.image}
-              muted
-              loop
-              autoPlay
-              playsInline
-              aria-label={`${project.name}: ${project.tagline}`}
-              className="absolute inset-0 h-full w-full object-cover object-top"
-            />
-          ) : (
-            <Image
-              src={project.image || '/placeholder.svg'}
-              alt={`${project.name}: ${project.tagline}`}
-              fill
-              sizes="(max-width: 768px) 100vw, 42rem"
-              className="object-cover"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-          <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.18em] [text-shadow:0_1px_12px_rgba(0,0,0,0.8)]">
-            <span className="min-w-0 truncate text-white/70">{project.tagline}</span>
-            <span className="shrink-0 text-blue">{project.status}</span>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-4 rounded-2xl bg-white/[0.03] px-5 py-4">
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-purple">
-            {project.hobby ? t.projects.hobbyProject : project.status}
-          </span>
-          <span className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-            {project.tagline}
-          </span>
-        </div>
-      )}
-
-      <div className="px-5 pb-6 pt-5 sm:px-7">
-        <h3 className="text-3xl font-semibold tracking-tight">{project.name}</h3>
-        <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
-          {project.description}
-        </p>
-        <p className="mt-5 font-mono text-xs leading-relaxed text-muted-foreground/80">
-          {project.stack.join(' · ')}
-        </p>
-        {project.audit && <ProjectAudit audit={project.audit} />}
-        {(project.liveUrl || project.githubUrl) && (
-          <div className="mt-5 flex flex-wrap gap-3">
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full bg-blue/15 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-blue transition-colors hover:bg-blue/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
-              >
-                {t.projects.liveProject}
-              </a>
-            )}
-            {project.githubUrl && (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full bg-white/10 px-4 py-2 font-mono text-xs uppercase tracking-[0.14em] text-foreground transition-colors hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-              >
-                {t.projects.github}
-              </a>
-            )}
-          </div>
-        )}
-      </div>
+      <p className="mt-3 max-w-[68ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+        {project.description}
+      </p>
+      <ul className="mt-4 flex flex-wrap gap-2">
+        {project.stack.map((tech) => (
+          <li
+            key={tech}
+            className="rounded-full border border-white/10 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+          >
+            {tech}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-purple/80">
+        {project.hobby ? t.projects.hobbyProject : project.status}
+      </p>
+      {project.audit && <ProjectAudit audit={project.audit} />}
     </>
   )
-}
-
-/** Escape closes, scroll locks, and — while the dialog is open — focus is
- *  trapped inside it (Tab/Shift+Tab cycle through its own focusable
- *  elements only) and moved onto its first focusable element. On close,
- *  focus returns to whatever had it before the dialog opened (the orb or
- *  card that triggered it), instead of being lost to the document body. */
-function useModalA11y(containerRef: React.RefObject<HTMLElement | null>, onClose: () => void) {
-  useEffect(() => {
-    const lenisWin = window as unknown as { __lenis?: { stop: () => void; start: () => void } }
-    lenisWin.__lenis?.stop()
-    const previouslyFocused = document.activeElement as HTMLElement | null
-
-    const focusableSelector =
-      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-    const getFocusable = () =>
-      containerRef.current
-        ? Array.from(containerRef.current.querySelectorAll<HTMLElement>(focusableSelector))
-        : []
-
-    const raf = requestAnimationFrame(() => {
-      const focusables = getFocusable()
-      ;(focusables[0] ?? containerRef.current)?.focus()
-    })
-
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose()
-        return
-      }
-      if (e.key !== 'Tab') return
-      const items = getFocusable()
-      if (items.length === 0) return
-      const first = items[0]
-      const last = items[items.length - 1]
-      if (e.shiftKey && document.activeElement === first) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && document.activeElement === last) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-    window.addEventListener('keydown', onKey)
-    return () => {
-      cancelAnimationFrame(raf)
-      lenisWin.__lenis?.start()
-      window.removeEventListener('keydown', onKey)
-      previouslyFocused?.focus()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-}
-
-/** Full-screen modal — used on mobile, where a docked side panel wouldn't
- *  leave enough room to be useful. Clicking the backdrop or Escape closes. */
-function ProjectDetailModal({ project, onClose }: { project: Project; onClose: () => void }) {
-  const t = useT()
-  const containerRef = useRef<HTMLDivElement>(null)
-  useModalA11y(containerRef, onClose)
-  return (
-    <div
-      className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-black/70 p-6 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <div
-        ref={containerRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={project.name}
-        tabIndex={-1}
-        onClick={(e) => e.stopPropagation()}
-        className="glass relative w-full max-w-2xl overflow-hidden rounded-2xl p-2 focus:outline-none"
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t.projects.close}
-          className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 transition-colors hover:bg-black/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-        >
-          &times;
-        </button>
-        <ProjectDetailContent project={project} />
-      </div>
-    </div>
-  )
-}
-
-/** Docked side panel — used on desktop/tablet, where the constellation
- *  stays visible (dimmed) to its left instead of being fully hidden behind
- *  a detached popup. Lives inside the gallery's own relatively-positioned
- *  container, not a page-level fixed overlay. */
-function ProjectDetailPanel({ project, onClose }: { project: Project; onClose: () => void }) {
-  const t = useT()
-  const containerRef = useRef<HTMLDivElement>(null)
-  useModalA11y(containerRef, onClose)
-  return (
-    <motion.div
-      ref={containerRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={project.name}
-      tabIndex={-1}
-      initial={{ opacity: 0, x: 24 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.55, ease: easeOut }}
-      className="glass absolute inset-y-3 right-3 z-30 w-[min(26rem,44%)] overflow-y-auto rounded-2xl focus:outline-none"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <button
-        type="button"
-        onClick={onClose}
-        aria-label={t.projects.close}
-        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white/80 transition-colors hover:bg-black/60 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-      >
-        &times;
-      </button>
-      <ProjectDetailContent project={project} />
-    </motion.div>
-  )
-}
-
-type Tier = 'mobile' | 'tablet' | 'desktop'
-
-function useTier(): Tier {
-  const [tier, setTier] = useState<Tier>('desktop')
-  useEffect(() => {
-    const mobileQ = window.matchMedia('(max-width: 767px)')
-    const tabletQ = window.matchMedia('(min-width: 768px) and (max-width: 1023px)')
-    const update = () => setTier(mobileQ.matches ? 'mobile' : tabletQ.matches ? 'tablet' : 'desktop')
-    update()
-    mobileQ.addEventListener('change', update)
-    tabletQ.addEventListener('change', update)
-    return () => {
-      mobileQ.removeEventListener('change', update)
-      tabletQ.removeEventListener('change', update)
-    }
-  }, [])
-  return tier
 }
 
 export function Projects() {
@@ -441,23 +241,36 @@ export function Projects() {
       status: '',
     }),
   }))
-  const [expanded, setExpanded] = useState<string | null>(null)
-  const expandedProject = PROJECTS.find((p) => p.name === expanded) ?? null
-  const tier = useTier()
-  // The 3D constellation is the heaviest thing on the page after Lukas —
-  // don't create its WebGL context until the gallery is actually close to
+  // The 3D gallery is the heaviest thing on the page after Lukas — don't
+  // create its WebGL context until the section is actually close to
   // scrolling into view, rather than the moment the page hydrates.
-  const { ref: constellationRef, near: constellationNear } = useNearViewport<HTMLDivElement>()
+  const { ref: galleryRef, near: galleryNear } = useNearViewport<HTMLDivElement>()
 
-  const orbProjects: OrbProject[] = PROJECTS.map((p) => ({
-    name: p.name,
-    category: p.category,
-    tagline: p.tagline,
-    status: p.status,
-    stack: p.stack,
-    hobby: p.hobby,
-    image: p.orbImage ?? p.image,
-  }))
+  // Built work and design directions share one sphere, but never share an
+  // identity: every card carries its own kind label, so a client site and an
+  // exploration stay tellable apart inside the gallery itself and not only
+  // under the heading above it.
+  const cards: GalleryCard[] = [
+    ...PROJECTS.map((p) => ({
+      id: p.name,
+      imageUrl: p.orbImage ?? p.image ?? '/design-directions/vantiq.webp',
+      alt: p.name,
+      title: p.name,
+      kindLabel: p.category || t.projects.kindProject,
+      meta: p.tagline,
+      liveUrl: p.liveUrl,
+      githubUrl: p.githubUrl,
+      detail: <ProjectExtras project={p} />,
+    })),
+    ...DESIGN_DIRECTIONS.map((d, i) => ({
+      id: d.image,
+      imageUrl: d.image,
+      alt: t.projects.directions[i]?.title ?? '',
+      title: t.projects.directions[i]?.title ?? '',
+      kindLabel: t.projects.kindDirection,
+      meta: t.projects.directions[i]?.meta,
+    })),
+  ]
 
   return (
     <section id="work" className="relative mx-auto max-w-7xl px-6 py-32">
@@ -485,14 +298,12 @@ export function Projects() {
           stronger border give the section presence of its own so it
           doesn't blend into the surrounding page. */}
       <div
-        ref={constellationRef}
+        ref={galleryRef}
         className="relative h-[560px] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
       >
-        {tier !== 'mobile' && !expandedProject && (
-          <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
-            {t.projects.dragHint}
-          </span>
-        )}
+        <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
+          {t.projects.dragHint}
+        </span>
         {/* radial light behind the GuardianGrid hub, a barely-visible
             technical grid, and an inset vignette — spatial depth without
             competing with the nodes themselves */}
@@ -517,26 +328,9 @@ export function Projects() {
           className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_120px_30px_rgba(0,0,0,0.55)]"
         />
         <div className="absolute inset-0 touch-pan-y md:touch-none">
-          {!constellationNear
-            ? <LoadingFallback />
-            : tier === 'mobile'
-              ? <ProjectConstellationMobile projects={orbProjects} onExpand={setExpanded} />
-              : <ProjectOrbs projects={orbProjects} expandedName={expanded} onExpand={setExpanded} />}
+          {galleryNear ? <StellarGallery cards={cards} /> : <LoadingFallback />}
         </div>
-        {expandedProject && tier !== 'mobile' && (
-          <>
-            <div
-              className="absolute inset-0 z-20"
-              onClick={() => setExpanded(null)}
-            />
-            <ProjectDetailPanel project={expandedProject} onClose={() => setExpanded(null)} />
-          </>
-        )}
       </div>
-
-      {expandedProject && tier === 'mobile' && (
-        <ProjectDetailModal project={expandedProject} onClose={() => setExpanded(null)} />
-      )}
 
       {/* Full register — the credits roll */}
       <div className="mt-24">

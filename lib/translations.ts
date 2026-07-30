@@ -91,6 +91,14 @@ export type Dictionary = {
     heading: string
     subtitle: string
     dragHint: string
+    /** Gallery detail view + its keyboard entry points. */
+    open: string
+    /** Per-card kind. A built client site and an exploratory design have to
+     *  stay distinguishable inside a wall of screenshots, not only in the
+     *  section heading above it. */
+    kindProject: string
+    kindDirection: string
+    directions: { title: string; meta: string }[]
     registerLabel: string
     projects: Record<string, ProjectCopy>
     register: { name: string; category: string; status: string }[]
@@ -426,9 +434,31 @@ export const EN: Dictionary = {
   },
   projects: {
     kicker: 'Featured Work',
-    heading: 'Selected Systems',
-    subtitle: 'A connected ecosystem of platforms, agents and automation systems.',
-    dragHint: 'Drag to explore · Select a node to inspect',
+    heading: 'My projects, design directions and what else is possible',
+    subtitle:
+      'Shipped systems alongside directions I can build — drag the sphere, open a card, see where it goes.',
+    dragHint: 'Drag to explore · Select a card to inspect',
+    open: 'open',
+    kindProject: 'Project',
+    kindDirection: 'Design direction',
+    directions: [
+      {
+        title: 'Orbital data platform',
+        meta: 'Cool, technical, data-led: one luminous object, one sentence, everything else out of the way.',
+      },
+      {
+        title: 'Generative audio studio',
+        meta: 'Iridescent chrome against near-black, a serif headline and a single control — restraint as the effect.',
+      },
+      {
+        title: 'Architecture practice',
+        meta: 'The bright counterpoint: ivory, concrete and one enormous line of type carrying the whole page.',
+      },
+      {
+        title: 'Thermal energy storage',
+        meta: 'Maximum contrast — molten amber in pure black, centred type, one link. Nothing else on screen.',
+      },
+    ],
     registerLabel: 'Complete Project Register',
     projects: projectsEN,
     register: [
@@ -814,9 +844,31 @@ export const DE: Dictionary = {
   },
   projects: {
     kicker: 'Ausgewählte Arbeiten',
-    heading: 'Ausgewählte Systeme',
-    subtitle: 'Ein vernetztes Ökosystem aus Plattformen, Agenten und Automatisierungssystemen.',
-    dragHint: 'Ziehen zum Erkunden · Node auswählen zum Ansehen',
+    heading: 'Meine Projekte, Designrichtungen und was sonst möglich ist',
+    subtitle:
+      'Gebaute Systeme neben Richtungen, die ich umsetzen kann — dreh die Sphäre, öffne eine Karte, sieh wohin es geht.',
+    dragHint: 'Ziehen zum Erkunden · Karte auswählen zum Ansehen',
+    open: 'öffnen',
+    kindProject: 'Projekt',
+    kindDirection: 'Designrichtung',
+    directions: [
+      {
+        title: 'Orbitale Datenplattform',
+        meta: 'Kühl, technisch, datengetrieben: ein leuchtendes Objekt, ein Satz, alles andere aus dem Weg.',
+      },
+      {
+        title: 'Studio für generatives Audio',
+        meta: 'Schillerndes Chrom auf Fast-Schwarz, eine Serifen-Headline und ein einziges Bedienelement — Zurückhaltung als Effekt.',
+      },
+      {
+        title: 'Architekturbüro',
+        meta: 'Der helle Gegenpol: Elfenbein, Beton und eine einzige riesige Zeile, die die ganze Seite trägt.',
+      },
+      {
+        title: 'Thermischer Energiespeicher',
+        meta: 'Maximaler Kontrast — geschmolzener Bernstein in reinem Schwarz, zentrierte Typo, ein Link. Sonst nichts.',
+      },
+    ],
     registerLabel: 'Vollständiges Projektregister',
     projects: projectsDE,
     register: [

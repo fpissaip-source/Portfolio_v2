@@ -17,6 +17,42 @@ function splitClosingHighlight(copy: string) {
 }
 
 /**
+ * A light point that rides the row's own top rule, under the cursor.
+ *
+ * Adapted from 21st.dev's Border Trail. Upstream animates a dot endlessly
+ * around a card's full perimeter; that would be a sixth autonomous motion
+ * system in a viewport that already carries CursorGrid, MouseGlow, IonTrail,
+ * the film grain and the scroll reveals. Here it is pointer-driven and lives
+ * on one edge only, so it moves solely in response to the visitor and stops
+ * the instant they leave.
+ *
+ * It sits *on* the rule (`-top-px`, 1px tall), never behind the copy — which
+ * is the whole reason this section gets a foreground effect instead of
+ * another backdrop: the CursorGrid behind it already puts body text at
+ * 4.51:1 against a 4.5 floor, so there is no contrast left to spend.
+ */
+function BorderTrail() {
+  return (
+    <span
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 -top-px h-px opacity-0 transition-opacity duration-300 ease-out group-hover:opacity-100"
+      style={{
+        background:
+          'radial-gradient(28rem 1px at var(--trail-x, 50%) 50%, color-mix(in oklch, var(--blue) 85%, white), color-mix(in oklch, var(--blue) 45%, transparent) 35%, transparent 70%)',
+      }}
+    />
+  )
+}
+
+/** Feeds the hovered row's cursor position to its own trail. Written as a
+ *  CSS variable rather than React state so moving the mouse across the list
+ *  never triggers a re-render. */
+function trackTrail(e: React.PointerEvent<HTMLElement>) {
+  const el = e.currentTarget
+  el.style.setProperty('--trail-x', `${e.clientX - el.getBoundingClientRect().left}px`)
+}
+
+/**
  * Services as a capability sheet, not a card grid (DESIGN.md §5, §6).
  *
  * The previous 2-column card grid stranded the fifth offering alone in the
@@ -48,7 +84,11 @@ export function Services() {
           const Icon = ICONS[i % ICONS.length]
           return (
             <Reveal key={item.title} delay={Math.min(i, 3) * 0.05} y={24}>
-              <article className="group grid gap-x-10 gap-y-3 border-t border-white/10 py-8 transition-colors duration-200 hover:border-blue/30 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:py-10">
+              <article
+                onPointerMove={trackTrail}
+                className="group relative grid gap-x-10 gap-y-3 border-t border-white/10 py-8 transition-colors duration-200 hover:border-blue/30 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:py-10"
+              >
+                <BorderTrail />
                 <div className="flex items-start gap-3">
                   <Icon
                     className="mt-1 h-4 w-4 shrink-0 text-blue/70 transition-colors duration-200 group-hover:text-blue"

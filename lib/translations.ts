@@ -577,7 +577,7 @@ export const EN: Dictionary = {
     alwaysOn: 'Always active',
     lukasTitle: 'L.U.K.A.S. AI agent',
     lukasBody:
-      'Loads the chat widget from the agent server (Railway, EU) and sends the messages you type there so it can answer. If you use voice, your browser opens a direct connection to OpenAI (api.openai.com, USA) and streams your microphone audio for as long as the conversation runs. Without this, the agent does not load at all.',
+      'Loads the chat widget from the agent server (Railway, EU) and sends the messages you type there so it can answer. If you use voice, your browser opens a direct connection to OpenAI (api.openai.com, USA) and streams your microphone audio for as long as the conversation runs. It also loads the agent’s animated 3D figure from Spline (prod.spline.design, USA) on large screens. Without this, none of it loads at all.',
     lukasToggleAria: 'Allow the L.U.K.A.S. AI agent',
     withdraw: 'Withdraw consent',
     cancel: 'Cancel',
@@ -647,6 +647,7 @@ export const EN: Dictionary = {
           'The L.U.K.A.S. agent is only loaded once you have explicitly allowed it. Until then no external code from the agent server is requested and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
           'Once allowed, the chat widget is loaded from the agent server hosted on Railway (EU region). The messages you type there are transmitted so the agent can answer them.',
           'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc., USA — a third country — for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
+          'On large screens the agent is accompanied by an animated 3D figure. Its scene and viewer are loaded from Spline (prod.spline.design, Spline Design Inc., USA — a third country); your IP address is necessarily transmitted in the process. It is purely decorative, is not loaded on phones, and is not loaded at all without your consent.',
           'You can withdraw your consent at any time, with effect for the future, via "Privacy preferences" in the footer. After withdrawal the agent is no longer loaded. This does not affect the lawfulness of processing carried out before the withdrawal.',
           'Please do not enter personal data of third parties, or your own sensitive data, into the agent.',
         ],
@@ -964,7 +965,7 @@ export const DE: Dictionary = {
     alwaysOn: 'Immer aktiv',
     lukasTitle: 'KI-Agent L.U.K.A.S.',
     lukasBody:
-      'L\u00e4dt das Chat-Widget vom Agenten-Server (Railway, EU) und sendet die von Ihnen getippten Nachrichten dorthin, damit er antworten kann. Bei Sprachnutzung baut Ihr Browser eine direkte Verbindung zu OpenAI (api.openai.com, USA) auf und \u00fcbertr\u00e4gt Ihr Mikrofon-Audio, solange das Gespr\u00e4ch l\u00e4uft. Ohne diese Zustimmung wird der Agent gar nicht erst geladen.',
+      'L\u00e4dt das Chat-Widget vom Agenten-Server (Railway, EU) und sendet die von Ihnen getippten Nachrichten dorthin, damit er antworten kann. Bei Sprachnutzung baut Ihr Browser eine direkte Verbindung zu OpenAI (api.openai.com, USA) auf und \u00fcbertr\u00e4gt Ihr Mikrofon-Audio, solange das Gespr\u00e4ch l\u00e4uft. Auf gro\u00dfen Bildschirmen wird zus\u00e4tzlich die animierte 3D-Figur des Agenten von Spline (prod.spline.design, USA) geladen. Ohne diese Zustimmung wird davon nichts geladen.',
     lukasToggleAria: 'KI-Agent L.U.K.A.S. erlauben',
     withdraw: 'Einwilligung widerrufen',
     cancel: 'Abbrechen',
@@ -1034,6 +1035,7 @@ export const DE: Dictionary = {
           'Der Agent L.U.K.A.S. wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben. Bis dahin wird kein fremder Code vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
           'Nach Ihrer Zustimmung wird das Chat-Widget vom Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird. Die von Ihnen dort eingegebenen Nachrichten werden übertragen, damit der Agent sie beantworten kann.',
           'Bei Nutzung der Sprachfunktion fordert Ihr Browser zusätzlich Zugriff auf Ihr Mikrofon an und baut eine direkte Verbindung zu OpenAI (api.openai.com) auf. Ihr Mikrofon-Audio und die daraus erzeugte Verschriftlichung werden für die Dauer des Gesprächs an die OpenAI, Inc., USA — also in ein Drittland — übertragen. Audiodaten werden erst erfasst, nachdem Sie selbst ein Sprachgespräch gestartet haben.',
+          'Auf großen Bildschirmen wird der Agent von einer animierten 3D-Figur begleitet. Deren Szene und Abspielprogramm werden von Spline (prod.spline.design, Spline Design Inc., USA — also ein Drittland) geladen; dabei wird zwangsläufig Ihre IP-Adresse übertragen. Die Figur ist rein dekorativ, wird auf Mobilgeräten nicht geladen und ohne Ihre Einwilligung überhaupt nicht.',
           'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft über „Datenschutz-Einstellungen" im Fußbereich widerrufen. Nach dem Widerruf wird der Agent nicht mehr geladen. Die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.',
           'Bitte geben Sie im Agenten keine personenbezogenen Daten Dritter und keine sensiblen eigenen Daten ein.',
         ],

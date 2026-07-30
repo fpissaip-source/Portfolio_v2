@@ -8,6 +8,7 @@ import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
 import { markLukasReached } from '@/lib/lukas-presence'
 import { OPEN_CHAT_EVENT } from './lukas-voice-widget'
+import { LukasRobot } from './lukas-robot'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -611,6 +612,12 @@ export function Lukas() {
           data-lukas-invite
           className="pointer-events-none absolute inset-0 z-[12] flex items-center justify-center px-6 opacity-0 will-transform"
         >
+          {/* Centred flex row: the robot is an optional second column that
+              only exists once the visitor has allowed the agent (see
+              lukas-robot.tsx). When it isn't there the row holds one child
+              and the copy centres exactly as it did before — the panel never
+              reserves space for something that may not load. */}
+          <div className="relative flex w-full max-w-5xl items-center justify-center gap-6 lg:gap-14">
           <div className="relative flex w-full max-w-lg flex-col items-center text-center">
             <div
               aria-hidden
@@ -642,6 +649,11 @@ export function Lukas() {
                 →
               </span>
             </button>
+          </div>
+            {/* Desktop only — the ≥1024px gate lives inside the component
+                (a JS media query, so a phone never fetches the runtime at
+                all); these are just its dimensions once it does render. */}
+            <LukasRobot className="h-[30rem] w-[24rem] shrink-0 xl:h-[34rem] xl:w-[28rem]" />
           </div>
         </div>
       </div>

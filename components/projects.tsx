@@ -299,35 +299,12 @@ export function Projects() {
           doesn't blend into the surrounding page. */}
       <div
         ref={galleryRef}
-        className="relative h-[560px] w-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
+        className="relative h-[560px] w-full overflow-hidden rounded-2xl shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
       >
         <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
           {t.projects.dragHint}
         </span>
-        {/* radial light behind the GuardianGrid hub, a barely-visible
-            technical grid, and an inset vignette — spatial depth without
-            competing with the nodes themselves */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(45% 50% at 50% 42%, color-mix(in oklch, var(--purple) 18%, transparent), transparent 70%)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 opacity-[0.05]"
-          style={{
-            backgroundImage:
-              'repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,0.5) 39px 40px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,0.5) 39px 40px)',
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 [box-shadow:inset_0_0_120px_30px_rgba(0,0,0,0.55)]"
-        />
-        <div className="absolute inset-0 touch-pan-y md:touch-none">
+        <div className="absolute inset-0">
           {galleryNear ? <StellarGallery cards={cards} /> : <LoadingFallback />}
         </div>
       </div>

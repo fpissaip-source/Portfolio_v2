@@ -155,7 +155,6 @@ function FloatingCard({
             src={card.imageUrl}
             alt=""
             className="aspect-video w-full rounded-md object-cover"
-            loading="lazy"
             draggable={false}
           />
           <p className="mt-1.5 truncate text-center text-[11px] font-medium text-white">
@@ -281,6 +280,20 @@ function CardDetail() {
   )
 }
 
+/** OrbitControls' autoRotate without OrbitControls — see the note in
+ *  StellarGallery on why it can't be mounted on touch. */
+function AutoSpin() {
+  useFrame(({ camera }, delta) => {
+    const a = 0.35 * 0.15 * delta * Math.PI
+    const x = camera.position.x
+    const z = camera.position.z
+    camera.position.x = x * Math.cos(a) - z * Math.sin(a)
+    camera.position.z = x * Math.sin(a) + z * Math.cos(a)
+    camera.lookAt(0, 0, 0)
+  })
+  return null
+}
+
 function CardGalaxy() {
   const { cards } = useCard()
   // The section's frame is wide on desktop and narrow-tall on a phone. A
@@ -289,7 +302,11 @@ function CardGalaxy() {
   // canvas' own aspect rather than hard-coded.
   const aspect = useThree((s) => s.viewport.aspect)
   const stretch = Math.min(1.7, Math.max(0.5, aspect * 0.9))
-  const htmlFactor = Math.min(10, Math.max(5, aspect * 5.2))
+  // Floor raised from 5: at the phone's 0.61 aspect the formula bottomed
+  // out and produced ~50px cards — inside the frame, but too small to
+  // read or tap. Fitting every card is not worth making all of them
+  // illegible; the sphere rotates, so a card grazing an edge comes back.
+  const htmlFactor = Math.min(10, Math.max(7, aspect * 5.2))
 
   // Fibonacci sphere — upstream's placement, unchanged.
   const positions = useMemo(() => {
@@ -343,6 +360,20 @@ function CardGalaxy() {
 export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
   const t = useT()
   const [selectedCard, setSelectedCard] = useState<GalleryCard | null>(null)
+  // OrbitControls sets `touch-action: none` on the canvas as long as it is
+  // mounted. On a phone this element is most of the screen, so that silently
+  // takes pinch-zoom away from the page — a real accessibility loss for the
+  // sake of a drag gesture. It is therefore mounted for fine pointers only;
+  // touch keeps the auto-rotation, which brings every card round anyway, and
+  // tapping a card still opens it.
+  const [canDrag, setCanDrag] = useState(false)
+  useEffect(() => {
+    const mq = window.matchMedia('(pointer: fine)')
+    const sync = () => setCanDrag(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   return (
     <CardContext.Provider value={{ selectedCard, setSelectedCard, cards }}>
@@ -355,15 +386,19 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
             <pointLight position={[10, 10, 10]} intensity={0.6} />
             <pointLight position={[-10, -10, -10]} intensity={0.3} />
             <CardGalaxy />
-            <OrbitControls
-              enablePan={false}
-              enableZoom={false}
-              enableRotate
-              rotateSpeed={0.5}
-              autoRotate
-              autoRotateSpeed={0.35}
-              target={[0, 0, 0]}
-            />
+            {canDrag ? (
+              <OrbitControls
+                enablePan={false}
+                enableZoom={false}
+                enableRotate
+                rotateSpeed={0.5}
+                autoRotate
+                autoRotateSpeed={0.35}
+                target={[0, 0, 0]}
+              />
+            ) : (
+              <AutoSpin />
+            )}
           </Suspense>
         </Canvas>
       </div>

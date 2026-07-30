@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Mail } from 'lucide-react'
 import { useT } from './language-context'
+import { openConsentSettings } from '@/lib/consent'
 
 const SOCIALS = [
   { type: 'img' as const, src: '/logos/github.svg', href: 'https://github.com/fpissaip-source', label: 'GitHub' },
@@ -57,6 +58,16 @@ export function SiteFooter() {
           <Link href="/datenschutz" className="py-1.5 transition-colors hover:text-foreground">
             {t.footer.privacy}
           </Link>
+          {/* Withdrawing consent has to be as reachable as giving it, so the
+              preferences dialog gets a permanent entry point rather than
+              living only in the first-visit banner. */}
+          <button
+            type="button"
+            onClick={openConsentSettings}
+            className="py-1.5 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+          >
+            {t.consent.footerLink}
+          </button>
           <p>
             &copy; {new Date().getFullYear()} · {t.footer.copyright}
           </p>

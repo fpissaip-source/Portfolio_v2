@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { onLukasReached } from '@/lib/lukas-presence'
 import { mountLukasVoiceViz } from '@/lib/lukas-voice-viz'
 import { skinLukasPanel } from '@/lib/lukas-panel-skin'
+import { hasConsent, onConsentChange, openConsentSettings } from '@/lib/consent'
 import { useT } from './language-context'
 
 /**
@@ -35,17 +36,25 @@ export const OPEN_CHAT_EVENT = 'lukas:open-chat'
 export function LukasVoiceWidget() {
   const t = useT()
   const [reached, setReached] = useState(false)
+  const [allowed, setAllowed] = useState(false)
   const loadedRef = useRef(false)
   const vizCleanupRef = useRef<(() => void) | null>(null)
 
   // Appear only once the visitor has been through the L.U.K.A.S. section.
   useEffect(() => onLukasReached(() => setReached(true)), [])
 
+  // widget.js is third-party code that transmits the conversation to the
+  // agent backend, and in voice mode streams microphone audio straight to
+  // api.openai.com. It must not load before the visitor has opted in, and it
+  // must stop being loadable the moment they withdraw.
+  useEffect(() => onConsentChange((s) => setAllowed(s?.lukas === true)), [])
+
   // Load the backend widget (idempotent — safe to call from both the
   // "reached" preload below AND directly from a click, see openChat). Hide
   // its own default button and lift its panel above our launcher pill.
   const loadWidget = () => {
     if (loadedRef.current) return
+    if (!hasConsent('lukas')) return
     loadedRef.current = true
 
     // Only the two rules that depend on *this* component existing stay
@@ -95,9 +104,9 @@ export function LukasVoiceWidget() {
   // instantly), but the in-section invite CTA can fire long before that —
   // openChat() below loads on demand too, so clicking it never no-ops.
   useEffect(() => {
-    if (reached) loadWidget()
+    if (reached && allowed) loadWidget()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reached])
+  }, [reached, allowed])
 
   useEffect(() => () => vizCleanupRef.current?.(), [])
 
@@ -106,6 +115,12 @@ export function LukasVoiceWidget() {
   // then retries briefly since the script + its button take a moment to
   // appear once injected.
   const openChat = () => {
+    // No consent yet: ask instead of silently doing nothing. The visitor
+    // pressed a button, so they get the dialog, not a dead control.
+    if (!hasConsent('lukas')) {
+      openConsentSettings()
+      return
+    }
     loadWidget()
     let attempts = 30
     const tryClick = () => {

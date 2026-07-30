@@ -149,6 +149,27 @@ export type Dictionary = {
     cta: string
     ctaSubject: string
   }
+  consent: {
+    kicker: string
+    bannerAria: string
+    bannerBody: string
+    privacyLink: string
+    acceptAll: string
+    rejectAll: string
+    settings: string
+    settingsTitle: string
+    settingsIntro: string
+    necessaryTitle: string
+    necessaryBody: string
+    alwaysOn: string
+    lukasTitle: string
+    lukasBody: string
+    lukasToggleAria: string
+    withdraw: string
+    cancel: string
+    save: string
+    footerLink: string
+  }
   footer: {
     tagline: string
     copyright: string
@@ -538,6 +559,31 @@ export const EN: Dictionary = {
     cta: 'Start a project',
     ctaSubject: 'Project inquiry',
   },
+  consent: {
+    kicker: 'Privacy',
+    bannerAria: 'Privacy preferences',
+    bannerBody:
+      'This site sets no cookies and uses no analytics. One thing needs your decision: the L.U.K.A.S. AI agent loads external code and, if you talk to it, transmits your messages \u2014 and in voice mode your microphone audio \u2014 to third parties.',
+    privacyLink: 'Privacy policy',
+    acceptAll: 'Allow L.U.K.A.S.',
+    rejectAll: 'Decline',
+    settings: 'Details',
+    settingsTitle: 'Privacy preferences',
+    settingsIntro:
+      'Only what actually runs on this site is listed here. There is nothing else to switch off.',
+    necessaryTitle: 'Necessary',
+    necessaryBody:
+      'Your language choice (German/English) is kept in your browser\u2019s localStorage so the site stays in the language you picked. It never leaves your device. No cookies are set anywhere on this site.',
+    alwaysOn: 'Always active',
+    lukasTitle: 'L.U.K.A.S. AI agent',
+    lukasBody:
+      'Loads the chat widget from the agent server (Railway, EU) and sends the messages you type there so it can answer. If you use voice, your browser opens a direct connection to OpenAI (api.openai.com, USA) and streams your microphone audio for as long as the conversation runs. Without this, the agent does not load at all.',
+    lukasToggleAria: 'Allow the L.U.K.A.S. AI agent',
+    withdraw: 'Withdraw consent',
+    cancel: 'Cancel',
+    save: 'Save',
+    footerLink: 'Privacy preferences',
+  },
   footer: {
     tagline: 'Autonomous systems & full-stack architecture',
     copyright: 'Directed, written & built by Issa Hareb.',
@@ -550,7 +596,7 @@ export const EN: Dictionary = {
     datenschutzTitle: 'Privacy Policy',
     impressum: [
       {
-        heading: 'Information according to § 5 TMG',
+        heading: 'Information according to § 5 DDG',
         body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Germany'],
       },
       {
@@ -558,7 +604,7 @@ export const EN: Dictionary = {
         body: ['Email: Impressum@hareb.org', 'Phone: +49 1525 9559708'],
       },
       {
-        heading: 'Responsible for content according to § 55 (2) RStV',
+        heading: 'Responsible for content according to § 18 (2) MStV',
         body: ['Issa Hareb, address as above.'],
       },
       {
@@ -584,9 +630,9 @@ export const EN: Dictionary = {
         ],
       },
       {
-        heading: 'Vercel Analytics',
+        heading: 'No Cookies, No Analytics, No Tracking',
         body: [
-          'This website uses Vercel Web Analytics for anonymised, cookie-less page-view statistics. No personal profiles are created and no tracking cookies are set.',
+          'This website sets no cookies of any kind. There is no web analytics, no tracking pixel, no advertising network and no cross-site profiling. No reach measurement of any sort runs here.',
         ],
       },
       {
@@ -596,9 +642,13 @@ export const EN: Dictionary = {
         ],
       },
       {
-        heading: 'ElevenLabs Voice Assistant',
+        heading: 'L.U.K.A.S. AI Agent (Consent Required)',
         body: [
-          'This website may include a voice assistant powered by ElevenLabs (Conversational AI). Only when you actively start a conversation with it are your microphone audio and the conversation content transmitted to ElevenLabs for processing and response generation. No audio is captured before you explicitly start the assistant.',
+          'The L.U.K.A.S. agent is only loaded once you have explicitly allowed it. Until then no external code from the agent server is requested and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
+          'Once allowed, the chat widget is loaded from the agent server hosted on Railway (EU region). The messages you type there are transmitted so the agent can answer them.',
+          'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc., USA — a third country — for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
+          'You can withdraw your consent at any time, with effect for the future, via "Privacy preferences" in the footer. After withdrawal the agent is no longer loaded. This does not affect the lawfulness of processing carried out before the withdrawal.',
+          'Please do not enter personal data of third parties, or your own sensitive data, into the agent.',
         ],
       },
       {
@@ -896,6 +946,31 @@ export const DE: Dictionary = {
     cta: 'Projekt anfragen',
     ctaSubject: 'Projektanfrage',
   },
+  consent: {
+    kicker: 'Datenschutz',
+    bannerAria: 'Datenschutz-Einstellungen',
+    bannerBody:
+      'Diese Seite setzt keine Cookies und nutzt keine Analyse-Werkzeuge. Eine Sache braucht Ihre Entscheidung: Der KI-Agent L.U.K.A.S. l\u00e4dt fremden Code und \u00fcbertr\u00e4gt, wenn Sie mit ihm sprechen, Ihre Nachrichten \u2014 im Sprachmodus auch Ihr Mikrofon-Audio \u2014 an Dritte.',
+    privacyLink: 'Datenschutzhinweise',
+    acceptAll: 'L.U.K.A.S. erlauben',
+    rejectAll: 'Ablehnen',
+    settings: 'Details',
+    settingsTitle: 'Datenschutz-Einstellungen',
+    settingsIntro:
+      'Hier steht nur, was auf dieser Seite tats\u00e4chlich l\u00e4uft. Mehr gibt es nicht abzuschalten.',
+    necessaryTitle: 'Notwendig',
+    necessaryBody:
+      'Ihre Sprachwahl (Deutsch/Englisch) wird im localStorage Ihres Browsers gespeichert, damit die Seite in der gew\u00e4hlten Sprache bleibt. Sie verl\u00e4sst Ihr Ger\u00e4t nicht. Cookies werden auf dieser Seite an keiner Stelle gesetzt.',
+    alwaysOn: 'Immer aktiv',
+    lukasTitle: 'KI-Agent L.U.K.A.S.',
+    lukasBody:
+      'L\u00e4dt das Chat-Widget vom Agenten-Server (Railway, EU) und sendet die von Ihnen getippten Nachrichten dorthin, damit er antworten kann. Bei Sprachnutzung baut Ihr Browser eine direkte Verbindung zu OpenAI (api.openai.com, USA) auf und \u00fcbertr\u00e4gt Ihr Mikrofon-Audio, solange das Gespr\u00e4ch l\u00e4uft. Ohne diese Zustimmung wird der Agent gar nicht erst geladen.',
+    lukasToggleAria: 'KI-Agent L.U.K.A.S. erlauben',
+    withdraw: 'Einwilligung widerrufen',
+    cancel: 'Abbrechen',
+    save: 'Speichern',
+    footerLink: 'Datenschutz-Einstellungen',
+  },
   footer: {
     tagline: 'Autonome Systeme & Full-Stack-Architektur',
     copyright: 'Konzipiert, geschrieben & gebaut von Issa Hareb.',
@@ -908,7 +983,7 @@ export const DE: Dictionary = {
     datenschutzTitle: 'Datenschutzerklärung',
     impressum: [
       {
-        heading: 'Angaben gemäß § 5 TMG',
+        heading: 'Angaben gemäß § 5 DDG',
         body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Deutschland'],
       },
       {
@@ -916,7 +991,7 @@ export const DE: Dictionary = {
         body: ['E-Mail: Impressum@hareb.org', 'Telefon: 01525 9559708'],
       },
       {
-        heading: 'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV',
+        heading: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV',
         body: ['Issa Hareb, Anschrift wie oben.'],
       },
       {
@@ -942,9 +1017,9 @@ export const DE: Dictionary = {
         ],
       },
       {
-        heading: 'Vercel Analytics',
+        heading: 'Keine Cookies, keine Analyse, kein Tracking',
         body: [
-          'Diese Website nutzt Vercel Web Analytics zur anonymisierten, cookie-losen Auswertung von Seitenaufrufen. Es werden keine personenbezogenen Profile erstellt und keine Tracking-Cookies gesetzt.',
+          'Diese Website setzt keinerlei Cookies. Es gibt keine Webanalyse, kein Tracking-Pixel, kein Werbenetzwerk und keine seitenübergreifende Profilbildung. Eine Reichweitenmessung findet hier in keiner Form statt.',
         ],
       },
       {
@@ -954,9 +1029,13 @@ export const DE: Dictionary = {
         ],
       },
       {
-        heading: 'ElevenLabs Sprachassistent',
+        heading: 'KI-Agent L.U.K.A.S. (einwilligungspflichtig)',
         body: [
-          'Diese Website kann einen Sprachassistenten auf Basis von ElevenLabs (Conversational AI) einbinden. Erst wenn Sie ein Gespräch aktiv starten, werden Ihre Mikrofonaufnahmen und Gesprächsinhalte zur Verarbeitung und Antworterzeugung an ElevenLabs übertragen. Vor dem aktiven Start des Assistenten werden keine Audiodaten erfasst.',
+          'Der Agent L.U.K.A.S. wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben. Bis dahin wird kein fremder Code vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
+          'Nach Ihrer Zustimmung wird das Chat-Widget vom Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird. Die von Ihnen dort eingegebenen Nachrichten werden übertragen, damit der Agent sie beantworten kann.',
+          'Bei Nutzung der Sprachfunktion fordert Ihr Browser zusätzlich Zugriff auf Ihr Mikrofon an und baut eine direkte Verbindung zu OpenAI (api.openai.com) auf. Ihr Mikrofon-Audio und die daraus erzeugte Verschriftlichung werden für die Dauer des Gesprächs an die OpenAI, Inc., USA — also in ein Drittland — übertragen. Audiodaten werden erst erfasst, nachdem Sie selbst ein Sprachgespräch gestartet haben.',
+          'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft über „Datenschutz-Einstellungen" im Fußbereich widerrufen. Nach dem Widerruf wird der Agent nicht mehr geladen. Die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.',
+          'Bitte geben Sie im Agenten keine personenbezogenen Daten Dritter und keine sensiblen eigenen Daten ein.',
         ],
       },
       {

@@ -98,9 +98,34 @@ export function Services() {
                     {item.title}
                   </h3>
                 </div>
-                <p className="max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
-                  {item.body}
-                </p>
+                <div className="max-w-[62ch]">
+                  {/* The lead is the anchor: five short outcome lines the eye
+                      can take in at a glance. Previously each row held one
+                      prose paragraph of near-identical length, which gave a
+                      reader no entry point and nothing to skip to. */}
+                  <p className="text-pretty text-lg font-medium leading-snug tracking-tight text-foreground sm:text-xl">
+                    {item.lead}
+                  </p>
+                  {/* And the capabilities read as what they are — a list —
+                      instead of commas inside a sentence. */}
+                  {/* Each entry carries its own leading marker rather than a
+                      separator between entries: with separators, a wrap left
+                      one orphaned at the start of the next line. */}
+                  <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                    {item.points.map((point) => (
+                      <li
+                        key={point}
+                        className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground"
+                      >
+                        <span
+                          aria-hidden
+                          className="h-1 w-1 shrink-0 rounded-full bg-blue/60 transition-colors duration-200 group-hover:bg-blue"
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </article>
             </Reveal>
           )

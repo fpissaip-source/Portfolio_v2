@@ -64,7 +64,12 @@ export type Dictionary = {
     kicker: string
     heading: string
     intro: string
-    items: { title: string; body: string }[]
+    /** Each offering is a short outcome line plus a scannable list of
+     *  concrete capabilities. It used to be one prose paragraph per item,
+     *  five times over at the same length and weight — nothing for the eye
+     *  to catch on, and the capability lists were commas inside a sentence
+     *  when they were lists all along. */
+    items: { title: string; lead: string; points: string[] }[]
     closingKicker: string
     closingBody: string
     closingHighlight: string
@@ -347,23 +352,28 @@ export const EN: Dictionary = {
     items: [
       {
         title: 'Websites & Digital Customer Processes',
-        body: 'Business websites that turn visitors into inquiries and bookings. Contact and booking forms, automated emails, customer portals, admin interfaces, and technical SEO that actually ranks.',
+        lead: 'Visitors turn into inquiries and bookings.',
+        points: ['Booking forms', 'Automated email', 'Customer portal', 'Admin interface', 'Technical SEO'],
       },
       {
         title: 'Custom Web Applications',
-        body: 'Digital tools built around one specific workflow: dashboards, admin interfaces, CRM functionality, booking systems, user accounts with roles and permissions, and data-driven platforms.',
+        lead: 'A tool shaped around your workflow, not the other way round.',
+        points: ['Dashboards', 'CRM', 'Booking systems', 'Roles & permissions', 'Data platforms'],
       },
       {
         title: 'AI Agents & Automation',
-        body: 'Systems that take over recurring work on their own: processing information, analyzing data, generating documents, triaging requests, drafting emails, or wiring different services together through APIs.',
+        lead: 'Recurring work keeps running when nobody is watching.',
+        points: ['Triage requests', 'Generate documents', 'Analyse data', 'Draft email', 'Connect services'],
       },
       {
         title: 'MVPs & Product Prototypes',
-        body: "A product idea shouldn't sit on paper for months. I ship working first versions you can test workflows with, win early customers with, and use to plan the next steps on real data.",
+        lead: 'Usable in weeks instead of perfect on paper in months.',
+        points: ['Working first version', 'Real users', 'Evidence, not guesses', 'A basis for the next step'],
       },
       {
         title: 'Phone & Support AI Agents',
-        body: 'Voice assistants that listen and answer in real time, so it feels like a conversation, not a script bot reading options. Reachable by chat or straight over the phone, day or night. Good for support, appointment booking or a first round of questions.',
+        lead: 'It picks up, listens and answers. At three in the morning too.',
+        points: ['Real-time voice', 'No menu tree', 'Book appointments', 'First-line support', 'Chat & phone'],
       },
     ],
     closingKicker: 'What makes my approach different',
@@ -756,23 +766,28 @@ export const DE: Dictionary = {
     items: [
       {
         title: 'Websites und digitale Kundenprozesse',
-        body: 'Unternehmenswebsites, die aus Besuchern Anfragen und Buchungen machen. Kontakt- und Buchungsformulare, automatisierte E-Mails, Kundenbereiche, Admin-Oberflächen und technische Suchmaschinenoptimierung, die auch wirklich rankt.',
+        lead: 'Aus Besuchern werden Anfragen und Buchungen.',
+        points: ['Buchungsformulare', 'Automatische E-Mails', 'Kundenbereich', 'Admin-Oberfläche', 'Technisches SEO'],
       },
       {
         title: 'Individuelle Webanwendungen',
-        body: 'Digitale Werkzeuge, die genau auf einen bestimmten Arbeitsablauf zugeschnitten sind: Dashboards, Verwaltungsoberflächen, CRM-Funktionen, Buchungssysteme, Benutzerkonten, Rollen und Berechtigungen sowie datenbasierte Plattformen.',
+        lead: 'Ein Werkzeug, das sich nach deinem Ablauf richtet — nicht umgekehrt.',
+        points: ['Dashboards', 'CRM', 'Buchungssysteme', 'Rollen und Rechte', 'Datenplattformen'],
       },
       {
         title: 'KI-Agenten und Automatisierungen',
-        body: 'Systeme, die wiederkehrende Aufgaben selbstständig übernehmen: Informationen verarbeiten, Daten auswerten, Dokumente erstellen, Anfragen vorsortieren, E-Mails vorbereiten oder verschiedene Dienste über Schnittstellen miteinander verbinden.',
+        lead: 'Wiederkehrende Arbeit läuft weiter, wenn niemand hinschaut.',
+        points: ['Anfragen vorsortieren', 'Dokumente erstellen', 'Daten auswerten', 'E-Mails vorbereiten', 'Dienste verbinden'],
       },
       {
         title: 'MVPs und Produktprototypen',
-        body: 'Eine Produktidee soll nicht monatelang nur auf Papier existieren. Ich setze funktionierende erste Versionen um, mit denen sich Abläufe testen, Kunden gewinnen und die nächsten Entwicklungsschritte fundiert planen lassen.',
+        lead: 'In Wochen benutzbar statt in Monaten fertig gedacht.',
+        points: ['Funktionierende erste Version', 'Echte Nutzer', 'Belege statt Vermutungen', 'Grundlage für den nächsten Schritt'],
       },
       {
         title: 'Telefon- und Support-KI-Agenten',
-        body: 'Sprachassistenten, die in Echtzeit zuhören und antworten, sodass es sich wie ein Gespräch anfühlt und nicht wie ein Skript-Bot, der Optionen vorliest. Erreichbar per Chat oder direkt am Telefon, Tag und Nacht. Passt für Support, Terminvereinbarung oder eine erste Runde Fragen.',
+        lead: 'Nimmt ab, hört zu, antwortet. Auch um drei Uhr nachts.',
+        points: ['Echtzeit-Sprache', 'Kein Menü-Baum', 'Termine vereinbaren', 'Erstsupport', 'Chat und Telefon'],
       },
     ],
     closingKicker: 'Was meine Arbeitsweise besonders macht',

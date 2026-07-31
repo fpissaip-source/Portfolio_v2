@@ -47,6 +47,11 @@ export default function Page() {
           <EdgeGlow />
           <IonTrail />
           <Hero />
+          {/* Work sits directly under the hero: show what was built before
+              explaining what is on offer. Proof first, pitch second. */}
+          <Scene labelKey="work" backdrop="nodes">
+            <Projects />
+          </Scene>
           {/* The cursor-lit lattice replaces this section's ion backdrop
               rather than stacking on it — with the global MouseGlow that
               would have been three ambient systems in one viewport. */}
@@ -55,9 +60,6 @@ export default function Page() {
           </Scene>
           <Scene labelKey="lukas">
             <Lukas />
-          </Scene>
-          <Scene labelKey="work" backdrop="nodes">
-            <Projects />
           </Scene>
           <Scene labelKey="phone" backdrop="rain">
             <PhoneStory />

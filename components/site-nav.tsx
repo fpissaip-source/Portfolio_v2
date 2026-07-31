@@ -8,9 +8,10 @@ import { useT } from './language-context'
 export function SiteNav() {
   const t = useT()
   const LINKS = [
+    // Mirrors the page order — work now comes first, under the hero.
+    { label: t.nav.work, href: '#work' },
     { label: t.nav.services, href: '#services' },
     { label: t.nav.lukas, href: '#lukas' },
-    { label: t.nav.work, href: '#work' },
     { label: t.nav.about, href: '#about' },
     { label: t.nav.stack, href: '#stack' },
     { label: t.nav.process, href: '#process' },

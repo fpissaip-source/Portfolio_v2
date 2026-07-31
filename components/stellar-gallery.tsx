@@ -98,7 +98,7 @@ function FloatingCard({
 }) {
   const groupRef = useRef<THREE.Group>(null)
   const [hovered, setHovered] = useState(false)
-  const { setSelectedCard } = useCard()
+  const { setSelectedCard, selectedCard } = useCard()
 
   // Billboard: every card keeps facing the camera as the sphere is dragged.
   useFrame(({ camera }) => {
@@ -129,6 +129,14 @@ function FloatingCard({
         <meshBasicMaterial transparent opacity={0} />
       </Plane>
 
+      {/* Not rendered while a detail card is open. drei portals <Html> to
+          document.body and assigns it a z-index from zIndexRange, which
+          defaults to [16777271, 0] — so these cards paint straight over the
+          dialog no matter what z-index it carries. Reported from a phone:
+          the whole sphere was sitting on top of the open project. Removing
+          them is also the honest thing to draw: the dialog covers the scene
+          anyway, and the starfield behind it stays. */}
+      {!selectedCard && (
       <Html
         transform
         distanceFactor={htmlFactor}
@@ -169,6 +177,7 @@ function FloatingCard({
           </p>
         </div>
       </Html>
+      )}
     </group>
   )
 }

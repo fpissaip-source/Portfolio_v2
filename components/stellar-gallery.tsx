@@ -137,6 +137,13 @@ function FloatingCard({
           transition: 'transform 0.3s ease',
           transform: hovered ? 'scale(1.12)' : 'scale(1)',
           pointerEvents: 'none',
+          // drei portals <Html> content to document.body, so it is NOT a
+          // descendant of the gallery frame — measured: the ancestor chain
+          // from a card runs p < div < body, and body allows pinch-zoom.
+          // Setting it on the frame therefore never reached these cards, and
+          // a pinch that landed on one zoomed the whole page. It has to be
+          // declared here, on the element the finger actually hits.
+          touchAction: 'pan-y',
         }}
       >
         <div
@@ -280,17 +287,96 @@ function CardDetail() {
   )
 }
 
-/** OrbitControls' autoRotate without OrbitControls — see the note in
- *  StellarGallery on why it can't be mounted on touch. */
-function AutoSpin() {
-  useFrame(({ camera }, delta) => {
-    const a = 0.35 * 0.15 * delta * Math.PI
-    const x = camera.position.x
-    const z = camera.position.z
-    camera.position.x = x * Math.cos(a) - z * Math.sin(a)
-    camera.position.z = x * Math.sin(a) + z * Math.cos(a)
-    camera.lookAt(0, 0, 0)
+/**
+ * Touch controls, hand-rolled instead of OrbitControls.
+ *
+ * OrbitControls sets `touch-action: none` on the canvas, which takes the
+ * page's own scrolling away over an element that fills most of a phone
+ * screen. Leaving the browser's gestures alone instead is not an option
+ * either: pinch-zooming a page that holds several WebGL contexts makes the
+ * phone re-rasterise all of them at a higher scale, and the renderer runs
+ * out of memory and kills the tab. That crash was reported from a real
+ * device.
+ *
+ * So the canvas takes `touch-action: pan-y`: one finger scrolls the page
+ * past the gallery as usual, and the browser's pinch-zoom is off over this
+ * element only. Two fingers are ours — pinch dollies the camera, dragging
+ * the midpoint orbits it. The zoom happens inside the frame, which is what
+ * it should have done from the start.
+ */
+const MIN_R = 14
+const MAX_R = 46
+
+function TouchOrbit({ enabled }: { enabled: boolean }) {
+  const camera = useThree((s) => s.camera)
+  const gl = useThree((s) => s.gl)
+
+  useEffect(() => {
+    if (!enabled) return
+    const el = gl.domElement
+    // pan-y: one finger still scrolls the page past the gallery, but the
+    // browser's own pinch-zoom is off over this element. R3F's `style` prop
+    // lands on the wrapper div, not here, so it has to be set directly.
+    const previousTouchAction = el.style.touchAction
+    el.style.touchAction = 'pan-y'
+    const spread = (t: TouchList) =>
+      Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY)
+    const centre = (t: TouchList) => ({
+      x: (t[0].clientX + t[1].clientX) / 2,
+      y: (t[0].clientY + t[1].clientY) / 2,
+    })
+    let lastSpread = 0
+    let lastCentre = { x: 0, y: 0 }
+
+    const onStart = (e: TouchEvent) => {
+      if (e.touches.length < 2) return
+      e.preventDefault()
+      lastSpread = spread(e.touches)
+      lastCentre = centre(e.touches)
+    }
+    const onMove = (e: TouchEvent) => {
+      // One finger is the page's: do not preventDefault, do not act.
+      if (e.touches.length < 2) return
+      e.preventDefault()
+      const s = spread(e.touches)
+      const c = centre(e.touches)
+      if (lastSpread > 0) {
+        const r = camera.position.length() * (lastSpread / s)
+        camera.position.setLength(Math.min(MAX_R, Math.max(MIN_R, r)))
+      }
+      const yaw = -(c.x - lastCentre.x) * 0.006
+      const x = camera.position.x
+      const z = camera.position.z
+      camera.position.x = x * Math.cos(yaw) - z * Math.sin(yaw)
+      camera.position.z = x * Math.sin(yaw) + z * Math.cos(yaw)
+      camera.position.y = Math.min(
+        22,
+        Math.max(-22, camera.position.y + (c.y - lastCentre.y) * 0.05),
+      )
+      camera.lookAt(0, 0, 0)
+      lastSpread = s
+      lastCentre = c
+    }
+    el.addEventListener('touchstart', onStart, { passive: false })
+    el.addEventListener('touchmove', onMove, { passive: false })
+    return () => {
+      el.removeEventListener('touchstart', onStart)
+      el.removeEventListener('touchmove', onMove)
+      el.style.touchAction = previousTouchAction
+    }
+  }, [enabled, camera, gl])
+
+  // Keeps turning on its own so every card comes round without a gesture.
+  useFrame(({ camera: cam }, delta) => {
+    if (!enabled) return
+    const a = 0.05 * delta * Math.PI
+    const x = cam.position.x
+    const z = cam.position.z
+    cam.position.x = x * Math.cos(a) - z * Math.sin(a)
+    cam.position.z = x * Math.sin(a) + z * Math.cos(a)
+    cam.lookAt(0, 0, 0)
   })
+
   return null
 }
 
@@ -378,7 +464,10 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
   return (
     <CardContext.Provider value={{ selectedCard, setSelectedCard, cards }}>
       <div className="absolute inset-0">
-        <Canvas camera={{ position: [0, 0, 34], fov: 60 }} className="absolute inset-0">
+        <Canvas
+          camera={{ position: [0, 0, 34], fov: 60 }}
+          className="absolute inset-0"
+        >
           <Suspense fallback={null}>
             {/* Replaces upstream's separate fixed-position renderer. */}
             <Stars radius={120} depth={60} count={2600} factor={4} fade speed={0.4} />
@@ -397,7 +486,7 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
                 target={[0, 0, 0]}
               />
             ) : (
-              <AutoSpin />
+              <TouchOrbit enabled />
             )}
           </Suspense>
         </Canvas>

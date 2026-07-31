@@ -299,7 +299,7 @@ export function Projects() {
           doesn't blend into the surrounding page. */}
       <div
         ref={galleryRef}
-        className="relative h-[560px] w-full overflow-hidden rounded-2xl shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px]"
+        className="relative h-[560px] w-full touch-pan-y overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px] sm:border-transparent"
       >
         <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
           {t.projects.dragHint}

@@ -44,9 +44,12 @@ export type Dictionary = {
   }
   hero: {
     kicker: string
-    headingStart: string
-    headingHighlight: string
-    headingEnd: string
+    /** The headline is a two-line lockup: the role, then the promise. Kept
+     *  as two fields rather than one string with a break in it, so each
+     *  line can carry its own treatment and neither can wrap into the
+     *  other by accident. */
+    headingLine1: string
+    headingLine2: string
     body: string
     /** Four short capability labels beside the heading. A list, not a
      *  paragraph: the breadth is the point, and four nouns are read in the
@@ -333,9 +336,8 @@ export const EN: Dictionary = {
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
-    headingStart: 'Full-stack engineer for',
-    headingHighlight: 'complete digital systems',
-    headingEnd: '— from idea to production.',
+    headingLine1: 'Full-stack engineer',
+    headingLine2: 'from idea to production.',
     body: 'Web design, 3D, automations and apps — built on a backend I can open up and prove, not just describe. Search, AI answers and generative engines are part of the build from the first line, and the numbers are measured, not claimed.',
     capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Start a project',
@@ -758,9 +760,8 @@ export const DE: Dictionary = {
   },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
-    headingStart: 'Full-Stack-Entwickler für',
-    headingHighlight: 'vollständige digitale Systeme',
-    headingEnd: '– von der Idee bis zum produktiven Einsatz.',
+    headingLine1: 'Full-Stack-Entwickler',
+    headingLine2: 'von der Idee bis zur Produktion.',
     body: 'Webdesign, 3D, Automatisierungen und Apps – gebaut auf einem Backend, das ich offenlegen und belegen kann, statt es nur zu beschreiben. Suche, KI-Antworten und generative Engines sind ab der ersten Zeile Teil des Baus, und die Zahlen dazu sind gemessen, nicht behauptet.',
     capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Projekt anfragen',

@@ -93,7 +93,6 @@ export function Hero() {
   const videoRef = useRef<ScrubVideoHandle>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const [reduced, setReduced] = useState(false)
-  const headingEnd = t.hero.headingEnd.replace(/^[—–-]\s*/, '')
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -119,7 +118,7 @@ export function Hero() {
         .add(() => lightningRef.current?.strike({ intensity: 0.75 }), '>-0.35')
     }, section)
     return () => ctx.revert()
-  }, [reduced, t.hero.headingStart, t.hero.headingHighlight, headingEnd])
+  }, [reduced, t.hero.headingLine1, t.hero.headingLine2])
 
   // Scroll choreography.
   useEffect(() => {
@@ -275,16 +274,21 @@ export function Hero() {
                 colour — the shape says "this is the part that matters"
                 even where the gradient does not survive (Safari has form
                 here, see the known background-clip bug). */}
-            <h1 className="mt-4 text-balance font-display font-semibold text-[1.7rem] leading-[1.12] tracking-tight sm:mt-6 sm:text-[2.5rem] lg:text-[2.75rem] lg:leading-[1.08] xl:text-[3.25rem]">
-              <LitPhrase text={t.hero.headingStart} />{' '}
+            {/* Two lines, two beats: the role, then what it gets you. Each
+                is its own block, so neither can wrap into the other — the
+                second line carries the gradient and the italic, which marks
+                it as the promise rather than more job title. */}
+            <h1 className="mt-4 text-balance font-display font-semibold leading-[1.08] tracking-tight sm:mt-6">
+              <span className="block text-[1.7rem] sm:text-[2.9rem] lg:text-[3.25rem] xl:text-[3.75rem]">
+                <LitPhrase text={t.hero.headingLine1} />
+              </span>
               <span
                 ref={highlightRef}
                 style={{ opacity: 0.12 }}
-                className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text italic text-transparent"
+                className="mt-1 block bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-[1.2rem] italic text-transparent sm:mt-2 sm:text-[1.75rem] lg:text-[1.9rem] xl:text-[2.15rem]"
               >
-                {t.hero.headingHighlight}
-              </span>{' '}
-              <LitPhrase text={headingEnd} />
+                {t.hero.headingLine2}
+              </span>
             </h1>
           </div>
 

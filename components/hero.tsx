@@ -275,7 +275,7 @@ export function Hero() {
                 colour — the shape says "this is the part that matters"
                 even where the gradient does not survive (Safari has form
                 here, see the known background-clip bug). */}
-            <h1 className="mt-4 text-balance font-display text-[1.75rem] leading-[1.12] tracking-[-0.012em] sm:mt-6 sm:text-[3.4rem] lg:text-[3.6rem] lg:leading-[1.08] xl:text-[4.25rem]">
+            <h1 className="mt-4 text-balance font-display font-semibold text-[1.7rem] leading-[1.12] tracking-tight sm:mt-6 sm:text-[2.5rem] lg:text-[2.75rem] lg:leading-[1.08] xl:text-[3.25rem]">
               <LitPhrase text={t.hero.headingStart} />{' '}
               <span
                 ref={highlightRef}
@@ -359,19 +359,18 @@ export function Hero() {
             {/* One primary (blue: this is craft/work, DESIGN.md §3) and one
                 quiet secondary; the secondary is a text link rather than a
                 second button so the pair never reads as two equal choices. */}
-            {/* Side by side even on a phone: stacked, these two rows cost
-                the head a chunk of the height it is there for. */}
-            <div className="mt-5 flex flex-row flex-wrap items-center justify-center gap-x-5 gap-y-3 sm:mt-6 sm:gap-7 lg:justify-start">
-              <SpecularButton href="#contact" onClick={(e) => handleAnchorClick(e, '#contact')}>
+            {/* One call to action, not two. The secondary link sent people
+                to a section they scroll into a few seconds later anyway, and
+                it was the only thing on this screen competing with the one
+                action worth taking here. */}
+            <div className="mt-6 flex justify-center sm:mt-7 lg:justify-start">
+              <SpecularButton
+                href="#contact"
+                onClick={(e) => handleAnchorClick(e, '#contact')}
+                className="specular-btn--lg"
+              >
                 {t.hero.ctaPrimary}
               </SpecularButton>
-              <a
-                href="#work"
-                onClick={(e) => handleAnchorClick(e, '#work')}
-                className="py-1 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-8 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
-              >
-                {t.hero.ctaSecondary}
-              </a>
             </div>
           </div>
         </div>

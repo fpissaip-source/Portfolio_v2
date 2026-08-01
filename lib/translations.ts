@@ -53,7 +53,6 @@ export type Dictionary = {
      *  time one more sentence would take to start. */
     capabilities: string[]
     ctaPrimary: string
-    ctaSecondary: string
   }
   services: {
     kicker: string
@@ -340,7 +339,6 @@ export const EN: Dictionary = {
     body: 'Web design, 3D, automations and apps — built on a backend I can open up and prove, not just describe. Search, AI answers and generative engines are part of the build from the first line, and the numbers are measured, not claimed.',
     capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Start a project',
-    ctaSecondary: 'See the work',
   },
   services: {
     kicker: 'Services',
@@ -766,7 +764,6 @@ export const DE: Dictionary = {
     body: 'Webdesign, 3D, Automatisierungen und Apps – gebaut auf einem Backend, das ich offenlegen und belegen kann, statt es nur zu beschreiben. Suche, KI-Antworten und generative Engines sind ab der ersten Zeile Teil des Baus, und die Zahlen dazu sind gemessen, nicht behauptet.',
     capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Projekt anfragen',
-    ctaSecondary: 'Arbeiten ansehen',
   },
   services: {
     kicker: 'Leistungen',

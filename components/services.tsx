@@ -136,7 +136,7 @@ export function Services() {
           It is the section's one moment of emphasis, so it gets the space. */}
       <Reveal delay={0.15} y={24}>
         <div className="mt-20 border-t border-white/20 pt-12">
-          <h3 className="max-w-3xl text-balance font-display text-2xl leading-[1.15] tracking-[-0.012em] sm:text-3xl">
+          <h3 className="max-w-3xl text-balance font-display font-semibold text-2xl leading-[1.15] tracking-tight sm:text-3xl">
             {t.services.closingKicker}
           </h3>
 
@@ -150,7 +150,7 @@ export function Services() {
                 {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}
-            <p className="mt-3 max-w-3xl text-balance font-display text-xl leading-snug tracking-[-0.012em] text-foreground sm:text-2xl">
+            <p className="mt-3 max-w-3xl text-balance font-display font-semibold text-xl leading-snug tracking-tight text-foreground sm:text-2xl">
               {closingHighlight.body}
             </p>
             {/* The shortcut for a convinced reader: interest peaks right

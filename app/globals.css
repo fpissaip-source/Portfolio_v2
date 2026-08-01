@@ -8,7 +8,7 @@
   /* Three typographic roles (DESIGN.md §2). Display carries the personality
      and is deliberately NOT Geist — Geist as a display face is the strongest
      "Next.js template" signal this site could emit. */
-  --font-display: var(--font-instrument), 'Iowan Old Style', Georgia, ui-serif, serif;
+  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
@@ -696,6 +696,13 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
   transition:
     border-color 0.2s ease,
     transform 0.15s ease;
+}
+
+/* Larger variant — the hero's single call to action. One button on a screen
+   this big needs the presence of one, not the size of a toolbar control. */
+.specular-btn--lg {
+  padding: 19px 44px;
+  font-size: 1.0625rem;
 }
 
 .specular-btn:hover {

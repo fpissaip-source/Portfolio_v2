@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, Instrument_Serif, Space_Grotesk } from 'next/font/google'
+import { Bricolage_Grotesque, Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
 import './loader-transition.css'
@@ -15,18 +15,15 @@ const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
 })
 
-// Headline face. An editorial serif against the interface sans and the
-// mono kickers: the contrast between the three is what makes a heading read
-// as a heading, rather than as body copy that happens to be bigger.
-// It ships in one weight (400) on purpose — at headline sizes a serif does
-// not need bold to carry, and asking the browser to fake one would smear
-// exactly the stroke contrast it is here for. Headings therefore drop
-// font-semibold wherever they use it.
-const instrumentSerif = Instrument_Serif({
+// Headline face. A contemporary grotesque with real character in the
+// letterforms — narrow apertures, a hard-cut 'a' and 'g', an optical-size
+// axis that keeps large settings from going soft. It carries the same
+// machined feel as the subject matter, where an editorial serif read
+// literary, and it still separates cleanly from Geist in the interface and
+// the mono kickers, which is the whole job of a display face here.
+const displayFace = Bricolage_Grotesque({
   subsets: ['latin'],
-  weight: ['400'],
-  style: ['normal', 'italic'],
-  variable: '--font-instrument',
+  variable: '--font-display-face',
 })
 
 // Distinctive display face used only for the "I AM ISSA HAREB" name reveal
@@ -99,7 +96,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} bg-background`}
+      className={`${geistSans.variable} ${geistMono.variable} ${displayFace.variable} ${spaceGrotesk.variable} bg-background`}
     >
       <head>
         <script

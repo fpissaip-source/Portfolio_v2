@@ -114,7 +114,7 @@ export function About() {
               <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue/90">
                 {t.about.storyLabel}
               </div>
-              <h3 className="mt-3 text-balance font-display text-2xl leading-[1.15] tracking-[-0.012em] sm:text-3xl">
+              <h3 className="mt-3 text-balance font-display font-semibold text-2xl leading-[1.15] tracking-tight sm:text-3xl">
                 {t.about.storyHeading}
               </h3>
               <div className="relative mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">

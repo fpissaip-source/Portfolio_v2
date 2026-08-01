@@ -597,7 +597,7 @@ export function Lukas() {
               <span className="font-mono text-xs uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
                 {b.kicker}
               </span>
-              <h3 className="mt-4 text-balance font-display text-4xl leading-[1.1] tracking-[-0.012em] [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
+              <h3 className="mt-4 text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
                 {b.title}
               </h3>
               <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
@@ -636,7 +636,7 @@ export function Lukas() {
                   'radial-gradient(closest-side, color-mix(in oklch, var(--purple) 22%, transparent), transparent 72%)',
               }}
             />
-            <h3 className="text-balance font-display text-4xl leading-[1.1] tracking-[-0.012em] text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
+            <h3 className="text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
               {t.lukas.inviteTitle}
             </h3>
             <p className="mx-auto mt-4 max-w-md text-pretty leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">

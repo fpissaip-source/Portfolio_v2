@@ -33,6 +33,7 @@ export function ConsentBanner() {
   const t = useT()
   const [decided, setDecided] = useState<boolean | null>(null) // null = not yet read
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [analyticsOn, setAnalyticsOn] = useState(false)
   const [lukasOn, setLukasOn] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const openerRef = useRef<HTMLElement | null>(null)
@@ -40,6 +41,7 @@ export function ConsentBanner() {
   useEffect(() => {
     const current = readConsent()
     setDecided(current !== null)
+    setAnalyticsOn(current?.analytics ?? false)
     setLukasOn(current?.lukas ?? false)
   }, [])
 
@@ -47,7 +49,9 @@ export function ConsentBanner() {
   useEffect(() => {
     const open = () => {
       openerRef.current = document.activeElement as HTMLElement | null
-      setLukasOn(readConsent()?.lukas ?? false)
+      const current = readConsent()
+      setAnalyticsOn(current?.analytics ?? false)
+      setLukasOn(current?.lukas ?? false)
       setSettingsOpen(true)
     }
     window.addEventListener(OPEN_CONSENT_EVENT, open)
@@ -59,20 +63,19 @@ export function ConsentBanner() {
     openerRef.current?.focus?.()
   }, [])
 
-  const decide = useCallback(
-    (lukas: boolean) => {
-      writeConsent({ lukas })
-      setDecided(true)
-      setLukasOn(lukas)
-      setSettingsOpen(false)
-      openerRef.current?.focus?.()
-    },
-    [],
-  )
+  const decide = useCallback((analytics: boolean, lukas: boolean) => {
+    writeConsent({ analytics, lukas })
+    setDecided(true)
+    setAnalyticsOn(analytics)
+    setLukasOn(lukas)
+    setSettingsOpen(false)
+    openerRef.current?.focus?.()
+  }, [])
 
   const withdraw = useCallback(() => {
     resetConsent()
     setDecided(false)
+    setAnalyticsOn(false)
     setLukasOn(false)
     setSettingsOpen(false)
   }, [])
@@ -144,14 +147,14 @@ export function ConsentBanner() {
                   choice. */}
               <button
                 type="button"
-                onClick={() => decide(false)}
+                onClick={() => decide(false, false)}
                 className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-white/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {c.rejectAll}
               </button>
               <button
                 type="button"
-                onClick={() => decide(true)}
+                onClick={() => decide(true, lukasOn)}
                 className="rounded-full border border-blue/60 bg-blue/10 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-blue/85 hover:bg-blue/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
               >
                 {c.acceptAll}
@@ -221,7 +224,41 @@ export function ConsentBanner() {
                 </div>
               </div>
 
-              {/* The one real decision. */}
+              {/* Analytics — the decision the opening banner is about. */}
+              <div className="mt-5 border-t border-white/10 pt-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-display text-base font-semibold tracking-tight">
+                      {c.analyticsTitle}
+                    </h3>
+                    <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+                      {c.analyticsBody}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={analyticsOn}
+                    aria-label={c.analyticsToggleAria}
+                    onClick={() => setAnalyticsOn((v) => !v)}
+                    className={`mt-1 flex h-7 w-12 shrink-0 items-center rounded-full border px-0.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
+                      analyticsOn
+                        ? 'justify-end border-blue/70 bg-blue/25'
+                        : 'justify-start border-white/20 bg-white/5'
+                    }`}
+                  >
+                    <span
+                      className={`h-5 w-5 rounded-full transition-colors ${
+                        analyticsOn ? 'bg-blue' : 'bg-white/40'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* The agent. Normally decided in its own section, right before
+                  the conversation starts — it stays here so it can be seen
+                  and withdrawn from one place. */}
               <div className="mt-5 border-t border-white/10 pt-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -272,7 +309,7 @@ export function ConsentBanner() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => decide(lukasOn)}
+                  onClick={() => decide(analyticsOn, lukasOn)}
                   className="rounded-full border border-blue/60 bg-blue/10 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-blue/85 hover:bg-blue/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
                 >
                   {c.save}

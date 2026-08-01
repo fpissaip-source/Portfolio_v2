@@ -10,6 +10,7 @@ import { SkipIntroButton } from '@/components/skip-intro-button'
 import { TopScrim } from '@/components/top-scrim'
 import { LukasVoiceWidget } from '@/components/lukas-voice-widget'
 import { ConsentBanner } from '@/components/consent-banner'
+import { Analytics } from '@/components/analytics'
 import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
 import { Services } from '@/components/services'
@@ -35,6 +36,7 @@ export default function Page() {
       <SkipIntroButton />
       <LukasVoiceWidget />
       <ConsentBanner />
+      <Analytics />
       <main id="main-content" tabIndex={-1} className="relative">
         <CinematicIntro />
         {/* The website — revealed as the monitor becomes the screen. Also

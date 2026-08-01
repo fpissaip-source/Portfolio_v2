@@ -175,9 +175,20 @@ export type Dictionary = {
     necessaryTitle: string
     necessaryBody: string
     alwaysOn: string
+    analyticsTitle: string
+    analyticsBody: string
+    analyticsToggleAria: string
     lukasTitle: string
     lukasBody: string
     lukasToggleAria: string
+    /** Asked in the L.U.K.A.S. section itself, right before the conversation
+     *  starts — a decision about a feature is easier to make when you are
+     *  standing in front of it than in a banner shown on arrival. */
+    askTitle: string
+    askBody: string
+    askVoiceNote: string
+    askAllow: string
+    askDecline: string
     withdraw: string
     cancel: string
     save: string
@@ -603,22 +614,38 @@ export const EN: Dictionary = {
     kicker: 'Privacy',
     bannerAria: 'Privacy preferences',
     bannerBody:
-      'This site sets no cookies and uses no analytics. One thing needs your decision: the L.U.K.A.S. AI agent loads external code and, if you talk to it, transmits your messages \u2014 and in voice mode your microphone audio \u2014 to third parties.',
+      
+      'I would like to measure how this site is used \u2014 which pages get visited and where people arrive from. That needs cookies and your consent. Everything works exactly the same if you decline.',
     privacyLink: 'Privacy policy',
-    acceptAll: 'Allow L.U.K.A.S.',
+    acceptAll: 
+      'Allow',
     rejectAll: 'Decline',
     settings: 'Details',
     settingsTitle: 'Privacy preferences',
     settingsIntro:
-      'Only what actually runs on this site is listed here. There is nothing else to switch off.',
+      
+      'Only what actually runs on this site is listed here. You can change any of it at any time.',
     necessaryTitle: 'Necessary',
     necessaryBody:
-      'Your language choice (German/English) is kept in your browser\u2019s localStorage so the site stays in the language you picked. It never leaves your device. No cookies are set anywhere on this site.',
+      
+      'Your language choice (German/English) is kept in your browser\u2019s localStorage so the site stays in the language you picked. It never leaves your device and needs no consent.',
     alwaysOn: 'Always active',
+    analyticsTitle: 'Analytics',
+    analyticsBody:
+      'Records anonymous usage statistics \u2014 which pages are opened, how long people stay, which site they came from \u2014 so I can see what is worth improving. This sets cookies. Nothing is loaded until you allow it, and it stops the moment you withdraw.',
+    analyticsToggleAria: 'Allow analytics',
     lukasTitle: 'L.U.K.A.S. AI agent',
     lukasBody:
-      'Loads the chat widget from the agent server (Railway, EU) and sends the messages you type there so it can answer. If you use voice, your browser opens a direct connection to OpenAI (api.openai.com, USA) and streams your microphone audio for as long as the conversation runs. Without this, the agent does not load at all.',
+      
+      'Loads my AI agent L.U.K.A.S. so he can answer your questions by chat or by voice. What you write to him is sent to my agent server (Railway, EU) so he can reply. If you speak with him, your microphone audio additionally goes to OpenAI in the USA, which does the speech recognition. Asked again in the L.U.K.A.S. section before a conversation starts.',
     lukasToggleAria: 'Allow the L.U.K.A.S. AI agent',
+    askTitle: 'Talk to L.U.K.A.S.?',
+    askBody:
+      'To do that I load my AI agent L.U.K.A.S., so he can answer your questions by chat or by voice. Your messages go to my agent server so he can reply.',
+    askVoiceNote:
+      'If you speak with him rather than type, your microphone audio is additionally transmitted to OpenAI in the USA \u2014 that is the service doing the speech recognition.',
+    askAllow: 'Allow and start',
+    askDecline: 'Not now',
     withdraw: 'Withdraw consent',
     cancel: 'Cancel',
     save: 'Save',
@@ -682,10 +709,17 @@ export const EN: Dictionary = {
         ],
       },
       {
+        heading: 'Analytics (Consent Required)',
+        body: [
+          'If you allow it, an analytics tool records how this site is used — which pages are opened, how long a visit lasts, and which site you arrived from. This is used solely to see which parts of the site are worth improving. Cookies are set for this purpose.',
+          'Nothing is loaded and nothing is recorded before you have allowed it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. You can withdraw at any time with effect for the future via "Privacy preferences" in the footer; the tool then stops being loaded.',
+        ],
+      },
+      {
         heading: 'L.U.K.A.S. AI Agent (Consent Required)',
         body: [
-          'The L.U.K.A.S. agent is only loaded once you have explicitly allowed it. Until then no external code from the agent server is requested and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
-          'Once allowed, the chat widget is loaded from the agent server hosted on Railway (EU region). The messages you type there are transmitted so the agent can answer them.',
+          'L.U.K.A.S. is my own AI agent. He is only loaded once you have explicitly allowed it — you are asked in the L.U.K.A.S. section itself, just before a conversation starts. Until then nothing is requested from the agent server and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
+          'Once allowed, the agent is loaded from my agent server, hosted on Railway (EU region), so he can answer your questions by chat or by voice. The messages you write to him are transmitted there so he can reply.',
           'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc., USA — a third country — for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
           'You can withdraw your consent at any time, with effect for the future, via "Privacy preferences" in the footer. After withdrawal the agent is no longer loaded. This does not affect the lawfulness of processing carried out before the withdrawal.',
           'Please do not enter personal data of third parties, or your own sensitive data, into the agent.',
@@ -1017,22 +1051,38 @@ export const DE: Dictionary = {
     kicker: 'Datenschutz',
     bannerAria: 'Datenschutz-Einstellungen',
     bannerBody:
-      'Diese Seite setzt keine Cookies und nutzt keine Analyse-Werkzeuge. Eine Sache braucht Ihre Entscheidung: Der KI-Agent L.U.K.A.S. l\u00e4dt fremden Code und \u00fcbertr\u00e4gt, wenn Sie mit ihm sprechen, Ihre Nachrichten \u2014 im Sprachmodus auch Ihr Mikrofon-Audio \u2014 an Dritte.',
+      
+      'Ich w\u00fcrde gern messen, wie diese Seite genutzt wird \u2014 welche Seiten aufgerufen werden und woher Besucher kommen. Daf\u00fcr braucht es Cookies und Ihre Zustimmung. Wenn Sie ablehnen, funktioniert alles genauso.',
     privacyLink: 'Datenschutzhinweise',
-    acceptAll: 'L.U.K.A.S. erlauben',
+    acceptAll: 
+      'Erlauben',
     rejectAll: 'Ablehnen',
     settings: 'Details',
     settingsTitle: 'Datenschutz-Einstellungen',
     settingsIntro:
-      'Hier steht nur, was auf dieser Seite tats\u00e4chlich l\u00e4uft. Mehr gibt es nicht abzuschalten.',
+      
+      'Hier steht nur, was auf dieser Seite tats\u00e4chlich l\u00e4uft. Sie k\u00f6nnen alles jederzeit \u00e4ndern.',
     necessaryTitle: 'Notwendig',
     necessaryBody:
-      'Ihre Sprachwahl (Deutsch/Englisch) wird im localStorage Ihres Browsers gespeichert, damit die Seite in der gew\u00e4hlten Sprache bleibt. Sie verl\u00e4sst Ihr Ger\u00e4t nicht. Cookies werden auf dieser Seite an keiner Stelle gesetzt.',
+      
+      'Ihre Sprachwahl (Deutsch/Englisch) wird im localStorage Ihres Browsers gespeichert, damit die Seite in der gew\u00e4hlten Sprache bleibt. Sie verl\u00e4sst Ihr Ger\u00e4t nicht und braucht keine Zustimmung.',
     alwaysOn: 'Immer aktiv',
+    analyticsTitle: 'Analyse',
+    analyticsBody:
+      'Erfasst anonyme Nutzungsstatistiken \u2014 welche Seiten ge\u00f6ffnet werden, wie lange jemand bleibt, von welcher Seite er kam \u2014 damit ich sehe, woran sich Arbeit lohnt. Dabei werden Cookies gesetzt. Vor Ihrer Zustimmung wird nichts geladen, und mit dem Widerruf h\u00f6rt es sofort auf.',
+    analyticsToggleAria: 'Analyse erlauben',
     lukasTitle: 'KI-Agent L.U.K.A.S.',
     lukasBody:
-      'L\u00e4dt das Chat-Widget vom Agenten-Server (Railway, EU) und sendet die von Ihnen getippten Nachrichten dorthin, damit er antworten kann. Bei Sprachnutzung baut Ihr Browser eine direkte Verbindung zu OpenAI (api.openai.com, USA) auf und \u00fcbertr\u00e4gt Ihr Mikrofon-Audio, solange das Gespr\u00e4ch l\u00e4uft. Ohne diese Zustimmung wird der Agent gar nicht erst geladen.',
+      
+      'L\u00e4dt meinen KI-Agenten L.U.K.A.S., damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Was Sie ihm schreiben, geht an meinen Agenten-Server (Railway, EU), damit er antworten kann. Wenn Sie mit ihm sprechen, geht Ihr Mikrofon-Audio zus\u00e4tzlich an OpenAI in den USA \u2014 dort l\u00e4uft die Spracherkennung. Wird in der L.U.K.A.S.-Sektion vor dem Gespr\u00e4ch noch einmal gefragt.',
     lukasToggleAria: 'KI-Agent L.U.K.A.S. erlauben',
+    askTitle: 'Mit L.U.K.A.S. sprechen?',
+    askBody:
+      'Daf\u00fcr lade ich meinen KI-Agenten L.U.K.A.S., damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Ihre Nachrichten gehen an meinen Agenten-Server, damit er antworten kann.',
+    askVoiceNote:
+      'Wenn Sie mit ihm sprechen statt zu tippen, wird Ihr Mikrofon-Audio zus\u00e4tzlich an OpenAI in den USA \u00fcbertragen \u2014 dort l\u00e4uft die Spracherkennung.',
+    askAllow: 'Erlauben und starten',
+    askDecline: 'Jetzt nicht',
     withdraw: 'Einwilligung widerrufen',
     cancel: 'Abbrechen',
     save: 'Speichern',
@@ -1096,10 +1146,17 @@ export const DE: Dictionary = {
         ],
       },
       {
+        heading: 'Analyse (einwilligungspflichtig)',
+        body: [
+          'Wenn Sie zustimmen, erfasst ein Analyse-Werkzeug, wie diese Seite genutzt wird — welche Seiten geöffnet werden, wie lange ein Besuch dauert und von welcher Seite Sie gekommen sind. Das dient allein dazu, zu erkennen, an welchen Stellen sich Arbeit lohnt. Dabei werden Cookies gesetzt.',
+          'Vor Ihrer Zustimmung wird nichts geladen und nichts erfasst. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können jederzeit mit Wirkung für die Zukunft über „Datenschutz-Einstellungen" im Fußbereich widerrufen; das Werkzeug wird dann nicht mehr geladen.',
+        ],
+      },
+      {
         heading: 'KI-Agent L.U.K.A.S. (einwilligungspflichtig)',
         body: [
-          'Der Agent L.U.K.A.S. wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben. Bis dahin wird kein fremder Code vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
-          'Nach Ihrer Zustimmung wird das Chat-Widget vom Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird. Die von Ihnen dort eingegebenen Nachrichten werden übertragen, damit der Agent sie beantworten kann.',
+          'L.U.K.A.S. ist mein eigener KI-Agent. Er wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben — gefragt werden Sie in der L.U.K.A.S.-Sektion selbst, kurz bevor ein Gespräch beginnt. Bis dahin wird nichts vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
+          'Nach Ihrer Zustimmung wird der Agent von meinem Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird, damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Die von Ihnen geschriebenen Nachrichten werden dorthin übertragen, damit er antworten kann.',
           'Bei Nutzung der Sprachfunktion fordert Ihr Browser zusätzlich Zugriff auf Ihr Mikrofon an und baut eine direkte Verbindung zu OpenAI (api.openai.com) auf. Ihr Mikrofon-Audio und die daraus erzeugte Verschriftlichung werden für die Dauer des Gesprächs an die OpenAI, Inc., USA — also in ein Drittland — übertragen. Audiodaten werden erst erfasst, nachdem Sie selbst ein Sprachgespräch gestartet haben.',
           'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft über „Datenschutz-Einstellungen" im Fußbereich widerrufen. Nach dem Widerruf wird der Agent nicht mehr geladen. Die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.',
           'Bitte geben Sie im Agenten keine personenbezogenen Daten Dritter und keine sensiblen eigenen Daten ein.',

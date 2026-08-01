@@ -8,10 +8,11 @@ import { useT } from './language-context'
 export function SiteNav() {
   const t = useT()
   const LINKS = [
-    // Mirrors the page order — work now comes first, under the hero.
+    // Mirrors the page order: L.U.K.A.S. right after the hero, then the
+    // work, then what's on offer.
+    { label: t.nav.lukas, href: '#lukas' },
     { label: t.nav.work, href: '#work' },
     { label: t.nav.services, href: '#services' },
-    { label: t.nav.lukas, href: '#lukas' },
     { label: t.nav.about, href: '#about' },
     { label: t.nav.stack, href: '#stack' },
     { label: t.nav.process, href: '#process' },
@@ -20,17 +21,15 @@ export function SiteNav() {
   const [show, setShow] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
-  // Appears the moment the cinematic intro ends (its bottom edge reaches
-  // the top of the viewport) rather than deep into the page — a visible
-  // way to navigate, including straight to "Arbeiten"/Work, exists from
-  // right after the intro instead of only after scrolling most of the way
-  // through Lukas.
+  // Appears once the hero has been scrolled past. The hero carries its own
+  // two calls to action, so the nav would only compete with them there;
+  // from the next section on it is the only way to move around the page.
   useEffect(() => {
     const getThreshold = () => {
-      const intro = document.getElementById('intro')
-      if (!intro) return window.innerHeight * 5
-      const rect = intro.getBoundingClientRect()
-      return rect.bottom + window.scrollY - window.innerHeight
+      const hero = document.getElementById('top')
+      if (!hero) return window.innerHeight * 0.8
+      const rect = hero.getBoundingClientRect()
+      return rect.bottom + window.scrollY - window.innerHeight * 0.6
     }
     let threshold = getThreshold()
     const onScroll = () => setShow(window.scrollY > threshold)

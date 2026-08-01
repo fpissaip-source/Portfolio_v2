@@ -3,19 +3,18 @@
 import { useT } from './language-context'
 
 /** Standard "skip to content" link — invisible until focused (first Tab
- *  press), then jumps keyboard/screen-reader users past the cinematic
- *  intro straight to the content after it (#after-intro, not #main-content
- *  — that starts at the intro itself, so it wouldn't actually skip
- *  anything). Real href + native anchor jump as a no-JS fallback; where
- *  Lenis is running, preventDefault and hand it the scroll instead so the
- *  jump doesn't fight Lenis's own virtual scroll position. */
+ *  press), then jumps keyboard/screen-reader users straight into the page
+ *  content, past the fixed nav and language controls. Real href + native
+ *  anchor jump as a no-JS fallback; where Lenis is running, preventDefault
+ *  and hand it the scroll instead so the jump doesn't fight Lenis's own
+ *  virtual scroll position. */
 export function SkipLink() {
   const t = useT()
   return (
     <a
-      href="#after-intro"
+      href="#main-content"
       onClick={(e) => {
-        const el = document.getElementById('after-intro')
+        const el = document.getElementById('main-content')
         const lenis = (window as unknown as { __lenis?: { scrollTo: (t: Element, o?: object) => void } }).__lenis
         if (el && lenis) {
           e.preventDefault()

@@ -25,7 +25,6 @@ export type Dictionary = {
     openMenu: string
     closeMenu: string
     skipToContent: string
-    skipIntro: string
   }
   scene: {
     services: string
@@ -43,20 +42,16 @@ export type Dictionary = {
     loading: string
     caption: string
   }
-  cinematicIntro: {
-    scrollToMeet: string
-    introTitle: string
-    phrases: string[]
-    scroll: string
-    screenSubtitle: string
-    lowPowerHint: string
-  }
   hero: {
     kicker: string
     headingStart: string
     headingHighlight: string
     headingEnd: string
     body: string
+    /** Four short capability labels beside the heading. A list, not a
+     *  paragraph: the breadth is the point, and four nouns are read in the
+     *  time one more sentence would take to start. */
+    capabilities: string[]
     ctaPrimary: string
     ctaSecondary: string
   }
@@ -129,6 +124,13 @@ export type Dictionary = {
     lines: string[]
   }
   about: {
+    /** "Let me introduce myself." — the label over the name sequence that
+     *  opens this section (it used to open the deleted cinematic intro). */
+    introTitle: string
+    /** The name line, one word per beat: I → am → Issa Hareb. */
+    nameWords: string[]
+    /** Caption under the scroll-scrubbed flythrough. */
+    filmCaption: string
     kicker: string
     heading: string
     intro: string
@@ -311,7 +313,6 @@ export const EN: Dictionary = {
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
     skipToContent: 'Skip to content',
-    skipIntro: 'Skip Intro',
   },
   scene: {
     services: 'My Offering',
@@ -333,25 +334,13 @@ export const EN: Dictionary = {
     loading: 'Loading',
     caption: 'Issa Hareb · Portfolio',
   },
-  cinematicIntro: {
-    scrollToMeet: 'Scroll to meet',
-    introTitle: 'Let me introduce myself.',
-    phrases: [
-      'Intelligent Systems',
-      'AI Automation',
-      'Full Stack Development',
-      'Software That Solves Real Problems',
-    ],
-    scroll: 'Scroll',
-    screenSubtitle: 'Full-Stack Engineer & AI Practitioner',
-    lowPowerHint: 'Low Power Mode is on — tap to start the intro animation.',
-  },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
     headingStart: 'Full-stack engineer for',
     headingHighlight: 'complete digital systems',
     headingEnd: '— from idea to production.',
-    body: 'I use AI as a real part of how I build, and I take every system all the way to production myself.',
+    body: 'Web design, 3D, automations and apps — built on a backend I can open up and prove, not just describe. Search, AI answers and generative engines are part of the build from the first line, and the numbers are measured, not claimed.',
+    capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Start a project',
     ctaSecondary: 'See the work',
   },
@@ -516,6 +505,9 @@ export const EN: Dictionary = {
     ],
   },
   about: {
+    introTitle: 'Let me introduce myself.',
+    nameWords: ['I', 'AM', 'ISSA', 'HAREB'],
+    filmCaption: 'Scroll the film — a flight into the room everything gets built in.',
     kicker: 'About',
     heading: 'I think in systems and ship in products.',
     intro:
@@ -748,7 +740,6 @@ export const DE: Dictionary = {
     openMenu: 'Menü öffnen',
     closeMenu: 'Menü schließen',
     skipToContent: 'Zum Inhalt springen',
-    skipIntro: 'Intro überspringen',
   },
   scene: {
     services: 'Mein Angebot',
@@ -770,25 +761,13 @@ export const DE: Dictionary = {
     loading: 'Lädt',
     caption: 'Issa Hareb · Portfolio',
   },
-  cinematicIntro: {
-    scrollToMeet: 'Scrollen, um mich kennenzulernen',
-    introTitle: 'Lass mich vorstellen, wer ich bin.',
-    phrases: [
-      'Intelligente Systeme',
-      'KI-Automatisierung',
-      'Full-Stack-Entwicklung',
-      'Software, die echte Probleme löst',
-    ],
-    scroll: 'Scrollen',
-    screenSubtitle: 'Full-Stack-Entwickler & KI-Praktiker',
-    lowPowerHint: 'Stromsparmodus ist an — zum Starten der Intro-Animation tippen.',
-  },
   hero: {
     kicker: 'Issa Hareb · Portfolio',
     headingStart: 'Full-Stack-Entwickler für',
     headingHighlight: 'vollständige digitale Systeme',
     headingEnd: '– von der Idee bis zum produktiven Einsatz.',
-    body: 'KI ist bei mir fester Teil, wie ich baue. Jedes System bringe ich selbst bis in den produktiven Einsatz.',
+    body: 'Webdesign, 3D, Automatisierungen und Apps – gebaut auf einem Backend, das ich offenlegen und belegen kann, statt es nur zu beschreiben. Suche, KI-Antworten und generative Engines sind ab der ersten Zeile Teil des Baus, und die Zahlen dazu sind gemessen, nicht behauptet.',
+    capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
     ctaPrimary: 'Projekt anfragen',
     ctaSecondary: 'Arbeiten ansehen',
   },
@@ -953,6 +932,9 @@ export const DE: Dictionary = {
     ],
   },
   about: {
+    introTitle: 'Lass mich vorstellen, wer ich bin.',
+    nameWords: ['ICH', 'BIN', 'ISSA', 'HAREB'],
+    filmCaption: 'Scroll durch den Film – ein Flug in den Raum, in dem alles entsteht.',
     kicker: 'Über mich',
     heading: 'Ich denke in Systemen und liefere Produkte.',
     intro:

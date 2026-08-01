@@ -5,7 +5,9 @@ import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useLanguage, useT } from './language-context'
 
-const PRELOAD = ['/intro/cinematic-poster.jpg']
+/** Warmed under the greetings: the robot head's first frame, which is the
+ *  first thing behind the curtain now that the page opens at the hero. */
+const PRELOAD = ['/intro/hero-robot-poster.jpg']
 /** How long each quick greeting stays before the next one swaps in. */
 const GREETING_STEP_MS = 190
 /** How long the final (browser-language) greeting stands before the exit. */

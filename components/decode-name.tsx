@@ -20,12 +20,13 @@ import {
 export type NeonLineHandle = {
   /** Word formation: 0 = not started, 1 = fully decoded/locked. */
   setWord: (index: number, p: number) => void
-  /** 1 = first word alone, centered; 0 = whole line assembled + centered. */
-  setSolo: (t: number) => void
-  /** Dissolve: 0 = fully visible, 1 = gone (opacity + blur). */
-  setFade: (t: number) => void
+  /** How much space a word past the first takes up in the line: 0 = collapsed
+   *  to nothing (the line centers on the words already there), 1 = its full
+   *  natural width. Driving each word separately is what lets the line build
+   *  up one beat at a time and re-center itself as each word joins. */
+  setJoin: (index: number, t: number) => void
   /** 0 = decoded blue glow (default), 1 = solid site-title purple ink, same
-   *  glyphs/position throughout — a same-glyph crossfade for the handoff. */
+   *  glyphs/position throughout — a same-glyph crossfade, never a blur. */
   setSolidify: (t: number) => void
 }
 
@@ -45,8 +46,7 @@ export const DecodeName = forwardRef<
   const naturalWidths = useRef<number[]>(words.map(() => 0))
 
   const progressRef = useRef<number[]>(words.map(() => 0))
-  const soloRef = useRef(1)
-  const fadeRef = useRef(0)
+  const joinRef = useRef<number[]>(words.map((_, i) => (i === 0 ? 1 : 0)))
   const solidifyRef = useRef(0)
 
   const applyWord = useCallback((wi: number) => {
@@ -87,30 +87,32 @@ export const DecodeName = forwardRef<
     }
   }, [words])
 
-  const applySolo = useCallback(() => {
-    words.forEach((_, wi) => {
+  const applyJoin = useCallback(
+    (wi: number) => {
       if (wi === 0) return
       const el = wordRefs.current[wi]
       if (!el) return
-      const t = 1 - soloRef.current
-      // The leading gap has to collapse in lockstep with the width — a
-      // flex `gap` would otherwise still reserve its full space next to a
-      // zero-width word, leaving the solo word sitting off-center by half
-      // that gap instead of dead-center.
+      const t = clamp01(joinRef.current[wi] ?? 0)
+      // The leading gap has to open in lockstep with the width — a flex
+      // `gap` would otherwise still reserve its full space next to a
+      // zero-width word, leaving the line sitting off-center by half that
+      // gap instead of dead-center while the word is still collapsed.
       const fontSize = parseFloat(window.getComputedStyle(el).fontSize) || 0
       el.style.marginLeft = `${gapEm * fontSize * t}px`
       el.style.width = `${naturalWidths.current[wi] * t}px`
       el.style.opacity = String(t)
-    })
-  }, [words, gapEm])
+      // Clipping is what makes the word arrive as a wipe rather than a
+      // stretch — but a clip box also cuts the letters' glow into a hard
+      // rectangle, which is glaring once the word is standing still. So it
+      // is only on while the word is actually moving.
+      el.style.overflow = t >= 1 ? 'visible' : 'hidden'
+    },
+    [gapEm],
+  )
 
-  const applyFade = useCallback(() => {
-    const el = rootRef.current
-    if (!el) return
-    const t = clamp01(fadeRef.current)
-    el.style.opacity = String(1 - t)
-    el.style.filter = t > 0.001 ? `blur(${(t * 12).toFixed(2)}px)` : 'none'
-  }, [])
+  const applyAllJoins = useCallback(() => {
+    words.forEach((_, wi) => applyJoin(wi))
+  }, [words, applyJoin])
 
   const applySolidify = useCallback(() => {
     words.forEach((_, i) => applyWord(i))
@@ -123,20 +125,16 @@ export const DecodeName = forwardRef<
         progressRef.current[i] = p
         applyWord(i)
       },
-      setSolo: (t) => {
-        soloRef.current = clamp01(t)
-        applySolo()
-      },
-      setFade: (t) => {
-        fadeRef.current = t
-        applyFade()
+      setJoin: (i, t) => {
+        joinRef.current[i] = clamp01(t)
+        applyJoin(i)
       },
       setSolidify: (t) => {
         solidifyRef.current = clamp01(t)
         applySolidify()
       },
     }),
-    [applyWord, applySolo, applyFade, applySolidify],
+    [applyWord, applyJoin, applySolidify],
   )
 
   // Measure each secondary word's natural width once, for the solo collapse.
@@ -154,7 +152,7 @@ export const DecodeName = forwardRef<
         el.style.width = prevWidth
         el.style.opacity = prevOpacity
       })
-      applySolo()
+      applyAllJoins()
     }
     measure()
     let alive = true
@@ -206,7 +204,11 @@ export const DecodeName = forwardRef<
             ref={(el) => {
               wordRefs.current[wi] = el
             }}
-            className="inline-flex overflow-hidden whitespace-nowrap"
+            // shrink-0: these are flex items with an explicit pixel width,
+            // and without it the row silently shrinks them to fit instead of
+            // overflowing — the text gets clipped and any width the caller
+            // measures comes back as "it fits" when it does not.
+            className="inline-flex shrink-0 whitespace-nowrap"
             style={{
               fontFamily: 'var(--font-space-grotesk)',
               letterSpacing: '0.05em',

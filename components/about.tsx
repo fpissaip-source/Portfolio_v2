@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'motion/react'
+import { AboutFilm } from './about-film'
 import { Reveal } from './anim'
 import { useT } from './language-context'
+import { NameSequence } from './name-sequence'
 import { SectionHeading } from './section-heading'
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -64,7 +66,10 @@ export function About() {
   const t = useT()
   return (
     <section id="about" className="relative mx-auto max-w-7xl px-6 py-32">
-      <div className="grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
+      {/* The section opens by saying who this is — name first, everything
+          else after. */}
+      <NameSequence />
+      <div className="mt-24 grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
             label={t.about.kicker}
@@ -153,6 +158,9 @@ export function About() {
           </div>
         </div>
       </div>
+      {/* The flythrough that used to open the site, now where it belongs:
+          the room the work gets made in, at the end of the story about it. */}
+      <AboutFilm />
     </section>
   )
 }

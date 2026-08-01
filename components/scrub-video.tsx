@@ -1,0 +1,224 @@
+'use client'
+
+import { forwardRef, useEffect, useImperativeHandle, useRef, type CSSProperties } from 'react'
+
+/**
+ * A video used as a frame source rather than a player: the caller drives it
+ * with `seek(progress)` from wherever its scroll position comes from, and
+ * each decoded frame is blitted onto a canvas.
+ *
+ * The masters are All-Intra (every frame a keyframe), so a seek is a single
+ * decode and scrubbing stays responsive — including on iOS Safari, where
+ * seeking during scroll is historically fragile. Seeks are queued so they
+ * can never overlap; the newest target always wins, and a watchdog releases
+ * the queue if a `seeked` event never arrives.
+ *
+ * The poster renders as a plain <img> underneath the canvas. It is what a
+ * visitor sees before the video has loaded and what stays if it never does
+ * (blocked codec, failed request), so there is no state where this is an
+ * empty black rectangle.
+ */
+export type ScrubVideoHandle = {
+  /** 0 = first frame, 1 = last frame. Safe to call before the video has
+   *  loaded — the position is remembered and applied once it can be. */
+  seek: (progress: number) => void
+}
+
+export const ScrubVideo = forwardRef<
+  ScrubVideoHandle,
+  {
+    src: string
+    /** Used below 768px, where a smaller frame also decodes faster. */
+    srcMobile?: string
+    poster: string
+    className?: string
+    style?: CSSProperties
+    /** How the frame maps onto the canvas box. Default 'cover'. */
+    fit?: 'cover' | 'contain'
+  }
+>(function ScrubVideo({ src, srcMobile, poster, className = '', style, fit = 'cover' }, ref) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const seekRef = useRef<(p: number) => void>(() => {})
+  /** Last requested position, replayed once metadata arrives. */
+  const wantedRef = useRef(0)
+
+  useImperativeHandle(ref, () => ({ seek: (p) => seekRef.current(p) }), [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const video = videoRef.current
+    if (!canvas || !video) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    video.src = srcMobile && window.matchMedia('(max-width: 767px)').matches ? srcMobile : src
+
+    // Canvas size is read on resize only, never inside the seek path: a
+    // layout read there forces a synchronous re-layout on every scroll tick.
+    let cw = 0
+    let ch = 0
+    /** Set only if the browser refuses the priming autoplay (iOS Low Power
+     *  Mode): the video itself becomes the visible layer and is scrubbed
+     *  natively, because a hidden video will not decode for a canvas there.
+     *  Stays false in every normal case. */
+    let videoIsVisible = false
+
+    const draw = () => {
+      if (videoIsVisible) return
+      if (!cw || !ch || !video.videoWidth) return
+      const vw = video.videoWidth
+      const vh = video.videoHeight
+      const scale = fit === 'cover' ? Math.max(cw / vw, ch / vh) : Math.min(cw / vw, ch / vh)
+      ctx.clearRect(0, 0, cw, ch)
+      ctx.drawImage(video, (cw - vw * scale) / 2, (ch - vh * scale) / 2, vw * scale, vh * scale)
+    }
+
+    const sizeCanvas = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      cw = canvas.clientWidth
+      ch = canvas.clientHeight
+      canvas.width = Math.round(cw * dpr)
+      canvas.height = Math.round(ch * dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      draw()
+    }
+
+    const vrfc = (
+      video as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number }
+    ).requestVideoFrameCallback?.bind(video)
+    const fastSeek = (video as HTMLVideoElement & { fastSeek?: (t: number) => void }).fastSeek?.bind(
+      video,
+    )
+    /** Half a frame at 24fps — anything closer is already on screen. */
+    const SEEK_EPS = 1 / 48
+    let pending: number | null = null
+    let busy = false
+    let watchdog = 0
+
+    const release = () => {
+      window.clearTimeout(watchdog)
+      busy = false
+      if (pending !== null) {
+        const t = pending
+        pending = null
+        seekTime(t)
+      }
+    }
+
+    const seekTime = (time: number) => {
+      const d = video.duration
+      if (!d || Number.isNaN(d)) return
+      const clamped = Math.max(0, Math.min(d - 1 / 48, time))
+      if (busy) {
+        pending = clamped
+        return
+      }
+      // WebKit can swallow `seeked` for a same-position seek, which would
+      // leave the queue wedged behind a `busy` that never clears.
+      if (Math.abs(video.currentTime - clamped) < SEEK_EPS) return
+      busy = true
+      window.clearTimeout(watchdog)
+      watchdog = window.setTimeout(release, 300)
+      if (vrfc) vrfc(() => draw())
+      if (fastSeek) fastSeek(clamped)
+      else video.currentTime = clamped
+    }
+
+    seekRef.current = (p) => {
+      const clamped = Math.max(0, Math.min(1, p))
+      wantedRef.current = clamped
+      if (videoIsVisible) {
+        if (video.duration) video.currentTime = clamped * video.duration
+        return
+      }
+      seekTime(clamped * (video.duration || 0))
+    }
+
+    const onSeeked = () => {
+      draw()
+      release()
+    }
+    video.addEventListener('seeked', onSeeked)
+    video.addEventListener('error', release)
+
+    const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+    const unlock = () => {
+      window.removeEventListener('touchend', unlock)
+      const p = video.play() // must be the first call inside the gesture
+      if (!p) return
+      p.then(() => {
+        video.pause()
+        video.removeAttribute('poster')
+        Object.assign(video.style, {
+          position: 'absolute',
+          inset: '0',
+          width: '100%',
+          height: '100%',
+          objectFit: fit,
+          opacity: '1',
+        })
+        canvas.style.visibility = 'hidden'
+        videoIsVisible = true
+        video.currentTime = wantedRef.current * (video.duration || 0)
+      }).catch(() => {
+        /* still refused — the poster stays, which is a clean first frame */
+      })
+    }
+
+    const onMeta = () => {
+      sizeCanvas()
+      seekRef.current(wantedRef.current)
+      const p = video.play()
+      if (p) {
+        // A muted inline play/pause primes the decode pipeline without a
+        // gesture. iOS Low Power Mode blocks exactly this, which is what
+        // stops scrubbed frames from ever advancing — there, the visitor's
+        // first touch is allowed to start it.
+        p.then(() => video.pause()).catch(() => {
+          if (isTouch) window.addEventListener('touchend', unlock, { passive: true })
+        })
+      }
+    }
+    video.addEventListener('loadedmetadata', onMeta)
+    if (video.readyState >= 1) onMeta()
+
+    sizeCanvas()
+    // ResizeObserver rather than a window resize listener: the hero shrinks
+    // this box during its scroll choreography, with the window size never
+    // changing — the canvas backing store has to follow it, or the frame is
+    // drawn at the wrong resolution and goes soft.
+    const ro = new ResizeObserver(sizeCanvas)
+    ro.observe(canvas)
+    return () => {
+      window.clearTimeout(watchdog)
+      ro.disconnect()
+      window.removeEventListener('touchend', unlock)
+      video.removeEventListener('loadedmetadata', onMeta)
+      video.removeEventListener('seeked', onSeeked)
+      video.removeEventListener('error', release)
+      seekRef.current = () => {}
+    }
+  }, [src, srcMobile, fit])
+
+  return (
+    <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={poster}
+        alt=""
+        className={`absolute inset-0 h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <video
+        ref={videoRef}
+        muted
+        playsInline
+        preload="auto"
+        poster={poster}
+        disablePictureInPicture
+        className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
+      />
+    </div>
+  )
+})

@@ -129,8 +129,6 @@ export type Dictionary = {
     introTitle: string
     /** The name line, one word per beat: I → am → Issa Hareb. */
     nameWords: string[]
-    /** Caption under the scroll-scrubbed flythrough. */
-    filmCaption: string
     kicker: string
     heading: string
     intro: string
@@ -507,7 +505,6 @@ export const EN: Dictionary = {
   about: {
     introTitle: 'Let me introduce myself.',
     nameWords: ['I', 'AM', 'ISSA', 'HAREB'],
-    filmCaption: 'Scroll the film — a flight into the room everything gets built in.',
     kicker: 'About',
     heading: 'I think in systems and ship in products.',
     intro:
@@ -934,7 +931,6 @@ export const DE: Dictionary = {
   about: {
     introTitle: 'Lass mich vorstellen, wer ich bin.',
     nameWords: ['ICH', 'BIN', 'ISSA', 'HAREB'],
-    filmCaption: 'Scroll durch den Film – ein Flug in den Raum, in dem alles entsteht.',
     kicker: 'Über mich',
     heading: 'Ich denke in Systemen und liefere Produkte.',
     intro:

@@ -88,6 +88,7 @@ export function Hero() {
   const gridRef = useRef<HTMLDivElement>(null)
   const highlightRef = useRef<HTMLSpanElement>(null)
   const robotRef = useRef<HTMLDivElement>(null)
+  const robotBoxRef = useRef<HTMLDivElement>(null)
   const revealRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<ScrubVideoHandle>(null)
   const lightningRef = useRef<LightningHandle>(null)
@@ -125,7 +126,8 @@ export function Hero() {
     const section = sectionRef.current
     const reveal = revealRef.current
     const robot = robotRef.current
-    if (!section || !reveal || !robot || reduced) return
+    const robotBox = robotBoxRef.current
+    if (!section || !reveal || !robot || !robotBox || reduced) return
 
     const stage = stageRef.current
     const grid = gridRef.current
@@ -137,6 +139,7 @@ export function Hero() {
     let sparked = false
     let startH = 0
     let endH = 0
+    let maxW = 0
 
     // On a phone the head, the headline and the copy share one screen, so
     // how tall the head can be is arithmetic, not a guess: whatever is left
@@ -154,6 +157,7 @@ export function Hero() {
       // bottom edge than to show a postage stamp.
       endH = Math.max(130, avail - fixed)
       startH = Math.max(endH, Math.min(avail - header.offsetHeight - gaps, window.innerHeight * 0.46))
+      maxW = window.innerWidth * 1.32
     }
 
     const apply = (p: number) => {
@@ -176,7 +180,20 @@ export function Hero() {
       })
       // The head gives up height as the copy arrives — on a phone that room
       // is the only place the copy can go; on a desktop it keeps its column.
-      robot.style.height = narrow ? `${lerp(startH, endH, r).toFixed(1)}px` : ''
+      if (narrow) {
+        const h = lerp(startH, endH, r)
+        robot.style.height = `${h.toFixed(1)}px`
+        // Width follows the height, capped at 16:9. `cover` scales by
+        // whichever side needs more, so a box wider than 16:9 crops the
+        // sides (harmless — that is empty air around the head) while a box
+        // taller than 16:9 crops the TOP, which ate the shell fragments
+        // exactly as they flew off. Keeping the box at or below 16:9 makes
+        // vertical cropping impossible at any point of the animation.
+        robotBox.style.width = `${Math.min(maxW, (h * 16) / 9).toFixed(1)}px`
+      } else {
+        robot.style.height = ''
+        robotBox.style.width = ''
+      }
     }
 
     const st = ScrollTrigger.create({
@@ -283,7 +300,10 @@ export function Hero() {
                 headline off the screen with it. The positioning lives here
                 rather than on ScrubVideo: that component carries its own
                 `relative`, which wins over a `position` class passed in. */}
-            <div className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:static lg:h-auto lg:w-[124%] lg:translate-x-0">
+            <div
+              ref={robotBoxRef}
+              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:static lg:h-auto lg:w-[124%] lg:translate-x-0"
+            >
               <ScrubVideo
                 ref={videoRef}
                 src={SRC}

@@ -2,10 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useInView } from 'motion/react'
-import { AboutFilm } from './about-film'
+import { AboutIntro } from './about-intro'
 import { Reveal } from './anim'
 import { useT } from './language-context'
-import { NameSequence } from './name-sequence'
 import { SectionHeading } from './section-heading'
 
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
@@ -65,11 +64,12 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
 export function About() {
   const t = useT()
   return (
-    <section id="about" className="relative mx-auto max-w-7xl px-6 py-32">
-      {/* The section opens by saying who this is — name first, everything
-          else after. */}
-      <NameSequence />
-      <div className="mt-24 grid gap-16 lg:grid-cols-[0.9fr_1.1fr]">
+    <section id="about" className="relative">
+      {/* The section opens by saying who this is — the name, with the
+          flythrough running behind it. Full-bleed, so it sits outside the
+          measured column the rest of the section keeps to. */}
+      <AboutIntro />
+      <div className="mx-auto grid max-w-7xl gap-16 px-6 pb-32 pt-24 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
             label={t.about.kicker}
@@ -158,9 +158,6 @@ export function About() {
           </div>
         </div>
       </div>
-      {/* The flythrough that used to open the site, now where it belongs:
-          the room the work gets made in, at the end of the story about it. */}
-      <AboutFilm />
     </section>
   )
 }

@@ -55,7 +55,7 @@ export function SectionHeading({
       <WordReveal
         as="h2"
         text={heading}
-        className={`mt-3 text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl ${headingClassName}`}
+        className={`mt-3 text-balance font-display text-4xl leading-[1.08] tracking-[-0.012em] sm:text-6xl ${headingClassName}`}
       />
 
       {description && (

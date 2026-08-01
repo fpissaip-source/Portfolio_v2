@@ -61,12 +61,12 @@ export function Contact() {
                   {d.href ? (
                     <a
                       href={d.href}
-                      className="inline-block font-display text-lg font-medium tracking-tight text-foreground underline decoration-blue/40 decoration-1 underline-offset-[6px] transition-colors hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:text-xl"
+                      className="inline-block text-lg font-medium tracking-tight text-foreground underline decoration-blue/40 decoration-1 underline-offset-[6px] transition-colors hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:text-xl"
                     >
                       {d.value}
                     </a>
                   ) : (
-                    <span className="font-display text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
+                    <span className="text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
                       {d.value}
                     </span>
                   )}

@@ -114,7 +114,7 @@ export function About() {
               <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue/90">
                 {t.about.storyLabel}
               </div>
-              <h3 className="mt-3 text-balance font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+              <h3 className="mt-3 text-balance font-display text-2xl leading-[1.15] tracking-[-0.012em] sm:text-3xl">
                 {t.about.storyHeading}
               </h3>
               <div className="relative mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">
@@ -127,7 +127,7 @@ export function About() {
                     <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-purple/80">
                       {s.flag}
                     </div>
-                    <div className="mt-2 font-display text-lg font-semibold tracking-tight">
+                    <div className="mt-2 text-lg font-semibold tracking-tight">
                       {s.title}
                     </div>
                     <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -146,7 +146,7 @@ export function About() {
             {t.about.pillars.map((p, i) => (
               <Reveal key={p.title} delay={Math.min(i, 3) * 0.05} y={24}>
                 <article className="group border-t border-white/10 py-7 transition-colors duration-200 hover:border-blue/30">
-                  <h3 className="font-display text-lg font-semibold tracking-tight sm:text-xl">
+                  <h3 className="text-lg font-semibold tracking-tight sm:text-xl">
                     {p.title}
                   </h3>
                   <p className="mt-2 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">

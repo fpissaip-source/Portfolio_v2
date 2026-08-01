@@ -8,7 +8,7 @@
   /* Three typographic roles (DESIGN.md §2). Display carries the personality
      and is deliberately NOT Geist — Geist as a display face is the strongest
      "Next.js template" signal this site could emit. */
-  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-instrument), 'Iowan Old Style', Georgia, ui-serif, serif;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 

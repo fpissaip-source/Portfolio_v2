@@ -251,14 +251,19 @@ export function Hero() {
               {t.hero.kicker}
             </motion.p>
 
-            <h1
-              className="mt-4 text-balance font-display text-[1.6rem] font-semibold leading-[1.15] tracking-tight sm:mt-6 sm:text-5xl lg:text-[3.4rem] lg:leading-[1.1] xl:text-6xl"
-            >
+            {/* The serif runs at a single weight and one size step larger
+                than the old bold sans did: at headline size the stroke
+                contrast carries it, and bold would only smear that.
+                The highlighted phrase is set in italic as well as in
+                colour — the shape says "this is the part that matters"
+                even where the gradient does not survive (Safari has form
+                here, see the known background-clip bug). */}
+            <h1 className="mt-4 text-balance font-display text-[1.75rem] leading-[1.12] tracking-[-0.012em] sm:mt-6 sm:text-[3.4rem] lg:text-[3.6rem] lg:leading-[1.08] xl:text-[4.25rem]">
               <LitPhrase text={t.hero.headingStart} />{' '}
               <span
                 ref={highlightRef}
                 style={{ opacity: 0.12 }}
-                className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-transparent"
+                className="bg-gradient-to-br from-blue via-white to-purple bg-clip-text italic text-transparent"
               >
                 {t.hero.headingHighlight}
               </span>{' '}

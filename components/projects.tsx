@@ -37,7 +37,7 @@ function ProjectAudit({ audit }: { audit: NonNullable<Project['audit']> }) {
   return (
     <div className="mt-6 border-t border-white/10 pt-5">
       <div className="flex items-baseline gap-3">
-        <span className="font-display text-4xl font-semibold tabular-nums tracking-tight text-blue">
+        <span className="text-4xl font-semibold tabular-nums tracking-tight text-blue">
           {audit.onpage}%
         </span>
         <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
@@ -47,7 +47,7 @@ function ProjectAudit({ audit }: { audit: NonNullable<Project['audit']> }) {
       <dl className="mt-4 grid grid-cols-3 gap-x-4 gap-y-1">
         {subScores.map((s) => (
           <div key={s.label}>
-            <dd className="font-display text-lg font-semibold tabular-nums tracking-tight">
+            <dd className="text-lg font-semibold tabular-nums tracking-tight">
               {s.value}%
             </dd>
             <dt className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">

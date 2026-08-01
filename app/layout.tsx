@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
+import { Geist, Geist_Mono, Instrument_Serif, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
 import './loader-transition.css'
@@ -13,6 +13,20 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   subsets: ['latin'],
   variable: '--font-geist-mono',
+})
+
+// Headline face. An editorial serif against the interface sans and the
+// mono kickers: the contrast between the three is what makes a heading read
+// as a heading, rather than as body copy that happens to be bigger.
+// It ships in one weight (400) on purpose — at headline sizes a serif does
+// not need bold to carry, and asking the browser to fake one would smear
+// exactly the stroke contrast it is here for. Headings therefore drop
+// font-semibold wherever they use it.
+const instrumentSerif = Instrument_Serif({
+  subsets: ['latin'],
+  weight: ['400'],
+  style: ['normal', 'italic'],
+  variable: '--font-instrument',
 })
 
 // Distinctive display face used only for the "I AM ISSA HAREB" name reveal
@@ -85,7 +99,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} bg-background`}
+      className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} ${spaceGrotesk.variable} bg-background`}
     >
       <head>
         <script

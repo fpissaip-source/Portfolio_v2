@@ -73,7 +73,7 @@ export function Process() {
                     <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-blue/90">
                       {String(i + 1).padStart(2, '0')}
                     </div>
-                    <h3 className="mt-3 font-display text-xl font-semibold tracking-tight">
+                    <h3 className="mt-3 text-xl font-semibold tracking-tight">
                       {s.title}
                     </h3>
                     <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">

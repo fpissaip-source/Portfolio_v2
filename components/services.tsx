@@ -94,7 +94,7 @@ export function Services() {
                     className="mt-1 h-4 w-4 shrink-0 text-blue/70 transition-colors duration-200 group-hover:text-blue"
                     aria-hidden
                   />
-                  <h3 className="text-balance font-display text-xl font-semibold leading-snug tracking-tight sm:text-2xl">
+                  <h3 className="text-balance text-xl font-semibold leading-snug tracking-tight sm:text-2xl">
                     {item.title}
                   </h3>
                 </div>
@@ -136,7 +136,7 @@ export function Services() {
           It is the section's one moment of emphasis, so it gets the space. */}
       <Reveal delay={0.15} y={24}>
         <div className="mt-20 border-t border-white/20 pt-12">
-          <h3 className="max-w-3xl text-balance font-display text-2xl font-semibold leading-tight tracking-tight sm:text-3xl">
+          <h3 className="max-w-3xl text-balance font-display text-2xl leading-[1.15] tracking-[-0.012em] sm:text-3xl">
             {t.services.closingKicker}
           </h3>
 
@@ -150,7 +150,7 @@ export function Services() {
                 {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}
-            <p className="mt-3 max-w-3xl text-balance font-display text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
+            <p className="mt-3 max-w-3xl text-balance font-display text-xl leading-snug tracking-[-0.012em] text-foreground sm:text-2xl">
               {closingHighlight.body}
             </p>
             {/* The shortcut for a convinced reader: interest peaks right

@@ -104,7 +104,7 @@ export function LukasConsentPrompt({
             </p>
             <h2
               id="lukas-consent-title"
-              className="mt-3 font-display text-2xl font-semibold tracking-tight"
+              className="mt-3 text-2xl font-semibold tracking-tight"
             >
               {c.askTitle}
             </h2>

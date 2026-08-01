@@ -254,7 +254,7 @@ function CardDetail() {
             <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-blue">
               {selectedCard.kindLabel}
             </p>
-            <h3 className="mt-1.5 font-display text-2xl font-semibold tracking-tight text-foreground">
+            <h3 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
               {selectedCard.title}
             </h3>
             {selectedCard.meta && (

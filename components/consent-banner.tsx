@@ -199,7 +199,7 @@ export function ConsentBanner() {
             >
               <h2
                 id="consent-title"
-                className="font-display text-2xl font-semibold tracking-tight"
+                className="text-2xl font-semibold tracking-tight"
               >
                 {c.settingsTitle}
               </h2>
@@ -211,7 +211,7 @@ export function ConsentBanner() {
               <div className="mt-7 border-t border-white/10 pt-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold tracking-tight">
+                    <h3 className="text-base font-semibold tracking-tight">
                       {c.necessaryTitle}
                     </h3>
                     <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -228,7 +228,7 @@ export function ConsentBanner() {
               <div className="mt-5 border-t border-white/10 pt-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold tracking-tight">
+                    <h3 className="text-base font-semibold tracking-tight">
                       {c.analyticsTitle}
                     </h3>
                     <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -262,7 +262,7 @@ export function ConsentBanner() {
               <div className="mt-5 border-t border-white/10 pt-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
-                    <h3 className="font-display text-base font-semibold tracking-tight">
+                    <h3 className="text-base font-semibold tracking-tight">
                       {c.lukasTitle}
                     </h3>
                     <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">

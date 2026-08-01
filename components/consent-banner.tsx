@@ -4,26 +4,21 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import Link from 'next/link'
 import { useT } from './language-context'
-import {
-  OPEN_CONSENT_EVENT,
-  readConsent,
-  resetConsent,
-  writeConsent,
-} from '@/lib/consent'
+import { OPEN_CONSENT_EVENT, getConsent, readConsent, resetConsent, setConsent } from '@/lib/consent'
 
 /**
- * Consent banner + preferences dialog.
+ * Cookie banner + preferences dialog.
  *
- * Shown only until a decision exists, and re-openable from the footer at any
- * time (withdrawing has to be as easy as giving). It is floating chrome over
- * content, so it takes the glass treatment DESIGN.md §5 reserves for exactly
- * that, and it uses the site's own instrument type rather than a stock
- * cookie-bar look.
+ * One question only: the optional, measurement-type cookies. The L.U.K.A.S.
+ * agent used to sit here as a second toggle and does not any more — it is a
+ * feature, not a tracking cookie, and it is asked for where someone reaches
+ * for it (see lukas-consent-prompt.tsx). A list that mixes the two makes
+ * both harder to answer.
  *
- * Deliberately not a "cookie" banner in the usual sense: this site sets no
- * cookies (see lib/consent.ts). The one decision on offer is the L.U.K.A.S.
- * agent, because that is the one thing that loads third-party code and sends
- * personal data — including microphone audio to OpenAI — off the device.
+ * Shown only until the question has been answered, and re-openable from the
+ * footer at any time — withdrawing has to be as easy as giving. It is
+ * floating chrome over content, so it takes the glass treatment DESIGN.md §5
+ * reserves for exactly that.
  *
  * The dialog is a real modal: labelled, focus-trapped, Esc closes, focus
  * returns to whatever opened it. Nothing here is pre-ticked; "reject" is the
@@ -34,24 +29,19 @@ export function ConsentBanner() {
   const [decided, setDecided] = useState<boolean | null>(null) // null = not yet read
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [analyticsOn, setAnalyticsOn] = useState(false)
-  const [lukasOn, setLukasOn] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const openerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    const current = readConsent()
-    setDecided(current !== null)
-    setAnalyticsOn(current?.analytics ?? false)
-    setLukasOn(current?.lukas ?? false)
+    setDecided(getConsent('analytics') !== null)
+    setAnalyticsOn(getConsent('analytics') === true)
   }, [])
 
   // Footer link / privacy page can reopen this at any time.
   useEffect(() => {
     const open = () => {
       openerRef.current = document.activeElement as HTMLElement | null
-      const current = readConsent()
-      setAnalyticsOn(current?.analytics ?? false)
-      setLukasOn(current?.lukas ?? false)
+      setAnalyticsOn(getConsent('analytics') === true)
       setSettingsOpen(true)
     }
     window.addEventListener(OPEN_CONSENT_EVENT, open)
@@ -63,11 +53,12 @@ export function ConsentBanner() {
     openerRef.current?.focus?.()
   }, [])
 
-  const decide = useCallback((analytics: boolean, lukas: boolean) => {
-    writeConsent({ analytics, lukas })
+  const decide = useCallback((analytics: boolean) => {
+    // Records this category only: an answer already given about the agent
+    // is none of this dialog's business (see setConsent in lib/consent.ts).
+    setConsent('analytics', analytics)
     setDecided(true)
     setAnalyticsOn(analytics)
-    setLukasOn(lukas)
     setSettingsOpen(false)
     openerRef.current?.focus?.()
   }, [])
@@ -76,7 +67,6 @@ export function ConsentBanner() {
     resetConsent()
     setDecided(false)
     setAnalyticsOn(false)
-    setLukasOn(false)
     setSettingsOpen(false)
   }, [])
 
@@ -147,14 +137,14 @@ export function ConsentBanner() {
                   choice. */}
               <button
                 type="button"
-                onClick={() => decide(false, false)}
+                onClick={() => decide(false)}
                 className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-white/35 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {c.rejectAll}
               </button>
               <button
                 type="button"
-                onClick={() => decide(true, lukasOn)}
+                onClick={() => decide(true)}
                 className="rounded-full border border-blue/60 bg-blue/10 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-blue/85 hover:bg-blue/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
               >
                 {c.acceptAll}
@@ -256,40 +246,6 @@ export function ConsentBanner() {
                 </div>
               </div>
 
-              {/* The agent. Normally decided in its own section, right before
-                  the conversation starts — it stays here so it can be seen
-                  and withdrawn from one place. */}
-              <div className="mt-5 border-t border-white/10 pt-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-base font-semibold tracking-tight">
-                      {c.lukasTitle}
-                    </h3>
-                    <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
-                      {c.lukasBody}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={lukasOn}
-                    aria-label={c.lukasToggleAria}
-                    onClick={() => setLukasOn((v) => !v)}
-                    className={`mt-1 flex h-7 w-12 shrink-0 items-center rounded-full border px-0.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue ${
-                      lukasOn
-                        ? 'justify-end border-blue/70 bg-blue/25'
-                        : 'justify-start border-white/20 bg-white/5'
-                    }`}
-                  >
-                    <span
-                      className={`h-5 w-5 rounded-full transition-colors ${
-                        lukasOn ? 'bg-blue' : 'bg-white/40'
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
-
               <div className="mt-7 flex flex-col gap-2.5 sm:flex-row sm:justify-end">
                 {readConsent() !== null && (
                   <button
@@ -309,7 +265,7 @@ export function ConsentBanner() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => decide(analyticsOn, lukasOn)}
+                  onClick={() => decide(analyticsOn)}
                   className="rounded-full border border-blue/60 bg-blue/10 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-blue/85 hover:bg-blue/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
                 >
                   {c.save}

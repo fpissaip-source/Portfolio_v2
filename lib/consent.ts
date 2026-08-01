@@ -1,46 +1,52 @@
 /**
  * Consent state for this site.
  *
- * What this site actually does, which is what the categories below are
- * derived from — not from a generic banner template:
+ * Two decisions, asked in two different places, stored independently:
  *
- *   • It stores the chosen language under `site-lang` in localStorage. That
- *     is a preference the visitor set themselves, so it is treated as
- *     necessary and is not gated — but it is disclosed rather than hidden.
- *   • **Analytics** is opt-in. An analytics tool typically sets cookies and
- *     records page views, so it must not run before consent and must stop
- *     being loadable when consent is withdrawn. Nothing is loaded until a
- *     tool is actually configured (see components/analytics.tsx) — the
- *     category existing does not mean something is running.
- *   • **L.U.K.A.S.** is opt-in and is asked for *in the section itself*,
- *     right before the visitor starts a conversation, rather than in the
- *     opening banner. Asking about a feature at the moment someone reaches
- *     for it is both easier to understand and a better-informed decision
- *     than a checkbox shown before they know what it is.
+ *   • **analytics** — asked by the banner on arrival, the ordinary cookie
+ *     question. Nothing is loaded until a tool is actually configured (see
+ *     components/analytics.tsx); the category existing does not mean
+ *     something is running.
+ *   • **lukas** — asked nowhere near the banner. The agent is a feature, not
+ *     a tracking cookie, so it is asked for at the moment someone reaches
+ *     for it: pressing "talk to L.U.K.A.S." opens a small prompt, and only
+ *     an answer there loads anything. It is deliberately absent from the
+ *     cookie preferences, where a toggle for it read as a second, unrelated
+ *     decision hidden in a list.
+ *
+ * Both are tri-state on purpose: `null` means "not asked yet" and is what
+ * makes each surface know whether it still has a question to put. Coupling
+ * them into one boolean pair meant answering the banner also counted as
+ * answering for the agent, and vice versa.
+ *
+ * The chosen language lives under `site-lang` and is not gated: it is a
+ * preference the visitor set themselves. It is disclosed, not hidden.
  *
  * Consent is stored under `site-consent` with a version. Bumping
  * CONSENT_VERSION invalidates stored answers and asks again — do that when
  * the set of categories or the recipients change, never for a redesign.
  */
 
-/** Bumped to 2 when analytics was added: the set of categories changed, so
- *  previously stored answers no longer cover what is being asked. */
-export const CONSENT_VERSION = 2
+/** 3: the categories became independently answerable (`null` = unanswered),
+ *  so a stored v2 record cannot say which questions were actually put. */
+export const CONSENT_VERSION = 3
 const STORAGE_KEY = 'site-consent'
 const EVENT = 'site-consent-change'
 
-/** The two optional categories; see the note above. */
+export type ConsentCategory = 'analytics' | 'lukas'
+
+/** `null` on a category = never answered; `false` = declined. */
 export type ConsentState = {
   version: number
-  /** ISO timestamp of the decision — a consent record is worthless undated. */
+  /** ISO timestamp of the last change — a consent record is worthless undated. */
   decidedAt: string
-  analytics: boolean
-  lukas: boolean
+  analytics: boolean | null
+  lukas: boolean | null
 }
 
-export type ConsentDecision = Pick<ConsentState, 'analytics' | 'lukas'>
+const readFlag = (v: unknown): boolean | null => (typeof v === 'boolean' ? v : null)
 
-/** `null` = no valid decision stored yet, so the banner must be shown. */
+/** `null` = nothing valid stored yet, so every question is still open. */
 export function readConsent(): ConsentState | null {
   if (typeof window === 'undefined') return null
   try {
@@ -48,13 +54,11 @@ export function readConsent(): ConsentState | null {
     if (!raw) return null
     const parsed = JSON.parse(raw) as Partial<ConsentState>
     if (parsed.version !== CONSENT_VERSION) return null
-    if (typeof parsed.lukas !== 'boolean') return null
-    if (typeof parsed.analytics !== 'boolean') return null
     return {
       version: CONSENT_VERSION,
       decidedAt: typeof parsed.decidedAt === 'string' ? parsed.decidedAt : '',
-      analytics: parsed.analytics,
-      lukas: parsed.lukas,
+      analytics: readFlag(parsed.analytics),
+      lukas: readFlag(parsed.lukas),
     }
   } catch {
     // Corrupt or unreadable (private mode, storage disabled): ask again
@@ -63,12 +67,17 @@ export function readConsent(): ConsentState | null {
   }
 }
 
-export function writeConsent(decision: ConsentDecision): ConsentState {
+/** Records one category and leaves the other exactly as it was — including
+ *  leaving it unanswered, which is what keeps the banner and the agent
+ *  prompt from answering each other's question. */
+export function setConsent(category: ConsentCategory, value: boolean | null): ConsentState {
+  const current = readConsent()
   const state: ConsentState = {
     version: CONSENT_VERSION,
     decidedAt: new Date().toISOString(),
-    analytics: decision.analytics,
-    lukas: decision.lukas,
+    analytics: current?.analytics ?? null,
+    lukas: current?.lukas ?? null,
+    [category]: value,
   }
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
@@ -79,19 +88,9 @@ export function writeConsent(decision: ConsentDecision): ConsentState {
   return state
 }
 
-/** Records one category without disturbing the other. The banner decides
- *  analytics; the L.U.K.A.S. section decides its own category later, and
- *  must not reset a choice the visitor already made about analytics. */
-export function setConsent<K extends keyof ConsentDecision>(key: K, value: boolean) {
-  const current = readConsent()
-  return writeConsent({
-    analytics: current?.analytics ?? false,
-    lukas: current?.lukas ?? false,
-    [key]: value,
-  } as ConsentDecision)
-}
-
-/** Clears the decision so the banner returns. Used by "withdraw consent". */
+/** Clears everything so every question returns. Used by "withdraw consent",
+ *  which withdraws all of it — including the agent, which is why the
+ *  control says so rather than naming only cookies. */
 export function resetConsent() {
   try {
     window.localStorage.removeItem(STORAGE_KEY)
@@ -101,8 +100,13 @@ export function resetConsent() {
   window.dispatchEvent(new CustomEvent(EVENT, { detail: null }))
 }
 
-export function hasConsent(category: keyof ConsentDecision): boolean {
-  return readConsent()?.[category] === true
+/** The stored answer, or `null` if the question has not been put yet. */
+export function getConsent(category: ConsentCategory): boolean | null {
+  return readConsent()?.[category] ?? null
+}
+
+export function hasConsent(category: ConsentCategory): boolean {
+  return getConsent(category) === true
 }
 
 /** Subscribe to decisions. Fires immediately with the current state so a
@@ -115,7 +119,7 @@ export function onConsentChange(cb: (state: ConsentState | null) => void) {
   return () => window.removeEventListener(EVENT, handler)
 }
 
-/** Opens the preferences dialog from anywhere (footer link, privacy page). */
+/** Opens the cookie preferences from anywhere (footer link, privacy page). */
 export const OPEN_CONSENT_EVENT = 'site-consent-open'
 export function openConsentSettings() {
   window.dispatchEvent(new Event(OPEN_CONSENT_EVENT))

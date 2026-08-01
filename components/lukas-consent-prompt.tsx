@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { Mic } from 'lucide-react'
 import { useT } from './language-context'
-import { hasConsent, setConsent } from '@/lib/consent'
+
 
 /**
  * Asks for the L.U.K.A.S. decision where the visitor actually meets him —
@@ -36,13 +36,6 @@ export function LukasConsentPrompt({
   const t = useT()
   const dialogRef = useRef<HTMLDivElement>(null)
   const c = t.consent
-
-  const allow = useCallback(() => {
-    // Records only this category — an answer already given about analytics
-    // must survive (see setConsent in lib/consent.ts).
-    setConsent('lukas', true)
-    onAllow()
-  }, [onAllow])
 
   // Esc closes; focus moves into the dialog and is trapped while open.
   useEffect(() => {
@@ -100,7 +93,7 @@ export function LukasConsentPrompt({
             data-lenis-prevent
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/90">
-              {c.kicker}
+              {c.askKicker}
             </p>
             <h2
               id="lukas-consent-title"
@@ -131,7 +124,7 @@ export function LukasConsentPrompt({
               </button>
               <button
                 type="button"
-                onClick={allow}
+                onClick={onAllow}
                 className="rounded-full border border-purple/60 bg-purple/10 px-5 py-2.5 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/90 hover:bg-purple/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
               >
                 {c.askAllow}
@@ -142,12 +135,4 @@ export function LukasConsentPrompt({
       )}
     </AnimatePresence>
   )
-}
-
-/** True once the visitor has allowed the agent, kept in sync so the CTA can
- *  skip the prompt on a second visit. */
-export function useLukasAllowed() {
-  const [allowed, setAllowed] = useState(false)
-  useEffect(() => setAllowed(hasConsent('lukas')), [])
-  return [allowed, setAllowed] as const
 }

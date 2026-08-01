@@ -9,7 +9,6 @@ import { useT } from './language-context'
 import { markLukasReached } from '@/lib/lukas-presence'
 import { OPEN_CHAT_EVENT } from './lukas-voice-widget'
 import { LukasRobot } from './lukas-robot'
-import { LukasConsentPrompt, useLukasAllowed } from './lukas-consent-prompt'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -83,10 +82,6 @@ class BrainBoundary extends Component<{ onFail: () => void; children: ReactNode 
 }
 
 export function Lukas() {
-  // The agent decision is asked here, at the CTA, rather than in the
-  // arrival banner — see lukas-consent-prompt.tsx.
-  const [lukasAllowed, setLukasAllowed] = useLukasAllowed()
-  const [askOpen, setAskOpen] = useState(false)
   const t = useT()
   const BEATS = t.lukas.beats
   const rootRef = useRef<HTMLDivElement>(null)
@@ -644,13 +639,10 @@ export function Lukas() {
             </p>
             <button
               type="button"
-              onClick={() => {
-                if (lukasAllowed) {
-                  window.dispatchEvent(new Event(OPEN_CHAT_EVENT))
-                  return
-                }
-                setAskOpen(true)
-              }}
+              // One trigger for both entry points: the widget decides
+              // whether this opens the permission prompt or the panel, so
+              // the button here and the floating one can never disagree.
+              onClick={() => window.dispatchEvent(new Event(OPEN_CHAT_EVENT))}
               className="group relative mt-9 inline-flex items-center gap-2.5 overflow-hidden rounded-full border border-purple/65 bg-purple/10 px-9 py-4 text-sm font-semibold tracking-tight text-foreground shadow-[0_20px_60px_-20px_color-mix(in_oklch,var(--purple)_55%,transparent)] transition-[border-color,background-color] duration-300 ease-out hover:border-purple/90 hover:bg-purple/16 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-purple active:scale-[0.97]"
             >
               {/* Sheen sweep on hover — the one bit of "motion polish" a
@@ -672,16 +664,6 @@ export function Lukas() {
           </div>
         </div>
       </div>
-
-      <LukasConsentPrompt
-        open={askOpen}
-        onClose={() => setAskOpen(false)}
-        onAllow={() => {
-          setAskOpen(false)
-          setLukasAllowed(true)
-          window.dispatchEvent(new Event(OPEN_CHAT_EVENT))
-        }}
-      />
     </section>
   )
 }

@@ -295,7 +295,11 @@ export function Hero() {
                 // air. Cropping to the box scales the head up instead, and
                 // the mask below takes care of the cropped edges.
                 fit="cover"
-                className="h-full w-full lg:aspect-square lg:h-auto"
+                // 4:3 rather than square: `cover` crops the sides to fill
+                // the box, and the head throws its parts sideways as it
+                // comes apart — a square box would have cut roughly a fifth
+                // off each edge at exactly the moment worth watching.
+                className="h-full w-full lg:aspect-[4/3] lg:h-auto"
                 // The ellipse is inscribed in the box, so the mask is fully
                 // transparent by the time it reaches any edge — with a
                 // larger radius the footage would still end on a visible

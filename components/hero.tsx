@@ -90,6 +90,7 @@ export function Hero() {
   const robotRef = useRef<HTMLDivElement>(null)
   const robotBoxRef = useRef<HTMLDivElement>(null)
   const revealRef = useRef<HTMLDivElement>(null)
+  const cueRef = useRef<HTMLAnchorElement>(null)
   const videoRef = useRef<ScrubVideoHandle>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const [reduced, setReduced] = useState(false)
@@ -155,7 +156,7 @@ export function Hero() {
       // is gone — better to let the section give up a few pixels at the
       // bottom edge than to show a postage stamp.
       endH = Math.max(130, avail - fixed)
-      startH = Math.max(endH, Math.min(avail - header.offsetHeight - gaps, window.innerHeight * 0.46))
+      startH = Math.max(endH, Math.min(avail - header.offsetHeight - gaps, window.innerHeight * 0.52))
       maxW = window.innerWidth * 1.32
     }
 
@@ -177,6 +178,14 @@ export function Hero() {
         row.style.opacity = String(e)
         row.style.transform = `translate3d(0, ${lerp(18, 0, e).toFixed(2)}px, 0)`
       })
+      // The cue is the first screen's only next step; once the real copy
+      // and its call to action are on screen it has nothing left to say.
+      const cue = cueRef.current
+      if (cue) {
+        const out = 1 - seg(r, 0, 0.35)
+        cue.style.opacity = String(out)
+        cue.style.pointerEvents = out < 0.4 ? 'none' : 'auto'
+      }
       // The head gives up height as the copy arrives — on a phone that room
       // is the only place the copy can go; on a desktop it keeps its column.
       if (narrow) {
@@ -249,6 +258,23 @@ export function Hero() {
         </div>
         <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
+        {/* Scroll cue. The opening frame is deliberately just headline and
+            head — which leaves a visitor who does not scroll on reflex with
+            nothing to do. This is an affordance, not a second call to
+            action: it points at the work, and it is gone by the time the
+            real one arrives. */}
+        <a
+          ref={cueRef}
+          href="#work"
+          onClick={(e) => handleAnchorClick(e, '#work')}
+          className="absolute inset-x-0 bottom-6 z-20 mx-auto flex w-max items-center gap-2 rounded-full border border-white/12 bg-black/40 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/80 backdrop-blur-sm transition-colors hover:border-blue/50 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue sm:bottom-8 sm:text-[11px]"
+        >
+          {t.hero.scrollCue}
+          <span aria-hidden className="text-sm leading-none motion-safe:animate-bounce">
+            ↓
+          </span>
+        </a>
+
         {/* Three blocks: heading, head, rest of the copy. On a phone they
             stack in that order, so the head stands between the sentence and
             the detail. From `lg` the heading and the copy share the left
@@ -262,7 +288,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: easeOut }}
-              className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue"
+              className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue/95 sm:text-xs"
             >
               {t.hero.kicker}
             </motion.p>
@@ -274,20 +300,39 @@ export function Hero() {
                 colour — the shape says "this is the part that matters"
                 even where the gradient does not survive (Safari has form
                 here, see the known background-clip bug). */}
-            {/* Two lines, two beats: the role, then what it gets you. Each
-                is its own block, so neither can wrap into the other — the
-                second line carries the gradient and the italic, which marks
-                it as the promise rather than more job title. */}
-            <h1 className="mt-4 text-balance font-display font-semibold leading-[1.08] tracking-tight sm:mt-6">
-              <span className="block text-[1.7rem] sm:text-[2.9rem] lg:text-[3.25rem] xl:text-[3.75rem]">
-                <LitPhrase text={t.hero.headingLine1} />
-              </span>
-              <span
-                ref={highlightRef}
-                style={{ opacity: 0.12 }}
-                className="mt-1 block bg-gradient-to-br from-blue via-white to-purple bg-clip-text text-[1.2rem] italic text-transparent sm:mt-2 sm:text-[1.75rem] lg:text-[1.9rem] xl:text-[2.15rem]"
-              >
-                {t.hero.headingLine2}
+            {/* Two lines, two beats: the promise, then how far it goes.
+                The visible copy is per-letter spans for the reveal, which
+                is fine to look at and unreadable to anything parsing the
+                DOM — so the sentence is also here once, in one piece, and
+                the decorative copy is hidden from assistive tech.
+                Sizes are fluid rather than stepped: this headline has to
+                hold its shape between a 360px phone and a 1600px desktop
+                without a breakpoint landing mid-word. */}
+            <h1 className="mt-4 font-display font-semibold sm:mt-5">
+              <span className="sr-only">{t.hero.headingPlain}</span>
+              <span aria-hidden>
+                <span
+                  className="block text-balance"
+                  style={{
+                    fontSize: 'clamp(2.1rem, 9.2vw, 3.5rem)',
+                    lineHeight: 0.98,
+                    letterSpacing: '-0.04em',
+                  }}
+                >
+                  <LitPhrase text={t.hero.headingLine1} />
+                </span>
+                <span
+                  ref={highlightRef}
+                  style={{
+                    opacity: 0.12,
+                    fontSize: 'clamp(1.15rem, 5.2vw, 1.85rem)',
+                    lineHeight: 1.12,
+                    letterSpacing: '-0.02em',
+                  }}
+                  className="mt-2.5 block text-balance bg-gradient-to-br from-blue via-white to-purple bg-clip-text italic text-transparent sm:mt-3"
+                >
+                  {t.hero.headingLine2}
+                </span>
               </span>
             </h1>
           </div>

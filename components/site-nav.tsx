@@ -57,6 +57,18 @@ export function SiteNav() {
 
   return (
     <>
+      {/* Wordmark. The top of the page had no name on it until the visitor
+          scrolled past the hero — on a portfolio, of all things. Always
+          there, quiet, and a way back to the top. */}
+      <a
+        href="#top"
+        onClick={(e) => go(e, '#top')}
+        data-page-chrome
+        className="fixed left-4 top-4 z-50 rounded-full px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-6 sm:text-[11px]"
+      >
+        Issa Hareb
+      </a>
+
       {/* Desktop — centered pill nav */}
       <AnimatePresence>
         {show && (
@@ -92,24 +104,23 @@ export function SiteNav() {
       {/* Mobile — compact menu button + overlay, since the desktop pill
           nav is hidden below `sm` and mobile otherwise has no navigation
           at all. */}
-      <AnimatePresence>
-        {show && !menuOpen && (
-          <motion.button
-            type="button"
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.85 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            onClick={() => setMenuOpen(true)}
-            aria-label={t.nav.openMenu}
-            aria-expanded={menuOpen}
-            data-mobile-menu
-            className="glass fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:hidden"
-          >
-            <Menu className="h-5 w-5" aria-hidden />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Mobile menu — top right, next to the language switch, and there
+          from the first screen. It used to appear only after the hero and
+          to sit in the bottom-right corner, on top of the L.U.K.A.S.
+          launcher: two floating round buttons fighting for one corner. */}
+      {!menuOpen && (
+        <button
+          type="button"
+          onClick={() => setMenuOpen(true)}
+          aria-label={t.nav.openMenu}
+          aria-expanded={menuOpen}
+          data-mobile-menu
+          data-page-chrome
+          className="glass fixed right-4 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:hidden"
+        >
+          <Menu className="h-4.5 w-4.5" aria-hidden />
+        </button>
+      )}
 
       <AnimatePresence>
         {menuOpen && (
@@ -126,7 +137,7 @@ export function SiteNav() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 16 }}
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className="glass absolute bottom-20 right-5 flex flex-col gap-0.5 rounded-2xl p-2"
+              className="glass absolute right-4 top-16 flex flex-col gap-0.5 rounded-2xl p-2"
               onClick={(e) => e.stopPropagation()}
             >
               {LINKS.map((l) => (
@@ -148,9 +159,9 @@ export function SiteNav() {
               onClick={() => setMenuOpen(false)}
               aria-label={t.nav.closeMenu}
               data-mobile-menu
-            className="glass fixed bottom-5 right-5 z-50 flex h-12 w-12 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="glass fixed right-4 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-full text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              <X className="h-5 w-5" aria-hidden />
+              <X className="h-4.5 w-4.5" aria-hidden />
             </button>
           </motion.div>
         )}

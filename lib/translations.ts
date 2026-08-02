@@ -50,7 +50,16 @@ export type Dictionary = {
      *  other by accident. */
     headingLine1: string
     headingLine2: string
+    /** The same sentence in one piece, for screen readers and for anything
+     *  that reads the DOM rather than the design: the visible headline is
+     *  split into per-letter spans for the reveal, which is fine to look at
+     *  and no way to read. */
+    headingPlain: string
     body: string
+    /** Shown on the first screen, while the rest of the copy is still
+     *  waiting on the scroll — otherwise the opening frame offers no next
+     *  step at all. Goes away as the copy arrives. */
+    scrollCue: string
     /** Four short capability labels beside the heading. A list, not a
      *  paragraph: the breadth is the point, and four nouns are read in the
      *  time one more sentence would take to start. */
@@ -334,11 +343,13 @@ export const EN: Dictionary = {
     caption: 'Issa Hareb · Portfolio',
   },
   hero: {
-    kicker: 'Issa Hareb · Portfolio',
-    headingLine1: 'Full-stack engineer',
-    headingLine2: 'from idea to production.',
+    kicker: 'Full-stack & AI · Essen, Germany',
+    headingLine1: 'I build intelligent systems.',
+    headingLine2: 'From the first idea to live operation.',
+    headingPlain: 'I build intelligent systems. From the first idea to live operation.',
     body: 'Web design, 3D, automations and apps — built on a backend I can open up and prove, not just describe. Search, AI answers and generative engines are part of the build from the first line, and the numbers are measured, not claimed.',
     capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
+    scrollCue: 'Explore the work',
     ctaPrimary: 'Start a project',
   },
   services: {
@@ -752,11 +763,14 @@ export const DE: Dictionary = {
     caption: 'Issa Hareb · Portfolio',
   },
   hero: {
-    kicker: 'Issa Hareb · Portfolio',
-    headingLine1: 'Full-Stack-Entwickler',
-    headingLine2: 'von der Idee bis zur Produktion.',
+    kicker: 'Full-Stack & KI · Essen',
+    headingLine1: 'Ich entwickle intelligente Systeme.',
+    headingLine2: 'Von der ersten Idee bis zum Livebetrieb.',
+    headingPlain:
+      'Ich entwickle intelligente Systeme. Von der ersten Idee bis zum Livebetrieb.',
     body: 'Webdesign, 3D, Automatisierungen und Apps – gebaut auf einem Backend, das ich offenlegen und belegen kann, statt es nur zu beschreiben. Suche, KI-Antworten und generative Engines sind ab der ersten Zeile Teil des Baus, und die Zahlen dazu sind gemessen, nicht behauptet.',
     capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
+    scrollCue: 'Projekte entdecken',
     ctaPrimary: 'Projekt anfragen',
   },
   services: {

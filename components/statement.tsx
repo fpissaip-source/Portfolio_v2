@@ -11,10 +11,11 @@ gsap.registerPlugin(ScrollTrigger)
 /**
  * The three sentences the hero has no room for, assembled out of the air.
  *
- * Every word starts somewhere else, scattered around the viewer and well in
- * front of the screen, and is carried back into its place as the section is
- * scrolled. By the time the section lets go, the words have settled into
- * three ordinary, perfectly legible lines with a single offer under them.
+ * Every word starts above its place and well in front of the screen, out
+ * where the reader is, and falls back down into the paragraph as the
+ * section is scrolled. By the time the section lets go, the words have
+ * settled into three ordinary, perfectly legible lines with one offer
+ * under them.
  *
  * Three things make that safe rather than clever:
  *
@@ -40,13 +41,27 @@ gsap.registerPlugin(ScrollTrigger)
  * wordmark, the nav pill, the toggle and the top scrim for that stretch.
  */
 
-/** How far a word can start from its place, as a share of the viewport. */
-const SPREAD_X = 0.42
-const SPREAD_Y = 0.3
-/** Depth range toward the viewer. Large on purpose: this is the part that
- *  reads as "flying past you" rather than "sliding in". */
-const DEPTH_MIN = 420
-const DEPTH_MAX = 1400
+/**
+ * Where a word starts, relative to where it ends up.
+ *
+ * The motion is a fall *towards* the reader and *downwards*: each word
+ * begins above its place and well in front of the screen, then drops back
+ * into the paragraph. So the vertical offset is one-sided (always above,
+ * never below) and the horizontal one is small — a word that comes in from
+ * the side reads as sliding, not falling.
+ */
+const DRIFT_X = 0.13
+const RISE_MIN = 0.4
+const RISE_MAX = 0.95
+/** Depth towards the viewer, in px, against the paragraph's perspective.
+ *  Hard ceiling: a word translated to or past the perspective distance is
+ *  behind the viewer's eye and the browser stops drawing it altogether.
+ *  The old range went to 1400px against a 900px perspective, so a third of
+ *  the words were simply not painted until late in their travel — which is
+ *  why they appeared to pop into existence instead of falling. */
+const PERSPECTIVE = 1100
+const DEPTH_MIN = 240
+const DEPTH_MAX = 620
 /** Where in the section's scroll the offer starts arriving. The three lines
  *  land before it, so the eye reaches the button last. */
 const CTA_AT = 0.78
@@ -88,7 +103,7 @@ function Line({
               // canvas and lands at ~2.4:1 on white. `.accent-on-light` is
               // the same hue taken down to a legible lightness (globals.css).
               className={`inline-block will-change-transform ${accent ? 'accent-on-light' : ''}`}
-              style={reduced ? undefined : { opacity: 0.14 }}
+              style={reduced ? undefined : { opacity: 0 }}
             >
               {word.replace(/\*/g, '')}
             </span>
@@ -152,10 +167,11 @@ export function Statement() {
     const vh = window.innerHeight
     const plan = items.map((el, i) => ({
       el,
-      dx: (rand(i + 1) - 0.5) * 2 * SPREAD_X * vw,
-      dy: (rand(i + 7.3) - 0.5) * 2 * SPREAD_Y * vh,
+      dx: (rand(i + 1) - 0.5) * 2 * DRIFT_X * vw,
+      // Always negative: above its place, so the word comes down onto it.
+      dy: -(RISE_MIN + rand(i + 7.3) * (RISE_MAX - RISE_MIN)) * vh,
       dz: DEPTH_MIN + rand(i + 13.7) * (DEPTH_MAX - DEPTH_MIN),
-      rot: (rand(i + 21.1) - 0.5) * 34,
+      rot: (rand(i + 21.1) - 0.5) * 18,
       // Words land roughly in reading order, but not exactly: a strict
       // left-to-right arrival looks like a typewriter, not like a swarm
       // settling.
@@ -169,7 +185,10 @@ export function Statement() {
         const k = 1 - Math.pow(1 - e, 3)
         const away = 1 - k
         w.el.style.transform = `translate3d(${(w.dx * away).toFixed(1)}px, ${(w.dy * away).toFixed(1)}px, ${(w.dz * away).toFixed(1)}px) rotate(${(w.rot * away).toFixed(2)}deg)`
-        w.el.style.opacity = (0.14 + 0.86 * k).toFixed(3)
+        // From nothing, not from a faint version of the finished line: at
+        // 0.14 the whole paragraph was legible before a single word had
+        // moved, so there was no arrival left to watch.
+        w.el.style.opacity = Math.min(1, k * 1.35).toFixed(3)
         if (!cheap) {
           w.el.style.filter = away > 0.01 ? `blur(${(away * 7).toFixed(2)}px)` : 'none'
         }
@@ -220,7 +239,7 @@ export function Statement() {
           // The perspective lives on the wrapper, so every word's depth is
           // measured from the same vanishing point. Set per word, they would
           // each have their own and the swarm would read as flat.
-          style={{ perspective: '900px', transformStyle: 'preserve-3d' }}
+          style={{ perspective: `${PERSPECTIVE}px`, transformStyle: 'preserve-3d' }}
           className="w-full max-w-4xl text-center"
         >
           <div ref={copyRef} className="font-display tracking-tight text-black">

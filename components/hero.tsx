@@ -258,20 +258,20 @@ export function Hero() {
         </div>
         <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
 
-        {/* Scroll cue. The opening frame is deliberately just headline and
-            head — which leaves a visitor who does not scroll on reflex with
-            nothing to do. This is an affordance, not a second call to
-            action: it points at the work, and it is gone by the time the
-            real one arrives. */}
+        {/* The first screen's one action. It used to be a scroll cue
+            pointing at the work, which is not something a visitor can say
+            yes to. This is: the free first draft, the cheapest ask on the
+            site. Still gone by the time the real copy and its own call to
+            action arrive, so there is never more than one at a time. */}
         <a
           ref={cueRef}
-          href="#work"
-          onClick={(e) => handleAnchorClick(e, '#work')}
-          className="absolute inset-x-0 bottom-6 z-20 mx-auto flex w-max items-center gap-2 rounded-full border border-white/12 bg-black/40 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground/80 backdrop-blur-sm transition-colors hover:border-blue/50 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue sm:bottom-8 sm:text-[11px]"
+          href="#contact"
+          onClick={(e) => handleAnchorClick(e, '#contact')}
+          className="absolute inset-x-0 bottom-6 z-20 mx-auto flex w-max items-center gap-2 rounded-full border border-purple/60 bg-purple/12 px-6 py-3 text-[13px] font-semibold tracking-tight text-foreground backdrop-blur-sm transition-colors hover:border-purple/90 hover:bg-purple/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:bottom-8 sm:text-sm"
         >
-          {t.hero.scrollCue}
-          <span aria-hidden className="text-sm leading-none motion-safe:animate-bounce">
-            ↓
+          {t.hero.ctaDraft}
+          <span aria-hidden className="text-base leading-none">
+            →
           </span>
         </a>
 
@@ -335,6 +335,15 @@ export function Hero() {
                 </span>
               </span>
             </h1>
+
+            {/* Two sentences, on screen from the first frame. The headline
+                says what I am; this says what that is worth to whoever is
+                reading it. Deliberately not part of the scroll reveal
+                below: the opening frame was a name and a claim with nothing
+                concrete under it. */}
+            <p className="mx-auto mt-5 max-w-md text-pretty text-[15px] leading-relaxed text-muted-foreground sm:mt-6 sm:text-base lg:mx-0 lg:max-w-lg">
+              {t.hero.lead}
+            </p>
           </div>
 
           {/* The head. On a phone it breaks out past the section padding so

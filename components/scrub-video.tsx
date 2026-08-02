@@ -87,14 +87,14 @@ export const ScrubVideo = forwardRef<
     const vrfc = (
       video as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number }
     ).requestVideoFrameCallback?.bind(video)
-    const fastSeek = (video as HTMLVideoElement & { fastSeek?: (t: number) => void }).fastSeek?.bind(
-      video,
-    )
     /** Half a frame at 24fps — anything closer is already on screen. */
     const SEEK_EPS = 1 / 48
     let pending: number | null = null
     let busy = false
     let watchdog = 0
+    /** The last time we *asked* for, which is not the same as the time the
+     *  video ended up at. See seekTime. */
+    let requested: number | null = null
 
     const release = () => {
       window.clearTimeout(watchdog)
@@ -114,22 +114,46 @@ export const ScrubVideo = forwardRef<
         pending = clamped
         return
       }
-      // WebKit can swallow `seeked` for a same-position seek, which would
+      // Compared against what was last asked for, not against where the
+      // video actually landed.
+      //
+      // This is what stops the end of the scrub from jittering. Once the
+      // scroll runs past the end of the animation the caller keeps asking
+      // for the same final time, every frame. Measuring against
+      // `video.currentTime` made that a new seek every time, because a seek
+      // does not land exactly on the requested time — so the same request
+      // was issued over and over and the last two frames flickered against
+      // each other. Measuring against the request makes a repeat request a
+      // no-op, which is what it is.
+      //
+      // WebKit also swallows `seeked` for a same-position seek, which would
       // leave the queue wedged behind a `busy` that never clears.
-      if (Math.abs(video.currentTime - clamped) < SEEK_EPS) return
+      const reference = requested ?? video.currentTime
+      if (Math.abs(reference - clamped) < SEEK_EPS) return
       busy = true
+      requested = clamped
       window.clearTimeout(watchdog)
       watchdog = window.setTimeout(release, 300)
       if (vrfc) vrfc(() => draw())
-      if (fastSeek) fastSeek(clamped)
-      else video.currentTime = clamped
+      // Deliberately not `fastSeek`. It is allowed to land on a nearby
+      // frame rather than the requested one, and against an All-Intra
+      // master (every frame a keyframe) it buys nothing: a precise seek is
+      // already a single-frame decode. Its imprecision was the other half
+      // of the jitter above.
+      video.currentTime = clamped
     }
 
     seekRef.current = (p) => {
       const clamped = Math.max(0, Math.min(1, p))
       wantedRef.current = clamped
       if (videoIsVisible) {
-        if (video.duration) video.currentTime = clamped * video.duration
+        // Same de-duplication as seekTime: without it the promoted <video>
+        // is handed the same final time on every frame of the overscroll.
+        const t = clamped * (video.duration || 0)
+        if (video.duration && Math.abs((requested ?? video.currentTime) - t) >= SEEK_EPS) {
+          requested = t
+          video.currentTime = t
+        }
         return
       }
       seekTime(clamped * (video.duration || 0))

@@ -139,6 +139,15 @@ function FloatingCard({
       {!selectedCard && (
       <Html
         transform
+        // Without this the card is not clickable at all, on any device.
+        // In `transform` mode drei wraps the content in a div it styles
+        // `pointer-events: auto` by default, sized to the card and sitting
+        // directly over the hit plane above. Every click and every hover
+        // landed on that wrapper, which has no handler, and the canvas never
+        // saw the pointer. The `pointerEvents: 'none'` in `style` below goes
+        // on the innermost element and never reached the wrapper — this prop
+        // is the only thing that styles it.
+        pointerEvents="none"
         distanceFactor={htmlFactor}
         position={[0, 0, 0.01]}
         style={{

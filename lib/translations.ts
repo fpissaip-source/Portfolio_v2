@@ -50,10 +50,14 @@ export type Dictionary = {
      *  and no way to read. */
     headingPlain: string
     body: string
-    /** Shown on the first screen, while the rest of the copy is still
-     *  waiting on the scroll — otherwise the opening frame offers no next
-     *  step at all. Goes away as the copy arrives. */
-    scrollCue: string
+    /** Two short sentences directly under the headline, on screen from the
+     *  first frame. The headline says what I am; this says what that buys
+     *  the person reading it. */
+    lead: string
+    /** The first screen's one action. It used to point at the work, which
+     *  is not an ask — this one is, and it is the cheapest ask on the site.
+     *  Goes away as the rest of the copy arrives. */
+    ctaDraft: string
     /** Four short capability labels beside the heading. A list, not a
      *  paragraph: the breadth is the point, and four nouns are read in the
      *  time one more sentence would take to start. */
@@ -359,9 +363,10 @@ export const EN: Dictionary = {
     headingLine1: 'I build intelligent systems.',
     headingLine2: 'From the first idea to live operation.',
     headingPlain: 'I build intelligent systems. From the first idea to live operation.',
+    lead: '3D, motion and a backend that holds up. Visible on Google and in the answers ChatGPT, Gemini and Claude give.',
     body: 'Interface, backend and deployment from one pair of hands.',
     capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
-    scrollCue: 'Explore the work',
+    ctaDraft: 'Get a free design draft',
     ctaPrimary: 'Start a project',
   },
   statement: {
@@ -784,9 +789,10 @@ export const DE: Dictionary = {
     headingLine2: 'Von der ersten Idee bis zum Livebetrieb.',
     headingPlain:
       'Ich entwickle intelligente Systeme. Von der ersten Idee bis zum Livebetrieb.',
+    lead: '3D, Animation und ein Backend, das trägt. Sichtbar bei Google und in den Antworten von ChatGPT, Gemini und Claude.',
     body: 'Oberfläche, Backend und Deployment aus einer Hand.',
     capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
-    scrollCue: 'Projekte entdecken',
+    ctaDraft: 'Kostenloser Design-Entwurf',
     ctaPrimary: 'Projekt anfragen',
   },
   statement: {

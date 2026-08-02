@@ -3,30 +3,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { Renderer, Program, Triangle, Mesh } from 'ogl'
 
-/**
- * Volumetric light rays fanning out from one corner (React Bits' SideRays,
- * ported to TS and pulled onto this site's palette).
- *
- * Deviations from upstream, all deliberate:
- *   • The default colours are the site's blue and violet, not upstream's
- *     amber `#EAB308` — nothing on this site is yellow (DESIGN.md §3).
- *   • Intensity and opacity default far lower. §3 allows a gradient only
- *     "where a light source is implied", and this has to read as one lamp
- *     off-frame, not as a coloured wash over the canvas.
- *   • Skipped entirely under prefers-reduced-motion, and skipped when WebGL
- *     is unavailable — this is decoration, so it must never be a condition
- *     for the section beneath it rendering.
- *
- * The IntersectionObserver from upstream is kept and matters here: the page
- * already runs three WebGL contexts (project orbs, tech orbs, the L.U.K.A.S.
- * neuron field), so this one only holds a context while it is actually on
- * screen.
- */
-
 const hexToRgb = (hex: string): [number, number, number] => {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return m
-    ? [parseInt(m[1], 16) / 255, parseInt(m[2], 16) / 255, parseInt(m[3], 16) / 255]
+  const match = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return match
+    ? [
+        parseInt(match[1], 16) / 255,
+        parseInt(match[2], 16) / 255,
+        parseInt(match[3], 16) / 255,
+      ]
     : [1, 1, 1]
 }
 
@@ -45,12 +29,12 @@ const originToFlip = (origin: Origin): [number, number] => {
   }
 }
 
-const VERT = `attribute vec2 position;
+const VERTEX_SHADER = `attribute vec2 position;
 void main() {
   gl_Position = vec4(position, 0.0, 1.0);
 }`
 
-const FRAG = `precision highp float;
+const FRAGMENT_SHADER = `precision highp float;
 
 uniform float iTime;
 uniform vec2 iResolution;
@@ -99,14 +83,12 @@ void main() {
   vec4 rays2 = vec4(iRayColor2, 1.0) * rayStrength(rayPos, rayRefDir2, tiltedCoord, 22.3991, 18.0234, iSpeed * 0.2);
 
   vec4 color = rays1 * (1.0 - iBlend) * 0.9 + rays2 * iBlend * 0.9;
-
   float distanceToLight = length(fragCoord.xy - vec2(rayPos.x, iResolution.y - rayPos.y)) / iResolution.y;
   float brightness = iIntensity * 0.4 / pow(max(distanceToLight, 0.001), iFalloff);
   color.rgb *= brightness;
 
   float gray = dot(color.rgb, vec3(0.299, 0.587, 0.114));
   color.rgb = mix(vec3(gray), color.rgb, iSaturation);
-
   color.a = max(color.r, max(color.g, color.b)) * iOpacity;
   gl_FragColor = color;
 }`
@@ -128,64 +110,59 @@ type SideRaysProps = {
 
 export function SideRays({
   speed = 0.8,
-  // Blue = craft, violet = mind — the two colours the site actually owns.
   rayColor1 = '#6da9e7',
   rayColor2 = '#a388d2',
-  intensity = 2.2,
+  intensity = 1.25,
   spread = 1.8,
   origin = 'top-right',
   tilt = 0,
-  saturation = 1.2,
+  saturation = 0.9,
   blend = 0.6,
   falloff = 1.7,
-  opacity = 0.6,
+  opacity = 0.28,
   className = '',
 }: SideRaysProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const uniformsRef = useRef<Record<string, { value: unknown }> | null>(null)
   const rendererRef = useRef<Renderer | null>(null)
-  const animationIdRef = useRef<number | null>(null)
-  const meshRef = useRef<Mesh | null>(null)
-  const cleanupFunctionRef = useRef<(() => void) | null>(null)
-  const [isVisible, setIsVisible] = useState(false)
+  const animationFrameRef = useRef<number | null>(null)
+  const cleanupRef = useRef<(() => void) | null>(null)
+  const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
+    const element = containerRef.current
+    if (!element) return
     const observer = new IntersectionObserver(
-      (entries) => setIsVisible(entries[0].isIntersecting),
+      ([entry]) => setVisible(entry.isIntersecting),
       { threshold: 0.1 },
     )
-    observer.observe(el)
+    observer.observe(element)
     return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
-    if (!isVisible || !containerRef.current) return
-    // Ambient decoration: never start it for someone who asked for less
-    // motion, and never let its absence matter.
+    if (!visible || !containerRef.current) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    if (cleanupFunctionRef.current) {
-      cleanupFunctionRef.current()
-      cleanupFunctionRef.current = null
-    }
-
+    cleanupRef.current?.()
+    cleanupRef.current = null
     let cancelled = false
 
     const init = async () => {
-      await new Promise((r) => setTimeout(r, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
       const container = containerRef.current
       if (cancelled || !container) return
 
       let renderer: Renderer
       try {
-        renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), alpha: true })
+        renderer = new Renderer({
+          dpr: Math.min(window.devicePixelRatio || 1, 2),
+          alpha: true,
+        })
       } catch {
         return
       }
-      rendererRef.current = renderer
 
+      rendererRef.current = renderer
       const gl = renderer.gl
       gl.canvas.style.width = '100%'
       gl.canvas.style.height = '100%'
@@ -209,66 +186,68 @@ export function SideRays({
         iFalloff: { value: falloff },
         iOpacity: { value: opacity },
       }
-      uniformsRef.current = uniforms
 
       const geometry = new Triangle(gl)
-      const program = new Program(gl, { vertex: VERT, fragment: FRAG, uniforms })
+      const program = new Program(gl, {
+        vertex: VERTEX_SHADER,
+        fragment: FRAGMENT_SHADER,
+        uniforms,
+      })
       const mesh = new Mesh(gl, { geometry, program })
-      meshRef.current = mesh
 
-      const updateSize = () => {
-        if (!containerRef.current) return
-        renderer.dpr = Math.min(window.devicePixelRatio, 2)
-        const { clientWidth: w, clientHeight: h } = containerRef.current
-        renderer.setSize(w, h)
-        uniforms.iResolution.value = [w * renderer.dpr, h * renderer.dpr]
+      const resize = () => {
+        const current = containerRef.current
+        if (!current) return
+        renderer.dpr = Math.min(window.devicePixelRatio || 1, 2)
+        const { clientWidth, clientHeight } = current
+        renderer.setSize(clientWidth, clientHeight)
+        uniforms.iResolution.value = [
+          clientWidth * renderer.dpr,
+          clientHeight * renderer.dpr,
+        ]
       }
 
-      const loop = (t: number) => {
-        if (!rendererRef.current || !uniformsRef.current || !meshRef.current) return
-        uniforms.iTime.value = t * 0.001
+      const render = (time: number) => {
+        if (!rendererRef.current) return
+        uniforms.iTime.value = time * 0.001
         try {
           renderer.render({ scene: mesh })
-          animationIdRef.current = requestAnimationFrame(loop)
+          animationFrameRef.current = requestAnimationFrame(render)
         } catch {
-          /* context lost — stop quietly */
+          // Context loss only removes decoration; the hero remains usable.
         }
       }
 
-      window.addEventListener('resize', updateSize)
-      updateSize()
-      animationIdRef.current = requestAnimationFrame(loop)
+      window.addEventListener('resize', resize)
+      resize()
+      animationFrameRef.current = requestAnimationFrame(render)
 
-      cleanupFunctionRef.current = () => {
-        if (animationIdRef.current) {
-          cancelAnimationFrame(animationIdRef.current)
-          animationIdRef.current = null
+      cleanupRef.current = () => {
+        if (animationFrameRef.current !== null) {
+          cancelAnimationFrame(animationFrameRef.current)
+          animationFrameRef.current = null
         }
-        window.removeEventListener('resize', updateSize)
+        window.removeEventListener('resize', resize)
         try {
           renderer.gl.getExtension('WEBGL_lose_context')?.loseContext()
           const canvas = renderer.gl.canvas
-          if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas)
+          if (canvas.parentNode) canvas.parentNode.removeChild(canvas)
         } catch {
-          /* already gone */
+          // Already removed.
         }
         rendererRef.current = null
-        uniformsRef.current = null
-        meshRef.current = null
       }
     }
 
-    init()
+    void init()
 
     return () => {
       cancelled = true
-      if (cleanupFunctionRef.current) {
-        cleanupFunctionRef.current()
-        cleanupFunctionRef.current = null
-      }
+      cleanupRef.current?.()
+      cleanupRef.current = null
     }
   }, [
-    isVisible,
+    visible,
     speed,
     rayColor1,
     rayColor2,

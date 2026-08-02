@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 
-/** A soft cursor-following glow. Pointer-events none, GPU transform only.
- *
- *  Not rendered at all where it cannot be seen or cannot be afforded: there
- *  is no cursor to follow on a touch screen, and `mix-blend-screen` over the
- *  full viewport is a compositing pass per frame either way. */
+const GLOW_SIZE = 760
+const GLOW_RADIUS = GLOW_SIZE / 2
+
+/** A restrained cursor-following light. It is skipped on touch devices. */
 export function MouseGlow() {
   const ref = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState(false)
@@ -16,32 +15,34 @@ export function MouseGlow() {
   }, [])
 
   useEffect(() => {
-    const el = ref.current
-    if (!show || !el) return
+    const element = ref.current
+    if (!show || !element) return
 
-    let raf = 0
-    let tx = window.innerWidth / 2
-    let ty = window.innerHeight / 2
-    let cx = tx
-    let cy = ty
+    let frame = 0
+    let targetX = window.innerWidth / 2
+    let targetY = window.innerHeight / 2
+    let currentX = targetX
+    let currentY = targetY
 
-    const onMove = (e: MouseEvent) => {
-      tx = e.clientX
-      ty = e.clientY
+    const onMove = (event: MouseEvent) => {
+      targetX = event.clientX
+      targetY = event.clientY
     }
 
-    const loop = () => {
-      cx += (tx - cx) * 0.12
-      cy += (ty - cy) * 0.12
-      el.style.transform = `translate3d(${cx - 450}px, ${cy - 450}px, 0)`
-      raf = requestAnimationFrame(loop)
+    const animate = () => {
+      currentX += (targetX - currentX) * 0.1
+      currentY += (targetY - currentY) * 0.1
+      element.style.transform = `translate3d(${currentX - GLOW_RADIUS}px, ${
+        currentY - GLOW_RADIUS
+      }px, 0)`
+      frame = requestAnimationFrame(animate)
     }
 
     window.addEventListener('mousemove', onMove, { passive: true })
-    raf = requestAnimationFrame(loop)
+    frame = requestAnimationFrame(animate)
     return () => {
       window.removeEventListener('mousemove', onMove)
-      cancelAnimationFrame(raf)
+      cancelAnimationFrame(frame)
     }
   }, [show])
 
@@ -51,14 +52,10 @@ export function MouseGlow() {
     <div
       ref={ref}
       aria-hidden
-      // Bigger and brighter than it was. At 600px and 22% it read as a
-      // smudge somewhere near the cursor rather than as light coming off it,
-      // and on a near-black page that is the difference between a lit room
-      // and a flat one.
-      className="pointer-events-none fixed left-0 top-0 z-30 h-[900px] w-[900px] rounded-full opacity-90 mix-blend-screen will-transform"
+      className="pointer-events-none fixed left-0 top-0 z-30 h-[760px] w-[760px] rounded-full opacity-[0.38] mix-blend-screen will-transform"
       style={{
         background:
-          'radial-gradient(circle, color-mix(in oklch, var(--blue) 46%, transparent) 0%, color-mix(in oklch, var(--purple) 20%, transparent) 34%, transparent 68%)',
+          'radial-gradient(circle, color-mix(in oklch, var(--blue) 24%, transparent) 0%, color-mix(in oklch, var(--purple) 10%, transparent) 34%, transparent 64%)',
       }}
     />
   )

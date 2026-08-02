@@ -58,10 +58,11 @@ export type Dictionary = {
      *  is not an ask — this one is, and it is the cheapest ask on the site.
      *  Goes away as the rest of the copy arrives. */
     ctaDraft: string
-    /** Four short capability labels beside the heading. A list, not a
-     *  paragraph: the breadth is the point, and four nouns are read in the
-     *  time one more sentence would take to start. */
-    capabilities: string[]
+    /** Named, shipped work instead of a row of capability labels. Four
+     *  generic nouns in pills said nothing a visitor could check; three
+     *  systems that are actually running can be looked up. */
+    proofLabel: string
+    proofItems: string[]
     ctaPrimary: string
   }
   /** The sentence between the hero and L.U.K.A.S., assembled word by word
@@ -365,7 +366,8 @@ export const EN: Dictionary = {
     headingPlain: 'I build intelligent systems. From the first idea to live operation.',
     lead: '3D, motion and a backend that holds up. Visible on Google and in the answers ChatGPT, Gemini and Claude give.',
     body: 'Interface, backend and deployment from one pair of hands.',
-    capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
+    proofLabel: 'Live in production',
+    proofItems: ['TaxiBB Essen', 'GuardianGrid', 'L.U.K.A.S.'],
     ctaDraft: 'Get a free design draft',
     ctaPrimary: 'Start a project',
   },
@@ -791,7 +793,8 @@ export const DE: Dictionary = {
       'Ich entwickle intelligente Systeme. Von der ersten Idee bis zum Livebetrieb.',
     lead: '3D, Animation und ein Backend, das trägt. Sichtbar bei Google und in den Antworten von ChatGPT, Gemini und Claude.',
     body: 'Oberfläche, Backend und Deployment aus einer Hand.',
-    capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
+    proofLabel: 'Live im Einsatz',
+    proofItems: ['TaxiBB Essen', 'GuardianGrid', 'L.U.K.A.S.'],
     ctaDraft: 'Kostenloser Design-Entwurf',
     ctaPrimary: 'Projekt anfragen',
   },

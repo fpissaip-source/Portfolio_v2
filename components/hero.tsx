@@ -191,13 +191,11 @@ export function Hero() {
       if (narrow) {
         const h = lerp(startH, endH, r)
         robot.style.height = `${h.toFixed(1)}px`
-        // Width follows the height, capped at 16:9. `cover` scales by
-        // whichever side needs more, so a box wider than 16:9 crops the
-        // sides (harmless — that is empty air around the head) while a box
-        // taller than 16:9 crops the TOP, which ate the shell fragments
-        // exactly as they flew off. Keeping the box at or below 16:9 makes
-        // vertical cropping impossible at any point of the animation.
-        robotBox.style.width = `${Math.min(maxW, (h * 16) / 9).toFixed(1)}px`
+        // Width follows the height at the frame's own aspect ratio, so the
+        // box and the footage are the same shape and `contain` letterboxes
+        // nothing. Any other ratio would waste height (and therefore size)
+        // on empty bars.
+        robotBox.style.width = `${Math.min(maxW, (h * 1288) / 900).toFixed(1)}px`
       } else {
         robot.style.height = ''
         robotBox.style.width = ''
@@ -283,7 +281,11 @@ export function Hero() {
           ref={gridRef}
           className="relative z-10 mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14"
         >
-          <div className="text-center lg:col-start-1 lg:row-start-1 lg:text-left">
+          {/* Above the head, not behind it. The head is now wide enough to
+              reach across this column, and a screen-blended video under the
+              headline washes it out; painted over the video the type stays
+              solid white with the frame showing around it. */}
+          <div className="relative z-20 text-center lg:col-start-1 lg:row-start-1 lg:text-left">
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -359,7 +361,7 @@ export function Hero() {
             // bigger. 80svh is what fits between the top padding and the
             // bottom padding on a 768px-tall laptop, which is the shortest
             // screen this layout has to survive.
-            className="relative h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
+            className="relative z-0 h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
           >
             {/* Breaks out of the column horizontally on a phone — but out of
                 flow, so it never widens the grid track and drags the
@@ -368,34 +370,55 @@ export function Hero() {
                 `relative`, which wins over a `position` class passed in. */}
             <div
               ref={robotBoxRef}
-              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:static lg:h-full lg:w-[152%] lg:translate-x-0"
+              // Desktop: the frame's own aspect ratio, as tall as the column,
+              // pinned to the container's right edge. Absolute rather than in
+              // flow because it is wider than its grid track and a track
+              // sized by it would drag the headline off the screen.
+              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:left-auto lg:right-0 lg:top-1/2 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:translate-x-0 lg:aspect-[1288/900]"
             >
               <ScrubVideo
                 ref={videoRef}
                 src={SRC}
                 srcMobile={SRC_MOBILE}
                 poster={POSTER}
-                // `cover` rather than `contain`: the head sits in the middle
-                // of a wide frame with a lot of empty air around it, so
-                // fitting the whole frame into the box means fitting mostly
-                // air. Cropping to the box scales the head up instead, and
-                // the mask below takes care of the cropped edges.
-                fit="cover"
-                // Fills whatever box it is given. The box itself is what is
-                // shaped: never taller than 16:9 on a phone (a taller box
-                // crops the TOP under `cover`, which ate the shell fragments
-                // exactly as they flew off), and wide enough on a desktop
-                // that the sideways crop stays away from the head.
-                className="h-full w-full"
-                // The ellipse is inscribed in the box, so the mask is fully
-                // transparent by the time it reaches any edge — with a
-                // larger radius the footage would still end on a visible
-                // rectangle, just a dimmer one.
+                // `contain`, not `cover`: `cover` fills the box by cropping
+                // whatever does not fit, and what did not fit was the shell
+                // fragments at the moment they fly outwards. Every part of
+                // every frame is on screen now, at every size, by
+                // construction.
+                //
+                // It costs nothing in scale because the master was cropped
+                // to the animation's own bounding box: the 1600x900 source
+                // carried ~300px of pure black at the sides, so fitting the
+                // whole frame used to mean fitting mostly air. The head is
+                // larger this way than it ever was under `cover`.
+                fit="contain"
+                // Screen-blended. The frame is a lit subject on a black
+                // backdrop, and `screen` leaves black alone entirely, so the
+                // frame's rectangle simply stops existing: no mask, nothing
+                // dimmed on its way out, and the headline stays readable
+                // where the (much larger) box now reaches across it.
+                className="h-full w-full mix-blend-screen"
+                // A border fade, not a circle. The old radial mask began
+                // dimming at 58% of the radius, which is exactly where the
+                // shell fragments are while they fly outwards: it was fading
+                // the subject to hide the frame's edge. Two linear gradients
+                // intersected fade only a band at each edge and leave the
+                // whole middle at full strength.
+                //
+                // A band is still needed despite the blend above, because
+                // the frame is not black everywhere: there is a real key
+                // light across the top and a blue ambient haze through the
+                // middle. Screened onto the page that haze is welcome (it is
+                // what stops the hero reading as flat black); only the line
+                // where it stops has to go.
                 style={{
                   maskImage:
-                    'radial-gradient(50% 50% at 50% 50%, black 0%, black 58%, transparent 100%)',
+                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 13%, black 92%, transparent 100%)',
+                  maskComposite: 'intersect',
                   WebkitMaskImage:
-                    'radial-gradient(50% 50% at 50% 50%, black 0%, black 58%, transparent 100%)',
+                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 13%, black 92%, transparent 100%)',
+                  WebkitMaskComposite: 'source-in',
                 }}
               />
             </div>
@@ -403,25 +426,25 @@ export function Hero() {
 
           <div
             ref={revealRef}
-            className="text-center lg:col-start-1 lg:row-start-2 lg:text-left"
+            className="relative z-20 text-center lg:col-start-1 lg:row-start-2 lg:text-left"
             style={reduced ? undefined : { opacity: 0 }}
           >
             <p className="mx-auto max-w-xl text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base lg:mx-0 lg:text-lg">
               {t.hero.body}
             </p>
 
-            {/* What I do, as four labels rather than a fifth sentence — the
-                breadth is the message, and a list is read in a glance. */}
-            <ul className="mt-4 flex flex-wrap justify-center gap-1.5 max-lg:[@media(max-height:720px)]:hidden sm:mt-5 sm:gap-2 lg:justify-start">
-              {t.hero.capabilities.map((c) => (
-                <li
-                  key={c}
-                  className="rounded-full border border-white/12 bg-white/[0.04] px-2.5 py-1 text-[10px] font-medium tracking-tight text-foreground/90 sm:px-3 sm:py-1.5 sm:text-xs"
-                >
-                  {c}
-                </li>
-              ))}
-            </ul>
+            {/* Named work, not a row of capability pills. "Webdesign",
+                "3D & Motion", "Automatisierung" said nothing a visitor could
+                verify and read as filler; these three are running systems
+                with addresses, and the section below shows them. */}
+            <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 max-lg:[@media(max-height:720px)]:hidden sm:mt-5 lg:justify-start">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+                {t.hero.proofLabel}
+              </span>
+              <span className="text-[13px] font-medium tracking-tight text-foreground/80 sm:text-sm">
+                {t.hero.proofItems.join(' · ')}
+              </span>
+            </p>
 
             {/* One primary (blue: this is craft/work, DESIGN.md §3) and one
                 quiet secondary; the secondary is a text link rather than a

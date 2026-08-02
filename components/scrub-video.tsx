@@ -39,6 +39,7 @@ export const ScrubVideo = forwardRef<
 >(function ScrubVideo({ src, srcMobile, poster, className = '', style, fit = 'cover' }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const posterRef = useRef<HTMLImageElement>(null)
   const seekRef = useRef<(p: number) => void>(() => {})
   /** Last requested position, replayed once metadata arrives. */
   const wantedRef = useRef(0)
@@ -48,7 +49,8 @@ export const ScrubVideo = forwardRef<
   useEffect(() => {
     const canvas = canvasRef.current
     const video = videoRef.current
-    if (!canvas || !video) return
+    const poster = posterRef.current
+    if (!canvas || !video || !poster) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
@@ -63,15 +65,32 @@ export const ScrubVideo = forwardRef<
      *  natively, because a hidden video will not decode for a canvas there.
      *  Stays false in every normal case. */
     let videoIsVisible = false
+    /** True once a real frame has been blitted. Until then the poster is
+     *  what the visitor sees; after it, never again. */
+    let painted = false
+    /** The muted play/pause that primes the decoder runs exactly once. */
+    let primed = false
 
     const draw = () => {
       if (videoIsVisible) return
       if (!cw || !ch || !video.videoWidth) return
+      // HAVE_CURRENT_DATA. Below this there is no frame to copy, and the
+      // clear below would leave an empty canvas with the poster showing
+      // through it — the poster being frame zero, i.e. the head fully
+      // assembled. That is what the "it snaps back together and then falls
+      // apart again" flicker was made of.
+      if (video.readyState < 2) return
       const vw = video.videoWidth
       const vh = video.videoHeight
       const scale = fit === 'cover' ? Math.max(cw / vw, ch / vh) : Math.min(cw / vw, ch / vh)
       ctx.clearRect(0, 0, cw, ch)
       ctx.drawImage(video, (cw - vw * scale) / 2, (ch - vh * scale) / 2, vw * scale, vh * scale)
+      if (!painted) {
+        painted = true
+        // From here the canvas always holds a real frame, so the poster has
+        // nothing left to do but be wrong in exactly the wrong moment.
+        poster.style.opacity = '0'
+      }
     }
 
     const sizeCanvas = () => {
@@ -192,6 +211,16 @@ export const ScrubVideo = forwardRef<
 
     const onMeta = () => {
       sizeCanvas()
+      // The priming play/pause below only ever runs against a fresh, unseen
+      // video. `play()` on a media element whose position is already the end
+      // of the resource is *specified* to rewind it to the beginning first,
+      // so priming a video that has been scrubbed to its last frame would
+      // put the assembled head back on screen. Only prime once, at the top.
+      if (primed) {
+        seekRef.current(wantedRef.current)
+        return
+      }
+      primed = true
       seekRef.current(wantedRef.current)
       const p = video.play()
       if (p) {
@@ -229,9 +258,10 @@ export const ScrubVideo = forwardRef<
     <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
+        ref={posterRef}
         src={poster}
         alt=""
-        className={`absolute inset-0 h-full w-full ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+        className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
       />
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <video

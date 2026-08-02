@@ -155,11 +155,11 @@ html.lenis body {
 @keyframes edge-glow-pulse {
   0%,
   100% {
-    opacity: 0.45;
+    opacity: 0.7;
     transform: scale(1);
   }
   50% {
-    opacity: 0.75;
+    opacity: 1;
     transform: scale(1.1);
   }
 }
@@ -291,7 +291,7 @@ html[data-perf='low'] [data-film-grain] {
 html[data-perf='low'] .edge-glow-pulse {
   animation: none;
   filter: blur(48px);
-  opacity: 0.34;
+  opacity: 0.55;
 }
 
 /* thin custom scrollbar */

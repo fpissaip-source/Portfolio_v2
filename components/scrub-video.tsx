@@ -4,6 +4,7 @@ import {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   type CSSProperties,
 } from 'react'
@@ -33,6 +34,20 @@ export const ScrubVideo = forwardRef<
   const posterRef = useRef<HTMLImageElement>(null)
   const seekRef = useRef<(progress: number) => void>(() => {})
   const wantedRef = useRef(0)
+  const blended = /\bmix-blend-(?:lighten|screen)\b/.test(className)
+
+  const fallbackMaskStyle = useMemo<CSSProperties | undefined>(
+    () =>
+      blended
+        ? {
+            maskImage:
+              'radial-gradient(ellipse 84% 90% at 50% 50%, black 0%, black 68%, rgba(0,0,0,0.88) 80%, rgba(0,0,0,0.36) 92%, transparent 100%)',
+            WebkitMaskImage:
+              'radial-gradient(ellipse 84% 90% at 50% 50%, black 0%, black 68%, rgba(0,0,0,0.88) 80%, rgba(0,0,0,0.36) 92%, transparent 100%)',
+          }
+        : undefined,
+    [blended],
+  )
 
   useImperativeHandle(ref, () => ({ seek: (progress) => seekRef.current(progress) }), [])
 
@@ -47,6 +62,13 @@ export const ScrubVideo = forwardRef<
 
     const selectedSource =
       srcMobile && window.matchMedia('(max-width: 767px)').matches ? srcMobile : src
+
+    // The mask is baked into each painted frame. Keeping it inside the 2D
+    // canvas avoids Safari creating a separate filtered/masked rectangle for
+    // a constantly changing canvas, which caused both the visible panel and
+    // the scroll hitching.
+    const maskCanvas = document.createElement('canvas')
+    const maskContext = maskCanvas.getContext('2d')
 
     let canvasWidth = 0
     let canvasHeight = 0
@@ -72,6 +94,45 @@ export const ScrubVideo = forwardRef<
       return Math.max(0, Math.min(duration - SEEK_EPSILON, time))
     }
 
+    const rebuildMask = (dpr: number) => {
+      if (!blended || !maskContext || !canvasWidth || !canvasHeight) return
+
+      maskCanvas.width = Math.round(canvasWidth * dpr)
+      maskCanvas.height = Math.round(canvasHeight * dpr)
+      maskContext.setTransform(dpr, 0, 0, dpr, 0, 0)
+      maskContext.clearRect(0, 0, canvasWidth, canvasHeight)
+      maskContext.save()
+      maskContext.translate(canvasWidth / 2, canvasHeight / 2)
+
+      // Canvas gradients are circular. Scaling the drawing space turns this
+      // into an ellipse that follows the source frame, with a long soft tail
+      // before the real canvas edge.
+      const xScale = canvasWidth / Math.max(canvasHeight, 1)
+      maskContext.scale(xScale, 1)
+      const radius = canvasHeight / 2
+      const gradient = maskContext.createRadialGradient(
+        0,
+        0,
+        radius * 0.66,
+        0,
+        0,
+        radius,
+      )
+      gradient.addColorStop(0, 'rgba(0,0,0,1)')
+      gradient.addColorStop(0.5, 'rgba(0,0,0,0.98)')
+      gradient.addColorStop(0.78, 'rgba(0,0,0,0.82)')
+      gradient.addColorStop(0.92, 'rgba(0,0,0,0.32)')
+      gradient.addColorStop(1, 'rgba(0,0,0,0)')
+      maskContext.fillStyle = gradient
+      maskContext.fillRect(
+        -canvasWidth / (2 * xScale),
+        -canvasHeight / 2,
+        canvasWidth / xScale,
+        canvasHeight,
+      )
+      maskContext.restore()
+    }
+
     const draw = () => {
       if (videoIsVisible || !canvasWidth || !canvasHeight || !video.videoWidth) return
       if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return
@@ -84,6 +145,15 @@ export const ScrubVideo = forwardRef<
           : Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight)
 
       context.clearRect(0, 0, canvasWidth, canvasHeight)
+      context.save()
+      context.globalCompositeOperation = 'source-over'
+
+      // Crush the encoded near-black floor during the draw itself. Unlike a
+      // CSS filter on the live canvas, this does not create a new Safari
+      // compositing layer on every scroll frame.
+      context.filter = blended
+        ? 'contrast(1.42) brightness(0.8) saturate(1.02)'
+        : 'none'
       context.drawImage(
         video,
         (canvasWidth - videoWidth * scale) / 2,
@@ -91,6 +161,13 @@ export const ScrubVideo = forwardRef<
         videoWidth * scale,
         videoHeight * scale,
       )
+      context.filter = 'none'
+
+      if (blended && maskCanvas.width && maskCanvas.height) {
+        context.globalCompositeOperation = 'destination-in'
+        context.drawImage(maskCanvas, 0, 0, canvasWidth, canvasHeight)
+      }
+      context.restore()
 
       if (!painted) {
         painted = true
@@ -105,6 +182,7 @@ export const ScrubVideo = forwardRef<
       canvas.width = Math.round(canvasWidth * dpr)
       canvas.height = Math.round(canvasHeight * dpr)
       context.setTransform(dpr, 0, 0, dpr, 0, 0)
+      rebuildMask(dpr)
       draw()
     }
 
@@ -112,9 +190,6 @@ export const ScrubVideo = forwardRef<
       if (videoIsVisible || seeking || !video.duration) return
       const next = clampTime(targetTime)
 
-      // Compare with the frame the browser actually reached, not merely the
-      // last frame we requested. That distinction is what keeps reverse
-      // scrolling alive after WebKit drops or coalesces a seek.
       if (Math.abs(video.currentTime - next) < SEEK_EPSILON && !video.seeking) {
         draw()
         return
@@ -126,7 +201,7 @@ export const ScrubVideo = forwardRef<
         seeking = false
         draw()
         drain()
-      }, 350)
+      }, 280)
 
       if (requestFrame) requestFrame(draw)
       try {
@@ -151,9 +226,9 @@ export const ScrubVideo = forwardRef<
         return
       }
 
-      // While one frame is decoding, only targetTime changes. When seeked
-      // fires, drain() immediately heads for the newest target, regardless of
-      // whether the visitor kept scrolling forward or reversed direction.
+      // Coalesce all input while a frame is decoding. Once Safari releases
+      // that seek, drain() immediately requests the newest target, including
+      // when the user has reversed direction.
       drain()
     }
 
@@ -226,8 +301,6 @@ export const ScrubVideo = forwardRef<
       }
 
       primed = true
-      // Prime at frame zero first, then seek to the requested scroll state.
-      // Playing after a seek can rewind an ended media element on Safari.
       const playPromise = video.play()
       if (!playPromise) {
         applyWantedPosition()
@@ -251,9 +324,6 @@ export const ScrubVideo = forwardRef<
     const resizeObserver = new ResizeObserver(sizeCanvas)
     resizeObserver.observe(canvas)
 
-    // Assigning the source explicitly and calling load() makes remounts and
-    // mobile-source switches start a fresh request instead of inheriting a
-    // half-initialised media element from React's previous render.
     video.src = selectedSource
     video.load()
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) onMetadata()
@@ -269,20 +339,7 @@ export const ScrubVideo = forwardRef<
       video.removeEventListener('error', onError)
       seekRef.current = () => {}
     }
-  }, [src, srcMobile, fit])
-
-  const blended = /\bmix-blend-(?:lighten|screen)\b/.test(className)
-  const mediaStyle: CSSProperties | undefined = blended
-    ? {
-        // Apply the black-floor correction to the pixels themselves, not to
-        // the element that owns mix-blend-mode. Safari rasterises a mask or
-        // filter on that outer blending layer into an isolated rectangle,
-        // which is exactly the dark box visible around the robot. Crushing
-        // the codec's near-black floor here leaves the outer layer free to
-        // blend normally with the real hero background.
-        filter: 'contrast(1.32) brightness(0.91) saturate(0.96)',
-      }
-    : undefined
+  }, [src, srcMobile, fit, blended])
 
   return (
     <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
@@ -291,16 +348,12 @@ export const ScrubVideo = forwardRef<
         ref={posterRef}
         src={poster}
         alt=""
-        style={mediaStyle}
+        style={fallbackMaskStyle}
         className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${
           fit === 'cover' ? 'object-cover' : 'object-contain'
         }`}
       />
-      <canvas
-        ref={canvasRef}
-        style={mediaStyle}
-        className="absolute inset-0 h-full w-full"
-      />
+      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <video
         ref={videoRef}
         muted
@@ -308,7 +361,7 @@ export const ScrubVideo = forwardRef<
         preload="auto"
         poster={poster}
         disablePictureInPicture
-        style={mediaStyle}
+        style={fallbackMaskStyle}
         className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
       />
     </div>

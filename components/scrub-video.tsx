@@ -272,35 +272,35 @@ export const ScrubVideo = forwardRef<
   }, [src, srcMobile, fit])
 
   const blended = /\bmix-blend-(?:lighten|screen)\b/.test(className)
-  const blendedStyle: CSSProperties = blended
+  const mediaStyle: CSSProperties | undefined = blended
     ? {
-        // The source has a near-black encoded floor. A narrow edge feather
-        // removes the remaining rectangular plate without dimming the robot
-        // or the fragments through the useful centre of the frame.
-        maskImage:
-          'radial-gradient(ellipse 82% 86% at 50% 50%, black 0%, black 72%, rgba(0,0,0,0.96) 82%, rgba(0,0,0,0.52) 93%, transparent 100%)',
-        WebkitMaskImage:
-          'radial-gradient(ellipse 82% 86% at 50% 50%, black 0%, black 72%, rgba(0,0,0,0.96) 82%, rgba(0,0,0,0.52) 93%, transparent 100%)',
-        filter: 'contrast(1.1) brightness(0.94)',
+        // Apply the black-floor correction to the pixels themselves, not to
+        // the element that owns mix-blend-mode. Safari rasterises a mask or
+        // filter on that outer blending layer into an isolated rectangle,
+        // which is exactly the dark box visible around the robot. Crushing
+        // the codec's near-black floor here leaves the outer layer free to
+        // blend normally with the real hero background.
+        filter: 'contrast(1.32) brightness(0.91) saturate(0.96)',
       }
-    : {}
+    : undefined
 
   return (
-    <div
-      aria-hidden
-      style={{ ...blendedStyle, ...style }}
-      className={`relative overflow-hidden ${className}`.trim()}
-    >
+    <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={posterRef}
         src={poster}
         alt=""
+        style={mediaStyle}
         className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${
           fit === 'cover' ? 'object-cover' : 'object-contain'
         }`}
       />
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas
+        ref={canvasRef}
+        style={mediaStyle}
+        className="absolute inset-0 h-full w-full"
+      />
       <video
         ref={videoRef}
         muted
@@ -308,6 +308,7 @@ export const ScrubVideo = forwardRef<
         preload="auto"
         poster={poster}
         disablePictureInPicture
+        style={mediaStyle}
         className="pointer-events-none absolute left-0 top-0 h-px w-px opacity-0"
       />
     </div>

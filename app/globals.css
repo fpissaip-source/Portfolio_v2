@@ -24,6 +24,11 @@
 
   --color-blue: var(--blue);
   --color-purple: var(--purple);
+  /* Steps of the accent ramp, usable as `text-accent-soft`,
+     `border-accent-deep`, `bg-accent-tint/10` and so on. */
+  --color-accent-tint: var(--accent-tint);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-deep: var(--accent-deep);
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -45,9 +50,26 @@
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.6 0.12 265);
 
-  /* soft, desaturated accents */
-  --blue: oklch(0.72 0.11 250);
-  --purple: oklch(0.68 0.11 300);
+  /* ── Accent: one hue family, ranked ──────────────────────────────────────
+     Violet leads and blue supports. They used to be 50° apart at identical
+     lightness and chroma, which is the specific failure the reference
+     palettes avoid: two colours too similar to read as a deliberate pair and
+     too different to read as one family, so nothing on the page could be
+     "the accent". Blue is now pulled toward violet (250° → 262°) and held a
+     step below it in chroma, so the two read as neighbours on the wheel and
+     violet is unambiguously the brand colour.
+
+     The ramp is the other half. A single value per hue meant borders, fills,
+     glows and type all sat at exactly one tone; these four steps give depth
+     inside one colour instead of reaching for a second one. */
+  --blue: oklch(0.72 0.1 262);
+  --purple: oklch(0.68 0.13 300);
+  --accent-tint: oklch(0.86 0.06 300);
+  --accent-soft: oklch(0.76 0.1 300);
+  --accent-deep: oklch(0.42 0.16 300);
+  /* Same hue, taken down far enough to pass 4.5:1 as body copy on white.
+     `--purple` itself lands at ~2.4:1 there. */
+  --accent-on-light: oklch(0.45 0.19 300);
 
   --radius: 0.75rem;
 }
@@ -129,41 +151,6 @@ html.lenis body {
   }
 }
 
-html.preloading {
-  overflow: hidden;
-}
-
-/* preloader role marquee — continuous leftward drift, seamless (tripled list) */
-@keyframes preloader-marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-33.3334%);
-  }
-}
-.preloader-marquee {
-  animation: preloader-marquee 22s linear infinite;
-}
-
-/* preloader insertion caret — blinks like a real text cursor */
-@keyframes caret-blink {
-  0%,
-  45% {
-    opacity: 1;
-  }
-  50%,
-  95% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-.caret-blink {
-  animation: caret-blink 1s step-end infinite;
-}
-
 /* slow breathing for the corner edge glows */
 @keyframes edge-glow-pulse {
   0%,
@@ -199,6 +186,114 @@ html.preloading {
   }
 }
 
+/* ─── The one light surface ──────────────────────────────────────────────────
+ * The statement section is white. Everything fixed on top of the page is
+ * styled for a black canvas: a near-white wordmark, glass mixed from a very
+ * dark card colour, and a scrim that fades to #050505. Over white, all three
+ * become either invisible or muddy.
+ *
+ * components/statement.tsx sets `data-surface="light"` on <html> for exactly
+ * the stretch where the white stage is under the chrome band, and clears it
+ * again on the way out. These rules are the other half of that switch.
+ *
+ * Scoped to the chrome (`[data-page-chrome]`, `[data-top-scrim]`) rather than
+ * to `.glass` in general: for a few hundred pixels at the end of the section
+ * the next (dark) section is already visible below the white block, and a
+ * blanket `.glass` override would light up its cards too.
+ * ─────────────────────────────────────────────────────────────────────────── */
+/* Hold full opacity through the whole chrome band (the pill sits ~16–60px)
+   and only start fading below it, otherwise copy is still legible right
+   where the nav overlaps it. A plain two-stop gradient fades too early and
+   leaves exactly that mush. */
+[data-top-scrim] {
+  background: linear-gradient(
+    to bottom,
+    var(--background) 0%,
+    var(--background) 46%,
+    color-mix(in oklch, var(--background) 78%, transparent) 68%,
+    transparent 100%
+  );
+}
+[data-page-chrome],
+[data-top-scrim] {
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    background-image 0.3s ease;
+}
+html[data-surface='light'] [data-top-scrim] {
+  background: linear-gradient(
+    to bottom,
+    #fff 0%,
+    #fff 46%,
+    rgb(255 255 255 / 0.78) 68%,
+    transparent 100%
+  );
+}
+html[data-surface='light'] [data-page-chrome] {
+  color: oklch(0.32 0.01 265);
+}
+html[data-surface='light'] a[data-page-chrome]:hover {
+  color: #000;
+}
+/* Glass chrome: same construction, mixed from white instead of the dark
+   card, so it still reads as floating rather than as a painted slab. */
+html[data-surface='light'] [data-page-chrome].glass,
+html[data-surface='light'] [data-page-chrome] {
+  border-color: rgb(0 0 0 / 0.1);
+}
+html[data-surface='light'] [data-page-chrome].glass {
+  background: rgb(255 255 255 / 0.72);
+}
+html[data-surface='light'] [data-page-chrome] button,
+html[data-surface='light'] [data-page-chrome] a {
+  color: oklch(0.45 0.01 265);
+}
+html[data-surface='light'] [data-page-chrome] button:hover,
+html[data-surface='light'] [data-page-chrome] a:hover {
+  color: #000;
+}
+html[data-surface='light'] [data-page-chrome] button[aria-pressed='true'] {
+  background: rgb(0 0 0 / 0.08);
+  color: #000;
+}
+/* The language toggle carries its dark pill on the element itself. */
+html[data-surface='light'] [data-page-chrome][data-language-toggle] {
+  background: rgb(255 255 255 / 0.72);
+}
+
+/* The site accent, remixed for a white background. `--purple` is tuned for
+   near-black and lands at ~2.4:1 on white, which fails body copy outright. */
+.accent-on-light {
+  color: var(--accent-on-light);
+}
+
+/* ─── Weak-device degradations ───────────────────────────────────────────────
+ * lib/perf-tier.ts measures real frame times for the first ~1.5s and sets
+ * `data-perf="low"` on <html> when the page cannot hold its frame budget
+ * (an iPhone X is the reference case: A11 GPU, 3× pixel ratio).
+ *
+ * What is cut here is what costs a full-screen pass every frame: backdrop
+ * blur behind floating chrome, the animated grain overlay, and the very
+ * large blurred glows. The layout, the copy and the scroll choreography are
+ * untouched, so the page is the same page, just cheaper to paint.
+ * ─────────────────────────────────────────────────────────────────────────── */
+html[data-perf='low'] .glass {
+  /* An opaque-enough panel instead of a live blur of everything behind it. */
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: color-mix(in oklch, var(--card) 92%, transparent);
+}
+html[data-perf='low'] [data-film-grain] {
+  display: none;
+}
+html[data-perf='low'] .edge-glow-pulse {
+  animation: none;
+  filter: blur(48px);
+  opacity: 0.34;
+}
+
 /* thin custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
@@ -209,169 +304,6 @@ html.preloading {
 ::-webkit-scrollbar-thumb {
   background: color-mix(in oklch, var(--blue) 35%, #111);
   border-radius: 99px;
-}
-
-/* ─── Preloader wipe stage (Phase 1: Loading → Willkommen) ─────────────────
- *
- * The stage fills the oval pill. Two layers stack absolutely at the exact
- * same inset-0 position and center their content identically via
- * `display: grid; place-items: center`, so both texts are at the same
- * pixel-perfect center — no centering recalculation ever occurs.
- *
- * layer 1  loader-welcome   "Willkommen" — static, z-1, revealed by wipe
- * layer 2  loader-mask      "Loading XX %" — z-2, solid black bg, clips away
- * layer 3  loader-cursor-track  mirrors clip boundary with translateX
- *
- * Nothing that affects text position (width, height, padding, margin,
- * justify-content, align-items, letter-spacing, font-size, line-height)
- * is ever animated. Only clip-path and transform are transitioned.
- * ─────────────────────────────────────────────────────────────────────────── */
-
-.loader-stage {
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  overflow: hidden; /* clips cursor-track at pill boundary */
-}
-
-.loader-welcome,
-.loader-mask {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  white-space: nowrap;
-}
-
-/* Willkommen: always at center, never animated, never moved */
-.loader-welcome {
-  z-index: 1;
-}
-
-/* Loading XX %: solid black bg covers Willkommen while loading.
-   clip-path wipes the mask away from right to left on activation.
-   Only clip-path is transitioned — no layout property changes. */
-.loader-mask {
-  z-index: 2;
-  background-color: #000000; /* matches oval bg-black */
-  clip-path: inset(0 0% 0 0);
-  transition: clip-path 1s cubic-bezier(0.65, 0, 0.35, 1);
-}
-
-.loader-wipe-active .loader-mask {
-  clip-path: inset(0 100% 0 0);
-}
-
-/* Cursor track: same absolute inset-0 dimensions as the stage.
- *
- * Sync proof:
- *   clip-path inset-right goes from 0% → 100% (mask visible [0,W] → [0,0])
- *   translateX goes from   0   → -100%  (= -W px, the track's own width)
- *
- *   At any progress p ∈ [0,1]:
- *     mask right-edge  = W × (1 − p)
- *     cursor position  = W − W×p = W × (1 − p)   ✓ exact match
- *
- * Both transitions share the same duration and easing curve — started
- * by the same CSS class toggle — so they are always in sync.
- *
- * opacity transition (1.1 s delay) fades the cursor after the wipe ends.
- */
-.loader-cursor-track {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  transform: translateX(0);
-  transition:
-    transform 1s cubic-bezier(0.65, 0, 0.35, 1),
-    opacity 0.3s 1.1s ease-out;
-}
-
-.loader-wipe-active .loader-cursor-track {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-/* The cursor — vertical bar pinned to the right edge of the track.
-   translate(-50%, -50%) centers it vertically; the 2 px right offset
-   keeps it just inside the pill boundary when at rest. */
-.loader-cursor {
-  position: absolute;
-  top: 50%;
-  right: 2px;
-  width: 4px;
-  height: 0.85em;
-  background: white;
-  transform: translateY(-50%);
-}
-
-@media (min-width: 640px) {
-  .loader-cursor {
-    width: 5px;
-  }
-}
-
-/* ─── Preloader expansion (Phase 2: Willkommen → fullscreen) ───────────────
- *
- * A dark circle positioned at the oval's center. When .loader-exit is added,
- * transform: scale(var(--exit-scale)) expands it to cover the full viewport.
- * Scale value is computed from viewport diagonal / circle size × 1.1.
- *
- * Only `transform` is transitioned — GPU-composited, zero layout reflow.
- * The UI text (oval, caption) is a sibling of this layer, never a child,
- * so it is never scaled or distorted.
- * ─────────────────────────────────────────────────────────────────────────── */
-
-.loader-expansion {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 132px;
-  height: 132px;
-  border-radius: 9999px;
-  background: var(--background);
-  transform: translate(-50%, -50%) scale(1);
-  transform-origin: center;
-  will-change: transform;
-  backface-visibility: hidden;
-  pointer-events: none;
-  z-index: 50;
-  opacity: 0;
-  /* opacity switches instantly (0s) so the circle appears the moment exit
-     starts — no fade-in that would reveal it before the expansion is underway */
-  transition:
-    transform 0.8s cubic-bezier(0.33, 0.11, 1, 0.72),
-    opacity 0s;
-}
-
-.loader-expansion.loader-exit {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(var(--exit-scale, 100));
-}
-
-/* Root fades out after expansion has covered the screen
-   (0.65 s delay lets expansion finish first, 0.25 s fade). */
-.loader-root-exit {
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s 0.65s ease-out;
-}
-
-/* ─── Reduced motion ────────────────────────────────────────────────────────
-   All transitions collapse to near-instant; functional sequence preserved. */
-@media (prefers-reduced-motion: reduce) {
-  .loader-mask,
-  .loader-cursor-track,
-  .loader-expansion,
-  .loader-root-exit {
-    transition-duration: 0.01ms !important;
-    transition-delay: 0s !important;
-  }
-  .loader-cursor {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-  }
 }
 
 /* ─── L.U.K.A.S. chat panel re-skin ──────────────────────────────────────────

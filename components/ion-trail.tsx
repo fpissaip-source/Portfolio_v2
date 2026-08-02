@@ -1,21 +1,27 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { usePerfTier } from './perf-probe'
 
 /**
- * A glowing blue ion that travels across the viewport as the site scrolls —
- * it swings on a gentle sine path, leaves a fading luminous trail and keeps
+ * A glowing blue ion that travels across the viewport as the site scrolls.
+ * It swings on a gentle sine path, leaves a fading luminous trail and keeps
  * breathing slightly even when scrolling pauses. Lives behind the content
  * (same sticky-layer trick as EdgeGlow), pointer-events off.
+ *
+ * Dropped entirely on a low-tier device: thirty-odd radial gradients painted
+ * into a full-viewport canvas, through a mask, every single frame, is the
+ * most expensive piece of ambience on the page and the least missed.
  */
 export function IonTrail() {
   const wrapRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const tier = usePerfTier()
 
   useEffect(() => {
     const wrap = wrapRef.current
     const canvas = canvasRef.current
-    if (!wrap || !canvas) return
+    if (!wrap || !canvas || tier === 'low') return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -94,7 +100,9 @@ export function IonTrail() {
       io.disconnect()
       window.removeEventListener('resize', size)
     }
-  }, [])
+  }, [tier])
+
+  if (tier === 'low') return null
 
   return (
     <div

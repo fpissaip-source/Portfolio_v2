@@ -1,33 +1,43 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { ArrowRight } from 'lucide-react'
 import { useT } from './language-context'
 
 gsap.registerPlugin(ScrollTrigger)
 
 /**
- * The sentence the hero no longer has room for, assembled out of the air.
+ * The three sentences the hero has no room for, assembled out of the air.
  *
- * Every word starts somewhere else — scattered around the viewer and well
- * in front of the screen — and is carried back into its place in the
- * paragraph as the section is scrolled. By the time the section lets go,
- * the words have settled into an ordinary, perfectly legible paragraph.
+ * Every word starts somewhere else, scattered around the viewer and well in
+ * front of the screen, and is carried back into its place as the section is
+ * scrolled. By the time the section lets go, the words have settled into
+ * three ordinary, perfectly legible lines with a single offer under them.
  *
- * Two things make that safe rather than clever:
+ * Three things make that safe rather than clever:
  *
- * The paragraph is real text in normal flow. Only `transform`, `opacity`
- * and `filter` are animated, never layout — so the resting state is
- * whatever the browser would have laid out anyway, at any width, in either
- * language, and a crawler or a screen reader reading the DOM gets the
- * sentence in one piece with no idea any of this happened.
+ * The copy is real text in normal flow. Only `transform`, `opacity` and
+ * `filter` are animated, never layout, so the resting state is whatever the
+ * browser would have laid out anyway, at any width, in either language, and
+ * a crawler or a screen reader reading the DOM gets the sentences in one
+ * piece with no idea any of this happened.
  *
  * The scatter is generated on the client, after mount. Random offsets
  * produced during render would differ between the server's HTML and the
- * browser's first paint — a hydration mismatch — and doing it in an effect
+ * browser's first paint (a hydration mismatch), and doing it in an effect
  * also means the no-JS and reduced-motion states are simply the finished
- * paragraph.
+ * text.
+ *
+ * The per-word blur is dropped on weak devices. It is the single most
+ * expensive part of this effect: one blur pass per word per frame. See
+ * lib/perf-tier.ts.
+ *
+ * This is also the one white surface on the site. The fixed chrome is
+ * styled for a black page, so while the white stage is under it the section
+ * flips `data-surface="light"` on <html>, and globals.css inverts the
+ * wordmark, the nav pill, the toggle and the top scrim for that stretch.
  */
 
 /** How far a word can start from its place, as a share of the viewport. */
@@ -37,60 +47,138 @@ const SPREAD_Y = 0.3
  *  reads as "flying past you" rather than "sliding in". */
 const DEPTH_MIN = 420
 const DEPTH_MAX = 1400
+/** Where in the section's scroll the offer starts arriving. The three lines
+ *  land before it, so the eye reaches the button last. */
+const CTA_AT = 0.78
 
-/** Deterministic pseudo-random in [0, 1) — same word, same seat, every
- *  time, including between two renders of the same page. */
+/** Deterministic pseudo-random in [0, 1). Same word, same seat, every time,
+ *  including between two renders of the same page. */
 function rand(seed: number) {
   const x = Math.sin(seed * 12.9898) * 43758.5453
   return x - Math.floor(x)
 }
 
+/** One line of copy, split into animatable words.
+ *
+ *  `*emphasised*` inside the string gets the accent colour. The emphasis
+ *  belongs to the sentence, and the sentence is different in every language,
+ *  so it travels with the string rather than living in the JSX. */
+function Line({
+  text,
+  className,
+  reduced,
+}: {
+  text: string
+  className?: string
+  reduced: boolean
+}) {
+  const words = text.split(' ')
+  return (
+    <span className={`block text-balance ${className ?? ''}`}>
+      {words.map((word, i) => {
+        const accent = word.startsWith('*') || word.endsWith('*')
+        return (
+          // The space lives *between* the spans, never inside one: an
+          // inline-block trims its own trailing whitespace, which welds the
+          // whole sentence into one unbroken string.
+          <Fragment key={i}>
+            <span
+              data-word
+              // Not `text-purple`: the site's accent is mixed for a black
+              // canvas and lands at ~2.4:1 on white. `.accent-on-light` is
+              // the same hue taken down to a legible lightness (globals.css).
+              className={`inline-block will-change-transform ${accent ? 'accent-on-light' : ''}`}
+              style={reduced ? undefined : { opacity: 0.14 }}
+            >
+              {word.replace(/\*/g, '')}
+            </span>
+            {i < words.length - 1 ? ' ' : ''}
+          </Fragment>
+        )
+      })}
+    </span>
+  )
+}
+
 export function Statement() {
   const t = useT()
   const sectionRef = useRef<HTMLElement>(null)
-  const paraRef = useRef<HTMLParagraphElement>(null)
+  const copyRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
   const [reduced, setReduced] = useState(false)
-  const words = t.statement.text.split(' ')
+  const [cheap, setCheap] = useState(false)
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    setCheap(document.documentElement.dataset.perf === 'low')
+  }, [])
+
+  // The white surface, and the chrome inversion that has to come with it.
+  // Runs whether or not the words animate: the section is white either way.
+  useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+    const root = document.documentElement
+    const st = ScrollTrigger.create({
+      trigger: section,
+      // The chrome band is ~130px tall (see TopScrim). White is under it
+      // from the moment the section's top passes that line until its bottom
+      // rises back through it.
+      start: 'top 130px',
+      end: 'bottom 130px',
+      onToggle: (self) => {
+        if (self.isActive) root.dataset.surface = 'light'
+        else delete root.dataset.surface
+      },
+    })
+    return () => {
+      st.kill()
+      delete root.dataset.surface
+    }
   }, [])
 
   useEffect(() => {
     const section = sectionRef.current
-    const para = paraRef.current
-    if (!section || !para || reduced) return
+    const copy = copyRef.current
+    const cta = ctaRef.current
+    if (!section || !copy || reduced) return
 
-    const items = Array.from(para.querySelectorAll<HTMLElement>('[data-word]'))
+    const items = Array.from(copy.querySelectorAll<HTMLElement>('[data-word]'))
     if (!items.length) return
 
     // Each word gets a seat in space and its own slice of the scroll, so
     // they arrive over a stretch rather than snapping into place together.
-    const plan = items.map((el, i) => {
-      const vw = window.innerWidth
-      const vh = window.innerHeight
-      return {
-        el,
-        dx: (rand(i + 1) - 0.5) * 2 * SPREAD_X * vw,
-        dy: (rand(i + 7.3) - 0.5) * 2 * SPREAD_Y * vh,
-        dz: DEPTH_MIN + rand(i + 13.7) * (DEPTH_MAX - DEPTH_MIN),
-        rot: (rand(i + 21.1) - 0.5) * 34,
-        // Words land roughly in reading order, but not exactly — a strict
-        // left-to-right arrival looks like a typewriter, not like a swarm
-        // settling.
-        start: (i / items.length) * 0.55 + rand(i + 31.3) * 0.12,
-      }
-    })
+    const vw = window.innerWidth
+    const vh = window.innerHeight
+    const plan = items.map((el, i) => ({
+      el,
+      dx: (rand(i + 1) - 0.5) * 2 * SPREAD_X * vw,
+      dy: (rand(i + 7.3) - 0.5) * 2 * SPREAD_Y * vh,
+      dz: DEPTH_MIN + rand(i + 13.7) * (DEPTH_MAX - DEPTH_MIN),
+      rot: (rand(i + 21.1) - 0.5) * 34,
+      // Words land roughly in reading order, but not exactly: a strict
+      // left-to-right arrival looks like a typewriter, not like a swarm
+      // settling.
+      start: (i / items.length) * 0.58 + rand(i + 31.3) * 0.1,
+    }))
 
     const apply = (p: number) => {
       for (const w of plan) {
-        const e = Math.max(0, Math.min(1, (p - w.start) / 0.34))
+        const e = Math.max(0, Math.min(1, (p - w.start) / 0.32))
         // easeOutCubic: fast approach, soft landing.
         const k = 1 - Math.pow(1 - e, 3)
         const away = 1 - k
         w.el.style.transform = `translate3d(${(w.dx * away).toFixed(1)}px, ${(w.dy * away).toFixed(1)}px, ${(w.dz * away).toFixed(1)}px) rotate(${(w.rot * away).toFixed(2)}deg)`
-        w.el.style.opacity = (0.18 + 0.82 * k).toFixed(3)
-        w.el.style.filter = away > 0.01 ? `blur(${(away * 7).toFixed(2)}px)` : 'none'
+        w.el.style.opacity = (0.14 + 0.86 * k).toFixed(3)
+        if (!cheap) {
+          w.el.style.filter = away > 0.01 ? `blur(${(away * 7).toFixed(2)}px)` : 'none'
+        }
+      }
+      if (cta) {
+        const c = Math.max(0, Math.min(1, (p - CTA_AT) / 0.16))
+        cta.style.opacity = c.toFixed(3)
+        cta.style.transform = `translate3d(0, ${((1 - c) * 26).toFixed(1)}px, 0)`
+        cta.style.pointerEvents = c > 0.6 ? 'auto' : 'none'
       }
     }
 
@@ -104,41 +192,77 @@ export function Statement() {
     })
     apply(0)
     return () => st.kill()
-  }, [reduced, words.length])
+  }, [reduced, cheap, t.statement.lead, t.statement.proof, t.statement.extra])
+
+  function toContact(e: React.MouseEvent) {
+    e.preventDefault()
+    const el = document.querySelector('#contact')
+    if (!el) return
+    const lenis = (window as unknown as { __lenis?: { scrollTo: (t: Element, o?: object) => void } })
+      .__lenis
+    if (lenis) lenis.scrollTo(el, { offset: -40 })
+    else el.scrollIntoView({ behavior: 'smooth' })
+  }
 
   return (
     <section
       ref={sectionRef}
       id="statement"
-      className={`relative ${reduced ? '' : 'h-[220vh]'}`}
+      className={`relative bg-white ${reduced ? 'py-24' : 'h-[240vh]'}`}
       aria-label={t.statement.label}
     >
-      <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-6">
-        <p
-          ref={paraRef}
-          // The perspective lives on the paragraph, so every word's depth is
-          // measured from the same vanishing point — set per word, they
-          // would each have their own and the swarm would read as flat.
+      <div
+        className={`flex items-center justify-center overflow-hidden bg-white px-6 ${
+          reduced ? '' : 'sticky top-0 h-svh'
+        }`}
+      >
+        <div
+          // The perspective lives on the wrapper, so every word's depth is
+          // measured from the same vanishing point. Set per word, they would
+          // each have their own and the swarm would read as flat.
           style={{ perspective: '900px', transformStyle: 'preserve-3d' }}
-          className="max-w-4xl text-balance text-center font-display font-semibold leading-[1.25] tracking-tight text-foreground/90"
+          className="w-full max-w-4xl text-center"
         >
-          <span
-            className="block"
-            style={{ fontSize: 'clamp(1.35rem, 4.4vw, 2.6rem)' }}
+          <div ref={copyRef} className="font-display tracking-tight text-black">
+            <Line
+              text={t.statement.lead}
+              reduced={reduced}
+              className="text-[clamp(1.35rem,5.6vw,3.1rem)] font-semibold leading-[1.14]"
+            />
+            <Line
+              text={t.statement.proof}
+              reduced={reduced}
+              className="mt-6 text-[clamp(0.98rem,3.4vw,1.55rem)] font-medium leading-[1.28] text-black/70 sm:mt-7"
+            />
+            <Line
+              text={t.statement.extra}
+              reduced={reduced}
+              className="mt-3 text-[clamp(0.98rem,3.4vw,1.55rem)] font-medium leading-[1.28] text-black/70 sm:mt-4"
+            />
+          </div>
+
+          {/* The offer. It is the reason this section is bright: the rest of
+              the page is a dark room, and the one place asking for a reply
+              is lit. */}
+          <div
+            ref={ctaRef}
+            className="mt-9 flex flex-col items-center gap-3 sm:mt-11"
+            style={reduced ? undefined : { opacity: 0 }}
           >
-            {words.map((word, i) => (
-              <span
-                key={i}
-                data-word
-                className="inline-block will-change-transform"
-                style={reduced ? undefined : { opacity: 0.18 }}
-              >
-                {word}
-                {i < words.length - 1 ? ' ' : ''}
-              </span>
-            ))}
-          </span>
-        </p>
+            <a
+              href="#contact"
+              onClick={toContact}
+              className="group inline-flex items-center gap-2.5 rounded-full bg-black px-7 py-3.5 text-sm font-semibold text-white transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black sm:text-base"
+            >
+              {t.statement.ctaLabel}
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                aria-hidden
+              />
+            </a>
+            <p className="text-xs text-black/55 sm:text-sm">{t.statement.ctaNote}</p>
+          </div>
+        </div>
       </div>
     </section>
   )

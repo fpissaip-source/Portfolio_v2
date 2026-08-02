@@ -1,5 +1,4 @@
 import { SmoothScroll } from '@/components/smooth-scroll'
-import { Preloader } from '@/components/preloader'
 import { IonTrail } from '@/components/ion-trail'
 import { MouseGlow } from '@/components/mouse-glow'
 import { EdgeGlow } from '@/components/edge-glow'
@@ -10,6 +9,7 @@ import { TopScrim } from '@/components/top-scrim'
 import { LukasVoiceWidget } from '@/components/lukas-voice-widget'
 import { ConsentBanner } from '@/components/consent-banner'
 import { Analytics } from '@/components/analytics'
+import { PerfProbe } from '@/components/perf-probe'
 import { Hero } from '@/components/hero'
 import { Statement } from '@/components/statement'
 import { Services } from '@/components/services'
@@ -27,7 +27,9 @@ export default function Page() {
   return (
     <SmoothScroll>
       <SkipLink />
-      <Preloader />
+      {/* Measures what this device can actually paint and, if it cannot keep
+          up, takes the expensive layers off (lib/perf-tier.ts). */}
+      <PerfProbe />
       <MouseGlow />
       <FilmGrain />
       <SiteNav />

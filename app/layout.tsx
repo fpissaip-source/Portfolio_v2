@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { Bricolage_Grotesque, Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
-import './loader-transition.css'
 import './elegant-headings.css'
 
 const geistSans = Geist({
@@ -38,9 +37,9 @@ const spaceGrotesk = Space_Grotesk({
 const SITE_URL = 'https://issahareb.me'
 const SITE_TITLE = 'Issa Hareb | Full-Stack & AI Engineer aus Essen'
 const SITE_DESCRIPTION =
-  'Issa Hareb entwickelt intelligente Systeme aus Essen: Websites, Webanwendungen, KI-Agenten und Automatisierungen — Oberfläche, Backend und Deployment aus einer Hand, von der ersten Idee bis zum Livebetrieb.'
+  'Issa Hareb entwickelt intelligente Systeme aus Essen: Websites, Webanwendungen, KI-Agenten und Automatisierungen. Oberfläche, Backend und Deployment aus einer Hand, von der ersten Idee bis zum Livebetrieb.'
 const SITE_DESCRIPTION_EN =
-  'Issa Hareb builds intelligent systems from Essen, Germany: websites, web applications, AI agents and automations — interface, backend and deployment from one pair of hands.'
+  'Issa Hareb builds intelligent systems from Essen, Germany: websites, web applications, AI agents and automations. Interface, backend and deployment from one pair of hands.'
 
 /** Entity ids. Stable, absolute and reused by every node in the graph, so a
  *  parser links them into one description of one person instead of three
@@ -124,7 +123,7 @@ const OFFERS = [
   {
     name: 'Individuelle Webanwendungen',
     description:
-      'Dashboards, CRM, Buchungssysteme, Rollen und Rechte, Datenplattformen — zugeschnitten auf den vorhandenen Ablauf.',
+      'Dashboards, CRM, Buchungssysteme, Rollen und Rechte, Datenplattformen, zugeschnitten auf den vorhandenen Ablauf.',
   },
   {
     name: 'KI-Agenten und Automatisierungen',
@@ -134,7 +133,7 @@ const OFFERS = [
   {
     name: 'Backend, Datenbank und Deployment',
     description:
-      'Datenmodell, APIs, Authentifizierung, Deployment und Monitoring — der Teil, der ein Projekt zu einem laufenden System macht.',
+      'Datenmodell, APIs, Authentifizierung, Deployment und Monitoring: der Teil, der ein Projekt zu einem laufenden System macht.',
   },
   {
     name: 'SEO, AEO und GEO',

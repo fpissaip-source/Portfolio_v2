@@ -42,6 +42,7 @@ export function FilmGrain() {
   return (
     <div
       aria-hidden
+      data-film-grain
       className="pointer-events-none fixed inset-0 z-[60] opacity-[0.05] mix-blend-overlay motion-safe:animate-[grain_1.2s_steps(4)_infinite]"
       style={{
         backgroundImage:

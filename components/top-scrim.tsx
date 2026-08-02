@@ -15,15 +15,11 @@ export function TopScrim() {
   return (
     <div
       aria-hidden
+      data-top-scrim
+      // The gradient itself lives in globals.css, not in an inline style: the
+      // statement section is white and flips the scrim to match, and an
+      // inline style would outrank any rule trying to do that.
       className="pointer-events-none fixed inset-x-0 top-0 z-40 h-32 sm:h-36"
-      style={{
-        // Hold full opacity through the whole chrome band (the pill sits
-        // ~16–60px) and only start fading below it, otherwise copy is still
-        // legible right where the nav overlaps it. A plain two-stop gradient
-        // fades too early and leaves exactly that mush.
-        background:
-          'linear-gradient(to bottom, var(--background) 0%, var(--background) 46%, color-mix(in oklch, var(--background) 78%, transparent) 68%, transparent 100%)',
-      }}
     />
   )
 }

@@ -3,6 +3,7 @@
 import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { usePerfTier } from './perf-probe'
 
 /**
  * Real-time 3D tech stack: each technology is a sphere with its logo baked
@@ -357,6 +358,8 @@ function Scene({ count }: { count: number }) {
 export default function TechOrbs() {
   // Max 20 spheres on desktop, max 12 on mobile.
   const [count, setCount] = useState(20)
+  const tier = usePerfTier()
+  const cheap = tier === 'low'
 
   useEffect(() => {
     setCount(window.innerWidth < 768 ? 12 : 20)
@@ -364,9 +367,13 @@ export default function TechOrbs() {
 
   return (
     <Canvas
-      dpr={[1, 1.5]}
+      // On a device that has already shown it cannot hold its frame budget,
+      // render at 1× and without MSAA. The spheres are glossy and blurred by
+      // their own environment map, so the softer edges cost almost nothing
+      // to look at and a great deal to draw.
+      dpr={cheap ? [1, 1] : [1, 1.5]}
       shadows={false}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: !cheap, alpha: true, powerPreference: 'high-performance' }}
       camera={{ position: [0, 0, 20], fov: 32.5, near: 1, far: 100 }}
       style={{ width: '100%', height: '100%' }}
     >

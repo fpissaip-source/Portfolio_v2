@@ -36,12 +36,6 @@ export type Dictionary = {
     process: string
     contact: string
   }
-  preloader: {
-    taglines: string[]
-    welcome: string
-    loading: string
-    caption: string
-  }
   hero: {
     kicker: string
     /** The headline is a two-line lockup: the role, then the promise. Kept
@@ -71,7 +65,20 @@ export type Dictionary = {
    *  this is where the short version gets explained. */
   statement: {
     label: string
-    text: string
+    /** Three claims, one per block. Kept as separate strings rather than one
+     *  paragraph with punctuation to break on, so each gets its own line
+     *  box, its own balance and its own arrival in the animation — which is
+     *  also what keeps this to a few short lines instead of a wall.
+     *
+     *  A word wrapped in asterisks gets the accent treatment (`*so*`). It is
+     *  markup rather than markup-in-JSX because the emphasis belongs to the
+     *  sentence, and the sentence is different in every language. */
+    lead: string
+    proof: string
+    extra: string
+    /** The offer this section hands over to: a first design draft, free. */
+    ctaLabel: string
+    ctaNote: string
   }
   services: {
     kicker: string
@@ -179,6 +186,14 @@ export type Dictionary = {
     locationValue: string
     cta: string
     ctaSubject: string
+    /** The free first draft. It is the lowest-risk way into a conversation
+     *  and therefore the loudest thing in this section: a visitor who is not
+     *  ready to commission anything can still say yes to this. */
+    offerLabel: string
+    offerTitle: string
+    offerBody: string
+    offerCta: string
+    offerSubject: string
   }
   consent: {
     kicker: string
@@ -339,16 +354,6 @@ export const EN: Dictionary = {
     process: 'From Idea to Production',
     contact: "Let's Build Together",
   },
-  preloader: {
-    taglines: [
-      'I automate workflows',
-      'I engineer intelligent systems',
-      'I ship products end to end',
-    ],
-    welcome: 'Welcome',
-    loading: 'Loading',
-    caption: 'Issa Hareb · Portfolio',
-  },
   hero: {
     kicker: 'Full-stack & AI · Essen, Germany',
     headingLine1: 'I build intelligent systems.',
@@ -361,7 +366,11 @@ export const EN: Dictionary = {
   },
   statement: {
     label: 'What that means in practice',
-    text: 'I build websites, web applications, AI agents and automations — interface, backend, database and deployment from one pair of hands. No concept, no demo: a system that runs, that can be measured, and that takes work off your desk.',
+    lead: 'I build websites that land an instant *wow effect*, with 3D and motion used exactly where they carry the story.',
+    proof: 'Backend, search engines and AI answers in ChatGPT, Gemini, Grok and Claude get optimised *measurably far above average*.',
+    extra: 'On top of that: AI agents and automations that quietly take real work off your desk.',
+    ctaLabel: 'Get a free design draft',
+    ctaNote: 'No obligation. You get a first draft of your start page.',
   },
   services: {
     kicker: 'Services',
@@ -449,23 +458,23 @@ export const EN: Dictionary = {
     ],
     inviteTitle: 'Talk to L.U.K.A.S.',
     inviteBody:
-      "Don't just read about him — ask him. He answers from his own memory and knowledge, by voice or in writing.",
+      "Don't just read about him. Ask him: he answers from his own memory and knowledge, by voice or in writing.",
     inviteCta: 'Start a conversation',
   },
   lukasVoice: {
     launcherKicker: 'Live Agent',
     launcherLabel: 'Talk to L.U.K.A.S.',
     launcherAria: 'Open the L.U.K.A.S. conversation',
-    panelSubtitle: "Issa's AI agent — ask me anything",
+    panelSubtitle: "Issa's AI agent, ask me anything",
     panelGreeting:
-      "Hey! I'm L.U.K.A.S., Issa's AI agent. Ask me about him or his projects — type, or tap the mic to talk.",
+      "Hey! I'm L.U.K.A.S., Issa's AI agent. Ask me about him or his projects. Type, or tap the mic to talk.",
     panelPlaceholder: 'Ask me about Issa…',
   },
   projects: {
     kicker: 'Featured Work',
     heading: 'My projects, design directions and what else is possible',
     subtitle:
-      'Shipped systems alongside directions I can build — drag the sphere, open a card, see where it goes.',
+      'Shipped systems alongside directions I can build. Drag the sphere, open a card, see where it goes.',
     dragHint: 'Drag to explore · Select a card to inspect',
     open: 'open',
     kindProject: 'Project',
@@ -477,7 +486,7 @@ export const EN: Dictionary = {
       },
       {
         title: 'Generative audio studio',
-        meta: 'Iridescent chrome against near-black, a serif headline and a single control — restraint as the effect.',
+        meta: 'Iridescent chrome against near-black, a serif headline and a single control. Restraint as the effect.',
       },
       {
         title: 'Architecture practice',
@@ -485,7 +494,7 @@ export const EN: Dictionary = {
       },
       {
         title: 'Thermal energy storage',
-        meta: 'Maximum contrast — molten amber in pure black, centred type, one link. Nothing else on screen.',
+        meta: 'Maximum contrast: molten amber in pure black, centred type, one link. Nothing else on screen.',
       },
     ],
     registerLabel: 'Complete Project Register',
@@ -612,19 +621,25 @@ export const EN: Dictionary = {
     kicker: 'Contact',
     heading: 'How to reach me.',
     subtitle:
-      "Whether it's a concrete project or a first idea — reach out and we'll figure out what to build.",
+      "Whether it's a concrete project or a first idea: reach out and we'll figure out what to build.",
     emailLabel: 'Email',
     phoneLabel: 'Phone',
     locationLabel: 'Location',
     locationValue: 'Germany',
     cta: 'Start a project',
     ctaSubject: 'Project inquiry',
+    offerLabel: 'Free',
+    offerTitle: 'Get a free design draft.',
+    offerBody:
+      'Tell me in two sentences what your business does. You get a first draft of your start page back, built the way it would actually ship. No cost, no obligation.',
+    offerCta: 'Request my draft',
+    offerSubject: 'Free design draft',
   },
   consent: {
     kicker: 'Cookies',
     bannerAria: 'Cookie preferences',
     bannerBody:
-      'This site uses cookies. The necessary ones are always on; optional ones only with your consent. You can change your choice at any time \u2014 everything works exactly the same if you decline.',
+      'This site uses cookies. The necessary ones are always on; optional ones only with your consent. You can change your choice at any time, and everything works exactly the same if you decline.',
     privacyLink: 'Privacy policy',
     acceptAll: 
       'Allow',
@@ -640,14 +655,14 @@ export const EN: Dictionary = {
     alwaysOn: 'Always active',
     analyticsTitle: 'Analytics',
     analyticsBody:
-      'Records anonymous usage statistics \u2014 which pages are opened, how long people stay, which site they came from \u2014 so I can see what is worth improving. This sets cookies. Nothing is loaded until you allow it, and it stops the moment you withdraw.',
+      'Records anonymous usage statistics (which pages are opened, how long people stay, which site they came from) so I can see what is worth improving. This sets cookies. Nothing is loaded until you allow it, and it stops the moment you withdraw.',
     analyticsToggleAria: 'Allow analytics',
     askKicker: 'Permission',
     askTitle: 'Talk to L.U.K.A.S.?',
     askBody:
       'To do that I load my AI agent L.U.K.A.S., so he can answer your questions by chat or by voice. Your messages go to my agent server so he can reply.',
     askVoiceNote:
-      'If you speak with him rather than type, your microphone audio is additionally transmitted to OpenAI in the USA \u2014 that is the service doing the speech recognition.',
+      'If you speak with him rather than type, your microphone audio is additionally transmitted to OpenAI in the USA, the service doing the speech recognition.',
     askAllow: 'Allow and start',
     askDecline: 'Not now',
     withdraw: 'Withdraw consent',
@@ -715,16 +730,16 @@ export const EN: Dictionary = {
       {
         heading: 'Analytics (Consent Required)',
         body: [
-          'If you allow it, an analytics tool records how this site is used — which pages are opened, how long a visit lasts, and which site you arrived from. This is used solely to see which parts of the site are worth improving. Cookies are set for this purpose.',
+          'If you allow it, an analytics tool records how this site is used: which pages are opened, how long a visit lasts, and which site you arrived from. This is used solely to see which parts of the site are worth improving. Cookies are set for this purpose.',
           'Nothing is loaded and nothing is recorded before you have allowed it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. You can withdraw at any time with effect for the future via "Cookie preferences" in the footer; the tool then stops being loaded.',
         ],
       },
       {
         heading: 'L.U.K.A.S. AI Agent (Consent Required)',
         body: [
-          'L.U.K.A.S. is my own AI agent. He is only loaded once you have explicitly allowed it — you are asked in the L.U.K.A.S. section itself, just before a conversation starts. Until then nothing is requested from the agent server and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
+          'L.U.K.A.S. is my own AI agent. He is only loaded once you have explicitly allowed it. You are asked in the L.U.K.A.S. section itself, just before a conversation starts. Until then nothing is requested from the agent server and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
           'Once allowed, the agent is loaded from my agent server, hosted on Railway (EU region), so he can answer your questions by chat or by voice. The messages you write to him are transmitted there so he can reply.',
-          'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc., USA — a third country — for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
+          'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc. in the USA (a third country) for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
           'You can withdraw your consent at any time, with effect for the future, via "Cookie preferences" in the footer. After withdrawal the agent is no longer loaded. This does not affect the lawfulness of processing carried out before the withdrawal.',
           'Please do not enter personal data of third parties, or your own sensitive data, into the agent.',
         ],
@@ -763,16 +778,6 @@ export const DE: Dictionary = {
     process: 'Von der Idee zur Produktion',
     contact: 'Lass uns gemeinsam etwas bauen',
   },
-  preloader: {
-    taglines: [
-      'Ich automatisiere Workflows',
-      'Ich entwickle intelligente Systeme',
-      'Ich liefere Produkte end-to-end',
-    ],
-    welcome: 'Willkommen',
-    loading: 'Lädt',
-    caption: 'Issa Hareb · Portfolio',
-  },
   hero: {
     kicker: 'Full-Stack & KI · Essen',
     headingLine1: 'Ich entwickle intelligente Systeme.',
@@ -786,7 +791,11 @@ export const DE: Dictionary = {
   },
   statement: {
     label: 'Was das konkret heißt',
-    text: 'Ich baue Websites, Webanwendungen, KI-Agenten und Automatisierungen — Oberfläche, Backend, Datenbank und Deployment aus einer Hand. Kein Konzept, keine Demo: ein System, das läuft, das messbar ist und das Arbeit abnimmt.',
+    lead: 'Ich baue Websites, die mit gezielten 3D-Elementen und Animationen sofort einen *Wow-Effekt* auslösen.',
+    proof: 'Backend, Suchmaschinen und KI-Antworten in ChatGPT, Gemini, Grok und Claude optimiere ich *nachweislich weit über dem Durchschnitt*.',
+    extra: 'Dazu KI-Agenten und Automatisierungen, die im Hintergrund Arbeit übernehmen.',
+    ctaLabel: 'Kostenlosen Design-Entwurf sichern',
+    ctaNote: 'Unverbindlich. Du bekommst einen ersten Entwurf deiner Startseite.',
   },
   services: {
     kicker: 'Leistungen',
@@ -801,7 +810,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'Individuelle Webanwendungen',
-        lead: 'Ein Werkzeug, das sich nach deinem Ablauf richtet — nicht umgekehrt.',
+        lead: 'Ein Werkzeug, das sich nach deinem Ablauf richtet, nicht umgekehrt.',
         points: ['Dashboards', 'CRM', 'Buchungssysteme', 'Rollen und Rechte', 'Datenplattformen'],
       },
       {
@@ -874,23 +883,23 @@ export const DE: Dictionary = {
     ],
     inviteTitle: 'Sprich mit L.U.K.A.S.',
     inviteBody:
-      'Lies nicht nur über ihn – frag ihn. Er antwortet aus seinem eigenen Gedächtnis und Wissen, per Sprache oder im Chat.',
+      'Lies nicht nur über ihn, frag ihn. Er antwortet aus seinem eigenen Gedächtnis und Wissen, per Sprache oder im Chat.',
     inviteCta: 'Gespräch starten',
   },
   lukasVoice: {
     launcherKicker: 'Live-Agent',
     launcherLabel: 'Mit L.U.K.A.S. sprechen',
     launcherAria: 'Das L.U.K.A.S.-Gespräch öffnen',
-    panelSubtitle: 'Issas KI-Agent — frag mich was',
+    panelSubtitle: 'Issas KI-Agent, frag mich was',
     panelGreeting:
-      'Hey! Ich bin L.U.K.A.S., Issas KI-Agent. Frag mich etwas über ihn oder seine Projekte — tippen oder aufs Mikro drücken.',
+      'Hey! Ich bin L.U.K.A.S., Issas KI-Agent. Frag mich etwas über ihn oder seine Projekte. Tippen oder aufs Mikro drücken.',
     panelPlaceholder: 'Frag mich etwas über Issa…',
   },
   projects: {
     kicker: 'Ausgewählte Arbeiten',
     heading: 'Meine Projekte, Designrichtungen und was sonst möglich ist',
     subtitle:
-      'Gebaute Systeme neben Richtungen, die ich umsetzen kann — dreh die Sphäre, öffne eine Karte, sieh wohin es geht.',
+      'Gebaute Systeme neben Richtungen, die ich umsetzen kann. Dreh die Sphäre, öffne eine Karte, sieh wohin es geht.',
     dragHint: 'Ziehen zum Erkunden · Karte auswählen zum Ansehen',
     open: 'öffnen',
     kindProject: 'Projekt',
@@ -902,7 +911,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'Studio für generatives Audio',
-        meta: 'Schillerndes Chrom auf Fast-Schwarz, eine Serifen-Headline und ein einziges Bedienelement — Zurückhaltung als Effekt.',
+        meta: 'Schillerndes Chrom auf Fast-Schwarz, eine Serifen-Headline und ein einziges Bedienelement. Zurückhaltung als Effekt.',
       },
       {
         title: 'Architekturbüro',
@@ -910,7 +919,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'Thermischer Energiespeicher',
-        meta: 'Maximaler Kontrast — geschmolzener Bernstein in reinem Schwarz, zentrierte Typo, ein Link. Sonst nichts.',
+        meta: 'Maximaler Kontrast: geschmolzener Bernstein in reinem Schwarz, zentrierte Typo, ein Link. Sonst nichts.',
       },
     ],
     registerLabel: 'Vollständiges Projektregister',
@@ -1037,19 +1046,25 @@ export const DE: Dictionary = {
     kicker: 'Kontakt',
     heading: 'So erreichst du mich.',
     subtitle:
-      'Ob konkretes Projekt oder erste Idee – schreib mir, und wir finden heraus, was sich daraus bauen lässt.',
+      'Ob konkretes Projekt oder erste Idee: schreib mir, und wir finden heraus, was sich daraus bauen lässt.',
     emailLabel: 'E-Mail',
     phoneLabel: 'Telefon',
     locationLabel: 'Standort',
     locationValue: 'Deutschland',
     cta: 'Projekt anfragen',
     ctaSubject: 'Projektanfrage',
+    offerLabel: 'Kostenlos',
+    offerTitle: 'Hol dir einen kostenlosen Design-Entwurf.',
+    offerBody:
+      'Schreib mir in zwei Sätzen, was dein Unternehmen macht. Du bekommst einen ersten Entwurf deiner Startseite zurück, gebaut so, wie er später auch live gehen würde. Ohne Kosten, ohne Verpflichtung.',
+    offerCta: 'Entwurf anfordern',
+    offerSubject: 'Kostenloser Design-Entwurf',
   },
   consent: {
     kicker: 'Cookies',
     bannerAria: 'Cookie-Einstellungen',
     bannerBody:
-      'Diese Seite verwendet Cookies. Notwendige sind immer aktiv, optionale nur mit Ihrer Zustimmung. Sie k\u00f6nnen Ihre Auswahl jederzeit \u00e4ndern \u2014 wenn Sie ablehnen, funktioniert alles genauso.',
+      'Diese Seite verwendet Cookies. Notwendige sind immer aktiv, optionale nur mit Ihrer Zustimmung. Sie k\u00f6nnen Ihre Auswahl jederzeit \u00e4ndern. Wenn Sie ablehnen, funktioniert alles genauso.',
     privacyLink: 'Datenschutzhinweise',
     acceptAll: 
       'Erlauben',
@@ -1065,14 +1080,14 @@ export const DE: Dictionary = {
     alwaysOn: 'Immer aktiv',
     analyticsTitle: 'Analyse',
     analyticsBody:
-      'Erfasst anonyme Nutzungsstatistiken \u2014 welche Seiten ge\u00f6ffnet werden, wie lange jemand bleibt, von welcher Seite er kam \u2014 damit ich sehe, woran sich Arbeit lohnt. Dabei werden Cookies gesetzt. Vor Ihrer Zustimmung wird nichts geladen, und mit dem Widerruf h\u00f6rt es sofort auf.',
+      'Erfasst anonyme Nutzungsstatistiken (welche Seiten ge\u00f6ffnet werden, wie lange jemand bleibt, von welcher Seite er kam), damit ich sehe, woran sich Arbeit lohnt. Dabei werden Cookies gesetzt. Vor Ihrer Zustimmung wird nichts geladen, und mit dem Widerruf h\u00f6rt es sofort auf.',
     analyticsToggleAria: 'Analyse erlauben',
     askKicker: 'Erlaubnis',
     askTitle: 'Mit L.U.K.A.S. sprechen?',
     askBody:
       'Daf\u00fcr lade ich meinen KI-Agenten L.U.K.A.S., damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Ihre Nachrichten gehen an meinen Agenten-Server, damit er antworten kann.',
     askVoiceNote:
-      'Wenn Sie mit ihm sprechen statt zu tippen, wird Ihr Mikrofon-Audio zus\u00e4tzlich an OpenAI in den USA \u00fcbertragen \u2014 dort l\u00e4uft die Spracherkennung.',
+      'Wenn Sie mit ihm sprechen statt zu tippen, wird Ihr Mikrofon-Audio zus\u00e4tzlich an OpenAI in den USA \u00fcbertragen. Dort l\u00e4uft die Spracherkennung.',
     askAllow: 'Erlauben und starten',
     askDecline: 'Jetzt nicht',
     withdraw: 'Einwilligung widerrufen',
@@ -1140,16 +1155,16 @@ export const DE: Dictionary = {
       {
         heading: 'Analyse (einwilligungspflichtig)',
         body: [
-          'Wenn Sie zustimmen, erfasst ein Analyse-Werkzeug, wie diese Seite genutzt wird — welche Seiten geöffnet werden, wie lange ein Besuch dauert und von welcher Seite Sie gekommen sind. Das dient allein dazu, zu erkennen, an welchen Stellen sich Arbeit lohnt. Dabei werden Cookies gesetzt.',
+          'Wenn Sie zustimmen, erfasst ein Analyse-Werkzeug, wie diese Seite genutzt wird: welche Seiten geöffnet werden, wie lange ein Besuch dauert und von welcher Seite Sie gekommen sind. Das dient allein dazu, zu erkennen, an welchen Stellen sich Arbeit lohnt. Dabei werden Cookies gesetzt.',
           'Vor Ihrer Zustimmung wird nichts geladen und nichts erfasst. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können jederzeit mit Wirkung für die Zukunft über „Cookie-Einstellungen" im Fußbereich widerrufen; das Werkzeug wird dann nicht mehr geladen.',
         ],
       },
       {
         heading: 'KI-Agent L.U.K.A.S. (einwilligungspflichtig)',
         body: [
-          'L.U.K.A.S. ist mein eigener KI-Agent. Er wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben — gefragt werden Sie in der L.U.K.A.S.-Sektion selbst, kurz bevor ein Gespräch beginnt. Bis dahin wird nichts vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
+          'L.U.K.A.S. ist mein eigener KI-Agent. Er wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben. Gefragt werden Sie in der L.U.K.A.S.-Sektion selbst, kurz bevor ein Gespräch beginnt. Bis dahin wird nichts vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
           'Nach Ihrer Zustimmung wird der Agent von meinem Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird, damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Die von Ihnen geschriebenen Nachrichten werden dorthin übertragen, damit er antworten kann.',
-          'Bei Nutzung der Sprachfunktion fordert Ihr Browser zusätzlich Zugriff auf Ihr Mikrofon an und baut eine direkte Verbindung zu OpenAI (api.openai.com) auf. Ihr Mikrofon-Audio und die daraus erzeugte Verschriftlichung werden für die Dauer des Gesprächs an die OpenAI, Inc., USA — also in ein Drittland — übertragen. Audiodaten werden erst erfasst, nachdem Sie selbst ein Sprachgespräch gestartet haben.',
+          'Bei Nutzung der Sprachfunktion fordert Ihr Browser zusätzlich Zugriff auf Ihr Mikrofon an und baut eine direkte Verbindung zu OpenAI (api.openai.com) auf. Ihr Mikrofon-Audio und die daraus erzeugte Verschriftlichung werden für die Dauer des Gesprächs an die OpenAI, Inc. in den USA (also in ein Drittland) übertragen. Audiodaten werden erst erfasst, nachdem Sie selbst ein Sprachgespräch gestartet haben.',
           'Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft über „Cookie-Einstellungen" im Fußbereich widerrufen. Nach dem Widerruf wird der Agent nicht mehr geladen. Die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung bleibt davon unberührt.',
           'Bitte geben Sie im Agenten keine personenbezogenen Daten Dritter und keine sensiblen eigenen Daten ein.',
         ],

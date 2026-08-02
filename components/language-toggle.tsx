@@ -12,6 +12,7 @@ export function LanguageToggle() {
   return (
     <div
       data-page-chrome
+      data-language-toggle
       className="fixed right-16 top-4 z-50 flex items-center gap-0.5 rounded-full border border-white/10 bg-black/30 p-0.5 font-mono text-[9px] uppercase tracking-[0.1em] backdrop-blur-sm sm:right-4"
     >
       {(['de', 'en'] as const).map((l) => (

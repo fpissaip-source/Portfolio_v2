@@ -76,7 +76,8 @@ export function useT(): Dictionary {
   // the server renders, and therefore what any crawler that does not run JS
   // reads. The page's <html lang>, its metadata and its structured data all
   // say de-DE; serving English HTML underneath them was the one combination
-  // guaranteed to be wrong. Visitors never see this state: the language is
-  // resolved in a layout effect, behind the preloader.
+  // guaranteed to be wrong. An English visitor sees German for the length of
+  // one paint — the stored preference is read in a layout effect, before the
+  // browser draws — which is the cheaper of the two mistakes.
   return lang === 'en' ? EN : DE
 }

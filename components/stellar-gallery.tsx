@@ -511,7 +511,7 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
               onClick={() => setSelectedCard(card)}
               className="sr-only rounded-full border border-blue/60 bg-black/90 px-4 py-2 text-sm font-semibold text-foreground focus:not-sr-only focus:relative focus:m-2 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue"
             >
-              {card.title} — {t.projects.open}
+              {card.title}: {t.projects.open}
             </button>
           </li>
         ))}

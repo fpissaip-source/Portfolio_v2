@@ -1,15 +1,23 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-/** A soft cursor-following glow. Pointer-events none, GPU transform only. */
+/** A soft cursor-following glow. Pointer-events none, GPU transform only.
+ *
+ *  Not rendered at all where it cannot be seen or cannot be afforded: there
+ *  is no cursor to follow on a touch screen, and `mix-blend-screen` over the
+ *  full viewport is a compositing pass per frame either way. */
 export function MouseGlow() {
   const ref = useRef<HTMLDivElement>(null)
+  const [show, setShow] = useState(false)
 
   useEffect(() => {
-    if (window.matchMedia('(pointer: coarse)').matches) return
+    setShow(!window.matchMedia('(pointer: coarse)').matches)
+  }, [])
+
+  useEffect(() => {
     const el = ref.current
-    if (!el) return
+    if (!show || !el) return
 
     let raf = 0
     let tx = window.innerWidth / 2
@@ -35,7 +43,9 @@ export function MouseGlow() {
       window.removeEventListener('mousemove', onMove)
       cancelAnimationFrame(raf)
     }
-  }, [])
+  }, [show])
+
+  if (!show) return null
 
   return (
     <div

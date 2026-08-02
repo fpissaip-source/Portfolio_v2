@@ -16,10 +16,9 @@ export type LightningHandle = {
     hue?: Hue
     duration?: number
     /** 'bolt' (default) is the point-to-point circuit streak used by the
-     *  preloader/hero/handoff. 'network' is a small pseudo-3D cluster of
-     *  glowing nodes connected by edges — used by the cinematic intro so
-     *  the recurring sparks read as the same visual language as the
-     *  L.U.K.A.S. neuron field they eventually become. */
+     *  hero. 'network' is a small pseudo-3D cluster of glowing nodes
+     *  connected by edges, so the recurring sparks read as the same visual
+     *  language as the L.U.K.A.S. neuron field they eventually become. */
     style?: 'bolt' | 'network'
     /** 'network' style only — radius of the cluster, in 0..1 canvas units. */
     spread?: number

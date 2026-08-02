@@ -79,7 +79,7 @@ export function SiteNav() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="fixed left-1/2 top-4 z-50 hidden -translate-x-1/2 sm:block"
           >
-            <div className="glass flex items-center gap-1 rounded-full px-2 py-1.5">
+            <div data-page-chrome className="glass flex items-center gap-1 rounded-full px-2 py-1.5">
               <div className="flex items-center">
                 {LINKS.map((l) => (
                   <a

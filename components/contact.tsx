@@ -76,13 +76,38 @@ export function Contact() {
           </dl>
         </Reveal>
 
-        {/* One primary action — the details above say how to reach me, this
-            says what to do next. */}
+        {/* The free draft. Deliberately the loudest element in the section:
+            "start a project" asks for a decision, this asks for two
+            sentences, and one of those is a much easier yes. */}
         <Reveal delay={0.25}>
-          <div className="mt-14 flex justify-center">
+          <div className="mt-14 rounded-3xl border border-purple/35 bg-purple/[0.07] p-7 text-center sm:p-10">
+            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple">
+              {t.contact.offerLabel}
+            </p>
+            <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
+              {t.contact.offerTitle}
+            </h3>
+            <p className="mx-auto mt-4 max-w-lg text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+              {t.contact.offerBody}
+            </p>
+            <a
+              href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.offerSubject)}`}
+              className="mt-7 inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-base font-semibold tracking-tight text-background transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
+            >
+              {t.contact.offerCta}
+              <span aria-hidden>→</span>
+            </a>
+          </div>
+        </Reveal>
+
+        {/* The other way in, for someone who already knows what they want.
+            Quieter on purpose: two equally loud buttons is no choice at
+            all. */}
+        <Reveal delay={0.3}>
+          <div className="mt-8 flex justify-center">
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
-              className="inline-flex items-center gap-2 rounded-full border border-blue/60 bg-blue/10 px-8 py-4 text-base font-semibold tracking-tight text-foreground transition-colors hover:border-blue/80 hover:bg-blue/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-7 py-3 text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {t.contact.cta}
               <span aria-hidden>→</span>

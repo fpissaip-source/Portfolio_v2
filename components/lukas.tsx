@@ -595,10 +595,17 @@ export function Lukas() {
               <h3 className="mt-4 text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
                 {b.title}
               </h3>
-              <p className="mx-auto mt-6 max-w-2xl leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
+              {/* One sentence per line from `sm` up, one flowing paragraph
+                  below it. Two reasons, both phone-shaped: `text-balance`
+                  deliberately evens out line lengths, which on a narrow
+                  screen turns a sentence into a tall stack of short lines,
+                  and a block per sentence means neither sentence can ever
+                  fill the line the other one started. */}
+              <p className="mx-auto mt-6 max-w-2xl text-pretty leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
                 {b.body.map((sentence, si) => (
-                  <span key={si} className="block text-balance">
+                  <span key={si} className="sm:block">
                     {sentence}
+                    {si < b.body.length - 1 ? ' ' : ''}
                   </span>
                 ))}
               </p>

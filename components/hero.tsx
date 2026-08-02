@@ -342,7 +342,15 @@ export function Hero() {
               the scroll choreography. */}
           <div
             ref={robotRef}
-            className="relative h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-auto"
+            // On a desktop the head is given a fixed share of the stage
+            // height rather than being sized by its own aspect ratio. With
+            // `cover`, the head's scale is driven by whichever side of the
+            // box needs more, and in a wide column that is always the
+            // height — so height is the only dial that actually makes him
+            // bigger. 80svh is what fits between the top padding and the
+            // bottom padding on a 768px-tall laptop, which is the shortest
+            // screen this layout has to survive.
+            className="relative h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
           >
             {/* Breaks out of the column horizontally on a phone — but out of
                 flow, so it never widens the grid track and drags the
@@ -351,7 +359,7 @@ export function Hero() {
                 `relative`, which wins over a `position` class passed in. */}
             <div
               ref={robotBoxRef}
-              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:static lg:h-auto lg:w-[124%] lg:translate-x-0"
+              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:static lg:h-full lg:w-[152%] lg:translate-x-0"
             >
               <ScrubVideo
                 ref={videoRef}
@@ -364,11 +372,12 @@ export function Hero() {
                 // air. Cropping to the box scales the head up instead, and
                 // the mask below takes care of the cropped edges.
                 fit="cover"
-                // 4:3 rather than square: `cover` crops the sides to fill
-                // the box, and the head throws its parts sideways as it
-                // comes apart — a square box would have cut roughly a fifth
-                // off each edge at exactly the moment worth watching.
-                className="h-full w-full lg:aspect-[4/3] lg:h-auto"
+                // Fills whatever box it is given. The box itself is what is
+                // shaped: never taller than 16:9 on a phone (a taller box
+                // crops the TOP under `cover`, which ate the shell fragments
+                // exactly as they flew off), and wide enough on a desktop
+                // that the sideways crop stays away from the head.
+                className="h-full w-full"
                 // The ellipse is inscribed in the box, so the mask is fully
                 // transparent by the time it reaches any edge — with a
                 // larger radius the footage would still end on a visible

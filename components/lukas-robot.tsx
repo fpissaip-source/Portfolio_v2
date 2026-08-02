@@ -54,15 +54,63 @@ class HeartCurve extends THREE.Curve<THREE.Vector3> {
 
 const sharedHeartCurve = new HeartCurve();
 
+/** Share of the frame the robot is allowed to occupy. The remainder is the
+ *  margin that keeps him off the canvas edge. */
+const FILL = 0.96;
+
+/**
+ * Fits the robot to the canvas, measured rather than guessed.
+ *
+ * This used to be `min(1.6, viewport.width / 2.2)`: a divisor tuned by eye
+ * for one column size, taking no account of the frame's *height*. At the
+ * sizes this panel actually renders at, that scale made him taller than the
+ * frustum, and a WebGL canvas clips dead straight at its own edge — so the
+ * top of his head was sliced off by a horizontal line with nothing visible
+ * causing it. An invisible wall.
+ *
+ * Instead: take the model's real bounding box, and scale so that box fits
+ * inside the camera's viewport on *both* axes, then recentre it. Whatever
+ * the column size, he is as large as he can be without touching an edge,
+ * and the wall cannot come back if the layout changes again.
+ */
 function ResponsiveGroup({ children }: { children: React.ReactNode }) {
   const { viewport } = useThree();
-  // Upstream's 3.5 / cap 1.1 frames him for a full-viewport hero. In this
-  // 448x544 column that leaves him a small figure adrift in empty space.
-  // Note moving the camera in does NOT fix it: viewport.width shrinks with
-  // camera distance, so this divisor cancels the zoom almost exactly. The
-  // scale itself is what has to change.
-  const scale = Math.min(1.6, viewport.width / 2.2);
-  return <group scale={scale}>{children}</group>;
+  const group = useRef<THREE.Group>(null);
+  const fitted = useRef(false);
+  const frames = useRef(0);
+
+  // Re-fit when the frame changes shape (window resize, zoom).
+  useEffect(() => {
+    fitted.current = false;
+    frames.current = 0;
+  }, [viewport.width, viewport.height]);
+
+  useFrame(() => {
+    const g = group.current;
+    if (!g || fitted.current) return;
+    // Give the geometry and its async textures a few frames to exist; a box
+    // measured over an empty group is empty.
+    if (frames.current++ < 3) return;
+
+    // Measured with the fit removed, so the box is the model's own size and
+    // not the previous fit's. useFrame runs before the render, so this never
+    // reaches the screen.
+    g.scale.setScalar(1);
+    g.position.set(0, 0, 0);
+    g.updateWorldMatrix(true, true);
+
+    const box = new THREE.Box3().setFromObject(g);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    if (!Number.isFinite(size.y) || size.y < 1e-4 || size.x < 1e-4) return;
+
+    const scale = Math.min((viewport.width * FILL) / size.x, (viewport.height * FILL) / size.y);
+    g.scale.setScalar(scale);
+    g.position.set(-center.x * scale, -center.y * scale, 0);
+    fitted.current = true;
+  });
+
+  return <group ref={group}>{children}</group>;
 }
 
 function GlassCapsule({ color, power, intensity }: { color: string; power: number; intensity: number }) {

@@ -15,7 +15,6 @@ import { Statement } from '@/components/statement'
 import { Services } from '@/components/services'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
-import { PhoneStory } from '@/components/phone-story'
 import { About } from '@/components/about'
 import { TechStack } from '@/components/tech-stack'
 import { Process } from '@/components/process'
@@ -65,9 +64,6 @@ export default function Page() {
             would have been three ambient systems in one viewport. */}
         <Scene labelKey="services" backdrop="cursor-grid">
           <Services />
-        </Scene>
-        <Scene labelKey="phone" backdrop="rain">
-          <PhoneStory />
         </Scene>
         <Scene labelKey="about" backdrop="dust">
           <About />

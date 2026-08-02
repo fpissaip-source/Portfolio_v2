@@ -72,5 +72,11 @@ export function useLanguage() {
 
 export function useT(): Dictionary {
   const { lang } = useLanguage()
-  return lang === 'de' ? DE : EN
+  // German is the fallback while `lang` is still unresolved — which is what
+  // the server renders, and therefore what any crawler that does not run JS
+  // reads. The page's <html lang>, its metadata and its structured data all
+  // say de-DE; serving English HTML underneath them was the one combination
+  // guaranteed to be wrong. Visitors never see this state: the language is
+  // resolved in a layout effect, behind the preloader.
+  return lang === 'en' ? EN : DE
 }

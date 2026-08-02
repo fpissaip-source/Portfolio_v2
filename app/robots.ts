@@ -3,19 +3,46 @@ import type { MetadataRoute } from 'next'
 const SITE = 'https://issahareb.me'
 
 /**
- * There was no robots.txt at all — /robots.txt answered with the HTML 404
- * page. A missing robots.txt is not itself a block (crawlers treat it as
- * "allow everything"), but it is the file every crawler asks for first, it
- * is where the sitemap gets announced, and a 404 there means the sitemap
- * was announced nowhere.
+ * `User-agent: *` already allows every crawler, so the named blocks below
+ * grant no permission that was missing. They are here for the same reason
+ * the taxibbessen site has them: answer engines are the second search
+ * surface this site is written for, and a named `Allow` is an unambiguous
+ * statement — to their operators and to anyone auditing the file — that
+ * this content is meant to be read and quoted, rather than something a
+ * wildcard happens to permit by default.
  *
- * Everything is allowed, including the AI crawlers, because the point of
- * this site is to be read. The only exclusion is /_next/, which is build
- * output with no content in it.
+ * The only exclusion is /_next/, which is build output with no content.
  */
+const AI_CRAWLERS = [
+  // OpenAI: training, live browsing, and the search index respectively
+  'GPTBot',
+  'ChatGPT-User',
+  'OAI-SearchBot',
+  // Anthropic
+  'ClaudeBot',
+  'Claude-Web',
+  'anthropic-ai',
+  // Perplexity, Google's AI products, Apple, Amazon, Meta, Cohere,
+  // ByteDance, Common Crawl, DuckDuckGo
+  'PerplexityBot',
+  'Google-Extended',
+  'Applebot',
+  'Applebot-Extended',
+  'Amazonbot',
+  'FacebookBot',
+  'meta-externalagent',
+  'cohere-ai',
+  'Bytespider',
+  'CCBot',
+  'DuckAssistBot',
+]
+
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: '/_next/' }],
+    rules: [
+      { userAgent: '*', allow: '/', disallow: '/_next/' },
+      ...AI_CRAWLERS.map((userAgent) => ({ userAgent, allow: '/' })),
+    ],
     sitemap: `${SITE}/sitemap.xml`,
     host: SITE,
   }

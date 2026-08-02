@@ -139,34 +139,53 @@ export function Hero() {
     let sparked = false
     let headH = 0
     let maxW = 0
+    /** How far the head scales down once the copy has arrived. */
+    let shrink = 1
 
     // On a phone the head, the headline and the copy share one screen, so
     // how tall the head can be is arithmetic, not a guess: whatever is left
     // over. Fixed vh values looked right on a 390×844 phone and cut the
     // second call to action off on a 360×640 one.
     //
-    // One size, set once. It used to shrink from a tall opening size down to
-    // this one as the copy arrived, which meant the box was a different size
-    // on every frame of the scroll: the canvas backing store was reallocated
-    // continuously, the head visibly changed scale under the scrub, and the
-    // whole thing read as the animation coming apart rather than the robot.
-    // The copy has room without taking any back.
+    // The head is drawn at its *opening* size and scaled down as the copy
+    // arrives, rather than being resized.
+    //
+    // Two things forced this. Resizing meant a different box on every frame
+    // of the scroll, so the canvas backing store was reallocated
+    // continuously and the head visibly changed scale under the scrub. But
+    // sizing it once to what is left over after the copy is worse: the copy
+    // is invisible for the first 70% of the animation and was still
+    // reserving its full height, which left the head a stamp on a phone.
+    //
+    // So the row keeps the small height (the layout never moves, and the
+    // copy always fits), while the box itself is the big size and overflows
+    // that row until the copy needs the room. Only `transform` animates.
     const measure = () => {
-      if (!narrow) return
+      if (!narrow) {
+        robot.style.height = ''
+        robotBox.style.width = ''
+        robotBox.style.height = ''
+        const desktopFrame = robotBox.firstElementChild as HTMLElement | null
+        if (desktopFrame) desktopFrame.style.transform = ''
+        return
+      }
       const cs = window.getComputedStyle(stage)
       const avail =
         stage.clientHeight - parseFloat(cs.paddingTop || '0') - parseFloat(cs.paddingBottom || '0')
       const gaps = 2 * parseFloat(window.getComputedStyle(grid).rowGap || '20')
-      const fixed = header.offsetHeight + reveal.offsetHeight + gaps
-      // Floor: below this the head is a thumbnail and the whole point of it
-      // is gone — better to let the section give up a few pixels at the
-      // bottom edge than to show a postage stamp.
-      headH = Math.max(150, avail - fixed)
-      maxW = window.innerWidth * 1.32
-      robot.style.height = `${headH.toFixed(1)}px`
+      // What is left once the copy is on screen: the row's height, so the
+      // call to action can never be pushed off the bottom edge.
+      const settled = Math.max(150, avail - header.offsetHeight - reveal.offsetHeight - gaps)
+      // What the head opens at: everything the copy is not using yet.
+      maxW = window.innerWidth * 1.34
+      const openH = Math.min(avail - header.offsetHeight - gaps * 0.5, (maxW * 980) / 1408)
+      headH = Math.max(settled, openH)
+      shrink = clamp01(settled / headH)
+      robot.style.height = `${settled.toFixed(1)}px`
+      robotBox.style.height = `${headH.toFixed(1)}px`
       // Width follows the height at the frame's own aspect ratio, so the box
       // and the footage are the same shape and `contain` letterboxes nothing.
-      robotBox.style.width = `${Math.min(maxW, (headH * 1408) / 980).toFixed(1)}px`
+      robotBox.style.width = `${((headH * 1408) / 980).toFixed(1)}px`
     }
 
     const apply = (p: number) => {
@@ -195,9 +214,17 @@ export function Hero() {
         cue.style.opacity = String(out)
         cue.style.pointerEvents = out < 0.4 ? 'none' : 'auto'
       }
-      if (!narrow) {
-        robot.style.height = ''
-        robotBox.style.width = ''
+      // Scale, never size: the canvas keeps one backing store for the whole
+      // scroll, so nothing is reallocated and nothing goes soft.
+      if (narrow) {
+        // The scale is applied to the frame itself, never to a box around
+        // it. `transform` (and Tailwind v4's separate `translate` property)
+        // establish a stacking context, and a stacking context between the
+        // stage and the frame cuts the frame's blend off from the light
+        // behind it — which is what put a black panel around the head.
+        const k = lerp(1, shrink, r)
+        const frame = robotBox.firstElementChild as HTMLElement | null
+        if (frame) frame.style.transform = `scale(${k.toFixed(4)})`
       }
     }
 
@@ -378,7 +405,7 @@ export function Hero() {
             // bigger. 80svh is what fits between the top padding and the
             // bottom padding on a 768px-tall laptop, which is the shortest
             // screen this layout has to survive.
-            className="relative h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
+            className="relative flex min-w-0 items-center justify-center h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh] lg:justify-end"
           >
             {/* Breaks out of the column horizontally on a phone — but out of
                 flow, so it never widens the grid track and drags the
@@ -391,7 +418,7 @@ export function Hero() {
               // pinned to the container's right edge. Absolute rather than in
               // flow because it is wider than its grid track and a track
               // sized by it would drag the headline off the screen.
-              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:left-auto lg:right-0 lg:top-1/2 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:translate-x-0 lg:aspect-[1408/980]"
+              className="h-full w-[132vw] max-w-none shrink-0 lg:h-full lg:w-auto lg:aspect-[1408/980]"
             >
               <ScrubVideo
                 ref={videoRef}
@@ -410,42 +437,25 @@ export function Hero() {
                 // whole frame used to mean fitting mostly air. The head is
                 // larger this way than it ever was under `cover`.
                 fit="contain"
-                // Screen-blended. The frame is a lit subject on a black
-                // backdrop, and `screen` leaves black alone entirely, so the
-                // frame's rectangle simply stops existing: no mask, nothing
-                // dimmed on its way out, and the headline stays readable
-                // where the (much larger) box now reaches across it.
-                className="h-full w-full mix-blend-screen"
-                // A border fade, not a circle. The old radial mask began
-                // dimming at 58% of the radius, which is exactly where the
-                // shell fragments are while they fly outwards: it was fading
-                // the subject to hide the frame's edge. Two linear gradients
-                // intersected fade only a band at each edge and leave the
-                // whole middle at full strength.
+                // `lighten`, not `screen`. Both leave a pure black frame
+                // alone, but screen *adds*, so the couple of levels of codec
+                // noise sitting on the frame's black floor still lifted the
+                // page by a hair — over a large rectangle that is exactly
+                // enough to read as a panel. `lighten` takes whichever of
+                // the two is brighter, so anything darker than the page is
+                // simply the page: no panel, at any noise level, and the
+                // headline stays readable where the box reaches across it.
+                className="h-full w-full mix-blend-lighten"
+                // No mask at all.
                 //
-                // A band is still needed despite the blend above, because
-                // the frame is not black everywhere: there is a real key
-                // light across the top and a blue ambient haze through the
-                // middle. Screened onto the page that haze is welcome (it is
-                // what stops the hero reading as flat black); only the line
-                // where it stops has to go.
-                //
-                // The master is *padded* with 60x40px of black around the
-                // animation's bounding box, so the first ~4% of this fade
-                // happens on padding and touches nothing. The rest of it
-                // covers the extreme outer edge of the frame, where only a
-                // fragment at maximum travel ever reaches. It used to fade
-                // from 58% of a radius, i.e. across the whole area the parts
-                // fly through, which is what made them look like they were
-                // disappearing behind something black.
-                style={{
-                  maskImage:
-                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
-                  maskComposite: 'intersect',
-                  WebkitMaskImage:
-                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
-                  WebkitMaskComposite: 'source-in',
-                }}
+                // There used to be a radial one fading from 58% of the
+                // radius, whose job was hiding the frame's edge and whose
+                // effect was dimming the shell fragments exactly as they
+                // flew out to it. It is not needed any more: the encode
+                // pulls the frame's backdrop to true black, and a black
+                // pixel screen-blended onto the page changes nothing at all.
+                // No rectangle to hide, so nothing to fade, so every part
+                // stays at full strength to the last frame.
               />
             </div>
           </div>

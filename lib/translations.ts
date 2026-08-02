@@ -711,53 +711,82 @@ export const EN: Dictionary = {
     ],
     datenschutz: [
       {
-        heading: 'Data Controller',
+        heading: 'Controller',
         body: [
-          'The controller responsible for data processing on this website is:',
+          'The controller for data processing on this website is:',
           'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Germany',
           'Email: Impressum@hareb.org · Phone: +49 1525 9559708',
         ],
       },
       {
-        heading: 'Hosting & Server Log Files',
+        heading: 'In short',
         body: [
-          'When you visit this website, the hosting provider automatically collects technical information such as IP address, date and time of access, the page requested and the browser used (server log files). This data is processed solely to ensure reliable operation and to improve the service, and is never merged with other data sources.',
+          'This site runs without ad networks, without tracking pixels and without cross-site profiling. Fonts, images and videos are served from its own server and are not fetched from third parties.',
+          'Two features process more than the bare minimum, and both stay switched off until you explicitly allow them: analytics and the AI agent L.U.K.A.S. Without your consent neither is loaded and neither records anything.',
         ],
       },
       {
-        heading: 'No Cookies, No Analytics, No Tracking',
+        heading: 'Hosting and server logs',
         body: [
-          'This website sets no cookies of any kind. There is no web analytics, no tracking pixel, no advertising network and no cross-site profiling. No reach measurement of any sort runs here.',
+          'This website is hosted with Railway. When you open it, the hosting provider automatically records technical information such as IP address, date and time of access, the page requested, the amount of data transferred and the browser used (server logs).',
+          'That processing is technically necessary to deliver the site at all and to keep it secure. The legal basis is my legitimate interest in reliable and secure operation under Art. 6(1)(f) GDPR. The data is not combined with other sources and is not used to identify individuals.',
         ],
       },
       {
-        heading: 'Local Storage of Your Language Preference',
+        heading: 'Encryption',
         body: [
-          "Your chosen language (German/English) is stored only locally in your browser (localStorage) so it's remembered on your next visit. This information never leaves your device and is never transmitted to me.",
+          'The connection to this website is encrypted end to end with TLS (the https in the address bar). What you send here cannot be read by third parties in transit.',
         ],
       },
       {
-        heading: 'Analytics (Consent Required)',
+        heading: 'Getting in touch',
+        body: [
+          'The contact options on this site are plain email and telephone links. There is no form that sends data to this website\'s server: a click opens your own mail or phone app.',
+          'If you then write to me, I process what you send solely to deal with your enquiry. The legal basis is Art. 6(1)(b) GDPR where the enquiry concerns a possible engagement, otherwise Art. 6(1)(f) GDPR. Your message is kept until the matter is closed and no statutory retention period requires otherwise.',
+        ],
+      },
+      {
+        heading: 'Storage in your browser',
+        body: [
+          'This site stores two things locally in your browser (localStorage): the language you picked and your decision about the optional features. Both stay on your device, are never transmitted to me, and exist only so you are not asked again on every visit.',
+          'This storage is strictly necessary for the service you asked for and therefore does not require consent under § 25(2) TDDDG. You can remove it at any time by clearing this site\'s data in your browser.',
+        ],
+      },
+      {
+        heading: 'Analytics (only with your consent)',
         body: [
           'If you allow it, an analytics tool records how this site is used: which pages are opened, how long a visit lasts, and which site you arrived from. This is used solely to see which parts of the site are worth improving. Cookies are set for this purpose.',
-          'Nothing is loaded and nothing is recorded before you have allowed it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. You can withdraw at any time with effect for the future via "Cookie preferences" in the footer; the tool then stops being loaded.',
+          'Nothing is loaded and nothing is recorded before you agree. The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG. You can withdraw at any time with effect for the future via "Cookie settings" in the footer; the tool is then no longer loaded.',
         ],
       },
       {
-        heading: 'L.U.K.A.S. AI Agent (Consent Required)',
+        heading: 'The AI agent L.U.K.A.S. (only with your consent)',
         body: [
-          'L.U.K.A.S. is my own AI agent. He is only loaded once you have explicitly allowed it. You are asked in the L.U.K.A.S. section itself, just before a conversation starts. Until then nothing is requested from the agent server and no data is transmitted to it. Legal basis: your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
-          'Once allowed, the agent is loaded from my agent server, hosted on Railway (EU region), so he can answer your questions by chat or by voice. The messages you write to him are transmitted there so he can reply.',
+          'L.U.K.A.S. is my own AI agent. He is only loaded once you have explicitly allowed it. You are asked in the L.U.K.A.S. section itself, just before a conversation starts. Until then nothing is requested from the agent server and no data is transmitted to it. The legal basis is your consent under Art. 6(1)(a) GDPR and § 25(1) TDDDG.',
+          'After you agree, the agent is loaded from my agent server, hosted with Railway (EU region), so that it can answer your questions by chat or by voice. The messages you write are transmitted there so that it can reply.',
           'If you use the voice function, your browser additionally requests microphone access and opens a direct connection to OpenAI (api.openai.com). Your microphone audio, and the transcript produced from it, are transmitted to OpenAI, Inc. in the USA (a third country) for as long as the conversation runs. Audio is only captured after you have started a voice conversation yourself.',
-          'You can withdraw your consent at any time, with effect for the future, via "Cookie preferences" in the footer. After withdrawal the agent is no longer loaded. This does not affect the lawfulness of processing carried out before the withdrawal.',
-          'Please do not enter personal data of third parties, or your own sensitive data, into the agent.',
+          'You can withdraw your consent at any time with effect for the future via "Cookie settings" in the footer. After withdrawal the agent is no longer loaded. The lawfulness of processing carried out until then is unaffected.',
+          'Please do not enter other people\'s personal data, or sensitive data of your own, into the agent.',
         ],
       },
       {
-        heading: 'Your Rights',
+        heading: 'No automated decision-making',
         body: [
-          'You have the right at any time to access, rectify, erase or restrict the processing of your personal data, as well as a right to data portability and objection. Feel free to reach out by email to Impressum@hareb.org.',
-          'You also have the right to lodge a complaint with your competent data protection supervisory authority.',
+          'There is no automated decision-making and no profiling within the meaning of Art. 22 GDPR. What the AI agent says is information about me and my work, not a decision about you.',
+        ],
+      },
+      {
+        heading: 'Your rights',
+        body: [
+          'You have the right at any time to access the data held about you, and to rectification, erasure, restriction of processing, data portability, and objection to processing based on a legitimate interest. Please write to Impressum@hareb.org.',
+          'Consent once given can be withdrawn at any time with effect for the future, without affecting the lawfulness of processing carried out until then.',
+          'You also have the right to lodge a complaint with the competent data protection supervisory authority.',
+        ],
+      },
+      {
+        heading: 'Status',
+        body: [
+          'These privacy notices are updated whenever something changes about the site or the services it uses. The version published here is the one that applies.',
         ],
       },
     ],
@@ -1146,32 +1175,48 @@ export const DE: Dictionary = {
         ],
       },
       {
+        heading: 'Kurz gefasst',
+        body: [
+          'Diese Seite kommt ohne Werbenetzwerke, ohne Tracking-Pixel und ohne seitenübergreifende Profilbildung aus. Schriften, Bilder und Videos liegen auf dem eigenen Server und werden nicht von fremden Diensten nachgeladen.',
+          'Zwei Funktionen verarbeiten mehr als das Nötigste, und beide sind ausgeschaltet, bis Sie ausdrücklich zustimmen: die Reichweitenmessung und der KI-Agent L.U.K.A.S. Ohne Ihre Zustimmung wird für beide nichts geladen und nichts erfasst.',
+        ],
+      },
+      {
         heading: 'Hosting und Server-Logfiles',
         body: [
-          'Beim Aufruf dieser Website erfasst der Hosting-Provider automatisch technische Informationen wie IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite und verwendeten Browser (Server-Logfiles). Diese Daten werden ausschließlich zur Gewährleistung eines störungsfreien Betriebs sowie zur Verbesserung des Angebots verarbeitet und nicht mit anderen Datenquellen zusammengeführt.',
+          'Diese Website wird bei Railway gehostet. Beim Aufruf erfasst der Hosting-Provider automatisch technische Informationen wie IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Seite, übertragene Datenmenge und verwendeten Browser (Server-Logfiles).',
+          'Diese Verarbeitung ist technisch notwendig, um die Seite überhaupt ausliefern und den Betrieb absichern zu können. Rechtsgrundlage ist mein berechtigtes Interesse an einem störungsfreien und sicheren Betrieb nach Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden nicht mit anderen Datenquellen zusammengeführt und nicht zur Identifizierung einzelner Personen verwendet.',
         ],
       },
       {
-        heading: 'Keine Cookies, keine Analyse, kein Tracking',
+        heading: 'Verschlüsselung',
         body: [
-          'Diese Website setzt keinerlei Cookies. Es gibt keine Webanalyse, kein Tracking-Pixel, kein Werbenetzwerk und keine seitenübergreifende Profilbildung. Eine Reichweitenmessung findet hier in keiner Form statt.',
+          'Die Verbindung zu dieser Website ist durchgehend per TLS verschlüsselt (erkennbar am https in der Adresszeile). Inhalte, die Sie hier übertragen, können von Dritten nicht mitgelesen werden.',
         ],
       },
       {
-        heading: 'Lokale Speicherung Ihrer Spracheinstellung',
+        heading: 'Kontaktaufnahme',
         body: [
-          'Ihre gewählte Sprache (Deutsch/Englisch) wird ausschließlich lokal in Ihrem Browser (localStorage) gespeichert, um sie bei einem erneuten Besuch beizubehalten. Diese Information verlässt Ihr Gerät nicht und wird nicht an mich übertragen.',
+          'Die Kontaktmöglichkeiten auf dieser Seite sind einfache E-Mail- und Telefon-Links. Es gibt kein Formular, das Daten an den Server dieser Website sendet: ein Klick öffnet Ihr eigenes E-Mail- oder Telefonprogramm.',
+          'Wenn Sie mir daraufhin schreiben, verarbeite ich Ihre Angaben ausschließlich zur Bearbeitung Ihrer Anfrage. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO bei einer Anfrage zu einem möglichen Auftrag, sonst Art. 6 Abs. 1 lit. f DSGVO. Ihre Nachricht bleibt gespeichert, bis der Vorgang abgeschlossen ist und keine gesetzlichen Aufbewahrungsfristen entgegenstehen.',
         ],
       },
       {
-        heading: 'Analyse (einwilligungspflichtig)',
+        heading: 'Speicherung im Browser',
+        body: [
+          'Diese Seite speichert zwei Dinge lokal in Ihrem Browser (localStorage): Ihre gewählte Sprache und Ihre Entscheidung zu den optionalen Funktionen. Beides bleibt auf Ihrem Gerät, wird nicht an mich übertragen und dient nur dazu, dass Sie nicht bei jedem Besuch erneut gefragt werden.',
+          'Diese Speicherung ist für den von Ihnen gewünschten Dienst unbedingt erforderlich und daher nach § 25 Abs. 2 TDDDG einwilligungsfrei. Sie können sie jederzeit löschen, indem Sie die Websitedaten in Ihrem Browser entfernen.',
+        ],
+      },
+      {
+        heading: 'Reichweitenmessung (nur mit Ihrer Zustimmung)',
         body: [
           'Wenn Sie zustimmen, erfasst ein Analyse-Werkzeug, wie diese Seite genutzt wird: welche Seiten geöffnet werden, wie lange ein Besuch dauert und von welcher Seite Sie gekommen sind. Das dient allein dazu, zu erkennen, an welchen Stellen sich Arbeit lohnt. Dabei werden Cookies gesetzt.',
           'Vor Ihrer Zustimmung wird nichts geladen und nichts erfasst. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG. Sie können jederzeit mit Wirkung für die Zukunft über „Cookie-Einstellungen" im Fußbereich widerrufen; das Werkzeug wird dann nicht mehr geladen.',
         ],
       },
       {
-        heading: 'KI-Agent L.U.K.A.S. (einwilligungspflichtig)',
+        heading: 'KI-Agent L.U.K.A.S. (nur mit Ihrer Zustimmung)',
         body: [
           'L.U.K.A.S. ist mein eigener KI-Agent. Er wird ausschließlich geladen, wenn Sie dem ausdrücklich zugestimmt haben. Gefragt werden Sie in der L.U.K.A.S.-Sektion selbst, kurz bevor ein Gespräch beginnt. Bis dahin wird nichts vom Agenten-Server angefordert und es werden keine Daten dorthin übertragen. Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO und § 25 Abs. 1 TDDDG.',
           'Nach Ihrer Zustimmung wird der Agent von meinem Agenten-Server geladen, der bei Railway (EU-Region) gehostet wird, damit er Ihre Fragen per Chat oder per Sprache beantworten kann. Die von Ihnen geschriebenen Nachrichten werden dorthin übertragen, damit er antworten kann.',
@@ -1181,10 +1226,23 @@ export const DE: Dictionary = {
         ],
       },
       {
+        heading: 'Keine automatisierte Entscheidungsfindung',
+        body: [
+          'Es findet keine automatisierte Entscheidungsfindung und kein Profiling im Sinne von Art. 22 DSGVO statt. Die Antworten des KI-Agenten sind Auskünfte über mich und meine Arbeit, keine Entscheidungen über Sie.',
+        ],
+      },
+      {
         heading: 'Ihre Rechte',
         body: [
-          'Sie haben jederzeit das Recht auf Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung Ihrer personenbezogenen Daten sowie ein Recht auf Datenübertragbarkeit und Widerspruch. Wenden Sie sich hierzu gerne per E-Mail an Impressum@hareb.org.',
-          'Außerdem steht Ihnen ein Beschwerderecht bei der zuständigen Datenschutzaufsichtsbehörde zu.',
+          'Sie haben jederzeit das Recht auf Auskunft über die zu Ihnen gespeicherten Daten, auf Berichtigung, auf Löschung, auf Einschränkung der Verarbeitung, auf Datenübertragbarkeit sowie auf Widerspruch gegen Verarbeitungen, die auf einem berechtigten Interesse beruhen. Wenden Sie sich hierzu gerne per E-Mail an Impressum@hareb.org.',
+          'Eine einmal erteilte Einwilligung können Sie jederzeit für die Zukunft widerrufen, ohne dass die Rechtmäßigkeit der bis dahin erfolgten Verarbeitung berührt wird.',
+          'Außerdem steht Ihnen ein Beschwerderecht bei der zuständigen Datenschutzaufsichtsbehörde zu. Zuständig ist in der Regel die Aufsichtsbehörde des Bundeslandes, in dem ich meinen Sitz habe.',
+        ],
+      },
+      {
+        heading: 'Stand',
+        body: [
+          'Diese Datenschutzhinweise werden angepasst, sobald sich an der Seite oder an den eingesetzten Diensten etwas ändert. Es gilt jeweils die hier abrufbare Fassung.',
         ],
       },
     ],

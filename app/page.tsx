@@ -10,7 +10,6 @@ import { CinematicIntro } from '@/components/cinematic-intro'
 import { Hero } from '@/components/hero'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
-import { PhoneStory } from '@/components/phone-story'
 import { About } from '@/components/about'
 import { TechStack } from '@/components/tech-stack'
 import { Process } from '@/components/process'
@@ -39,9 +38,6 @@ export default function Page() {
           </Scene>
           <Scene labelKey="work" backdrop="nodes">
             <Projects />
-          </Scene>
-          <Scene labelKey="phone" backdrop="rain">
-            <PhoneStory />
           </Scene>
           <Scene labelKey="about" backdrop="dust">
             <About />

@@ -11,6 +11,7 @@ import { LukasVoiceWidget } from '@/components/lukas-voice-widget'
 import { ConsentBanner } from '@/components/consent-banner'
 import { Analytics } from '@/components/analytics'
 import { Hero } from '@/components/hero'
+import { Statement } from '@/components/statement'
 import { Services } from '@/components/services'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
@@ -44,7 +45,12 @@ export default function Page() {
         <EdgeGlow />
         <IonTrail />
         <Hero />
-        {/* L.U.K.A.S. straight after the hero: the head has just taken itself
+        {/* The hero is deliberately four short lines. This is where the
+            short version gets explained — one sentence, assembled out of
+            the air as it is scrolled, which is also the handover out of the
+            hero's own animation. */}
+        <Statement />
+        {/* L.U.K.A.S. after the statement: the head has just taken itself
             apart into a network, and this is the system that network is. */}
         <Scene labelKey="lukas">
           <Lukas />

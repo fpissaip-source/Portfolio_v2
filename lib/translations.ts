@@ -66,6 +66,13 @@ export type Dictionary = {
     capabilities: string[]
     ctaPrimary: string
   }
+  /** The sentence between the hero and L.U.K.A.S., assembled word by word
+   *  out of the air as it is scrolled. The hero says the short version;
+   *  this is where the short version gets explained. */
+  statement: {
+    label: string
+    text: string
+  }
   services: {
     kicker: string
     heading: string
@@ -347,10 +354,14 @@ export const EN: Dictionary = {
     headingLine1: 'I build intelligent systems.',
     headingLine2: 'From the first idea to live operation.',
     headingPlain: 'I build intelligent systems. From the first idea to live operation.',
-    body: 'Web design, 3D, automations and apps — built on a backend I can open up and prove, not just describe. Search, AI answers and generative engines are part of the build from the first line, and the numbers are measured, not claimed.',
+    body: 'Interface, backend and deployment from one pair of hands.',
     capabilities: ['Web design', '3D & motion', 'Automation & apps', 'SEO · AEO · GEO'],
     scrollCue: 'Explore the work',
     ctaPrimary: 'Start a project',
+  },
+  statement: {
+    label: 'What that means in practice',
+    text: 'I build websites, web applications, AI agents and automations — interface, backend, database and deployment from one pair of hands. No concept, no demo: a system that runs, that can be measured, and that takes work off your desk.',
   },
   services: {
     kicker: 'Services',
@@ -768,10 +779,14 @@ export const DE: Dictionary = {
     headingLine2: 'Von der ersten Idee bis zum Livebetrieb.',
     headingPlain:
       'Ich entwickle intelligente Systeme. Von der ersten Idee bis zum Livebetrieb.',
-    body: 'Webdesign, 3D, Automatisierungen und Apps – gebaut auf einem Backend, das ich offenlegen und belegen kann, statt es nur zu beschreiben. Suche, KI-Antworten und generative Engines sind ab der ersten Zeile Teil des Baus, und die Zahlen dazu sind gemessen, nicht behauptet.',
+    body: 'Oberfläche, Backend und Deployment aus einer Hand.',
     capabilities: ['Webdesign', '3D & Motion', 'Automatisierung & Apps', 'SEO · AEO · GEO'],
     scrollCue: 'Projekte entdecken',
     ctaPrimary: 'Projekt anfragen',
+  },
+  statement: {
+    label: 'Was das konkret heißt',
+    text: 'Ich baue Websites, Webanwendungen, KI-Agenten und Automatisierungen — Oberfläche, Backend, Datenbank und Deployment aus einer Hand. Kein Konzept, keine Demo: ein System, das läuft, das messbar ist und das Arbeit abnimmt.',
   },
   services: {
     kicker: 'Leistungen',

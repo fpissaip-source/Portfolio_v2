@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -137,14 +137,20 @@ export function Hero() {
     const header = grid.children[0] as HTMLElement
     let narrow = window.matchMedia('(max-width: 1023px)').matches
     let sparked = false
-    let startH = 0
-    let endH = 0
+    let headH = 0
     let maxW = 0
 
     // On a phone the head, the headline and the copy share one screen, so
     // how tall the head can be is arithmetic, not a guess: whatever is left
     // over. Fixed vh values looked right on a 390×844 phone and cut the
     // second call to action off on a 360×640 one.
+    //
+    // One size, set once. It used to shrink from a tall opening size down to
+    // this one as the copy arrived, which meant the box was a different size
+    // on every frame of the scroll: the canvas backing store was reallocated
+    // continuously, the head visibly changed scale under the scrub, and the
+    // whole thing read as the animation coming apart rather than the robot.
+    // The copy has room without taking any back.
     const measure = () => {
       if (!narrow) return
       const cs = window.getComputedStyle(stage)
@@ -155,9 +161,12 @@ export function Hero() {
       // Floor: below this the head is a thumbnail and the whole point of it
       // is gone — better to let the section give up a few pixels at the
       // bottom edge than to show a postage stamp.
-      endH = Math.max(130, avail - fixed)
-      startH = Math.max(endH, Math.min(avail - header.offsetHeight - gaps, window.innerHeight * 0.52))
+      headH = Math.max(150, avail - fixed)
       maxW = window.innerWidth * 1.32
+      robot.style.height = `${headH.toFixed(1)}px`
+      // Width follows the height at the frame's own aspect ratio, so the box
+      // and the footage are the same shape and `contain` letterboxes nothing.
+      robotBox.style.width = `${Math.min(maxW, (headH * 1408) / 980).toFixed(1)}px`
     }
 
     const apply = (p: number) => {
@@ -186,17 +195,7 @@ export function Hero() {
         cue.style.opacity = String(out)
         cue.style.pointerEvents = out < 0.4 ? 'none' : 'auto'
       }
-      // The head gives up height as the copy arrives — on a phone that room
-      // is the only place the copy can go; on a desktop it keeps its column.
-      if (narrow) {
-        const h = lerp(startH, endH, r)
-        robot.style.height = `${h.toFixed(1)}px`
-        // Width follows the height at the frame's own aspect ratio, so the
-        // box and the footage are the same shape and `contain` letterboxes
-        // nothing. Any other ratio would waste height (and therefore size)
-        // on empty bars.
-        robotBox.style.width = `${Math.min(maxW, (h * 1288) / 900).toFixed(1)}px`
-      } else {
+      if (!narrow) {
         robot.style.height = ''
         robotBox.style.width = ''
       }
@@ -254,7 +253,11 @@ export function Hero() {
               must read as one lamp, not as a colour wash. */}
           <SideRays />
         </div>
-        <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-[1]" />
+        {/* Below the copy, above the ambient layers. It used to be z-[1]
+            against a z-10 grid; the grid no longer carries a z-index (that
+            was isolating the head's screen blend from the glow behind it),
+            so this has to come down or it would flash over the headline. */}
+        <LightningFlash ref={lightningRef} className="pointer-events-none absolute inset-0 z-0" />
 
         {/* The first screen's one action. It used to be a scroll cue
             pointing at the work, which is not something a visitor can say
@@ -279,21 +282,35 @@ export function Hero() {
             column and the head takes the right one. */}
         <div
           ref={gridRef}
-          className="relative z-10 mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14"
+          className="relative mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14"
         >
           {/* Above the head, not behind it. The head is now wide enough to
               reach across this column, and a screen-blended video under the
               headline washes it out; painted over the video the type stays
               solid white with the frame showing around it. */}
           <div className="relative z-20 text-center lg:col-start-1 lg:row-start-1 lg:text-left">
-            <motion.p
+            {/* Three disciplines, set as three things rather than as one
+                letter-spaced uppercase mono line. That treatment is the most
+                over-used label style on the web right now and reads as
+                generated; hairline rules, mixed case and the display face
+                read as typeset. */}
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: easeOut }}
-              className="font-mono text-[11px] uppercase tracking-[0.22em] text-blue/95 sm:text-xs"
+              className="mb-4 flex items-center justify-center gap-3 sm:mb-5 sm:gap-4 lg:justify-start"
             >
-              {t.hero.kicker}
-            </motion.p>
+              {t.hero.kickerWords.map((w, i) => (
+                <Fragment key={w}>
+                  {i > 0 && (
+                    <span aria-hidden className="h-4 w-px shrink-0 bg-white/20 sm:h-5" />
+                  )}
+                  <span className="whitespace-nowrap font-display text-[13px] font-medium tracking-tight text-foreground/85 sm:text-[15px]">
+                    {w}
+                  </span>
+                </Fragment>
+              ))}
+            </motion.div>
 
             {/* The serif runs at a single weight and one size step larger
                 than the old bold sans did: at headline size the stroke
@@ -361,7 +378,7 @@ export function Hero() {
             // bigger. 80svh is what fits between the top padding and the
             // bottom padding on a 768px-tall laptop, which is the shortest
             // screen this layout has to survive.
-            className="relative z-0 h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
+            className="relative h-[44vh] w-full lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:h-[80svh]"
           >
             {/* Breaks out of the column horizontally on a phone — but out of
                 flow, so it never widens the grid track and drags the
@@ -374,7 +391,7 @@ export function Hero() {
               // pinned to the container's right edge. Absolute rather than in
               // flow because it is wider than its grid track and a track
               // sized by it would drag the headline off the screen.
-              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:left-auto lg:right-0 lg:top-1/2 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:translate-x-0 lg:aspect-[1288/900]"
+              className="absolute left-1/2 top-0 h-full w-[132vw] max-w-none -translate-x-1/2 lg:left-auto lg:right-0 lg:top-1/2 lg:h-full lg:w-auto lg:-translate-y-1/2 lg:translate-x-0 lg:aspect-[1408/980]"
             >
               <ScrubVideo
                 ref={videoRef}
@@ -412,12 +429,21 @@ export function Hero() {
                 // middle. Screened onto the page that haze is welcome (it is
                 // what stops the hero reading as flat black); only the line
                 // where it stops has to go.
+                //
+                // The master is *padded* with 60x40px of black around the
+                // animation's bounding box, so the first ~4% of this fade
+                // happens on padding and touches nothing. The rest of it
+                // covers the extreme outer edge of the frame, where only a
+                // fragment at maximum travel ever reaches. It used to fade
+                // from 58% of a radius, i.e. across the whole area the parts
+                // fly through, which is what made them look like they were
+                // disappearing behind something black.
                 style={{
                   maskImage:
-                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 13%, black 92%, transparent 100%)',
+                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
                   maskComposite: 'intersect',
                   WebkitMaskImage:
-                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 13%, black 92%, transparent 100%)',
+                    'linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%), linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)',
                   WebkitMaskComposite: 'source-in',
                 }}
               />

@@ -55,8 +55,20 @@ class HeartCurve extends THREE.Curve<THREE.Vector3> {
 const sharedHeartCurve = new HeartCurve();
 
 /** Share of the frame the robot is allowed to occupy. The remainder is the
- *  margin that keeps him off the canvas edge. */
-const FILL = 0.96;
+ *  margin that keeps him off the canvas edge — it has to cover the hover and
+ *  the lean below as well as the model itself. */
+const FILL = 0.9;
+
+/** Idle hover, in the model's own units. Slow and small: he is standing
+ *  there, not bobbing on water. */
+const IDLE_BOB = 0.035;
+const IDLE_SWAY = 0.018;
+/** How far he leans toward the pointer, in the same units. A few percent of
+ *  his own height — enough to be noticed, nowhere near enough to travel. */
+const LEAN_X = 0.07;
+const LEAN_Y = 0.03;
+/** His resting height (the group's authored y position). */
+const BODY_Y = -0.3;
 
 /**
  * Fits the robot to the canvas, measured rather than guessed.
@@ -384,38 +396,56 @@ function RobotPrototype({
   };
 
   const config = {
-    moveSpeed: 0.35,
+    moveSpeed: 1.6,
     bodyRotSpeed: 10.0,
     headRotSpeed: 20.0,
     bodyTiltX: 0.0,
-    bodyTiltY: 0.95,
-    headLookX: 0.3,
-    headLookY: 1.8,
+    // Half of what it was. At 0.95 he swung a long way round for a cursor
+    // at the edge of the screen, which read as being dragged rather than as
+    // paying attention.
+    bodyTiltY: 0.45,
+    headLookX: 0.22,
+    headLookY: 0.9,
   };
 
   useFrame((state, delta) => {
     if (!bodyRef.current || !headRef.current) return;
 
     const dt = Math.min(delta, 0.1);
+    const t = state.clock.elapsedTime;
 
     const tx = state.pointer.x;
     const ty = state.pointer.y;
 
-    const maxMoveX = state.viewport.width / 3.5;
-    const targetPosX = tx * maxMoveX;
-    bodyRef.current.position.x = THREE.MathUtils.lerp(bodyRef.current.position.x, targetPosX, config.moveSpeed * dt);
+    // He stays where he is put.
+    //
+    // This used to be `position.x = pointer.x * viewport.width / 3.5`: he
+    // travelled up to a third of the frame's width chasing the cursor, and
+    // the frame does not travel with him — so he walked straight into the
+    // canvas edge and got sliced off mid-picture. That is the "wall" that
+    // kept coming back no matter how the canvas was fitted.
+    //
+    // What is left is a hover in place plus a lean: two slow sines for the
+    // float, and a bounded offset toward the pointer that tops out at a few
+    // percent of his own size. He acknowledges the cursor; he does not
+    // follow it.
+    const floatX = Math.sin(t * 0.37) * IDLE_SWAY;
+    const floatY = Math.sin(t * 0.61) * IDLE_BOB;
 
-    const relativeX = tx - bodyRef.current.position.x / 2.5;
+    const targetX = floatX + tx * LEAN_X;
+    const targetY = BODY_Y + floatY - ty * LEAN_Y;
+    bodyRef.current.position.x = THREE.MathUtils.lerp(bodyRef.current.position.x, targetX, config.moveSpeed * dt);
+    bodyRef.current.position.y = THREE.MathUtils.lerp(bodyRef.current.position.y, targetY, config.moveSpeed * dt);
 
-    const bodyTargetRotY = -relativeX * config.bodyTiltY;
-    const bodyTargetRotX = relativeX * relativeX * config.bodyTiltX - ty * 0.25;
-    const bodyTargetRotZ = -relativeX * 0.15;
+    const bodyTargetRotY = -tx * config.bodyTiltY;
+    const bodyTargetRotX = tx * tx * config.bodyTiltX - ty * 0.12 + Math.sin(t * 0.29) * 0.02;
+    const bodyTargetRotZ = -tx * 0.06 + Math.sin(t * 0.23) * 0.015;
 
     bodyRef.current.rotation.y = THREE.MathUtils.lerp(bodyRef.current.rotation.y, bodyTargetRotY, config.bodyRotSpeed * dt);
     bodyRef.current.rotation.x = THREE.MathUtils.lerp(bodyRef.current.rotation.x, bodyTargetRotX, config.bodyRotSpeed * dt);
     bodyRef.current.rotation.z = THREE.MathUtils.lerp(bodyRef.current.rotation.z, bodyTargetRotZ, config.bodyRotSpeed * dt);
 
-    const headTargetRotY = relativeX * config.headLookY;
+    const headTargetRotY = tx * config.headLookY;
     const headTargetRotX = -ty * config.headLookX;
 
     headRef.current.rotation.y = THREE.MathUtils.lerp(headRef.current.rotation.y, headTargetRotY, config.headRotSpeed * dt);

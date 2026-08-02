@@ -10,7 +10,16 @@
  */
 export function EdgeGlow() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+    // Starts below the hero. The hero's head is screen-blended against its
+    // own stacking context (a sticky stage), and this layer lives outside
+    // that context — so its glow was never part of the blend, and the video's
+    // dark backdrop composited over it as a visible rectangle. The hero has
+    // its own lighting inside the stage; from the next section on, this one
+    // takes over.
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-x-0 bottom-0 top-[240vh] z-0 overflow-hidden"
+    >
       <div className="sticky top-0 h-[100svh]">
         {/* The cool one, off the right edge at eye level: the same lamp the
             hero's SideRays imply, carried down the rest of the page. */}

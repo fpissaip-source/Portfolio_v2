@@ -37,7 +37,9 @@ export type Dictionary = {
     contact: string
   }
   hero: {
-    kicker: string
+    /** Three disciplines, set as three separate words rather than one
+     *  tracked-out uppercase line. */
+    kickerWords: string[]
     /** The headline is a two-line lockup: the role, then the promise. Kept
      *  as two fields rather than one string with a break in it, so each
      *  line can carry its own treatment and neither can wrap into the
@@ -360,7 +362,7 @@ export const EN: Dictionary = {
     contact: "Let's Build Together",
   },
   hero: {
-    kicker: 'Full-stack & AI · Essen, Germany',
+    kickerWords: ['Web design', 'Full-stack', 'AI'],
     headingLine1: 'I build intelligent systems.',
     headingLine2: 'From the first idea to live operation.',
     headingPlain: 'I build intelligent systems. From the first idea to live operation.',
@@ -786,7 +788,7 @@ export const DE: Dictionary = {
     contact: 'Lass uns gemeinsam etwas bauen',
   },
   hero: {
-    kicker: 'Full-Stack & KI · Essen',
+    kickerWords: ['Webdesign', 'Full-Stack', 'KI'],
     headingLine1: 'Ich entwickle intelligente Systeme.',
     headingLine2: 'Von der ersten Idee bis zum Livebetrieb.',
     headingPlain:

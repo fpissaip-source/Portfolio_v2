@@ -673,7 +673,7 @@ export function Lukas() {
                 1366×768 laptop a fixed 38rem is taller than the space
                 between the section title and the bottom of the screen, and
                 he starts crowding the heading he is standing next to. */}
-            <LukasRobot className="h-[min(40rem,66svh)] w-[min(32rem,36vw)] shrink-0" />
+            <LukasRobot className="h-[min(48rem,78svh)] w-[min(40rem,44vw)] shrink-0" />
           </div>
         </div>
       </div>

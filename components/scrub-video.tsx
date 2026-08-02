@@ -1,26 +1,19 @@
 'use client'
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, type CSSProperties } from 'react'
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  type CSSProperties,
+} from 'react'
 
 /**
- * A video used as a frame source rather than a player: the caller drives it
- * with `seek(progress)` from wherever its scroll position comes from, and
- * each decoded frame is blitted onto a canvas.
- *
- * The masters are All-Intra (every frame a keyframe), so a seek is a single
- * decode and scrubbing stays responsive — including on iOS Safari, where
- * seeking during scroll is historically fragile. Seeks are queued so they
- * can never overlap; the newest target always wins, and a watchdog releases
- * the queue if a `seeked` event never arrives.
- *
- * The poster renders as a plain <img> underneath the canvas. It is what a
- * visitor sees before the video has loaded and what stays if it never does
- * (blocked codec, failed request), so there is no state where this is an
- * empty black rectangle.
+ * A video used as a frame source rather than a player. The caller drives it
+ * with seek(progress), and decoded frames are painted onto a canvas.
  */
 export type ScrubVideoHandle = {
-  /** 0 = first frame, 1 = last frame. Safe to call before the video has
-   *  loaded — the position is remembered and applied once it can be. */
+  /** 0 = first frame, 1 = last frame. */
   seek: (progress: number) => void
 }
 
@@ -28,240 +21,284 @@ export const ScrubVideo = forwardRef<
   ScrubVideoHandle,
   {
     src: string
-    /** Used below 768px, where a smaller frame also decodes faster. */
     srcMobile?: string
     poster: string
     className?: string
     style?: CSSProperties
-    /** How the frame maps onto the canvas box. Default 'cover'. */
     fit?: 'cover' | 'contain'
   }
 >(function ScrubVideo({ src, srcMobile, poster, className = '', style, fit = 'cover' }, ref) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const posterRef = useRef<HTMLImageElement>(null)
-  const seekRef = useRef<(p: number) => void>(() => {})
-  /** Last requested position, replayed once metadata arrives. */
+  const seekRef = useRef<(progress: number) => void>(() => {})
   const wantedRef = useRef(0)
 
-  useImperativeHandle(ref, () => ({ seek: (p) => seekRef.current(p) }), [])
+  useImperativeHandle(ref, () => ({ seek: (progress) => seekRef.current(progress) }), [])
 
   useEffect(() => {
     const canvas = canvasRef.current
     const video = videoRef.current
-    const poster = posterRef.current
-    if (!canvas || !video || !poster) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const posterElement = posterRef.current
+    if (!canvas || !video || !posterElement) return
 
-    video.src = srcMobile && window.matchMedia('(max-width: 767px)').matches ? srcMobile : src
+    const context = canvas.getContext('2d')
+    if (!context) return
 
-    // Canvas size is read on resize only, never inside the seek path: a
-    // layout read there forces a synchronous re-layout on every scroll tick.
-    let cw = 0
-    let ch = 0
-    /** Set only if the browser refuses the priming autoplay (iOS Low Power
-     *  Mode): the video itself becomes the visible layer and is scrubbed
-     *  natively, because a hidden video will not decode for a canvas there.
-     *  Stays false in every normal case. */
+    const selectedSource =
+      srcMobile && window.matchMedia('(max-width: 767px)').matches ? srcMobile : src
+
+    let canvasWidth = 0
+    let canvasHeight = 0
     let videoIsVisible = false
-    /** True once a real frame has been blitted. Until then the poster is
-     *  what the visitor sees; after it, never again. */
     let painted = false
-    /** The muted play/pause that primes the decoder runs exactly once. */
     let primed = false
+    let seeking = false
+    let targetTime = 0
+    let watchdog = 0
+
+    const requestFrame = (
+      video as HTMLVideoElement & {
+        requestVideoFrameCallback?: (callback: () => void) => number
+      }
+    ).requestVideoFrameCallback?.bind(video)
+
+    /** Half a frame at 24fps. Anything closer is already the same picture. */
+    const SEEK_EPSILON = 1 / 48
+
+    const clampTime = (time: number) => {
+      const duration = video.duration
+      if (!duration || Number.isNaN(duration)) return 0
+      return Math.max(0, Math.min(duration - SEEK_EPSILON, time))
+    }
 
     const draw = () => {
-      if (videoIsVisible) return
-      if (!cw || !ch || !video.videoWidth) return
-      // HAVE_CURRENT_DATA. Below this there is no frame to copy, and the
-      // clear below would leave an empty canvas with the poster showing
-      // through it — the poster being frame zero, i.e. the head fully
-      // assembled. That is what the "it snaps back together and then falls
-      // apart again" flicker was made of.
-      if (video.readyState < 2) return
-      const vw = video.videoWidth
-      const vh = video.videoHeight
-      const scale = fit === 'cover' ? Math.max(cw / vw, ch / vh) : Math.min(cw / vw, ch / vh)
-      ctx.clearRect(0, 0, cw, ch)
-      ctx.drawImage(video, (cw - vw * scale) / 2, (ch - vh * scale) / 2, vw * scale, vh * scale)
+      if (videoIsVisible || !canvasWidth || !canvasHeight || !video.videoWidth) return
+      if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return
+
+      const videoWidth = video.videoWidth
+      const videoHeight = video.videoHeight
+      const scale =
+        fit === 'cover'
+          ? Math.max(canvasWidth / videoWidth, canvasHeight / videoHeight)
+          : Math.min(canvasWidth / videoWidth, canvasHeight / videoHeight)
+
+      context.clearRect(0, 0, canvasWidth, canvasHeight)
+      context.drawImage(
+        video,
+        (canvasWidth - videoWidth * scale) / 2,
+        (canvasHeight - videoHeight * scale) / 2,
+        videoWidth * scale,
+        videoHeight * scale,
+      )
+
       if (!painted) {
         painted = true
-        // From here the canvas always holds a real frame, so the poster has
-        // nothing left to do but be wrong in exactly the wrong moment.
-        poster.style.opacity = '0'
+        posterElement.style.opacity = '0'
       }
     }
 
     const sizeCanvas = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      cw = canvas.clientWidth
-      ch = canvas.clientHeight
-      canvas.width = Math.round(cw * dpr)
-      canvas.height = Math.round(ch * dpr)
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      canvasWidth = canvas.clientWidth
+      canvasHeight = canvas.clientHeight
+      canvas.width = Math.round(canvasWidth * dpr)
+      canvas.height = Math.round(canvasHeight * dpr)
+      context.setTransform(dpr, 0, 0, dpr, 0, 0)
       draw()
     }
 
-    const vrfc = (
-      video as HTMLVideoElement & { requestVideoFrameCallback?: (cb: () => void) => number }
-    ).requestVideoFrameCallback?.bind(video)
-    /** Half a frame at 24fps — anything closer is already on screen. */
-    const SEEK_EPS = 1 / 48
-    let pending: number | null = null
-    let busy = false
-    let watchdog = 0
-    /** The last time we *asked* for, which is not the same as the time the
-     *  video ended up at. See seekTime. */
-    let requested: number | null = null
+    const drain = () => {
+      if (videoIsVisible || seeking || !video.duration) return
+      const next = clampTime(targetTime)
 
-    const release = () => {
-      window.clearTimeout(watchdog)
-      busy = false
-      if (pending !== null) {
-        const t = pending
-        pending = null
-        seekTime(t)
-      }
-    }
-
-    const seekTime = (time: number) => {
-      const d = video.duration
-      if (!d || Number.isNaN(d)) return
-      const clamped = Math.max(0, Math.min(d - 1 / 48, time))
-      if (busy) {
-        pending = clamped
+      // Compare with the frame the browser actually reached, not merely the
+      // last frame we requested. That distinction is what keeps reverse
+      // scrolling alive after WebKit drops or coalesces a seek.
+      if (Math.abs(video.currentTime - next) < SEEK_EPSILON && !video.seeking) {
+        draw()
         return
       }
-      // Compared against what was last asked for, not against where the
-      // video actually landed.
-      //
-      // This is what stops the end of the scrub from jittering. Once the
-      // scroll runs past the end of the animation the caller keeps asking
-      // for the same final time, every frame. Measuring against
-      // `video.currentTime` made that a new seek every time, because a seek
-      // does not land exactly on the requested time — so the same request
-      // was issued over and over and the last two frames flickered against
-      // each other. Measuring against the request makes a repeat request a
-      // no-op, which is what it is.
-      //
-      // WebKit also swallows `seeked` for a same-position seek, which would
-      // leave the queue wedged behind a `busy` that never clears.
-      const reference = requested ?? video.currentTime
-      if (Math.abs(reference - clamped) < SEEK_EPS) return
-      busy = true
-      requested = clamped
+
+      seeking = true
       window.clearTimeout(watchdog)
-      watchdog = window.setTimeout(release, 300)
-      if (vrfc) vrfc(() => draw())
-      // Deliberately not `fastSeek`. It is allowed to land on a nearby
-      // frame rather than the requested one, and against an All-Intra
-      // master (every frame a keyframe) it buys nothing: a precise seek is
-      // already a single-frame decode. Its imprecision was the other half
-      // of the jitter above.
-      video.currentTime = clamped
+      watchdog = window.setTimeout(() => {
+        seeking = false
+        draw()
+        drain()
+      }, 350)
+
+      if (requestFrame) requestFrame(draw)
+      try {
+        video.currentTime = next
+      } catch {
+        seeking = false
+        window.clearTimeout(watchdog)
+      }
     }
 
-    seekRef.current = (p) => {
-      const clamped = Math.max(0, Math.min(1, p))
-      wantedRef.current = clamped
+    seekRef.current = (progress) => {
+      const clampedProgress = Math.max(0, Math.min(1, progress))
+      wantedRef.current = clampedProgress
+      if (!video.duration) return
+
+      targetTime = clampTime(clampedProgress * video.duration)
+
       if (videoIsVisible) {
-        // Same de-duplication as seekTime: without it the promoted <video>
-        // is handed the same final time on every frame of the overscroll.
-        const t = clamped * (video.duration || 0)
-        if (video.duration && Math.abs((requested ?? video.currentTime) - t) >= SEEK_EPS) {
-          requested = t
-          video.currentTime = t
+        if (Math.abs(video.currentTime - targetTime) >= SEEK_EPSILON) {
+          video.currentTime = targetTime
         }
         return
       }
-      seekTime(clamped * (video.duration || 0))
+
+      // While one frame is decoding, only targetTime changes. When seeked
+      // fires, drain() immediately heads for the newest target, regardless of
+      // whether the visitor kept scrolling forward or reversed direction.
+      drain()
     }
 
     const onSeeked = () => {
+      window.clearTimeout(watchdog)
       draw()
-      release()
+      seeking = false
+      drain()
     }
+
+    const onFrameReady = () => {
+      draw()
+      if (!seeking) drain()
+    }
+
+    const onError = () => {
+      window.clearTimeout(watchdog)
+      seeking = false
+    }
+
     video.addEventListener('seeked', onSeeked)
-    video.addEventListener('error', release)
+    video.addEventListener('loadeddata', onFrameReady)
+    video.addEventListener('canplay', onFrameReady)
+    video.addEventListener('error', onError)
 
     const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches
+
     const unlock = () => {
       window.removeEventListener('touchend', unlock)
-      const p = video.play() // must be the first call inside the gesture
-      if (!p) return
-      p.then(() => {
-        video.pause()
-        video.removeAttribute('poster')
-        Object.assign(video.style, {
-          position: 'absolute',
-          inset: '0',
-          width: '100%',
-          height: '100%',
-          objectFit: fit,
-          opacity: '1',
+      const playPromise = video.play()
+      if (!playPromise) return
+
+      playPromise
+        .then(() => {
+          video.pause()
+          video.removeAttribute('poster')
+          Object.assign(video.style, {
+            position: 'absolute',
+            inset: '0',
+            width: '100%',
+            height: '100%',
+            objectFit: fit,
+            opacity: '1',
+          })
+          canvas.style.visibility = 'hidden'
+          posterElement.style.opacity = '0'
+          videoIsVisible = true
+          if (video.duration) {
+            targetTime = clampTime(wantedRef.current * video.duration)
+            video.currentTime = targetTime
+          }
         })
-        canvas.style.visibility = 'hidden'
-        videoIsVisible = true
-        video.currentTime = wantedRef.current * (video.duration || 0)
-      }).catch(() => {
-        /* still refused — the poster stays, which is a clean first frame */
-      })
+        .catch(() => {
+          // The poster remains a clean first-frame fallback.
+        })
     }
 
-    const onMeta = () => {
+    const applyWantedPosition = () => {
+      if (!video.duration) return
+      targetTime = clampTime(wantedRef.current * video.duration)
+      drain()
+    }
+
+    const onMetadata = () => {
       sizeCanvas()
-      // The priming play/pause below only ever runs against a fresh, unseen
-      // video. `play()` on a media element whose position is already the end
-      // of the resource is *specified* to rewind it to the beginning first,
-      // so priming a video that has been scrubbed to its last frame would
-      // put the assembled head back on screen. Only prime once, at the top.
+
       if (primed) {
-        seekRef.current(wantedRef.current)
+        applyWantedPosition()
         return
       }
+
       primed = true
-      seekRef.current(wantedRef.current)
-      const p = video.play()
-      if (p) {
-        // A muted inline play/pause primes the decode pipeline without a
-        // gesture. iOS Low Power Mode blocks exactly this, which is what
-        // stops scrubbed frames from ever advancing — there, the visitor's
-        // first touch is allowed to start it.
-        p.then(() => video.pause()).catch(() => {
+      // Prime at frame zero first, then seek to the requested scroll state.
+      // Playing after a seek can rewind an ended media element on Safari.
+      const playPromise = video.play()
+      if (!playPromise) {
+        applyWantedPosition()
+        return
+      }
+
+      playPromise
+        .then(() => {
+          video.pause()
+          applyWantedPosition()
+        })
+        .catch(() => {
+          applyWantedPosition()
           if (isTouch) window.addEventListener('touchend', unlock, { passive: true })
         })
-      }
     }
-    video.addEventListener('loadedmetadata', onMeta)
-    if (video.readyState >= 1) onMeta()
+
+    video.addEventListener('loadedmetadata', onMetadata)
 
     sizeCanvas()
-    // ResizeObserver rather than a window resize listener: the hero shrinks
-    // this box during its scroll choreography, with the window size never
-    // changing — the canvas backing store has to follow it, or the frame is
-    // drawn at the wrong resolution and goes soft.
-    const ro = new ResizeObserver(sizeCanvas)
-    ro.observe(canvas)
+    const resizeObserver = new ResizeObserver(sizeCanvas)
+    resizeObserver.observe(canvas)
+
+    // Assigning the source explicitly and calling load() makes remounts and
+    // mobile-source switches start a fresh request instead of inheriting a
+    // half-initialised media element from React's previous render.
+    video.src = selectedSource
+    video.load()
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) onMetadata()
+
     return () => {
       window.clearTimeout(watchdog)
-      ro.disconnect()
+      resizeObserver.disconnect()
       window.removeEventListener('touchend', unlock)
-      video.removeEventListener('loadedmetadata', onMeta)
+      video.removeEventListener('loadedmetadata', onMetadata)
+      video.removeEventListener('loadeddata', onFrameReady)
+      video.removeEventListener('canplay', onFrameReady)
       video.removeEventListener('seeked', onSeeked)
-      video.removeEventListener('error', release)
+      video.removeEventListener('error', onError)
       seekRef.current = () => {}
     }
   }, [src, srcMobile, fit])
 
+  const blended = /\bmix-blend-(?:lighten|screen)\b/.test(className)
+  const blendedStyle: CSSProperties = blended
+    ? {
+        // The source has a near-black encoded floor. A narrow edge feather
+        // removes the remaining rectangular plate without dimming the robot
+        // or the fragments through the useful centre of the frame.
+        maskImage:
+          'radial-gradient(ellipse 82% 86% at 50% 50%, black 0%, black 72%, rgba(0,0,0,0.96) 82%, rgba(0,0,0,0.52) 93%, transparent 100%)',
+        WebkitMaskImage:
+          'radial-gradient(ellipse 82% 86% at 50% 50%, black 0%, black 72%, rgba(0,0,0,0.96) 82%, rgba(0,0,0,0.52) 93%, transparent 100%)',
+        filter: 'contrast(1.1) brightness(0.94)',
+      }
+    : {}
+
   return (
-    <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
+    <div
+      aria-hidden
+      style={{ ...blendedStyle, ...style }}
+      className={`relative overflow-hidden ${className}`.trim()}
+    >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={posterRef}
         src={poster}
         alt=""
-        className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${fit === 'cover' ? 'object-cover' : 'object-contain'}`}
+        className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${
+          fit === 'cover' ? 'object-cover' : 'object-contain'
+        }`}
       />
       <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <video

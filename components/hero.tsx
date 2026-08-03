@@ -266,14 +266,14 @@ export function Hero() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: easeOut }}
-              className="mb-4 flex items-center justify-center gap-3 sm:mb-5 sm:gap-4 lg:justify-start"
+              className="mb-4 flex items-center justify-center gap-3 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] sm:mb-5 sm:gap-4 lg:justify-start"
             >
               {t.hero.kickerWords.map((word, i) => (
                 <Fragment key={word}>
                   {i > 0 && (
-                    <span aria-hidden className="h-4 w-px shrink-0 bg-white/20 sm:h-5" />
+                    <span aria-hidden className="h-4 w-px shrink-0 bg-white/35 sm:h-5" />
                   )}
-                  <span className="whitespace-nowrap font-display text-[13px] font-medium tracking-tight text-foreground/85 sm:text-[15px]">
+                  <span className="whitespace-nowrap font-display text-[13px] font-semibold tracking-tight text-foreground/95 sm:text-[15px] lg:font-medium lg:text-foreground/85">
                     {word}
                   </span>
                 </Fragment>
@@ -308,7 +308,7 @@ export function Hero() {
               </span>
             </h1>
 
-            <p className="mx-auto mt-5 max-w-md text-pretty text-[15px] leading-relaxed text-muted-foreground sm:mt-6 sm:text-base lg:mx-0 lg:max-w-lg">
+            <p className="relative z-30 mx-auto mt-6 max-w-[23rem] text-pretty text-[16px] font-medium leading-[1.65] text-foreground/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.98)] sm:mt-7 sm:max-w-md sm:text-[17px] lg:mx-0 lg:mt-6 lg:max-w-lg lg:text-base lg:font-normal lg:text-muted-foreground lg:drop-shadow-none">
               {t.hero.lead}
             </p>
           </div>
@@ -319,7 +319,7 @@ export function Hero() {
           >
             <div
               ref={robotBoxRef}
-              className="h-full w-[132vw] max-w-none shrink-0 lg:h-full lg:w-auto lg:aspect-[1408/980]"
+              className="relative top-7 h-full w-[132vw] max-w-none shrink-0 lg:top-0 lg:h-full lg:w-auto lg:aspect-[1408/980]"
             >
               <ScrubVideo
                 ref={videoRef}
@@ -337,7 +337,7 @@ export function Hero() {
             className="relative z-20 text-center lg:col-start-1 lg:row-start-2 lg:text-left"
             style={reduced ? undefined : { opacity: 0 }}
           >
-            <p className="mx-auto max-w-xl text-pretty text-[15px] leading-relaxed text-muted-foreground sm:text-base lg:mx-0 lg:text-lg">
+            <p className="mx-auto max-w-xl text-pretty text-[15px] font-medium leading-relaxed text-foreground/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] sm:text-base lg:mx-0 lg:text-lg lg:font-normal lg:text-muted-foreground lg:drop-shadow-none">
               {t.hero.body}
             </p>
 
@@ -345,7 +345,7 @@ export function Hero() {
               <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.hero.proofLabel}
               </span>
-              <span className="text-[13px] font-medium tracking-tight text-foreground/80 sm:text-sm">
+              <span className="text-[13px] font-medium tracking-tight text-foreground/90 sm:text-sm lg:text-foreground/80">
                 {t.hero.proofItems.join(' · ')}
               </span>
             </p>

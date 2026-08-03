@@ -4,8 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 
 const GLOW_SIZE = 760
 const GLOW_RADIUS = GLOW_SIZE / 2
+const DEFAULT_OPACITY = '0.32'
+const HERO_OPACITY = '0.1'
 
-/** A restrained cursor-following light. It is skipped on touch devices. */
+/** A restrained cursor-following light. It is skipped on touch devices and
+ *  dims almost completely while the pointer is inside the hero, so it never
+ *  washes the robot's metal and blacks directly from above. */
 export function MouseGlow() {
   const ref = useRef<HTMLDivElement>(null)
   const [show, setShow] = useState(false)
@@ -29,6 +33,19 @@ export function MouseGlow() {
       targetY = event.clientY
     }
 
+    const dimForHero = () => {
+      element.style.opacity = HERO_OPACITY
+    }
+    const restore = () => {
+      element.style.opacity = DEFAULT_OPACITY
+    }
+
+    const hero = document.getElementById('top')
+    hero?.addEventListener('pointerenter', dimForHero)
+    hero?.addEventListener('pointerleave', restore)
+    if (hero?.matches(':hover')) dimForHero()
+    else restore()
+
     const animate = () => {
       currentX += (targetX - currentX) * 0.1
       currentY += (targetY - currentY) * 0.1
@@ -40,8 +57,11 @@ export function MouseGlow() {
 
     window.addEventListener('mousemove', onMove, { passive: true })
     frame = requestAnimationFrame(animate)
+
     return () => {
       window.removeEventListener('mousemove', onMove)
+      hero?.removeEventListener('pointerenter', dimForHero)
+      hero?.removeEventListener('pointerleave', restore)
       cancelAnimationFrame(frame)
     }
   }, [show])
@@ -52,10 +72,10 @@ export function MouseGlow() {
     <div
       ref={ref}
       aria-hidden
-      className="pointer-events-none fixed left-0 top-0 z-30 h-[760px] w-[760px] rounded-full opacity-[0.38] mix-blend-screen will-transform"
+      className="pointer-events-none fixed left-0 top-0 z-30 h-[760px] w-[760px] rounded-full opacity-[0.32] mix-blend-screen transition-opacity duration-300 will-transform"
       style={{
         background:
-          'radial-gradient(circle, color-mix(in oklch, var(--blue) 24%, transparent) 0%, color-mix(in oklch, var(--purple) 10%, transparent) 34%, transparent 64%)',
+          'radial-gradient(circle, color-mix(in oklch, var(--blue) 21%, transparent) 0%, color-mix(in oklch, var(--purple) 8%, transparent) 34%, transparent 64%)',
       }}
     />
   )

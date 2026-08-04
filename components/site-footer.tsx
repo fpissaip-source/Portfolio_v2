@@ -52,9 +52,9 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-end">
-          <a href="#affiliate" className="py-1.5 transition-colors hover:text-foreground">
+          <Link href="/affiliate" className="py-1.5 transition-colors hover:text-foreground">
             Affiliate
-          </a>
+          </Link>
           <Link href="/impressum" className="py-1.5 transition-colors hover:text-foreground">
             {t.footer.imprint}
           </Link>

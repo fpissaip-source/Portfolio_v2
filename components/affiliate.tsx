@@ -56,6 +56,31 @@ const COPY = {
     subject: 'Affiliate partner programme inquiry',
     note: 'Commission and payout details are agreed in advance.',
   },
+  es: {
+    kicker: 'Programa de socios',
+    heading: 'Comisión mínima de 660,00 € por recomendación.',
+    description: 'Pocas presentaciones pueden generar ingresos adicionales importantes.',
+    commissionTitle: 'Comisión clara',
+    commissionBody: 'Mínimo 660,00 € por cada proyecto pagado.',
+    dashboardTitle: 'Panel para socios',
+    dashboardBody: 'Clientes potenciales y comisiones de un vistazo.',
+    payoutTitle: 'Pago flexible',
+    payoutBody: 'Semanal o mensual.',
+    processKicker: 'Proceso',
+    processHeading: 'Presentación. Cierre. Comisión.',
+    processBody: 'Tú recomiendas. Yo me encargo del resto.',
+    step1Title: 'Hacer la presentación',
+    step1Body: 'Presentas una empresa adecuada.',
+    step2Title: 'Cerrar el proyecto',
+    step2Body: 'Yo gestiono la consultoría, la propuesta y el desarrollo.',
+    step3Title: 'Recibir la comisión',
+    step3Body: 'La comisión se libera después del pago.',
+    ctaTitle: '¿Conoces una empresa adecuada?',
+    ctaBody: 'Hablemos brevemente sobre la recomendación.',
+    cta: 'Consultar el programa',
+    subject: 'Consulta sobre el programa de socios',
+    note: 'La comisión y las condiciones de pago se acuerdan previamente.',
+  },
 } as const
 
 type AffiliateProps = {
@@ -64,7 +89,7 @@ type AffiliateProps = {
 
 export function Affiliate({ standalone = false }: AffiliateProps) {
   const { lang } = useLanguage()
-  const t = lang === 'en' ? COPY.en : COPY.de
+  const t = lang === 'es' ? COPY.es : lang === 'en' ? COPY.en : COPY.de
 
   const benefits = [
     { icon: Euro, title: t.commissionTitle, body: t.commissionBody },

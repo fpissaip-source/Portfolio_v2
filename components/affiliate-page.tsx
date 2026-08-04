@@ -139,7 +139,7 @@ export function AffiliatePage() {
         transition={{ duration: 0.7, ease: easeOut }}
         className="sticky top-0 z-50 border-b border-white/10 bg-[#02040e]/70 backdrop-blur-xl"
       >
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-6 sm:py-4">
           <span className="text-sm font-semibold tracking-tight text-white">{t.label}</span>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
@@ -151,8 +151,20 @@ export function AffiliatePage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] sm:gap-2 sm:text-xs sm:tracking-[0.1em]">
+          <div className="flex flex-col items-end gap-1.5">
+            <Link
+              href="/"
+              aria-label={t.portfolioAria}
+              className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-purple"
+            >
+              <span>{t.portfolio}</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            </Link>
+
+            <div
+              className="flex items-center rounded-full border border-white/12 bg-white/[0.045] p-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+              aria-label="Language"
+            >
               {(['de', 'en', 'es'] as const).map((language) => (
                 <button
                   key={language}
@@ -160,20 +172,16 @@ export function AffiliatePage() {
                   onClick={() => setLang(language)}
                   aria-pressed={lang === language}
                   aria-label={LANGUAGE_LABELS[language]}
-                  className={lang === language ? 'text-white' : 'text-white/50 transition-colors hover:text-white'}
+                  className={`min-w-8 rounded-full px-2 py-1.5 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple ${
+                    lang === language
+                      ? 'bg-white/14 text-white'
+                      : 'text-white/55 hover:text-white'
+                  }`}
                 >
                   {language}
                 </button>
               ))}
             </div>
-            <Link
-              href="/"
-              aria-label={t.portfolioAria}
-              className="group inline-flex items-center gap-2 border-l border-white/15 pl-3 text-sm font-semibold text-white sm:pl-4"
-            >
-              <span className="hidden sm:inline">{t.portfolio}</span>
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-            </Link>
           </div>
         </div>
         <motion.div

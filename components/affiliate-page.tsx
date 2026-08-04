@@ -1,70 +1,68 @@
 'use client'
 
-import { useRef } from 'react'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
-import {
-  motion,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-  useTransform,
-} from 'motion/react'
-import { Affiliate } from './affiliate'
+import { ArrowRight, Check } from 'lucide-react'
+import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react'
 import { useLanguage } from './language-context'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
 const COPY = {
   de: {
-    headerLabel: 'Partnerprogramm',
-    navBenefits: 'Vorteile',
-    navProcess: 'Ablauf',
+    label: 'Partnerprogramm',
+    benefits: 'Vorteile',
+    process: 'Ablauf',
     portfolio: 'Zum Portfolio',
     portfolioAria: 'Zum Portfolio von Issa Hareb',
-    headline: 'Empfehlungen, die sich auszahlen.',
-    headlineLines: ['Empfehlungen,', 'die sich auszahlen.'],
-    intro:
-      'Du stellst den Kontakt her. Ich übernehme Beratung, Abschluss und Umsetzung. Du erhältst die Provision.',
-    primaryCta: 'Partnerprogramm anfragen',
+    headline: ['Empfehlungen,', 'die sich auszahlen.'],
+    intro: 'Du stellst den Kontakt her. Ich übernehme Beratung, Umsetzung und Betreuung.',
+    cta: 'Partnerprogramm anfragen',
     subject: 'Anfrage zum Affiliate-Partnerprogramm',
-    earnLine: 'Mit 2–3 Kunden bereits mehr als 3.000 € verdienen.',
-    earnNote: 'Je nach Projektart und Umfang ist deutlich mehr möglich.',
-    minimumLabel: 'Mindestprovision',
-    minimumValue: '660,00 €+',
-    minimumNote: 'pro abgeschlossenem und bezahltem Kundenprojekt',
-    proofDashboard: 'Eigenes Partner-Dashboard',
-    proofPayout: 'Wöchentlich oder monatlich',
-    proofWork: 'Keine Technik nötig',
-    closingLabel: 'Portfolio',
-    closingTitle: 'Projekte ansehen, die sich vermitteln lassen.',
-    closingBody: 'Websites, Software und Automatisierungen für Unternehmen.',
+    minimum: 'Mindestens',
+    amount: '660,00 €+',
+    amountNote: 'Provision pro erfolgreichem Kundenprojekt.',
+    earning: 'Mit 2–3 Kunden bereits mehr als 3.000 € verdienen.',
+    earningNote: 'Je nach Projektart und Umfang.',
+    dashboard: 'Eigenes Partner-Dashboard',
+    payout: 'Wöchentliche oder monatliche Auszahlung',
+    workload: 'Kein Entwicklungs- oder Supportaufwand',
+    step1: 'Kontakt herstellen',
+    step1Body: 'Du empfiehlst ein passendes Unternehmen.',
+    step2: 'Projekt abschließen',
+    step2Body: 'Ich übernehme Angebot und Umsetzung.',
+    step3: 'Provision erhalten',
+    step3Body: 'Nach Zahlung wird dein Anteil freigegeben.',
+    finalTitle: 'Du kennst ein passendes Unternehmen?',
+    finalBody: 'Eine kurze Vorstellung reicht für den Start.',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
   },
   en: {
-    headerLabel: 'Partner programme',
-    navBenefits: 'Benefits',
-    navProcess: 'Process',
+    label: 'Partner programme',
+    benefits: 'Benefits',
+    process: 'Process',
     portfolio: 'View portfolio',
     portfolioAria: "View Issa Hareb's portfolio",
-    headline: 'Referrals that pay off.',
-    headlineLines: ['Referrals', 'that pay off.'],
-    intro:
-      'You make the introduction. I handle consulting, the close and delivery. You receive the commission.',
-    primaryCta: 'Ask about the partner programme',
+    headline: ['Referrals', 'that pay off.'],
+    intro: 'You make the introduction. I handle consulting, delivery and support.',
+    cta: 'Ask about the partner programme',
     subject: 'Affiliate partner programme inquiry',
-    earnLine: 'Earn more than €3,000 with just 2–3 clients.',
-    earnNote: 'Larger or more complex projects can pay considerably more.',
-    minimumLabel: 'Minimum commission',
-    minimumValue: '€660.00+',
-    minimumNote: 'per completed and fully paid client project',
-    proofDashboard: 'Your own partner dashboard',
-    proofPayout: 'Weekly or monthly',
-    proofWork: 'No technical work',
-    closingLabel: 'Portfolio',
-    closingTitle: 'See the projects you can refer.',
-    closingBody: 'Websites, software and automation for businesses.',
+    minimum: 'At least',
+    amount: '€660.00+',
+    amountNote: 'Commission per successful client project.',
+    earning: 'Earn more than €3,000 with just 2–3 clients.',
+    earningNote: 'Depending on the project type and scope.',
+    dashboard: 'Your own partner dashboard',
+    payout: 'Weekly or monthly payouts',
+    workload: 'No development or support work',
+    step1: 'Make the introduction',
+    step1Body: 'Refer a suitable business.',
+    step2: 'Close the project',
+    step2Body: 'I handle the proposal and delivery.',
+    step3: 'Receive commission',
+    step3Body: 'Your share is approved after payment.',
+    finalTitle: 'Know a suitable business?',
+    finalBody: 'A short introduction is enough to get started.',
     imprint: 'Imprint',
     privacy: 'Privacy',
   },
@@ -72,127 +70,93 @@ const COPY = {
 
 export function AffiliatePage() {
   const { lang, setLang } = useLanguage()
-  const currentLanguage = lang === 'en' ? 'en' : 'de'
-  const t = COPY[currentLanguage]
-  const mailto = `mailto:info@hareb.org?subject=${encodeURIComponent(t.subject)}`
+  const t = lang === 'en' ? COPY.en : COPY.de
   const reducedMotion = useReducedMotion()
-  const heroRef = useRef<HTMLElement>(null)
-
-  const { scrollYProgress: pageScroll } = useScroll()
-  const pageProgress = useSpring(pageScroll, {
+  const mailto = `mailto:info@hareb.org?subject=${encodeURIComponent(t.subject)}`
+  const { scrollYProgress } = useScroll()
+  const progress = useSpring(scrollYProgress, {
     stiffness: 120,
     damping: 24,
     mass: 0.25,
   })
 
-  const { scrollYProgress: heroScroll } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  })
-  const copyY = useTransform(heroScroll, [0, 1], [0, -42])
-  const detailY = useTransform(heroScroll, [0, 1], [0, 30])
-  const heroOpacity = useTransform(heroScroll, [0, 0.78, 1], [1, 0.94, 0.48])
-
-  const proofItems = [t.proofDashboard, t.proofPayout, t.proofWork]
+  const features = [t.dashboard, t.payout, t.workload]
+  const steps = [
+    [t.step1, t.step1Body],
+    [t.step2, t.step2Body],
+    [t.step3, t.step3Body],
+  ] as const
 
   return (
-    <main id="main-content" className="relative min-h-screen overflow-x-clip bg-[#02040d] text-foreground">
+    <main id="main-content" className="relative min-h-screen overflow-x-clip bg-[#02040e] text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-30 bg-[url('/affiliate-bg-mobile.svg')] bg-cover bg-top bg-no-repeat md:bg-[url('/affiliate-bg-desktop.svg')] md:bg-center"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,4,14,0.52)_0%,rgba(2,4,14,0.78)_45%,rgba(2,4,14,0.96)_100%)] md:bg-[linear-gradient(90deg,rgba(2,4,14,0.88)_0%,rgba(2,4,14,0.64)_55%,rgba(2,4,14,0.54)_100%)]"
+      />
+
       <motion.header
         initial={reducedMotion ? false : { y: -18, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.75, ease: easeOut }}
-        className="sticky top-0 z-50 border-b border-white/10 bg-[#02040d]/80 backdrop-blur-xl"
+        transition={{ duration: 0.7, ease: easeOut }}
+        className="sticky top-0 z-50 border-b border-white/10 bg-[#02040e]/70 backdrop-blur-xl"
       >
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
-          <span className="truncate text-xs font-semibold tracking-[0.02em] text-white/90">
-            {t.headerLabel}
-          </span>
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
+          <span className="text-sm font-semibold tracking-tight text-white">{t.label}</span>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
-            <a href="#benefits" className="text-sm font-medium text-white/65 transition-colors hover:text-white">
-              {t.navBenefits}
+            <a href="#benefits" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
+              {t.benefits}
             </a>
-            <a href="#process" className="text-sm font-medium text-white/65 transition-colors hover:text-white">
-              {t.navProcess}
+            <a href="#process" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
+              {t.process}
             </a>
           </nav>
 
-          <div className="flex items-center justify-self-end gap-3 sm:gap-5">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em]">
-              {(['de', 'en'] as const).map((language, index) => (
-                <span key={language} className="flex items-center gap-1.5">
-                  {index > 0 && <span className="text-white/25">/</span>}
-                  <button
-                    type="button"
-                    onClick={() => setLang(language)}
-                    aria-pressed={currentLanguage === language}
-                    aria-label={language === 'de' ? 'Deutsch' : 'English'}
-                    className={currentLanguage === language ? 'text-white' : 'text-white/50 transition-colors hover:text-white'}
-                  >
-                    {language}
-                  </button>
-                </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em]">
+              {(['de', 'en'] as const).map((language) => (
+                <button
+                  key={language}
+                  type="button"
+                  onClick={() => setLang(language)}
+                  aria-pressed={lang === language}
+                  className={lang === language ? 'text-white' : 'text-white/50 transition-colors hover:text-white'}
+                >
+                  {language}
+                </button>
               ))}
             </div>
-
             <Link
               href="/"
               aria-label={t.portfolioAria}
-              className="group inline-flex items-center gap-1.5 border-l border-white/15 pl-3 text-xs font-semibold text-white sm:gap-2 sm:pl-5 sm:text-sm"
+              className="group inline-flex items-center gap-2 border-l border-white/15 pl-4 text-sm font-semibold text-white"
             >
-              {t.portfolio}
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
+              <span className="hidden sm:inline">{t.portfolio}</span>
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
             </Link>
           </div>
         </div>
-
         <motion.div
           aria-hidden
-          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-blue/80 via-purple/70 to-transparent"
-          style={{ scaleX: pageProgress }}
+          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-blue/80 via-purple/75 to-transparent"
+          style={{ scaleX: progress }}
         />
       </motion.header>
 
-      <section
-        ref={heroRef}
-        className="relative isolate min-h-[calc(100svh-65px)] overflow-hidden px-5 pb-20 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24"
-      >
-        <picture className="pointer-events-none absolute inset-0 -z-30">
-          <source media="(max-width: 767px)" srcSet="/affiliate/affiliate-bg-mobile.svg" />
-          <img
-            src="/affiliate/affiliate-bg-desktop.svg"
-            alt=""
-            className="h-full w-full object-cover object-center"
-          />
-        </picture>
-        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,4,13,0.42)_0%,rgba(2,4,13,0.66)_58%,rgba(2,4,13,0.94)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_28%_28%,transparent_0%,rgba(2,4,13,0.12)_42%,rgba(2,4,13,0.48)_100%)]" />
-
-        {!reducedMotion && (
-          <motion.div
-            aria-hidden
-            initial={{ x: '-34vw', opacity: 0 }}
-            animate={{ x: '115vw', opacity: [0, 0.18, 0] }}
-            transition={{ duration: 3.6, delay: 0.15, ease: easeOut, times: [0, 0.46, 1] }}
-            className="pointer-events-none absolute -top-[16%] bottom-[-16%] left-0 -z-10 w-[16vw] min-w-24 rotate-[8deg] bg-gradient-to-r from-transparent via-blue/15 to-transparent blur-3xl"
-          />
-        )}
-
-        <motion.div
-          style={reducedMotion ? undefined : { opacity: heroOpacity }}
-          className="mx-auto grid max-w-7xl gap-12 border-t border-white/15 pt-7 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:gap-16 lg:pt-10"
-        >
-          <motion.div style={reducedMotion ? undefined : { y: copyY }}>
-            <h1
-              aria-label={t.headline}
-              className="max-w-4xl font-display text-[clamp(3rem,10vw,7.2rem)] font-semibold leading-[0.91] tracking-[-0.058em] text-white"
-            >
-              {t.headlineLines.map((line, index) => (
-                <span key={line} className="-mb-[0.08em] block overflow-hidden pb-[0.08em]" aria-hidden>
+      <section className="relative px-6 pb-20 pt-16 sm:pb-28 sm:pt-24 lg:pb-32 lg:pt-28">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:gap-16">
+          <div>
+            <h1 className="max-w-4xl font-display text-[clamp(3.1rem,8vw,7.2rem)] font-semibold leading-[0.91] tracking-[-0.058em]">
+              {t.headline.map((line, index) => (
+                <span key={line} className="block overflow-hidden pb-[0.08em]">
                   <motion.span
-                    initial={reducedMotion ? false : { y: '112%', opacity: 0.001 }}
-                    animate={{ y: '0%', opacity: 1 }}
-                    transition={{ duration: 1, delay: 0.1 + index * 0.13, ease: easeOut }}
+                    initial={reducedMotion ? false : { y: '112%', opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.95, delay: index * 0.12, ease: easeOut }}
                     className="block"
                   >
                     {line}
@@ -202,127 +166,128 @@ export function AffiliatePage() {
             </h1>
 
             <motion.p
-              initial={reducedMotion ? false : { y: 24, opacity: 0 }}
+              initial={reducedMotion ? false : { y: 22, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.85, delay: 0.45, ease: easeOut }}
-              className="mt-7 max-w-xl text-pretty text-base font-medium leading-relaxed text-white/82 sm:text-lg"
+              transition={{ duration: 0.8, delay: 0.34, ease: easeOut }}
+              className="mt-7 max-w-xl text-lg font-medium leading-relaxed text-white/88 sm:text-xl"
             >
               {t.intro}
             </motion.p>
 
+            <motion.a
+              initial={reducedMotion ? false : { y: 18, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.75, delay: 0.48, ease: easeOut }}
+              href={mailto}
+              className="group mt-8 inline-flex items-center gap-2 rounded-lg border border-purple/50 bg-purple/90 px-6 py-3.5 text-base font-semibold text-white shadow-[0_14px_45px_rgba(113,82,255,0.34)] transition-transform hover:-translate-y-0.5"
+            >
+              {t.cta}
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+            </motion.a>
+
             <motion.div
-              initial={reducedMotion ? false : { y: 24, opacity: 0, scale: 0.985 }}
+              initial={reducedMotion ? false : { y: 24, opacity: 0, scale: 0.98 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9, delay: 0.62, ease: easeOut }}
-              className="relative mt-8 max-w-2xl overflow-hidden border-y border-purple/40 bg-[#080b20]/66 px-4 py-6 shadow-[0_24px_80px_rgba(30,22,91,0.34)] backdrop-blur-md sm:px-6 sm:py-7"
+              transition={{ duration: 0.85, delay: 0.62, ease: easeOut }}
+              className="relative mt-10 max-w-2xl overflow-hidden border-l-2 border-purple bg-black/35 px-5 py-5 backdrop-blur-md sm:px-6"
             >
               <motion.div
                 aria-hidden
-                initial={reducedMotion ? false : { x: '-130%' }}
+                initial={reducedMotion ? false : { x: '-140%' }}
                 animate={{ x: '190%' }}
-                transition={{ duration: 1.45, delay: 0.85, ease: easeOut }}
-                className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-transparent via-white/20 to-transparent blur-xl"
+                transition={{ duration: 1.5, delay: 0.9, ease: easeOut }}
+                className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-transparent via-white/15 to-transparent blur-xl"
               />
-              <p className="text-balance text-[clamp(1.55rem,4.8vw,2.65rem)] font-semibold leading-[1.08] tracking-[-0.035em] text-white">
-                {t.earnLine}
+              <p className="text-balance text-2xl font-semibold leading-tight tracking-[-0.025em] text-white sm:text-3xl">
+                {t.earning}
               </p>
-              <p className="mt-3 text-base font-medium leading-relaxed text-white/75">
-                {t.earnNote}
-              </p>
+              <p className="mt-2 text-base font-medium text-white/75">{t.earningNote}</p>
             </motion.div>
-
-            <motion.div
-              initial={reducedMotion ? false : { y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.78, ease: easeOut }}
-              className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
-            >
-              <a
-                href={mailto}
-                className="group inline-flex items-center justify-center gap-2 rounded-lg border border-purple/40 bg-[linear-gradient(180deg,rgba(139,103,255,0.96),rgba(86,78,236,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_12px_34px_rgba(103,78,255,0.32)] transition-transform hover:-translate-y-0.5 sm:text-base"
-              >
-                {t.primaryCta}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-              </a>
-              <Link href="/" className="group inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition-colors hover:text-white sm:text-base">
-                {t.portfolio}
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-              </Link>
-            </motion.div>
-          </motion.div>
+          </div>
 
           <motion.aside
-            id="benefits"
             initial={reducedMotion ? false : { x: 34, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            transition={{ duration: 0.95, delay: 0.3, ease: easeOut }}
-            style={reducedMotion ? undefined : { y: detailY }}
-            className="scroll-mt-24 self-start rounded-2xl border border-white/15 bg-[#06091a]/72 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7"
+            transition={{ duration: 0.9, delay: 0.22, ease: easeOut }}
+            className="border border-white/15 bg-[#070a18]/78 p-6 shadow-[0_28px_90px_rgba(0,0,0,0.42)] backdrop-blur-lg sm:p-8"
           >
-            <p className="text-sm font-semibold text-white/70">{t.minimumLabel}</p>
-            <div className="overflow-hidden">
-              <motion.p
-                initial={reducedMotion ? false : { y: '105%', opacity: 0.001 }}
-                animate={{ y: '0%', opacity: 1 }}
-                transition={{ duration: 0.95, delay: 0.48, ease: easeOut }}
-                className="mt-3 font-display text-[clamp(4rem,14vw,6.4rem)] font-semibold leading-none tracking-[-0.075em] text-white"
-              >
-                {t.minimumValue}
-              </motion.p>
-            </div>
-            <p className="mt-3 text-base font-medium leading-relaxed text-white/75">
-              {t.minimumNote}
+            <p className="text-base font-semibold text-white/75">{t.minimum}</p>
+            <p className="mt-3 font-display text-[clamp(4rem,10vw,6.5rem)] font-semibold leading-none tracking-[-0.07em] text-white">
+              {t.amount}
             </p>
+            <p className="mt-4 text-base font-medium leading-relaxed text-white/80">{t.amountNote}</p>
 
-            <ul className="mt-7 border-t border-white/15">
-              {proofItems.map((item, index) => (
+            <ul id="benefits" className="mt-8 divide-y divide-white/12 border-t border-white/12">
+              {features.map((feature, index) => (
                 <motion.li
-                  key={item}
-                  initial={reducedMotion ? false : { x: 22, opacity: 0 }}
+                  key={feature}
+                  initial={reducedMotion ? false : { x: 20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 0.65, delay: 0.72 + index * 0.08, ease: easeOut }}
-                  className="grid grid-cols-[2rem_1fr] items-center gap-3 border-b border-white/15 py-4"
+                  transition={{ duration: 0.65, delay: 0.62 + index * 0.09, ease: easeOut }}
+                  className="flex items-center gap-3 py-4 text-base font-semibold text-white/90"
                 >
-                  <span className="text-xs font-semibold text-purple/90">
-                    {String(index + 1).padStart(2, '0')}
-                  </span>
-                  <span className="text-base font-semibold text-white/90">{item}</span>
+                  <Check className="h-4 w-4 shrink-0 text-purple" aria-hidden />
+                  {feature}
                 </motion.li>
               ))}
             </ul>
           </motion.aside>
+        </div>
+      </section>
+
+      <section id="process" className="border-y border-white/10 bg-[#02040e]/76 px-6 py-20 backdrop-blur-md sm:py-24">
+        <div className="mx-auto max-w-7xl">
+          <motion.h2
+            initial={reducedMotion ? false : { y: 24, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: '-15% 0px' }}
+            transition={{ duration: 0.8, ease: easeOut }}
+            className="font-display text-3xl font-semibold tracking-tight sm:text-5xl"
+          >
+            {t.process}
+          </motion.h2>
+
+          <ol className="mt-10 grid border-t border-white/15 lg:grid-cols-3">
+            {steps.map(([title, body], index) => (
+              <motion.li
+                key={title}
+                initial={reducedMotion ? false : { y: 28, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true, margin: '-12% 0px' }}
+                transition={{ duration: 0.75, delay: index * 0.1, ease: easeOut }}
+                className="border-b border-white/15 py-7 lg:border-b-0 lg:border-r lg:px-8 lg:py-9 first:lg:pl-0 last:lg:border-r-0 last:lg:pr-0"
+              >
+                <span className="text-sm font-semibold text-purple">0{index + 1}</span>
+                <h3 className="mt-3 text-xl font-semibold text-white sm:text-2xl">{title}</h3>
+                <p className="mt-2 text-base font-medium leading-relaxed text-white/75">{body}</p>
+              </motion.li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="px-6 py-20 sm:py-24">
+        <motion.div
+          initial={reducedMotion ? false : { y: 32, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: '-15% 0px' }}
+          transition={{ duration: 0.8, ease: easeOut }}
+          className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-7 border-t border-white/15 pt-8 sm:flex-row sm:items-end"
+        >
+          <div>
+            <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-5xl">{t.finalTitle}</h2>
+            <p className="mt-3 text-lg font-medium text-white/75">{t.finalBody}</p>
+          </div>
+          <a href={mailto} className="group inline-flex shrink-0 items-center gap-2 text-base font-semibold text-white underline decoration-purple/70 underline-offset-[8px]">
+            {t.cta}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+          </a>
         </motion.div>
       </section>
 
-      <Affiliate standalone />
-
-      <motion.section
-        initial={reducedMotion ? false : { opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-18% 0px' }}
-        transition={{ duration: 0.9, ease: easeOut }}
-        className="border-t border-white/10 px-5 py-16 sm:px-6 sm:py-20"
-      >
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
-          <div>
-            <p className="text-sm font-semibold text-blue/90">{t.closingLabel}</p>
-            <h2 className="mt-3 max-w-3xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
-              {t.closingTitle}
-            </h2>
-            <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-white/70">
-              {t.closingBody}
-            </p>
-          </div>
-          <Link href="/" className="group inline-flex shrink-0 items-center gap-2 text-base font-semibold text-white transition-colors hover:text-blue">
-            {t.portfolio}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
-          </Link>
-        </div>
-      </motion.section>
-
-      <footer className="border-t border-white/10 px-5 py-7 sm:px-6">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-white/60 sm:flex-row">
-          <span>{t.headerLabel}</span>
+      <footer className="border-t border-white/10 bg-[#02040e]/80 px-6 py-7">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-sm font-medium text-white/60 sm:flex-row">
+          <span>{t.label}</span>
           <nav className="flex items-center gap-5" aria-label="Legal">
             <Link href="/impressum" className="transition-colors hover:text-white">{t.imprint}</Link>
             <Link href="/datenschutz" className="transition-colors hover:text-white">{t.privacy}</Link>

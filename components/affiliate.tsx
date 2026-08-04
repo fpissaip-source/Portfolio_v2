@@ -35,11 +35,15 @@ const COPY = {
     leads: 'Leads',
     customers: 'Neukunden',
     commission: 'Provision',
+    confirmed: 'bestätigt',
+    funnel: 'Klicks → Leads → Neukunden',
     chartTitle: 'Conversion-Performance',
     chartMeta: '+24,8 % zum Vormonat',
     payoutCard: 'Nächste Auszahlung',
     payoutStatus: 'Zur Auszahlung bereit',
     payoutDate: 'Voraussichtlich am 15. des Monats',
+    tracking: 'Tracking',
+    live: 'Live',
     ctaEyebrow: 'Werde Wachstumspartner',
     ctaTitle: 'Du kennst Unternehmen, die digital besser aufgestellt sein könnten?',
     ctaBody:
@@ -70,11 +74,15 @@ const COPY = {
     leads: 'Leads',
     customers: 'New clients',
     commission: 'Commission',
+    confirmed: 'confirmed',
+    funnel: 'Clicks → Leads → New clients',
     chartTitle: 'Conversion performance',
     chartMeta: '+24.8% month over month',
     payoutCard: 'Next payout',
     payoutStatus: 'Ready for payout',
     payoutDate: 'Expected on the 15th of the month',
+    tracking: 'Tracking',
+    live: 'Live',
     ctaEyebrow: 'Become a growth partner',
     ctaTitle: 'Know a business that should be performing better digitally?',
     ctaBody:
@@ -91,6 +99,7 @@ const CHART = [38, 52, 46, 67, 59, 78, 72, 94]
 export function Affiliate() {
   const { lang } = useLanguage()
   const t = lang === 'en' ? COPY.en : COPY.de
+  const english = lang === 'en'
 
   const benefits = [
     {
@@ -114,10 +123,25 @@ export function Affiliate() {
   ]
 
   const stats = [
-    { icon: MousePointerClick, label: t.clicks, value: '2.481', detail: '+18,4 %' },
-    { icon: Users, label: t.leads, value: '184', detail: '+11,2 %' },
-    { icon: TrendingUp, label: t.customers, value: '61', detail: '+9,6 %' },
-    { icon: Percent, label: t.commission, value: '3.420 €', detail: 'bestätigt' },
+    {
+      icon: MousePointerClick,
+      label: t.clicks,
+      value: '2.481',
+      detail: english ? '+18.4%' : '+18,4 %',
+    },
+    {
+      icon: Users,
+      label: t.leads,
+      value: '184',
+      detail: english ? '+11.2%' : '+11,2 %',
+    },
+    {
+      icon: TrendingUp,
+      label: t.customers,
+      value: '61',
+      detail: english ? '+9.6%' : '+9,6 %',
+    },
+    { icon: Percent, label: t.commission, value: '3.420 €', detail: t.confirmed },
   ]
 
   return (
@@ -148,7 +172,13 @@ export function Affiliate() {
         <div className="grid border-y border-white/10 lg:grid-cols-3">
           {benefits.map((benefit, index) => (
             <Reveal key={benefit.title} delay={index * 0.08}>
-              <article className="h-full border-b border-white/10 px-2 py-9 last:border-b-0 sm:px-6 lg:border-b-0 lg:border-r lg:px-9 lg:last:border-r-0">
+              <article
+                className={`h-full px-2 py-9 sm:px-6 lg:px-9 ${
+                  index < benefits.length - 1
+                    ? 'border-b border-white/10 lg:border-b-0 lg:border-r'
+                    : ''
+                }`}
+              >
                 <benefit.icon className={`h-6 w-6 ${benefit.accent}`} aria-hidden />
                 <h3 className="mt-6 font-display text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
                   {benefit.title}
@@ -200,7 +230,7 @@ export function Affiliate() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-foreground">{t.chartTitle}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">Clicks → Leads → Customers</p>
+                      <p className="mt-1 text-xs text-muted-foreground">{t.funnel}</p>
                     </div>
                     <p className="text-xs font-medium text-emerald-300/85">{t.chartMeta}</p>
                   </div>
@@ -240,8 +270,8 @@ export function Affiliate() {
 
                 <div className="mt-12 border-t border-white/10 pt-7">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Tracking</span>
-                    <span className="text-foreground">Live</span>
+                    <span>{t.tracking}</span>
+                    <span className="text-foreground">{t.live}</span>
                   </div>
                   <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/5">
                     <div className="h-full w-[86%] rounded-full bg-gradient-to-r from-purple to-blue" />

@@ -1,9 +1,19 @@
 'use client'
 
+import { useRef } from 'react'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from 'motion/react'
 import { Affiliate } from './affiliate'
 import { useLanguage } from './language-context'
+
+const easeOut = [0.22, 1, 0.36, 1] as const
 
 const COPY = {
   de: {
@@ -13,6 +23,7 @@ const COPY = {
     portfolio: 'Zum Portfolio',
     portfolioAria: 'Zum Portfolio von Issa Hareb',
     headline: 'Empfehlungen, die sich auszahlen.',
+    headlineLines: ['Empfehlungen,', 'die sich auszahlen.'],
     intro:
       'Du stellst den Kontakt zu einem Unternehmen her. Ich übernehme Beratung, Angebot, Umsetzung und Betreuung – du erhältst für den erfolgreichen Abschluss eine attraktive Provision.',
     primaryCta: 'Partnerprogramm anfragen',
@@ -40,6 +51,7 @@ const COPY = {
     portfolio: 'View portfolio',
     portfolioAria: "View Issa Hareb's portfolio",
     headline: 'Referrals that pay off.',
+    headlineLines: ['Referrals', 'that pay off.'],
     intro:
       'You make the introduction to a business. I handle consulting, the proposal, delivery and support – you receive an attractive commission when the project closes successfully.',
     primaryCta: 'Ask about the partner programme',
@@ -67,18 +79,46 @@ export function AffiliatePage() {
   const currentLanguage = lang === 'en' ? 'en' : 'de'
   const t = COPY[currentLanguage]
   const mailto = `mailto:info@hareb.org?subject=${encodeURIComponent(t.subject)}`
+  const reducedMotion = useReducedMotion()
+  const heroRef = useRef<HTMLElement>(null)
+
+  const { scrollYProgress: pageScroll } = useScroll()
+  const pageProgress = useSpring(pageScroll, {
+    stiffness: 120,
+    damping: 24,
+    mass: 0.25,
+  })
+
+  const { scrollYProgress: heroScroll } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  })
+  const copyY = useTransform(heroScroll, [0, 1], [0, -72])
+  const detailY = useTransform(heroScroll, [0, 1], [0, 54])
+  const heroOpacity = useTransform(heroScroll, [0, 0.72, 1], [1, 0.88, 0.32])
 
   const proofItems = [t.proofDashboard, t.proofPayout, t.proofWork]
 
   return (
     <main id="main-content" className="relative min-h-screen overflow-x-clip bg-background">
-      <header className="sticky top-0 z-50 border-b border-white/8 bg-background/90 backdrop-blur-xl">
+      <motion.header
+        initial={reducedMotion ? false : { y: -22, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: easeOut }}
+        className="sticky top-0 z-50 border-b border-white/8 bg-background/90 backdrop-blur-xl"
+      >
         <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-5 py-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
           <div className="flex min-w-0 items-center gap-4">
             <span className="truncate text-xs font-semibold tracking-[0.04em] text-foreground">
               {t.headerLabel}
             </span>
-            <span className="hidden h-px w-16 bg-white/15 sm:block" aria-hidden />
+            <motion.span
+              initial={reducedMotion ? false : { scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.1, delay: 0.2, ease: easeOut }}
+              className="hidden h-px w-16 origin-left bg-white/15 sm:block"
+              aria-hidden
+            />
           </div>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
@@ -131,27 +171,96 @@ export function AffiliatePage() {
             </Link>
           </div>
         </div>
-      </header>
 
-      <section className="relative px-6 pb-24 pt-20 sm:pb-32 sm:pt-28 lg:pb-36 lg:pt-32">
+        <motion.div
+          aria-hidden
+          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-blue/70 via-purple/60 to-transparent"
+          style={{ scaleX: pageProgress }}
+        />
+      </motion.header>
+
+      <section
+        ref={heroRef}
+        className="relative isolate min-h-[calc(100svh-73px)] overflow-hidden px-6 pb-24 pt-20 sm:pb-32 sm:pt-28 lg:pb-36 lg:pt-32"
+      >
+        {!reducedMotion && (
+          <motion.div
+            aria-hidden
+            initial={{ x: '-32vw', opacity: 0 }}
+            animate={{ x: '112vw', opacity: [0, 0.16, 0] }}
+            transition={{
+              duration: 3.8,
+              delay: 0.18,
+              ease: easeOut,
+              times: [0, 0.46, 1],
+            }}
+            className="pointer-events-none absolute -top-[18%] bottom-[-18%] left-0 -z-10 w-[18vw] min-w-28 rotate-[8deg] blur-3xl"
+            style={{
+              background:
+                'linear-gradient(90deg, transparent, color-mix(in oklch, var(--blue) 18%, white), transparent)',
+            }}
+          />
+        )}
+
+        <div className="pointer-events-none absolute inset-x-0 top-[16%] -z-20 h-px bg-gradient-to-r from-transparent via-white/[0.045] to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-[12%] -z-20 h-px bg-gradient-to-r from-transparent via-white/[0.035] to-transparent" />
+
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-16 border-t border-white/12 pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-20 lg:pt-10">
-            <div>
-              <h1 className="max-w-4xl text-balance font-display text-[clamp(3.3rem,8vw,7.4rem)] font-semibold leading-[0.91] tracking-[-0.058em] text-foreground">
-                {t.headline}
+          <motion.div
+            style={reducedMotion ? undefined : { opacity: heroOpacity }}
+            className="grid gap-16 border-t border-white/12 pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-20 lg:pt-10"
+          >
+            <motion.div style={reducedMotion ? undefined : { y: copyY }}>
+              <h1
+                aria-label={t.headline}
+                className="max-w-4xl text-balance font-display text-[clamp(3.3rem,8vw,7.4rem)] font-semibold leading-[0.91] tracking-[-0.058em] text-foreground"
+              >
+                {t.headlineLines.map((line, index) => (
+                  <span
+                    key={line}
+                    className="-mb-[0.08em] block overflow-hidden pb-[0.08em]"
+                    aria-hidden
+                  >
+                    <motion.span
+                      initial={reducedMotion ? false : { y: '112%', opacity: 0.001 }}
+                      animate={{ y: '0%', opacity: 1 }}
+                      transition={{
+                        duration: 1.05,
+                        delay: 0.12 + index * 0.13,
+                        ease: easeOut,
+                      }}
+                      className="block will-transform"
+                    >
+                      {line}
+                    </motion.span>
+                  </span>
+                ))}
               </h1>
 
-              <p className="mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
+              <motion.p
+                initial={reducedMotion ? false : { y: 28, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.9, delay: 0.5, ease: easeOut }}
+                className="mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl"
+              >
                 {t.intro}
-              </p>
+              </motion.p>
 
-              <div className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+              <motion.div
+                initial={reducedMotion ? false : { y: 24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.85, delay: 0.66, ease: easeOut }}
+                className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center"
+              >
                 <a
                   href={mailto}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-6 py-3.5 text-sm font-semibold tracking-tight text-background transition-transform hover:translate-y-[-1px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-purple sm:text-base"
+                  className="group inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-6 py-3.5 text-sm font-semibold tracking-tight text-background transition-transform hover:translate-y-[-1px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-purple sm:text-base"
                 >
                   {t.primaryCta}
-                  <ArrowRight className="h-4 w-4" aria-hidden />
+                  <ArrowRight
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden
+                  />
                 </a>
 
                 <Link
@@ -164,10 +273,16 @@ export function AffiliatePage() {
                     aria-hidden
                   />
                 </Link>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
 
-            <aside className="border-t border-white/12 pt-8 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0">
+            <motion.aside
+              initial={reducedMotion ? false : { x: 42, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 1, delay: 0.34, ease: easeOut }}
+              style={reducedMotion ? undefined : { y: detailY }}
+              className="border-t border-white/12 pt-8 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0"
+            >
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <p className="text-xs font-semibold tracking-tight text-muted-foreground">
                   {t.minimumLabel}
@@ -175,26 +290,50 @@ export function AffiliatePage() {
                 <span className="font-mono text-[10px] tracking-[0.18em] text-white/30">01</span>
               </div>
 
-              <p className="mt-7 font-display text-[clamp(4.2rem,10vw,7rem)] font-semibold leading-none tracking-[-0.075em] text-foreground">
-                {t.minimumValue}
-              </p>
-              <p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">
+              <div className="overflow-hidden">
+                <motion.p
+                  initial={reducedMotion ? false : { y: '105%', opacity: 0.001 }}
+                  animate={{ y: '0%', opacity: 1 }}
+                  transition={{ duration: 1, delay: 0.5, ease: easeOut }}
+                  className="mt-7 font-display text-[clamp(4.2rem,10vw,7rem)] font-semibold leading-none tracking-[-0.075em] text-foreground"
+                >
+                  {t.minimumValue}
+                </motion.p>
+              </div>
+              <motion.p
+                initial={reducedMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.76 }}
+                className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base"
+              >
                 {t.minimumNote}
-              </p>
+              </motion.p>
 
-              <div className="mt-9 border-l-2 border-blue/55 pl-5">
+              <motion.div
+                initial={reducedMotion ? false : { x: 24, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.82, ease: easeOut }}
+                className="mt-9 border-l-2 border-blue/55 pl-5"
+              >
                 <h2 className="text-lg font-semibold tracking-tight text-foreground">
                   {t.moreTitle}
                 </h2>
                 <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
                   {t.moreBody}
                 </p>
-              </div>
+              </motion.div>
 
               <ol className="mt-10 border-t border-white/10">
                 {proofItems.map((item, index) => (
-                  <li
+                  <motion.li
                     key={item}
+                    initial={reducedMotion ? false : { x: 28, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{
+                      duration: 0.72,
+                      delay: 0.92 + index * 0.09,
+                      ease: easeOut,
+                    }}
                     className="grid grid-cols-[2.5rem_1fr] items-center gap-3 border-b border-white/10 py-4"
                   >
                     <span className="font-mono text-[10px] tracking-[0.15em] text-white/30">
@@ -203,17 +342,23 @@ export function AffiliatePage() {
                     <span className="text-sm font-medium tracking-tight text-foreground/90">
                       {item}
                     </span>
-                  </li>
+                  </motion.li>
                 ))}
               </ol>
-            </aside>
-          </div>
+            </motion.aside>
+          </motion.div>
         </div>
       </section>
 
       <Affiliate standalone />
 
-      <section className="border-t border-white/8 px-6 py-20 sm:py-28">
+      <motion.section
+        initial={reducedMotion ? false : { opacity: 0, y: 52 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-18% 0px' }}
+        transition={{ duration: 1, ease: easeOut }}
+        className="border-t border-white/8 px-6 py-20 sm:py-28"
+      >
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-10 lg:flex-row lg:items-end">
           <div>
             <p className="text-xs font-semibold tracking-tight text-blue/85">
@@ -238,7 +383,7 @@ export function AffiliatePage() {
             />
           </Link>
         </div>
-      </section>
+      </motion.section>
 
       <footer className="border-t border-white/8 px-6 py-8">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">

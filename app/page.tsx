@@ -19,6 +19,7 @@ import { About } from '@/components/about'
 import { TechStack } from '@/components/tech-stack'
 import { Process } from '@/components/process'
 import { Contact } from '@/components/contact'
+import { Affiliate } from '@/components/affiliate'
 import { SiteFooter } from '@/components/site-footer'
 import { Scene, FilmGrain } from '@/components/scene'
 
@@ -77,6 +78,7 @@ export default function Page() {
         <Scene labelKey="contact" backdrop="aurora">
           <Contact />
         </Scene>
+        <Affiliate />
         <SiteFooter />
       </main>
     </SmoothScroll>

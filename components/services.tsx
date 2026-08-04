@@ -16,21 +16,6 @@ function splitClosingHighlight(copy: string) {
   }
 }
 
-/**
- * A light point that rides the row's own top rule, under the cursor.
- *
- * Adapted from 21st.dev's Border Trail. Upstream animates a dot endlessly
- * around a card's full perimeter; that would be a sixth autonomous motion
- * system in a viewport that already carries CursorGrid, MouseGlow, IonTrail,
- * the film grain and the scroll reveals. Here it is pointer-driven and lives
- * on one edge only, so it moves solely in response to the visitor and stops
- * the instant they leave.
- *
- * It sits *on* the rule (`-top-px`, 1px tall), never behind the copy — which
- * is the whole reason this section gets a foreground effect instead of
- * another backdrop: the CursorGrid behind it already puts body text at
- * 4.51:1 against a 4.5 floor, so there is no contrast left to spend.
- */
 function BorderTrail() {
   return (
     <span
@@ -44,26 +29,14 @@ function BorderTrail() {
   )
 }
 
-/** Feeds the hovered row's cursor position to its own trail. Written as a
- *  CSS variable rather than React state so moving the mouse across the list
- *  never triggers a re-render. */
-function trackTrail(e: React.PointerEvent<HTMLElement>) {
-  const el = e.currentTarget
-  el.style.setProperty('--trail-x', `${e.clientX - el.getBoundingClientRect().left}px`)
+function trackTrail(event: React.PointerEvent<HTMLElement>) {
+  const element = event.currentTarget
+  element.style.setProperty(
+    '--trail-x',
+    `${event.clientX - element.getBoundingClientRect().left}px`,
+  )
 }
 
-/**
- * Services as a capability sheet, not a card grid (DESIGN.md §5, §6).
- *
- * The previous 2-column card grid stranded the fifth offering alone in the
- * last row and dressed every item in the same icon-in-a-tinted-circle box —
- * the most template-coded component on the web. A rule-separated list can
- * hold any number of entries without orphaning, and reads as a technical
- * specification: exactly the "instrument, not shop window" posture.
- *
- * No numbering: these are parallel offerings, not a sequence, and numbers
- * would promise an order that does not exist (anti-pattern #4).
- */
 export function Services() {
   const t = useT()
   const closingHighlight = splitClosingHighlight(t.services.closingHighlight)
@@ -80,13 +53,13 @@ export function Services() {
       />
 
       <div>
-        {t.services.items.map((item, i) => {
-          const Icon = ICONS[i % ICONS.length]
+        {t.services.items.map((item, index) => {
+          const Icon = ICONS[index % ICONS.length]
           return (
-            <Reveal key={item.title} delay={Math.min(i, 3) * 0.05} y={24}>
+            <Reveal key={item.title} delay={Math.min(index, 3) * 0.05} y={24}>
               <article
                 onPointerMove={trackTrail}
-                className="group relative grid gap-x-10 gap-y-3 border-t border-white/10 py-8 transition-colors duration-200 hover:border-blue/30 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:py-10"
+                className="group relative grid gap-x-10 gap-y-4 border-t border-white/10 py-8 transition-colors duration-200 hover:border-blue/30 sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:py-10"
               >
                 <BorderTrail />
                 <div className="flex items-start gap-3">
@@ -98,24 +71,16 @@ export function Services() {
                     {item.title}
                   </h3>
                 </div>
+
                 <div className="max-w-[62ch]">
-                  {/* The lead is the anchor: five short outcome lines the eye
-                      can take in at a glance. Previously each row held one
-                      prose paragraph of near-identical length, which gave a
-                      reader no entry point and nothing to skip to. */}
                   <p className="text-pretty text-lg font-medium leading-snug tracking-tight text-foreground sm:text-xl">
                     {item.lead}
                   </p>
-                  {/* And the capabilities read as what they are — a list —
-                      instead of commas inside a sentence. */}
-                  {/* Each entry carries its own leading marker rather than a
-                      separator between entries: with separators, a wrap left
-                      one orphaned at the start of the next line. */}
-                  <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                  <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2.5">
                     {item.points.map((point) => (
                       <li
                         key={point}
-                        className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-muted-foreground"
+                        className="flex items-center gap-2 text-sm leading-snug text-muted-foreground"
                       >
                         <span
                           aria-hidden
@@ -132,11 +97,9 @@ export function Services() {
         })}
       </div>
 
-      {/* Closing statement — a field with a heavier rule, not another card.
-          It is the section's one moment of emphasis, so it gets the space. */}
       <Reveal delay={0.15} y={24}>
         <div className="mt-20 border-t border-white/20 pt-12">
-          <h3 className="max-w-3xl text-balance font-display font-semibold text-2xl leading-[1.15] tracking-tight sm:text-3xl">
+          <h3 className="max-w-3xl text-balance font-display text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl">
             {t.services.closingKicker}
           </h3>
 
@@ -146,31 +109,28 @@ export function Services() {
 
           <div className="mt-10">
             {closingHighlight.label && (
-              <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-purple/90">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/90 sm:text-[11px]">
                 {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}
-            <p className="mt-3 max-w-3xl text-balance font-display font-semibold text-xl leading-snug tracking-tight text-foreground sm:text-2xl">
+            <p className="mt-3 max-w-3xl text-balance font-display text-xl font-semibold leading-snug tracking-tight text-foreground sm:text-2xl">
               {closingHighlight.body}
             </p>
-            {/* The shortcut for a convinced reader: interest peaks right
-                here, the contact section sits six scenes further down —
-                bridge it instead of hoping they scroll the whole way. */}
             <a
               href="#contact"
-              onClick={(e) => {
-                const el = document.getElementById('contact')
+              onClick={(event) => {
+                const element = document.getElementById('contact')
                 const lenis = (
                   window as unknown as {
-                    __lenis?: { scrollTo: (t: Element, o?: object) => void }
+                    __lenis?: { scrollTo: (target: Element, options?: object) => void }
                   }
                 ).__lenis
-                if (el && lenis) {
-                  e.preventDefault()
-                  lenis.scrollTo(el, { offset: 0 })
+                if (element && lenis) {
+                  event.preventDefault()
+                  lenis.scrollTo(element, { offset: 0 })
                 }
               }}
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-purple/40 bg-purple/10 px-6 py-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/70 hover:bg-purple/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
+              className="mt-8 inline-flex items-center gap-2 rounded-full border border-purple/40 px-6 py-3 text-sm font-semibold tracking-tight text-foreground transition-colors hover:border-purple/70 hover:bg-purple/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
             >
               {t.services.cta}
               <span aria-hidden>→</span>

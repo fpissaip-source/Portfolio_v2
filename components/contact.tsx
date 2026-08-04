@@ -8,7 +8,7 @@ import { SectionHeading } from './section-heading'
 
 export function Contact() {
   const t = useT()
-  const DETAILS = [
+  const details = [
     {
       icon: Mail,
       label: t.contact.emailLabel,
@@ -28,46 +28,41 @@ export function Contact() {
       href: null,
     },
   ]
+
   return (
-    <section
-      id="contact"
-      className="relative overflow-hidden px-6 py-32 sm:py-40"
-    >
+    <section id="contact" className="relative overflow-hidden px-6 py-32 sm:py-40">
       <GradientOrbs />
-      <div className="relative z-10 mx-auto max-w-4xl">
+
+      <div className="relative z-10 mx-auto max-w-5xl">
         <SectionHeading
           label={t.contact.kicker}
           heading={t.contact.heading}
           description={t.contact.subtitle}
           tone="blue"
           className="mb-14"
-          headingClassName="mx-auto max-w-3xl text-5xl leading-[0.98] sm:text-7xl md:text-8xl"
+          headingClassName="mx-auto max-w-3xl text-4xl leading-[1.02] sm:text-6xl lg:text-7xl"
           descriptionClassName="mx-auto max-w-lg"
         />
 
-        {/* Contact details as fields on the canvas, not cards (DESIGN.md §5).
-            The reachable ones are large, underlined-on-hover links so the
-            affordance is obvious — the previous bordered boxes hid the fact
-            that the address and number were tappable at all. */}
         <Reveal delay={0.15}>
-          <dl className="mx-auto grid max-w-3xl gap-x-10 gap-y-8 border-t border-white/10 pt-10 sm:grid-cols-3">
-            {DETAILS.map((d) => (
-              <div key={d.label} className="text-center sm:text-left">
-                <dt className="flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-[0.25em] text-muted-foreground sm:justify-start">
-                  <d.icon className="h-3.5 w-3.5 text-blue/70" aria-hidden />
-                  {d.label}
+          <dl className="mx-auto grid max-w-3xl gap-x-10 gap-y-8 border-y border-white/10 py-10 sm:grid-cols-3">
+            {details.map((detail) => (
+              <div key={detail.label} className="text-center sm:text-left">
+                <dt className="flex items-center justify-center gap-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-start">
+                  <detail.icon className="h-3.5 w-3.5 text-blue/70" aria-hidden />
+                  {detail.label}
                 </dt>
                 <dd className="mt-3">
-                  {d.href ? (
+                  {detail.href ? (
                     <a
-                      href={d.href}
+                      href={detail.href}
                       className="inline-block text-lg font-medium tracking-tight text-foreground underline decoration-blue/40 decoration-1 underline-offset-[6px] transition-colors hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue sm:text-xl"
                     >
-                      {d.value}
+                      {detail.value}
                     </a>
                   ) : (
                     <span className="text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
-                      {d.value}
+                      {detail.value}
                     </span>
                   )}
                 </dd>
@@ -76,23 +71,20 @@ export function Contact() {
           </dl>
         </Reveal>
 
-        {/* The free draft. Deliberately the loudest element in the section:
-            "start a project" asks for a decision, this asks for two
-            sentences, and one of those is a much easier yes. */}
-        <Reveal delay={0.25}>
-          <div className="mt-14 rounded-3xl border border-purple/35 bg-purple/[0.07] p-7 text-center sm:p-10">
-            <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-purple">
+        <Reveal delay={0.22}>
+          <div className="mt-16 border-y border-purple/25 py-12 text-center sm:py-14">
+            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
               {t.contact.offerLabel}
             </p>
-            <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-2xl font-semibold leading-tight tracking-tight text-foreground sm:text-3xl">
+            <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
               {t.contact.offerTitle}
             </h3>
-            <p className="mx-auto mt-4 max-w-lg text-pretty text-sm leading-relaxed text-muted-foreground sm:text-base">
+            <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-muted-foreground">
               {t.contact.offerBody}
             </p>
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.offerSubject)}`}
-              className="mt-7 inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-base font-semibold tracking-tight text-background transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-base font-semibold tracking-tight text-background transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple"
             >
               {t.contact.offerCta}
               <span aria-hidden>→</span>
@@ -100,14 +92,11 @@ export function Contact() {
           </div>
         </Reveal>
 
-        {/* The other way in, for someone who already knows what they want.
-            Quieter on purpose: two equally loud buttons is no choice at
-            all. */}
-        <Reveal delay={0.3}>
+        <Reveal delay={0.28}>
           <div className="mt-8 flex justify-center">
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
-              className="inline-flex items-center gap-2 rounded-full border border-white/15 px-7 py-3 text-sm font-medium tracking-tight text-muted-foreground transition-colors hover:border-white/30 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/15 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {t.contact.cta}
               <span aria-hidden>→</span>

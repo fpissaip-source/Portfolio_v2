@@ -11,8 +11,9 @@ import {
 } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { EN, DE, type Dictionary } from '@/lib/translations'
+import { ES } from '@/lib/translations-es'
 
-export type Lang = 'en' | 'de'
+export type Lang = 'de' | 'en' | 'es'
 
 const STORAGE_KEY = 'site-lang'
 
@@ -111,6 +112,11 @@ const EN_REFINED: Dictionary = {
     offerBody:
       'Describe your business and goal in two sentences. I will send you an initial visual direction for the start page.',
   },
+  consent: {
+    ...EN.consent,
+    necessaryBody:
+      'Your language choice (German, English or Spanish) is kept in your browser’s localStorage so the site stays in the language you picked. It never leaves your device and needs no consent.',
+  },
   footer: {
     ...EN.footer,
     tagline: 'Websites, software & AI automation',
@@ -205,6 +211,11 @@ const DE_REFINED: Dictionary = {
     offerBody:
       'Beschreibe dein Unternehmen und dein Ziel in zwei Sätzen. Ich schicke dir einen ersten visuellen Ansatz für die Startseite.',
   },
+  consent: {
+    ...DE.consent,
+    necessaryBody:
+      'Deine Sprachwahl (Deutsch, Englisch oder Spanisch) wird im localStorage deines Browsers gespeichert, damit die Seite in deiner gewählten Sprache bleibt. Sie verlässt dein Gerät nicht und benötigt keine Einwilligung.',
+  },
   footer: {
     ...DE.footer,
     tagline: 'Websites, Software & KI-Automatisierung',
@@ -216,13 +227,15 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useLayoutEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === 'de' || stored === 'en') {
+    if (stored === 'de' || stored === 'en' || stored === 'es') {
       setLangState(stored)
       return
     }
 
-    const browserLanguage = navigator.languages?.[0] ?? navigator.language
-    setLangState(browserLanguage.toLowerCase().startsWith('de') ? 'de' : 'en')
+    const browserLanguage = (navigator.languages?.[0] ?? navigator.language).toLowerCase()
+    if (browserLanguage.startsWith('de')) setLangState('de')
+    else if (browserLanguage.startsWith('es')) setLangState('es')
+    else setLangState('en')
   }, [])
 
   useLayoutEffect(() => {
@@ -263,5 +276,7 @@ export function useLanguage() {
 
 export function useT(): Dictionary {
   const { lang } = useLanguage()
-  return lang === 'en' ? EN_REFINED : DE_REFINED
+  if (lang === 'es') return ES
+  if (lang === 'en') return EN_REFINED
+  return DE_REFINED
 }

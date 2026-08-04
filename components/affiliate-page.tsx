@@ -3,9 +3,15 @@
 import Link from 'next/link'
 import { ArrowRight, Check } from 'lucide-react'
 import { motion, useReducedMotion, useScroll, useSpring } from 'motion/react'
-import { useLanguage } from './language-context'
+import { useLanguage, type Lang } from './language-context'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
+
+const LANGUAGE_LABELS: Record<Lang, string> = {
+  de: 'Deutsch',
+  en: 'English',
+  es: 'Español',
+}
 
 const COPY = {
   de: {
@@ -66,11 +72,40 @@ const COPY = {
     imprint: 'Imprint',
     privacy: 'Privacy',
   },
+  es: {
+    label: 'Programa de socios',
+    benefits: 'Ventajas',
+    process: 'Proceso',
+    portfolio: 'Ver portfolio',
+    portfolioAria: 'Ver el portfolio de Issa Hareb',
+    headline: ['Recomendaciones', 'que generan ingresos.'],
+    intro: 'Tú haces la presentación. Yo me encargo de la consultoría, el desarrollo y el soporte.',
+    cta: 'Consultar el programa',
+    subject: 'Consulta sobre el programa de socios',
+    minimum: 'Como mínimo',
+    amount: '660,00 €+',
+    amountNote: 'Comisión por cada proyecto de cliente completado.',
+    earning: 'Con solo 2–3 clientes puedes superar los 3.000 €.',
+    earningNote: 'Según el tipo y el alcance del proyecto.',
+    dashboard: 'Panel propio para socios',
+    payout: 'Pagos semanales o mensuales',
+    workload: 'Sin desarrollo ni soporte por tu parte',
+    step1: 'Hacer la presentación',
+    step1Body: 'Recomiendas una empresa adecuada.',
+    step2: 'Cerrar el proyecto',
+    step2Body: 'Yo me encargo de la propuesta y la ejecución.',
+    step3: 'Recibir la comisión',
+    step3Body: 'Tu parte se libera después del pago.',
+    finalTitle: '¿Conoces una empresa adecuada?',
+    finalBody: 'Una breve presentación es suficiente para empezar.',
+    imprint: 'Aviso legal',
+    privacy: 'Privacidad',
+  },
 } as const
 
 export function AffiliatePage() {
   const { lang, setLang } = useLanguage()
-  const t = lang === 'en' ? COPY.en : COPY.de
+  const t = lang === 'es' ? COPY.es : lang === 'en' ? COPY.en : COPY.de
   const reducedMotion = useReducedMotion()
   const mailto = `mailto:info@hareb.org?subject=${encodeURIComponent(t.subject)}`
   const { scrollYProgress } = useScroll()
@@ -116,14 +151,15 @@ export function AffiliatePage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.1em]">
-              {(['de', 'en'] as const).map((language) => (
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] sm:gap-2 sm:text-xs sm:tracking-[0.1em]">
+              {(['de', 'en', 'es'] as const).map((language) => (
                 <button
                   key={language}
                   type="button"
                   onClick={() => setLang(language)}
                   aria-pressed={lang === language}
+                  aria-label={LANGUAGE_LABELS[language]}
                   className={lang === language ? 'text-white' : 'text-white/50 transition-colors hover:text-white'}
                 >
                   {language}
@@ -133,7 +169,7 @@ export function AffiliatePage() {
             <Link
               href="/"
               aria-label={t.portfolioAria}
-              className="group inline-flex items-center gap-2 border-l border-white/15 pl-4 text-sm font-semibold text-white"
+              className="group inline-flex items-center gap-2 border-l border-white/15 pl-3 text-sm font-semibold text-white sm:pl-4"
             >
               <span className="hidden sm:inline">{t.portfolio}</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />

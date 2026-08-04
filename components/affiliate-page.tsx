@@ -35,7 +35,7 @@ export function AffiliatePage() {
 
   return (
     <main id="main-content" className="relative min-h-screen overflow-hidden bg-background">
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-background/82 px-5 py-3 backdrop-blur-xl sm:px-6">
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-background/80 px-5 py-3 backdrop-blur-xl sm:px-6">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
           <Link
             href="/"

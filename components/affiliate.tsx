@@ -92,7 +92,11 @@ const COPY = {
   },
 } as const
 
-export function Affiliate() {
+type AffiliateProps = {
+  standalone?: boolean
+}
+
+export function Affiliate({ standalone = false }: AffiliateProps) {
   const { lang } = useLanguage()
   const t = lang === 'en' ? COPY.en : COPY.de
 
@@ -109,7 +113,14 @@ export function Affiliate() {
   ]
 
   return (
-    <section id="affiliate" className="relative overflow-hidden border-t border-white/5 px-6 py-28 sm:py-36">
+    <section
+      id="affiliate"
+      className={`relative overflow-hidden px-6 ${
+        standalone
+          ? 'pb-28 pt-6 sm:pb-36 sm:pt-10'
+          : 'border-t border-white/5 py-28 sm:py-36'
+      }`}
+    >
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -120,74 +131,102 @@ export function Affiliate() {
       />
 
       <div className="relative z-10 mx-auto max-w-7xl">
-        <SectionHeading
-          label={t.kicker}
-          heading={t.heading}
-          description={t.description}
-          tone="purple"
-          headingClassName="max-w-5xl text-4xl leading-[1.02] sm:text-6xl lg:text-7xl"
-          descriptionClassName="max-w-2xl"
-          className="mb-14 sm:mb-20"
-        />
+        {!standalone && (
+          <SectionHeading
+            label={t.kicker}
+            heading={t.heading}
+            description={t.description}
+            tone="purple"
+            headingClassName="max-w-5xl text-4xl leading-[1.02] sm:text-6xl lg:text-7xl"
+            descriptionClassName="max-w-2xl"
+            className="mb-14 sm:mb-20"
+          />
+        )}
 
         <Reveal delay={0.08}>
-          <div className="grid border-y border-white/10 lg:grid-cols-[0.8fr_1.2fr]">
-            <div className="flex flex-col justify-between border-b border-white/10 py-10 lg:border-b-0 lg:border-r lg:pr-12">
-              <div>
-                <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/85">
-                  {t.minimumLabel}
-                </p>
-                <p className="mt-4 font-display text-6xl font-semibold tracking-[-0.055em] text-foreground sm:text-8xl">
-                  {t.minimumValue}
-                </p>
-                <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  {t.minimumNote}
-                </p>
-              </div>
-
-              <div className="mt-10 border-t border-white/10 pt-7">
-                <div className="flex items-center gap-2 text-sm font-semibold text-blue">
-                  <CircleCheck className="h-4 w-4" aria-hidden />
-                  {t.moreLabel}
-                </div>
-                <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {t.moreBody}
-                </p>
-              </div>
-            </div>
-
-            <div className="lg:pl-12">
+          {standalone ? (
+            <div id="benefits" className="grid border-y border-white/10 lg:grid-cols-3">
               {benefits.map((benefit, index) => (
                 <article
                   key={benefit.title}
-                  className={`grid gap-4 py-8 sm:grid-cols-[auto_1fr] sm:gap-6 ${
-                    index < benefits.length - 1 ? 'border-b border-white/10' : ''
-                  }`}
+                  className={`py-9 lg:px-9 lg:py-11 ${
+                    index < benefits.length - 1
+                      ? 'border-b border-white/10 lg:border-b-0 lg:border-r'
+                      : ''
+                  } ${index === 0 ? 'lg:pl-0' : ''} ${index === benefits.length - 1 ? 'lg:pr-0' : ''}`}
                 >
-                  <benefit.icon className="mt-1 h-5 w-5 text-blue/75" aria-hidden />
-                  <div>
-                    <h3 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-                      {benefit.title}
-                    </h3>
-                    <p className="mt-3 max-w-xl text-pretty leading-relaxed text-muted-foreground">
-                      {benefit.body}
-                    </p>
-                  </div>
+                  <benefit.icon className="h-5 w-5 text-blue/75" aria-hidden />
+                  <h2 className="mt-6 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                    {benefit.title}
+                  </h2>
+                  <p className="mt-3 max-w-sm text-pretty leading-relaxed text-muted-foreground">
+                    {benefit.body}
+                  </p>
                 </article>
               ))}
             </div>
-          </div>
+          ) : (
+            <div className="grid border-y border-white/10 lg:grid-cols-[0.8fr_1.2fr]">
+              <div className="flex flex-col justify-between border-b border-white/10 py-10 lg:border-b-0 lg:border-r lg:pr-12">
+                <div>
+                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/85">
+                    {t.minimumLabel}
+                  </p>
+                  <p className="mt-4 font-display text-6xl font-semibold tracking-[-0.055em] text-foreground sm:text-8xl">
+                    {t.minimumValue}
+                  </p>
+                  <p className="mt-4 max-w-md text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    {t.minimumNote}
+                  </p>
+                </div>
+
+                <div className="mt-10 border-t border-white/10 pt-7">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-blue">
+                    <CircleCheck className="h-4 w-4" aria-hidden />
+                    {t.moreLabel}
+                  </div>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                    {t.moreBody}
+                  </p>
+                </div>
+              </div>
+
+              <div className="lg:pl-12">
+                {benefits.map((benefit, index) => (
+                  <article
+                    key={benefit.title}
+                    className={`grid gap-4 py-8 sm:grid-cols-[auto_1fr] sm:gap-6 ${
+                      index < benefits.length - 1 ? 'border-b border-white/10' : ''
+                    }`}
+                  >
+                    <benefit.icon className="mt-1 h-5 w-5 text-blue/75" aria-hidden />
+                    <div>
+                      <h3 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                        {benefit.title}
+                      </h3>
+                      <p className="mt-3 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+                        {benefit.body}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          )}
         </Reveal>
 
         <Reveal delay={0.12}>
-          <div className="mt-20 grid gap-10 border-b border-white/10 pb-16 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16">
+          <div
+            id="process"
+            className="mt-20 grid scroll-mt-28 gap-10 border-b border-white/10 pb-16 lg:grid-cols-[0.75fr_1.25fr] lg:gap-16"
+          >
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/85">
                 {t.processKicker}
               </p>
-              <h3 className="mt-4 max-w-md text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+              <h2 className="mt-4 max-w-md text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
                 {t.processHeading}
-              </h3>
+              </h2>
               <p className="mt-5 max-w-md text-pretty leading-relaxed text-muted-foreground">
                 {t.processBody}
               </p>
@@ -200,9 +239,9 @@ export function Affiliate() {
                     {String(index + 1).padStart(2, '0')}
                   </span>
                   <div>
-                    <h4 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                    <h3 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                       {step.title}
-                    </h4>
+                    </h3>
                     <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
                       {step.body}
                     </p>
@@ -220,9 +259,9 @@ export function Affiliate() {
                 <Link2 className="h-3.5 w-3.5" aria-hidden />
                 {t.ctaEyebrow}
               </div>
-              <h3 className="mt-4 max-w-2xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
+              <h2 className="mt-4 max-w-2xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
                 {t.ctaTitle}
-              </h3>
+              </h2>
               <p className="mt-4 max-w-xl text-pretty leading-relaxed text-muted-foreground">
                 {t.ctaBody}
               </p>

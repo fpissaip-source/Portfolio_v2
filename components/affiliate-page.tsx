@@ -141,11 +141,10 @@ export function AffiliatePage() {
             <Link
               href="/"
               aria-label={t.portfolioAria}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/12 bg-white/[0.035] px-3.5 py-2.5 text-xs font-semibold tracking-tight text-foreground transition-colors hover:border-purple/40 hover:bg-purple/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:px-5 sm:text-sm"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/12 bg-white/[0.035] px-3 py-2.5 text-[11px] font-semibold tracking-tight text-foreground transition-colors hover:border-purple/40 hover:bg-purple/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:gap-2 sm:px-5 sm:text-sm"
             >
-              <span className="hidden xs:inline">{t.portfolio}</span>
-              <span className="xs:hidden">Portfolio</span>
-              <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+              {t.portfolio}
+              <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
             </Link>
           </div>
         </div>

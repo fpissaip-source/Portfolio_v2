@@ -25,22 +25,20 @@ const COPY = {
     headline: 'Empfehlungen, die sich auszahlen.',
     headlineLines: ['Empfehlungen,', 'die sich auszahlen.'],
     intro:
-      'Du stellst den Kontakt zu einem Unternehmen her. Ich übernehme Beratung, Angebot, Umsetzung und Betreuung – du erhältst für den erfolgreichen Abschluss eine attraktive Provision.',
+      'Du stellst den Kontakt her. Ich übernehme Beratung, Abschluss und Umsetzung. Du erhältst die Provision.',
     primaryCta: 'Partnerprogramm anfragen',
     subject: 'Anfrage zum Affiliate-Partnerprogramm',
+    earnLine: 'Mit 2–3 Kunden bereits mehr als 3.000 € verdienen.',
+    earnNote: 'Je nach Projektart und Umfang ist deutlich mehr möglich.',
     minimumLabel: 'Mindestprovision',
     minimumValue: '660,00 €+',
-    minimumNote: 'pro erfolgreich abgeschlossenem und vollständig bezahltem Kundenprojekt',
-    moreTitle: 'Deutlich mehr ist möglich',
-    moreBody:
-      'Die tatsächliche Vergütung richtet sich nach Projektart, Umfang, Auftragswert und deinem Beitrag zur Kundengewinnung.',
+    minimumNote: 'pro abgeschlossenem und bezahltem Kundenprojekt',
     proofDashboard: 'Eigenes Partner-Dashboard',
-    proofPayout: 'Auszahlung wöchentlich oder monatlich',
-    proofWork: 'Kein Entwicklungs- oder Supportaufwand',
+    proofPayout: 'Wöchentlich oder monatlich',
+    proofWork: 'Keine Technik nötig',
     closingLabel: 'Portfolio',
-    closingTitle: 'Sieh dir an, welche Projekte und Systeme ich umsetze.',
-    closingBody:
-      'Im Portfolio findest du laufende Kundenprojekte, Webanwendungen, Automatisierungen und meinen vollständigen Entwicklungsprozess.',
+    closingTitle: 'Projekte ansehen, die sich vermitteln lassen.',
+    closingBody: 'Websites, Software und Automatisierungen für Unternehmen.',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
   },
@@ -53,22 +51,20 @@ const COPY = {
     headline: 'Referrals that pay off.',
     headlineLines: ['Referrals', 'that pay off.'],
     intro:
-      'You make the introduction to a business. I handle consulting, the proposal, delivery and support – you receive an attractive commission when the project closes successfully.',
+      'You make the introduction. I handle consulting, the close and delivery. You receive the commission.',
     primaryCta: 'Ask about the partner programme',
     subject: 'Affiliate partner programme inquiry',
+    earnLine: 'Earn more than €3,000 with just 2–3 clients.',
+    earnNote: 'Larger or more complex projects can pay considerably more.',
     minimumLabel: 'Minimum commission',
     minimumValue: '€660.00+',
-    minimumNote: 'per successfully completed and fully paid client project',
-    moreTitle: 'Significantly more is possible',
-    moreBody:
-      'The final compensation depends on the project type, scope, contract value and your contribution to acquiring the client.',
+    minimumNote: 'per completed and fully paid client project',
     proofDashboard: 'Your own partner dashboard',
-    proofPayout: 'Weekly or monthly payouts',
-    proofWork: 'No development or support work required',
+    proofPayout: 'Weekly or monthly',
+    proofWork: 'No technical work',
     closingLabel: 'Portfolio',
-    closingTitle: 'See the projects and systems I deliver.',
-    closingBody:
-      'The portfolio includes live client work, web applications, automations and my complete development process.',
+    closingTitle: 'See the projects you can refer.',
+    closingBody: 'Websites, software and automation for businesses.',
     imprint: 'Imprint',
     privacy: 'Privacy',
   },
@@ -93,64 +89,45 @@ export function AffiliatePage() {
     target: heroRef,
     offset: ['start start', 'end start'],
   })
-  const copyY = useTransform(heroScroll, [0, 1], [0, -72])
-  const detailY = useTransform(heroScroll, [0, 1], [0, 54])
-  const heroOpacity = useTransform(heroScroll, [0, 0.72, 1], [1, 0.88, 0.32])
+  const copyY = useTransform(heroScroll, [0, 1], [0, -42])
+  const detailY = useTransform(heroScroll, [0, 1], [0, 30])
+  const heroOpacity = useTransform(heroScroll, [0, 0.78, 1], [1, 0.94, 0.48])
 
   const proofItems = [t.proofDashboard, t.proofPayout, t.proofWork]
 
   return (
-    <main id="main-content" className="relative min-h-screen overflow-x-clip bg-background">
+    <main id="main-content" className="relative min-h-screen overflow-x-clip bg-[#02040d] text-foreground">
       <motion.header
-        initial={reducedMotion ? false : { y: -22, opacity: 0 }}
+        initial={reducedMotion ? false : { y: -18, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.8, ease: easeOut }}
-        className="sticky top-0 z-50 border-b border-white/8 bg-background/90 backdrop-blur-xl"
+        transition={{ duration: 0.75, ease: easeOut }}
+        className="sticky top-0 z-50 border-b border-white/10 bg-[#02040d]/80 backdrop-blur-xl"
       >
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-5 py-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
-          <div className="flex min-w-0 items-center gap-4">
-            <span className="truncate text-xs font-semibold tracking-[0.04em] text-foreground">
-              {t.headerLabel}
-            </span>
-            <motion.span
-              initial={reducedMotion ? false : { scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.1, delay: 0.2, ease: easeOut }}
-              className="hidden h-px w-16 origin-left bg-white/15 sm:block"
-              aria-hidden
-            />
-          </div>
+        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]">
+          <span className="truncate text-xs font-semibold tracking-[0.02em] text-white/90">
+            {t.headerLabel}
+          </span>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
-            <a
-              href="#benefits"
-              className="text-xs font-medium text-muted-foreground underline decoration-transparent underline-offset-[7px] transition-colors hover:text-foreground hover:decoration-white/30"
-            >
+            <a href="#benefits" className="text-sm font-medium text-white/65 transition-colors hover:text-white">
               {t.navBenefits}
             </a>
-            <a
-              href="#process"
-              className="text-xs font-medium text-muted-foreground underline decoration-transparent underline-offset-[7px] transition-colors hover:text-foreground hover:decoration-white/30"
-            >
+            <a href="#process" className="text-sm font-medium text-white/65 transition-colors hover:text-white">
               {t.navProcess}
             </a>
           </nav>
 
-          <div className="flex items-center justify-self-end gap-4">
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em]">
+          <div className="flex items-center justify-self-end gap-3 sm:gap-5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.1em]">
               {(['de', 'en'] as const).map((language, index) => (
                 <span key={language} className="flex items-center gap-1.5">
-                  {index > 0 && <span className="text-white/20">/</span>}
+                  {index > 0 && <span className="text-white/25">/</span>}
                   <button
                     type="button"
                     onClick={() => setLang(language)}
                     aria-pressed={currentLanguage === language}
                     aria-label={language === 'de' ? 'Deutsch' : 'English'}
-                    className={`py-1 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue ${
-                      currentLanguage === language
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
+                    className={currentLanguage === language ? 'text-white' : 'text-white/50 transition-colors hover:text-white'}
                   >
                     {language}
                   </button>
@@ -161,240 +138,194 @@ export function AffiliatePage() {
             <Link
               href="/"
               aria-label={t.portfolioAria}
-              className="group inline-flex items-center gap-2 border-l border-white/10 pl-4 text-xs font-semibold tracking-tight text-foreground transition-colors hover:text-blue sm:text-sm"
+              className="group inline-flex items-center gap-1.5 border-l border-white/15 pl-3 text-xs font-semibold text-white sm:gap-2 sm:pl-5 sm:text-sm"
             >
               {t.portfolio}
-              <ArrowRight
-                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                aria-hidden
-              />
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden />
             </Link>
           </div>
         </div>
 
         <motion.div
           aria-hidden
-          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-blue/70 via-purple/60 to-transparent"
+          className="absolute inset-x-0 bottom-[-1px] h-px origin-left bg-gradient-to-r from-blue/80 via-purple/70 to-transparent"
           style={{ scaleX: pageProgress }}
         />
       </motion.header>
 
       <section
         ref={heroRef}
-        className="relative isolate min-h-[calc(100svh-73px)] overflow-hidden px-6 pb-24 pt-20 sm:pb-32 sm:pt-28 lg:pb-36 lg:pt-32"
+        className="relative isolate min-h-[calc(100svh-65px)] overflow-hidden px-5 pb-20 pt-14 sm:px-6 sm:pb-24 sm:pt-20 lg:pb-28 lg:pt-24"
       >
+        <picture className="pointer-events-none absolute inset-0 -z-30">
+          <source media="(max-width: 767px)" srcSet="/affiliate/affiliate-bg-mobile.svg" />
+          <img
+            src="/affiliate/affiliate-bg-desktop.svg"
+            alt=""
+            className="h-full w-full object-cover object-center"
+          />
+        </picture>
+        <div className="pointer-events-none absolute inset-0 -z-20 bg-[linear-gradient(180deg,rgba(2,4,13,0.42)_0%,rgba(2,4,13,0.66)_58%,rgba(2,4,13,0.94)_100%)]" />
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_28%_28%,transparent_0%,rgba(2,4,13,0.12)_42%,rgba(2,4,13,0.48)_100%)]" />
+
         {!reducedMotion && (
           <motion.div
             aria-hidden
-            initial={{ x: '-32vw', opacity: 0 }}
-            animate={{ x: '112vw', opacity: [0, 0.16, 0] }}
-            transition={{
-              duration: 3.8,
-              delay: 0.18,
-              ease: easeOut,
-              times: [0, 0.46, 1],
-            }}
-            className="pointer-events-none absolute -top-[18%] bottom-[-18%] left-0 -z-10 w-[18vw] min-w-28 rotate-[8deg] blur-3xl"
-            style={{
-              background:
-                'linear-gradient(90deg, transparent, color-mix(in oklch, var(--blue) 18%, white), transparent)',
-            }}
+            initial={{ x: '-34vw', opacity: 0 }}
+            animate={{ x: '115vw', opacity: [0, 0.18, 0] }}
+            transition={{ duration: 3.6, delay: 0.15, ease: easeOut, times: [0, 0.46, 1] }}
+            className="pointer-events-none absolute -top-[16%] bottom-[-16%] left-0 -z-10 w-[16vw] min-w-24 rotate-[8deg] bg-gradient-to-r from-transparent via-blue/15 to-transparent blur-3xl"
           />
         )}
 
-        <div className="pointer-events-none absolute inset-x-0 top-[16%] -z-20 h-px bg-gradient-to-r from-transparent via-white/[0.045] to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-[12%] -z-20 h-px bg-gradient-to-r from-transparent via-white/[0.035] to-transparent" />
-
-        <div className="mx-auto max-w-7xl">
-          <motion.div
-            style={reducedMotion ? undefined : { opacity: heroOpacity }}
-            className="grid gap-16 border-t border-white/12 pt-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] lg:gap-20 lg:pt-10"
-          >
-            <motion.div style={reducedMotion ? undefined : { y: copyY }}>
-              <h1
-                aria-label={t.headline}
-                className="max-w-4xl text-balance font-display text-[clamp(3.3rem,8vw,7.4rem)] font-semibold leading-[0.91] tracking-[-0.058em] text-foreground"
-              >
-                {t.headlineLines.map((line, index) => (
-                  <span
-                    key={line}
-                    className="-mb-[0.08em] block overflow-hidden pb-[0.08em]"
-                    aria-hidden
+        <motion.div
+          style={reducedMotion ? undefined : { opacity: heroOpacity }}
+          className="mx-auto grid max-w-7xl gap-12 border-t border-white/15 pt-7 lg:grid-cols-[minmax(0,1.08fr)_minmax(330px,0.92fr)] lg:gap-16 lg:pt-10"
+        >
+          <motion.div style={reducedMotion ? undefined : { y: copyY }}>
+            <h1
+              aria-label={t.headline}
+              className="max-w-4xl font-display text-[clamp(3rem,10vw,7.2rem)] font-semibold leading-[0.91] tracking-[-0.058em] text-white"
+            >
+              {t.headlineLines.map((line, index) => (
+                <span key={line} className="-mb-[0.08em] block overflow-hidden pb-[0.08em]" aria-hidden>
+                  <motion.span
+                    initial={reducedMotion ? false : { y: '112%', opacity: 0.001 }}
+                    animate={{ y: '0%', opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.1 + index * 0.13, ease: easeOut }}
+                    className="block"
                   >
-                    <motion.span
-                      initial={reducedMotion ? false : { y: '112%', opacity: 0.001 }}
-                      animate={{ y: '0%', opacity: 1 }}
-                      transition={{
-                        duration: 1.05,
-                        delay: 0.12 + index * 0.13,
-                        ease: easeOut,
-                      }}
-                      className="block will-transform"
-                    >
-                      {line}
-                    </motion.span>
-                  </span>
-                ))}
-              </h1>
+                    {line}
+                  </motion.span>
+                </span>
+              ))}
+            </h1>
 
-              <motion.p
-                initial={reducedMotion ? false : { y: 28, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.9, delay: 0.5, ease: easeOut }}
-                className="mt-8 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl"
-              >
-                {t.intro}
-              </motion.p>
+            <motion.p
+              initial={reducedMotion ? false : { y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.85, delay: 0.45, ease: easeOut }}
+              className="mt-7 max-w-xl text-pretty text-base font-medium leading-relaxed text-white/82 sm:text-lg"
+            >
+              {t.intro}
+            </motion.p>
 
+            <motion.div
+              initial={reducedMotion ? false : { y: 24, opacity: 0, scale: 0.985 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              transition={{ duration: 0.9, delay: 0.62, ease: easeOut }}
+              className="relative mt-8 max-w-2xl overflow-hidden border-y border-purple/40 bg-[#080b20]/66 px-4 py-6 shadow-[0_24px_80px_rgba(30,22,91,0.34)] backdrop-blur-md sm:px-6 sm:py-7"
+            >
               <motion.div
-                initial={reducedMotion ? false : { y: 24, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.85, delay: 0.66, ease: easeOut }}
-                className="mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center"
-              >
-                <a
-                  href={mailto}
-                  className="group inline-flex items-center justify-center gap-2 rounded-lg bg-foreground px-6 py-3.5 text-sm font-semibold tracking-tight text-background transition-transform hover:translate-y-[-1px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-purple sm:text-base"
-                >
-                  {t.primaryCta}
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </a>
-
-                <Link
-                  href="/"
-                  className="group inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-[7px] transition-colors hover:text-foreground hover:decoration-white/50 sm:text-base"
-                >
-                  {t.portfolio}
-                  <ArrowRight
-                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                    aria-hidden
-                  />
-                </Link>
-              </motion.div>
+                aria-hidden
+                initial={reducedMotion ? false : { x: '-130%' }}
+                animate={{ x: '190%' }}
+                transition={{ duration: 1.45, delay: 0.85, ease: easeOut }}
+                className="pointer-events-none absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-transparent via-white/20 to-transparent blur-xl"
+              />
+              <p className="text-balance text-[clamp(1.55rem,4.8vw,2.65rem)] font-semibold leading-[1.08] tracking-[-0.035em] text-white">
+                {t.earnLine}
+              </p>
+              <p className="mt-3 text-base font-medium leading-relaxed text-white/75">
+                {t.earnNote}
+              </p>
             </motion.div>
 
-            <motion.aside
-              initial={reducedMotion ? false : { x: 42, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: 0.34, ease: easeOut }}
-              style={reducedMotion ? undefined : { y: detailY }}
-              className="border-t border-white/12 pt-8 lg:border-l lg:border-t-0 lg:pl-12 lg:pt-0"
+            <motion.div
+              initial={reducedMotion ? false : { y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.78, ease: easeOut }}
+              className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
             >
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <p className="text-xs font-semibold tracking-tight text-muted-foreground">
-                  {t.minimumLabel}
-                </p>
-                <span className="font-mono text-[10px] tracking-[0.18em] text-white/30">01</span>
-              </div>
-
-              <div className="overflow-hidden">
-                <motion.p
-                  initial={reducedMotion ? false : { y: '105%', opacity: 0.001 }}
-                  animate={{ y: '0%', opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.5, ease: easeOut }}
-                  className="mt-7 font-display text-[clamp(4.2rem,10vw,7rem)] font-semibold leading-none tracking-[-0.075em] text-foreground"
-                >
-                  {t.minimumValue}
-                </motion.p>
-              </div>
-              <motion.p
-                initial={reducedMotion ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.76 }}
-                className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base"
+              <a
+                href={mailto}
+                className="group inline-flex items-center justify-center gap-2 rounded-lg border border-purple/40 bg-[linear-gradient(180deg,rgba(139,103,255,0.96),rgba(86,78,236,0.9))] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_12px_34px_rgba(103,78,255,0.32)] transition-transform hover:-translate-y-0.5 sm:text-base"
               >
-                {t.minimumNote}
-              </motion.p>
-
-              <motion.div
-                initial={reducedMotion ? false : { x: 24, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.82, ease: easeOut }}
-                className="mt-9 border-l-2 border-blue/55 pl-5"
-              >
-                <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                  {t.moreTitle}
-                </h2>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
-                  {t.moreBody}
-                </p>
-              </motion.div>
-
-              <ol className="mt-10 border-t border-white/10">
-                {proofItems.map((item, index) => (
-                  <motion.li
-                    key={item}
-                    initial={reducedMotion ? false : { x: 28, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{
-                      duration: 0.72,
-                      delay: 0.92 + index * 0.09,
-                      ease: easeOut,
-                    }}
-                    className="grid grid-cols-[2.5rem_1fr] items-center gap-3 border-b border-white/10 py-4"
-                  >
-                    <span className="font-mono text-[10px] tracking-[0.15em] text-white/30">
-                      {String(index + 2).padStart(2, '0')}
-                    </span>
-                    <span className="text-sm font-medium tracking-tight text-foreground/90">
-                      {item}
-                    </span>
-                  </motion.li>
-                ))}
-              </ol>
-            </motion.aside>
+                {t.primaryCta}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+              </a>
+              <Link href="/" className="group inline-flex items-center gap-2 text-sm font-semibold text-white/80 transition-colors hover:text-white sm:text-base">
+                {t.portfolio}
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
+              </Link>
+            </motion.div>
           </motion.div>
-        </div>
+
+          <motion.aside
+            id="benefits"
+            initial={reducedMotion ? false : { x: 34, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.95, delay: 0.3, ease: easeOut }}
+            style={reducedMotion ? undefined : { y: detailY }}
+            className="scroll-mt-24 self-start rounded-2xl border border-white/15 bg-[#06091a]/72 p-5 shadow-[0_28px_80px_rgba(0,0,0,0.38)] backdrop-blur-md sm:p-7"
+          >
+            <p className="text-sm font-semibold text-white/70">{t.minimumLabel}</p>
+            <div className="overflow-hidden">
+              <motion.p
+                initial={reducedMotion ? false : { y: '105%', opacity: 0.001 }}
+                animate={{ y: '0%', opacity: 1 }}
+                transition={{ duration: 0.95, delay: 0.48, ease: easeOut }}
+                className="mt-3 font-display text-[clamp(4rem,14vw,6.4rem)] font-semibold leading-none tracking-[-0.075em] text-white"
+              >
+                {t.minimumValue}
+              </motion.p>
+            </div>
+            <p className="mt-3 text-base font-medium leading-relaxed text-white/75">
+              {t.minimumNote}
+            </p>
+
+            <ul className="mt-7 border-t border-white/15">
+              {proofItems.map((item, index) => (
+                <motion.li
+                  key={item}
+                  initial={reducedMotion ? false : { x: 22, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ duration: 0.65, delay: 0.72 + index * 0.08, ease: easeOut }}
+                  className="grid grid-cols-[2rem_1fr] items-center gap-3 border-b border-white/15 py-4"
+                >
+                  <span className="text-xs font-semibold text-purple/90">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <span className="text-base font-semibold text-white/90">{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.aside>
+        </motion.div>
       </section>
 
       <Affiliate standalone />
 
       <motion.section
-        initial={reducedMotion ? false : { opacity: 0, y: 52 }}
+        initial={reducedMotion ? false : { opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-18% 0px' }}
-        transition={{ duration: 1, ease: easeOut }}
-        className="border-t border-white/8 px-6 py-20 sm:py-28"
+        transition={{ duration: 0.9, ease: easeOut }}
+        className="border-t border-white/10 px-5 py-16 sm:px-6 sm:py-20"
       >
-        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-10 lg:flex-row lg:items-end">
+        <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <div>
-            <p className="text-xs font-semibold tracking-tight text-blue/85">
-              {t.closingLabel}
-            </p>
-            <h2 className="mt-4 max-w-3xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl">
+            <p className="text-sm font-semibold text-blue/90">{t.closingLabel}</p>
+            <h2 className="mt-3 max-w-3xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
               {t.closingTitle}
             </h2>
-            <p className="mt-5 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-xl text-base font-medium leading-relaxed text-white/70">
               {t.closingBody}
             </p>
           </div>
-
-          <Link
-            href="/"
-            className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-tight text-foreground underline decoration-white/20 underline-offset-[8px] transition-colors hover:text-blue hover:decoration-blue/50 sm:text-base"
-          >
+          <Link href="/" className="group inline-flex shrink-0 items-center gap-2 text-base font-semibold text-white transition-colors hover:text-blue">
             {t.portfolio}
-            <ArrowRight
-              className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-              aria-hidden
-            />
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
           </Link>
         </div>
       </motion.section>
 
-      <footer className="border-t border-white/8 px-6 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
+      <footer className="border-t border-white/10 px-5 py-7 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 text-sm text-white/60 sm:flex-row">
           <span>{t.headerLabel}</span>
           <nav className="flex items-center gap-5" aria-label="Legal">
-            <Link href="/impressum" className="transition-colors hover:text-foreground">
-              {t.imprint}
-            </Link>
-            <Link href="/datenschutz" className="transition-colors hover:text-foreground">
-              {t.privacy}
-            </Link>
+            <Link href="/impressum" className="transition-colors hover:text-white">{t.imprint}</Link>
+            <Link href="/datenschutz" className="transition-colors hover:text-white">{t.privacy}</Link>
           </nav>
           <p>© {new Date().getFullYear()} Issa Hareb</p>
         </div>

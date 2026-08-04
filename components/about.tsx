@@ -11,51 +11,48 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-20% 0px -20% 0px' })
   const [started, setStarted] = useState(false)
-  const [val, setVal] = useState(0)
+  const [value, setValue] = useState(0)
 
-  // useInView alone misses jump navigation (a nav click lands the section
-  // via Lenis scrollTo almost instantly, and the observer can stay silent)
-  // — which left the stats frozen at "0", the exact opposite of what a
-  // trust number is for. Belt and braces: start when the observer fires,
-  // OR when the element is already inside the viewport on mount, OR after
-  // a fallback delay. A late (or even unseen) start is harmless — a never
-  // starting one shows "0 systems built".
   useEffect(() => {
     if (started) return
     if (inView) {
       setStarted(true)
       return
     }
-    const el = ref.current
-    if (el) {
-      const r = el.getBoundingClientRect()
-      if (r.top < window.innerHeight && r.bottom > 0) {
+
+    const element = ref.current
+    if (element) {
+      const rect = element.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
         setStarted(true)
         return
       }
     }
+
     const timer = window.setTimeout(() => setStarted(true), 2500)
     return () => window.clearTimeout(timer)
   }, [inView, started])
 
   useEffect(() => {
     if (!started) return
-    let raf = 0
+    let frame = 0
     const start = performance.now()
-    const dur = 1600
+    const duration = 1600
+
     const tick = (now: number) => {
-      const p = Math.min(1, (now - start) / dur)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setVal(Math.round(eased * to))
-      if (p < 1) raf = requestAnimationFrame(tick)
+      const progress = Math.min(1, (now - start) / duration)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setValue(Math.round(eased * to))
+      if (progress < 1) frame = requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    frame = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(frame)
   }, [started, to])
 
   return (
     <span ref={ref} className="tabular-nums">
-      {val}
+      {value}
       {suffix}
     </span>
   )
@@ -63,12 +60,11 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
 
 export function About() {
   const t = useT()
+
   return (
     <section id="about" className="relative">
-      {/* The section opens by saying who this is — the name, with the
-          flythrough running behind it. Full-bleed, so it sits outside the
-          measured column the rest of the section keeps to. */}
       <AboutIntro />
+
       <div className="mx-auto grid max-w-7xl gap-16 px-6 pb-32 pt-24 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
@@ -81,76 +77,67 @@ export function About() {
             descriptionClassName="max-w-md"
           />
 
-          <div className="mt-10 grid grid-cols-2 gap-6">
+          <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-7">
             <div>
-              <div className="text-4xl font-semibold tracking-tight text-foreground">
+              <dd className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={15} suffix="+" />
-              </div>
-              <div className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
+              </dd>
+              <dt className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
                 {t.about.stat1Label}
-              </div>
+              </dt>
             </div>
             <div>
-              <div className="text-4xl font-semibold tracking-tight text-foreground">
-                <Counter to={7} suffix="" />
-              </div>
-              <div className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
+              <dd className="text-4xl font-semibold tracking-tight text-foreground">
+                <Counter to={7} />
+              </dd>
+              <dt className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
                 {t.about.stat2Label}
-              </div>
+              </dt>
             </div>
-          </div>
+          </dl>
         </div>
 
         <div className="flex flex-col gap-3">
-          {/* The story is a field, not a card — it sits in the same column as
-              the competency list below it, and one boxed block beside an
-              unboxed one reads as two unrelated systems (DESIGN.md §5). */}
           <Reveal y={30}>
-            <div className="relative mb-6">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-purple/10 blur-3xl"
-              />
-              <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue/90">
+            <div className="mb-6">
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.about.storyLabel}
-              </div>
-              <h3 className="mt-3 text-balance font-display font-semibold text-2xl leading-[1.15] tracking-tight sm:text-3xl">
+              </p>
+              <h3 className="mt-3 text-balance font-display text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl">
                 {t.about.storyHeading}
               </h3>
-              <div className="relative mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">
-                {t.about.story.map((s) => (
-                  <div key={s.flag} className="relative">
+
+              <div className="mt-7 flex flex-col gap-7 border-l border-white/10 pl-6">
+                {t.about.story.map((story) => (
+                  <article key={story.flag} className="relative">
                     <span
                       aria-hidden
-                      className="absolute -left-[29px] top-1.5 h-2.5 w-2.5 rounded-full bg-blue shadow-[0_0_12px_2px_color-mix(in_oklch,var(--blue)_70%,transparent)]"
+                      className="absolute -left-[29px] top-2 h-2.5 w-2.5 rounded-full border border-blue/70 bg-background"
                     />
-                    <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-purple/80">
-                      {s.flag}
-                    </div>
-                    <div className="mt-2 text-lg font-semibold tracking-tight">
-                      {s.title}
-                    </div>
-                    <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">
-                      {s.body}
+                    <p className="text-xs font-semibold tracking-tight text-purple/85">
+                      {story.flag}
                     </p>
-                  </div>
+                    <h4 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
+                      {story.title}
+                    </h4>
+                    <p className="mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-muted-foreground">
+                      {story.body}
+                    </p>
+                  </article>
                 ))}
               </div>
             </div>
           </Reveal>
-          {/* Competencies as a specification list (DESIGN.md §5, #4). These
-              are parallel capabilities, not a sequence — the old 01/02/03
-              markers promised an order that does not exist, and the card
-              per item turned a list into a pricing page. */}
+
           <div className="mt-3">
-            {t.about.pillars.map((p, i) => (
-              <Reveal key={p.title} delay={Math.min(i, 3) * 0.05} y={24}>
+            {t.about.pillars.map((pillar, index) => (
+              <Reveal key={pillar.title} delay={Math.min(index, 3) * 0.05} y={24}>
                 <article className="group border-t border-white/10 py-7 transition-colors duration-200 hover:border-blue/30">
-                  <h3 className="text-lg font-semibold tracking-tight sm:text-xl">
-                    {p.title}
+                  <h3 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                    {pillar.title}
                   </h3>
                   <p className="mt-2 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
-                    {p.body}
+                    {pillar.body}
                   </p>
                 </article>
               </Reveal>

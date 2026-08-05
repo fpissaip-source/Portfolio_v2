@@ -140,13 +140,21 @@ export function AffiliatePage() {
         className="sticky top-0 z-50 border-b border-white/10 bg-[#02040e]/70 backdrop-blur-xl"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 sm:px-6 sm:py-4">
-          <span className="text-sm font-semibold tracking-tight text-white">{t.label}</span>
+          <span className="max-w-[46%] font-display text-[1.06rem] font-semibold leading-[1.05] tracking-[-0.035em] text-white sm:max-w-none sm:text-[1.18rem]">
+            {t.label}
+          </span>
 
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
-            <a href="#benefits" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
+            <a
+              href="#benefits"
+              className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
+            >
               {t.benefits}
             </a>
-            <a href="#process" className="text-sm font-medium text-white/70 transition-colors hover:text-white">
+            <a
+              href="#process"
+              className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
+            >
               {t.process}
             </a>
           </nav>
@@ -155,7 +163,7 @@ export function AffiliatePage() {
             <Link
               href="/"
               aria-label={t.portfolioAria}
-              className="group inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-purple"
+              className="group inline-flex items-center gap-2 font-display text-[1rem] font-semibold leading-none tracking-[-0.025em] text-white transition-colors hover:text-purple sm:text-[1.1rem]"
             >
               <span>{t.portfolio}</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
@@ -163,6 +171,7 @@ export function AffiliatePage() {
 
             <div
               className="flex items-center rounded-full border border-white/12 bg-white/[0.045] p-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+              role="group"
               aria-label="Language"
             >
               {(['de', 'en', 'es'] as const).map((language) => (
@@ -286,7 +295,7 @@ export function AffiliatePage() {
             whileInView={{ y: 0, opacity: 1 }}
             viewport={{ once: true, margin: '-15% 0px' }}
             transition={{ duration: 0.8, ease: easeOut }}
-            className="font-display text-3xl font-semibold tracking-tight sm:text-5xl"
+            className="font-display text-3xl font-semibold tracking-[-0.035em] sm:text-5xl"
           >
             {t.process}
           </motion.h2>
@@ -299,11 +308,17 @@ export function AffiliatePage() {
                 whileInView={{ y: 0, opacity: 1 }}
                 viewport={{ once: true, margin: '-12% 0px' }}
                 transition={{ duration: 0.75, delay: index * 0.1, ease: easeOut }}
-                className="border-b border-white/15 py-7 lg:border-b-0 lg:border-r lg:px-8 lg:py-9 first:lg:pl-0 last:lg:border-r-0 last:lg:pr-0"
+                className="group border-b border-white/15 py-10 lg:border-b-0 lg:border-r lg:px-8 lg:py-12 first:lg:pl-0 last:lg:border-r-0 last:lg:pr-0"
               >
-                <span className="text-sm font-semibold text-purple">0{index + 1}</span>
-                <h3 className="mt-3 text-xl font-semibold text-white sm:text-2xl">{title}</h3>
-                <p className="mt-2 text-base font-medium leading-relaxed text-white/75">{body}</p>
+                <span className="inline-block bg-gradient-to-br from-purple via-purple to-blue bg-clip-text font-display text-[2.55rem] font-semibold leading-none tracking-[-0.07em] text-transparent sm:text-[3rem]">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <h3 className="mt-6 max-w-[16ch] text-balance font-display text-[2rem] font-semibold leading-[0.98] tracking-[-0.045em] text-white sm:text-[2.35rem]">
+                  {title}
+                </h3>
+                <p className="mt-4 max-w-[30rem] text-[1.05rem] font-medium leading-[1.5] text-white/78 sm:text-[1.1rem]">
+                  {body}
+                </p>
               </motion.li>
             ))}
           </ol>

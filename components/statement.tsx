@@ -227,7 +227,13 @@ export function Statement() {
     <section
       ref={sectionRef}
       id="statement"
-      className={`relative bg-white ${reduced ? 'py-24' : 'h-[240vh]'}`}
+      // The dark lead-in is the point of the top margin. Without it the white
+      // began at the exact pixel the hero ended, and the hero's last element
+      // is a call to action sitting near the bottom of its screen — the
+      // button had a hard white edge stuck to it.
+      className={`relative mt-[18vh] bg-white sm:mt-[14vh] lg:mt-[10vh] ${
+        reduced ? 'py-24' : 'h-[240vh]'
+      }`}
       aria-label={t.statement.label}
     >
       <div

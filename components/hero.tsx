@@ -22,12 +22,6 @@ const POSTER = '/intro/hero-robot-poster.jpg'
 
 const SCRUB_SPAN = 0.72
 const REVEAL_AT = 0.7
-/** Mobile used to shrink as far as the remaining layout space demanded.
- *  That made the robot visibly collapse as the copy arrived. Keep only a
- *  subtle safety scale now; the text can layer above the transparent parts
- *  of the frame instead of forcing the subject to become a thumbnail. */
-const MOBILE_MIN_SCALE = 0.9
-
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
 const seg = (p: number, a: number, b: number) => clamp01((p - a) / (b - a))
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
@@ -111,16 +105,24 @@ export function Hero() {
     const header = grid.children[0] as HTMLElement
     let narrow = window.matchMedia('(max-width: 1023px)').matches
     let sparked = false
-    let shrink = 1
 
+    // The head keeps one size for the whole scroll.
+    //
+    // It used to scale down to 90% across the last stretch before the end
+    // frame — the climax of the animation — and because the trigger scrubs
+    // raw, unsmoothed scroll, every wobble of the momentum at the end of a
+    // flick was mirrored straight into that scale. It read as the robot
+    // twitching: smaller, bigger, smaller. The 10% it bought back was not
+    // needed either; the row below already reserves the copy's height
+    // separately, and the frame only overflows it.
     const measure = () => {
       const frame = robotBox.firstElementChild as HTMLElement | null
+      if (frame) frame.style.transform = ''
 
       if (!narrow) {
         robot.style.height = ''
         robotBox.style.width = ''
         robotBox.style.height = ''
-        if (frame) frame.style.transform = ''
         return
       }
 
@@ -138,7 +140,6 @@ export function Hero() {
       )
       const headHeight = Math.max(settled, openHeight)
 
-      shrink = Math.max(MOBILE_MIN_SCALE, clamp01(settled / headHeight))
       robot.style.height = `${settled.toFixed(1)}px`
       robotBox.style.height = `${headHeight.toFixed(1)}px`
       robotBox.style.width = `${((headHeight * 1408) / 980).toFixed(1)}px`
@@ -167,15 +168,6 @@ export function Hero() {
         cue.style.opacity = String(out)
         cue.style.pointerEvents = out < 0.4 ? 'none' : 'auto'
       }
-
-      if (narrow) {
-        const frame = robotBox.firstElementChild as HTMLElement | null
-        // Stay full-size through most of the copy reveal, then use at most a
-        // restrained 10% reduction at the very end.
-        const scaleProgress = seg(revealProgress, 0.45, 1)
-        const scale = lerp(1, shrink, scaleProgress)
-        if (frame) frame.style.transform = `scale(${scale.toFixed(4)})`
-      }
     }
 
     const trigger = ScrollTrigger.create({
@@ -191,11 +183,28 @@ export function Hero() {
       },
     })
 
+    // Re-measure whenever the stage actually changes shape.
+    //
+    // measure() used to run only from ScrollTrigger's own refresh, and that
+    // did not reliably fire for a viewport change: after 844 -> 790 -> 844 the
+    // box still held its original height. On a phone that is the URL bar
+    // collapsing, and the head kept a size computed for a screen that is no
+    // longer there. A ResizeObserver on the stage is the direct signal.
+    const stageObserver = new ResizeObserver(() => {
+      narrow = window.matchMedia('(max-width: 1023px)').matches
+      measure()
+      apply(trigger.progress)
+    })
+    stageObserver.observe(stage)
+
     measure()
     apply(0)
     reveal.style.opacity = '1'
 
-    return () => trigger.kill()
+    return () => {
+      stageObserver.disconnect()
+      trigger.kill()
+    }
   }, [reduced])
 
   return (

@@ -117,7 +117,13 @@ export const NameSequence = forwardRef<NameSequenceHandle>(function NameSequence
 
   return (
     <div ref={rootRef} className="relative flex flex-col items-center text-center">
-      <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue/90">
+      {/* The film behind this runs bright now, and a lit roofline can land
+          directly under a line of 11px mono. The shadow is what keeps it
+          readable there without darkening the footage again. */}
+      <p
+        className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue"
+        style={{ textShadow: '0 1px 12px rgba(5,5,5,0.95), 0 0 3px rgba(5,5,5,0.9)' }}
+      >
         {t.about.introTitle}
       </p>
       <h2 className="sr-only">{words.join(' ')}</h2>

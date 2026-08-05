@@ -87,12 +87,12 @@ export function AboutIntro() {
               srcMobile={SRC_MOBILE}
               poster={POSTER}
               fit="cover"
-              className="h-full w-full opacity-[0.55]"
+              className="h-full w-full opacity-[0.9]"
             />
           ) : (
             // The poster alone until then: same picture, no 29 MB.
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={POSTER} alt="" className="h-full w-full object-cover opacity-[0.55]" />
+            <img src={POSTER} alt="" className="h-full w-full object-cover opacity-[0.9]" />
           )}
         </div>
         <div
@@ -100,7 +100,13 @@ export function AboutIntro() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(90% 55% at 50% 50%, rgba(5,5,5,0.88) 0%, rgba(5,5,5,0.7) 45%, rgba(5,5,5,0.25) 100%)',
+              // The scrim is a reading band, not a lid. It used to darken
+              // the whole frame from 88% at the centre outwards, on top of a
+              // film already held at 55% — together that left a night city
+              // barely distinguishable from the page's own black. The film
+              // runs at 90% now and only the strip the name occupies is
+              // held down.
+              'radial-gradient(120% 26% at 50% 46%, rgba(5,5,5,0.82) 0%, rgba(5,5,5,0.55) 55%, rgba(5,5,5,0) 100%)',
           }}
         />
         <div

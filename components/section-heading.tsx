@@ -29,13 +29,27 @@ export function SectionHeading({
     <div
       className={`${centered ? 'items-center text-center' : 'items-start text-left'} flex flex-col ${className}`}
     >
+      {/* The section label, with something to hold onto.
+          At 10px mono in 90% accent it was the quietest thing on the page —
+          a visitor scrolling past a section had nothing that said which
+          section it was. It is bigger, at full strength, and sits behind a
+          short accent rule that gives it presence without competing with
+          the headline underneath. */}
       {label && (
         <Reveal>
           <span
-            className={`font-mono text-[10px] uppercase tracking-[0.22em] sm:text-[11px] ${
-              tone === 'purple' ? 'text-purple/90' : 'text-blue/90'
+            className={`flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.2em] sm:text-sm ${
+              tone === 'purple' ? 'text-purple' : 'text-blue'
             }`}
           >
+            <span
+              aria-hidden
+              className={`h-px w-7 shrink-0 sm:w-9 ${
+                tone === 'purple'
+                  ? 'bg-gradient-to-r from-purple/10 to-purple'
+                  : 'bg-gradient-to-r from-blue/10 to-blue'
+              }`}
+            />
             {label}
           </span>
         </Reveal>

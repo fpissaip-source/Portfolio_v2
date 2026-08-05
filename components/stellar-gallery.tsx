@@ -405,12 +405,20 @@ function CardGalaxy() {
   // horizontal stretch and the on-screen card size are derived from the
   // canvas' own aspect rather than hard-coded.
   const aspect = useThree((s) => s.viewport.aspect)
+  const portrait = aspect < 1
   const stretch = Math.min(1.7, Math.max(0.5, aspect * 0.9))
-  // Floor raised from 5: at the phone's 0.61 aspect the formula bottomed
-  // out and produced ~50px cards — inside the frame, but too small to
-  // read or tap. Fitting every card is not worth making all of them
-  // illegible; the sphere rotates, so a card grazing an edge comes back.
-  const htmlFactor = Math.min(10, Math.max(7, aspect * 5.2))
+  // Card size on screen. `distanceFactor` scales the HTML by
+  // factor / distance, so bigger means bigger.
+  //
+  // The phone used to bottom out on the floor of this formula at 7 while
+  // the desktop ran at 10 — smaller cards on the smaller screen, which is
+  // backwards. A phone gets the largest cards of all now; there is less
+  // room, so each card has to carry more of it.
+  const htmlFactor = portrait ? 12 : Math.min(10, Math.max(7, aspect * 5.2))
+  // …and the sphere is pulled in to match. Cards that big on the old radii
+  // would sit half outside the frame; drawing them closer together keeps
+  // the constellation whole while each card stays readable.
+  const shellScale = portrait ? 0.82 : 1
 
   // Fibonacci sphere — upstream's placement, unchanged.
   const positions = useMemo(() => {
@@ -423,7 +431,7 @@ function CardGalaxy() {
       // section's 640px frame the outer ring puts cards past the vertical
       // FOV and they get sliced by the container edge. 8/11/14 keeps the
       // furthest card (plus half its height) inside tan(30°)·34 = 19.6.
-      const layerRadius = 8 + (i % 3) * 3
+      const layerRadius = (8 + (i % 3) * 3) * shellScale
       // Flattened into an oblate spheroid rather than upstream's true
       // sphere: the frame is wide and short, so an isotropic distribution
       // either overflows top and bottom or leaves the sides empty. Vertical

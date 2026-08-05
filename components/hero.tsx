@@ -132,13 +132,26 @@ export function Hero() {
         parseFloat(stageStyles.paddingTop || '0') -
         parseFloat(stageStyles.paddingBottom || '0')
       const gaps = 2 * parseFloat(window.getComputedStyle(grid).rowGap || '20')
+      // The row's height: what is left once the copy is on screen. This is
+      // layout, so the call to action can never be pushed off the bottom.
       const settled = Math.max(150, available - header.offsetHeight - reveal.offsetHeight - gaps)
-      const maxWidth = window.innerWidth * 1.34
-      const openHeight = Math.min(
-        available - header.offsetHeight - gaps * 0.5,
-        (maxWidth * 980) / 1408,
-      )
-      const headHeight = Math.max(settled, openHeight)
+
+      // The head's own size is driven by the screen's *width*, not by what
+      // the copy leaves over.
+      //
+      // It used to be `available - header - gaps`, and the copy above it has
+      // grown since: on a phone showing its browser chrome that arithmetic
+      // left about 210px and the head became a thumbnail. Measured at 390pt
+      // wide: 364px tall at a 844 stage, 336 at 700, 276 at 640 — the head
+      // shrank every time the URL bar appeared.
+      //
+      // It can afford to ignore the copy because it already overflows its
+      // row by design, the frame is `lighten`-blended so its black covers
+      // nothing, and the copy paints above it. The height cap is only there
+      // for genuinely short, wide screens; on any phone the width wins, so
+      // the head is now one constant size and the URL bar cannot change it.
+      const widthCap = (window.innerWidth * 1.34 * 980) / 1408
+      const headHeight = Math.max(settled, Math.min(available * 0.86, widthCap))
 
       robot.style.height = `${settled.toFixed(1)}px`
       robotBox.style.height = `${headHeight.toFixed(1)}px`

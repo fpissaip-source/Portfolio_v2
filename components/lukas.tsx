@@ -128,7 +128,12 @@ export function Lukas() {
           obs.disconnect()
         }
       },
-      { rootMargin: '400px' },
+      // Generous on purpose: behind this gate sit a dynamic import, a
+      // Three.js scene and its first rendered frame. At 400px the field was
+      // still building while the visitor was inside the section, and the
+      // wrapper starts at opacity 0 — so what they saw was the copy on
+      // pure black.
+      { rootMargin: '1600px' },
     )
     obs.observe(root)
     return () => obs.disconnect()

@@ -289,6 +289,11 @@ export const ScrubVideo = forwardRef<
     const applyWantedPosition = () => {
       if (!video.duration) return
       targetTime = clampTime(wantedRef.current * video.duration)
+      // Force the queue open. A seek that was still outstanding when the
+      // priming play() interrupted it would otherwise leave `seeking` true
+      // for good, and drain() would refuse every later target.
+      seeking = false
+      window.clearTimeout(watchdog)
       drain()
     }
 
@@ -301,6 +306,27 @@ export const ScrubVideo = forwardRef<
       }
 
       primed = true
+
+      // The priming play/pause is only safe from a standing start.
+      //
+      // `play()` on a media element whose position is the end of the
+      // resource is *specified* to seek back to the beginning first. On a
+      // reload the browser restores the scroll position, so by the time
+      // metadata arrives the caller has usually already asked for a frame
+      // near the end — the visitor saw that frame, then the priming play
+      // rewound the element to zero and the canvas froze on frame one.
+      // That is exactly the reported symptom.
+      //
+      // Priming exists to warm the decoder on iOS before the first scrub. A
+      // visitor who is already inside the section gets that warm-up from
+      // their own seek, so there is nothing to prime and nothing to gain by
+      // risking the rewind.
+      if (wantedRef.current > 0.001) {
+        applyWantedPosition()
+        if (isTouch) window.addEventListener('touchend', unlock, { passive: true })
+        return
+      }
+
       const playPromise = video.play()
       if (!playPromise) {
         applyWantedPosition()
@@ -316,6 +342,12 @@ export const ScrubVideo = forwardRef<
           applyWantedPosition()
           if (isTouch) window.addEventListener('touchend', unlock, { passive: true })
         })
+
+      // Do not wait for that promise before showing anything. It only
+      // settles once the element could actually begin playing, which on a
+      // large file behind a slow connection can be many seconds — and until
+      // then this was the only path to the first painted frame.
+      applyWantedPosition()
     }
 
     video.addEventListener('loadedmetadata', onMetadata)

@@ -7,7 +7,11 @@ import { useEffect, useRef, useState } from 'react'
  *  mounting immediately on page load, far below the fold, that isn't).
  *  Used to defer Canvas/WebGL context creation until shortly before a
  *  section is actually visible instead of the moment the page hydrates. */
-export function useNearViewport<T extends HTMLElement>(margin = '400px') {
+/** Default margin. 400px was about a third of a second of ordinary
+ *  scrolling — not enough for anything behind it: a dynamic chunk, a
+ *  Three.js scene and its first frame all had to happen after the visitor
+ *  was already looking at the empty space. */
+export function useNearViewport<T extends HTMLElement>(margin = '1400px') {
   const ref = useRef<T>(null)
   const [near, setNear] = useState(false)
 

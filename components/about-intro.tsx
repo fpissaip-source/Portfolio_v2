@@ -5,6 +5,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { NameSequence, type NameSequenceHandle } from './name-sequence'
 import { ScrubVideo, type ScrubVideoHandle } from './scrub-video'
+import { useNearViewport } from './use-near-viewport'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,6 +25,13 @@ const POSTER = '/intro/cinematic-poster.jpg'
 export function AboutIntro() {
   const rootRef = useRef<HTMLDivElement>(null)
   const videoRef = useRef<ScrubVideoHandle>(null)
+  // The film is the largest asset on the site. Mounted with the section it
+  // began downloading the moment the page loaded, in parallel with the
+  // hero's own footage — two files competing for the connection before the
+  // visitor had scrolled a pixel, which is what left the hero on its poster
+  // and this film with nothing buffered to seek into. It is fetched when it
+  // is nearly in view instead.
+  const { ref: filmRef, near: filmNear } = useNearViewport<HTMLDivElement>('1600px')
   const nameRef = useRef<NameSequenceHandle>(null)
   const [reduced, setReduced] = useState(false)
 
@@ -66,20 +74,26 @@ export function AboutIntro() {
       window.cancelAnimationFrame(refreshFrame)
       trigger.kill()
     }
-  }, [reduced])
+  }, [reduced, filmNear])
 
   return (
     <div ref={rootRef} className={`relative ${reduced ? '' : 'h-[190vh]'}`}>
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-6">
-        <div aria-hidden className="absolute inset-0">
-          <ScrubVideo
-            ref={videoRef}
-            src={SRC}
-            srcMobile={SRC_MOBILE}
-            poster={POSTER}
-            fit="cover"
-            className="h-full w-full opacity-[0.55]"
-          />
+        <div ref={filmRef} aria-hidden className="absolute inset-0">
+          {filmNear ? (
+            <ScrubVideo
+              ref={videoRef}
+              src={SRC}
+              srcMobile={SRC_MOBILE}
+              poster={POSTER}
+              fit="cover"
+              className="h-full w-full opacity-[0.55]"
+            />
+          ) : (
+            // The poster alone until then: same picture, no 29 MB.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={POSTER} alt="" className="h-full w-full object-cover opacity-[0.55]" />
+          )}
         </div>
         <div
           aria-hidden

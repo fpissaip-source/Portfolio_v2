@@ -63,7 +63,6 @@ export const ES: Dictionary = {
     services: 'Mis servicios',
     lukas: 'L.U.K.A.S. · El sistema operativo detrás de todo',
     work: 'Proyectos seleccionados',
-    phone: 'Creado íntegramente desde un iPhone',
     about: 'La persona detrás de los sistemas',
     stack: 'Herramientas de trabajo',
     process: 'De la idea a producción',
@@ -241,18 +240,6 @@ export const ES: Dictionary = {
   },
   projectOrbsMobile: {
     tapHint: 'Toca un sistema para verlo',
-  },
-  phoneStory: {
-    ariaLabel: 'Creado íntegramente desde un teléfono',
-    screenLine1: 'SIN PC.',
-    screenLine2: 'SIN PORTÁTIL.',
-    screenLine3: 'CREADO ÍNTEGRAMENTE EN IPHONE.',
-    lines: [
-      'Cada sistema de esta página,',
-      'el agente, las plataformas y los despliegues,',
-      'fue diseñado, programado y publicado',
-      'desde un teléfono.',
-    ],
   },
   about: {
     introTitle: 'Permíteme presentarme.',

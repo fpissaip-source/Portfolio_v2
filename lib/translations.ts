@@ -30,7 +30,6 @@ export type Dictionary = {
     services: string
     lukas: string
     work: string
-    phone: string
     about: string
     stack: string
     process: string
@@ -147,13 +146,6 @@ export type Dictionary = {
   }
   projectOrbsMobile: {
     tapHint: string
-  }
-  phoneStory: {
-    ariaLabel: string
-    screenLine1: string
-    screenLine2: string
-    screenLine3: string
-    lines: string[]
   }
   about: {
     /** "Let me introduce myself." — the label over the name sequence that
@@ -355,7 +347,6 @@ export const EN: Dictionary = {
     services: 'My Offering',
     lukas: 'L.U.K.A.S. · The Operating System Behind Everything',
     work: 'Selected Work',
-    phone: 'Shipped Entirely From an iPhone',
     about: 'The Person Behind the Systems',
     stack: 'Tools of the Trade',
     process: 'From Idea to Production',
@@ -528,18 +519,6 @@ export const EN: Dictionary = {
   },
   projectOrbsMobile: {
     tapHint: 'Tap a system to inspect',
-  },
-  phoneStory: {
-    ariaLabel: 'Built entirely on a phone',
-    screenLine1: 'NO PC.',
-    screenLine2: 'NO LAPTOP.',
-    screenLine3: 'BUILT ENTIRELY ON IPHONE.',
-    lines: [
-      'Every system on this page,',
-      'the agent, the platforms, the deployments,',
-      'was designed, written and shipped',
-      'on a phone.',
-    ],
   },
   about: {
     introTitle: 'Let me introduce myself.',
@@ -810,7 +789,6 @@ export const DE: Dictionary = {
     services: 'Mein Angebot',
     lukas: 'L.U.K.A.S. · Das Betriebssystem hinter allem',
     work: 'Ausgewählte Arbeiten',
-    phone: 'Komplett vom iPhone aus umgesetzt',
     about: 'Die Person hinter den Systemen',
     stack: 'Mein Handwerkszeug',
     process: 'Von der Idee zur Produktion',
@@ -984,18 +962,6 @@ export const DE: Dictionary = {
   },
   projectOrbsMobile: {
     tapHint: 'System antippen zum Ansehen',
-  },
-  phoneStory: {
-    ariaLabel: 'Komplett auf einem Smartphone gebaut',
-    screenLine1: 'KEIN PC.',
-    screenLine2: 'KEIN LAPTOP.',
-    screenLine3: 'KOMPLETT AUF DEM IPHONE GEBAUT.',
-    lines: [
-      'Jedes System auf dieser Seite,',
-      'der Agent, die Plattformen, die Deployments,',
-      'wurde entworfen, geschrieben und ausgeliefert',
-      'auf einem Smartphone.',
-    ],
   },
   about: {
     introTitle: 'Lass mich vorstellen, wer ich bin.',

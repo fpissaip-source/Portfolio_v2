@@ -341,7 +341,18 @@ export function Hero() {
           >
             <div
               ref={robotBoxRef}
-              className="relative top-7 h-full w-[132vw] max-w-none shrink-0 lg:top-0 lg:h-full lg:w-auto lg:aspect-[1408/980]"
+              // The negative right margin is what pushes the head further
+              // right on a desktop: a margin, deliberately, not a translate.
+              // `transform` and Tailwind v4's `translate` both establish a
+              // stacking context, and one between the stage and this frame
+              // cuts its blend off from the light behind it — which is the
+              // black panel that used to sit around the head.
+              //
+              // Safe to overrun the container: the master carries 60px of
+              // black padding at each edge, and the animation's own bounding
+              // box ends well inside that, so what leaves the screen is
+              // margin rather than picture.
+              className="relative top-7 h-full w-[132vw] max-w-none shrink-0 lg:top-0 lg:-mr-[4vw] lg:h-full lg:w-auto lg:aspect-[1408/980] 2xl:-mr-[6vw]"
             >
               <ScrubVideo
                 ref={videoRef}

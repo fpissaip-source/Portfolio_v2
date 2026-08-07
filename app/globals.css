@@ -5,12 +5,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Three typographic roles (DESIGN.md §2). Display carries the personality
-     and is deliberately NOT Geist — Geist as a display face is the strongest
-     "Next.js template" signal this site could emit. */
-  --font-display: var(--font-display-face), ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Four typographic roles, loudest first (see app/layout.tsx).
+       font-poster  Anton          hero headline, full-bleed wordmarks
+       font-display League Spartan section headings
+       font-sans    Source Sans 3  body, lead, interface (the default)
+       font-label   Oswald         kickers, metadata, signposts
+     `font-mono` is left as a real monospace and is now used for nothing but
+     genuine code, so a label can never quietly become a terminal prop. */
+  --font-poster: var(--font-poster-face), 'Arial Narrow', ui-sans-serif, sans-serif;
+  --font-display: var(--font-heading-face), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
+  --font-label: var(--font-label-face), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -332,7 +338,7 @@ html[data-perf='low'] .edge-glow-pulse {
    variable block, which is injected later in the document. */
 .lukas-w.lukas-w {
   /* Body face, not system-ui: the panel is part of the site, not a guest. */
-  --lukas-font: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --lukas-font: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
   --lukas-accent: var(--purple);
   --lukas-text: var(--foreground);
   --lukas-muted: var(--muted-foreground);
@@ -375,7 +381,7 @@ html[data-perf='low'] .edge-glow-pulse {
 }
 /* Subtitle becomes an instrument label: uppercase, tracked, small (§2) */
 .lukas-w .lukas-head span {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-label-face), ui-sans-serif, sans-serif;
   font-size: 9.5px;
   text-transform: uppercase;
   letter-spacing: 0.22em;
@@ -467,7 +473,7 @@ html[data-perf='low'] .edge-glow-pulse {
 
 /* "Lukas hört zu…" — status is instrument text (§2) */
 .lukas-w .lukas-status {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-label-face), ui-sans-serif, sans-serif;
   font-size: 9.5px;
   text-transform: uppercase;
   letter-spacing: 0.22em;

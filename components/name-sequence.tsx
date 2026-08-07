@@ -121,7 +121,7 @@ export const NameSequence = forwardRef<NameSequenceHandle>(function NameSequence
           directly under a line of 11px mono. The shadow is what keeps it
           readable there without darkening the footage again. */}
       <p
-        className="font-mono text-[11px] uppercase tracking-[0.3em] text-blue"
+        className="font-label text-sm font-medium uppercase tracking-[0.22em] text-white sm:text-base"
         style={{ textShadow: '0 1px 12px rgba(5,5,5,0.95), 0 0 3px rgba(5,5,5,0.9)' }}
       >
         {t.about.introTitle}

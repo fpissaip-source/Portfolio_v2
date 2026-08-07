@@ -19,7 +19,7 @@ export function LegalPage({
       <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-32">
         <Link
           href="/"
-          className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
+          className="font-label text-xs uppercase tracking-[0.2em] text-muted-foreground transition-colors hover:text-foreground"
         >
           ← {t.legal.back}
         </Link>

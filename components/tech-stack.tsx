@@ -108,7 +108,7 @@ export function TechStack() {
           <dl className="mx-auto mt-16 grid max-w-4xl gap-x-12 sm:grid-cols-2">
             {t.techStack.matrix.map((m) => (
               <div key={m.layer} className="border-t border-white/10 py-5">
-                <dt className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90">
+                <dt className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90">
                   {m.layer}
                 </dt>
                 <dd className="mt-2.5 text-sm leading-relaxed text-muted-foreground">

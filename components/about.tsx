@@ -100,7 +100,7 @@ export function About() {
         <div className="flex flex-col gap-3">
           <Reveal y={30}>
             <div className="mb-6">
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.about.storyLabel}
               </p>
               <h3 className="mt-3 text-balance font-display text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl">

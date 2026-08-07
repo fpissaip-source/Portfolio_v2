@@ -119,7 +119,7 @@ export function ConsentBanner() {
             aria-label={c.bannerAria}
             className="glass fixed inset-x-3 bottom-3 z-[120] rounded-2xl p-5 sm:inset-x-auto sm:left-5 sm:bottom-5 sm:max-w-md sm:p-6"
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90">
+            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90">
               {c.kicker}
             </p>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
@@ -208,7 +208,7 @@ export function ConsentBanner() {
                       {c.necessaryBody}
                     </p>
                   </div>
-                  <span className="mt-1 shrink-0 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <span className="mt-1 shrink-0 font-label text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                     {c.alwaysOn}
                   </span>
                 </div>

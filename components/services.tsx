@@ -109,7 +109,7 @@ export function Services() {
 
           <div className="mt-10">
             {closingHighlight.label && (
-              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/90 sm:text-[11px]">
+              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple/90 sm:text-[11px]">
                 {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}

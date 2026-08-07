@@ -64,7 +64,7 @@ export function SiteNav() {
         href="#top"
         onClick={(e) => go(e, '#top')}
         data-page-chrome
-        className="fixed left-4 top-4 z-50 rounded-full px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-6 sm:text-[11px]"
+        className="fixed left-4 top-4 z-50 rounded-full px-1 py-1.5 font-label text-[10px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-6 sm:text-[11px]"
       >
         Issa Hareb
       </a>

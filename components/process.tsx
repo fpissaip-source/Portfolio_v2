@@ -70,7 +70,7 @@ export function Process() {
                     filled chip. */}
                 <Reveal className="w-full" y={30}>
                   <div className="pt-1">
-                    <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-blue/90">
+                    <div className="font-label text-[10px] uppercase tracking-[0.25em] text-blue/90">
                       {String(i + 1).padStart(2, '0')}
                     </div>
                     <h3 className="mt-3 text-xl font-semibold tracking-tight">

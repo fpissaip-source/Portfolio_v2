@@ -30,7 +30,11 @@ function LitWord({ word }: { word: string }) {
   return (
     <span className="inline-block">
       {word.split('').map((ch, i) => (
-        <span key={i} data-lit style={{ opacity: 0.12 }} className="inline-block">
+        // 0.45, not 0.12. The letters light up on load, and at 0.12 the
+        // headline is a grey smudge for the first second of the visit. A
+        // reveal is only worth having if the thing revealed was legible
+        // the whole time.
+        <span key={i} data-lit style={{ opacity: 0.45 }} className="inline-block">
           {ch}
         </span>
       ))}
@@ -271,7 +275,10 @@ export function Hero() {
           ref={cueRef}
           href="#contact"
           onClick={(event) => handleAnchorClick(event, '#contact')}
-          className="absolute inset-x-0 bottom-6 z-20 mx-auto flex w-max items-center gap-2 rounded-full border border-purple/60 bg-purple/12 px-6 py-3 text-[13px] font-semibold tracking-tight text-foreground backdrop-blur-sm transition-colors hover:border-purple/90 hover:bg-purple/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:bottom-8 sm:text-sm"
+          // Filled, not outlined. A thin purple hairline on black is the
+          // weakest shape a primary action can take; this is the only button
+          // in the first screen and it should look like the one thing to press.
+          className="absolute inset-x-0 bottom-6 z-20 mx-auto flex w-max items-center gap-2.5 rounded-full bg-white px-7 py-3.5 text-[15px] font-semibold tracking-[-0.01em] text-[#050505] shadow-[0_10px_40px_-10px_rgba(168,130,255,0.75)] transition-transform hover:scale-[1.03] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:bottom-8 sm:text-base"
         >
           {t.hero.ctaDraft}
           <span aria-hidden className="text-base leading-none">
@@ -283,54 +290,76 @@ export function Hero() {
           ref={gridRef}
           className="relative mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14"
         >
-          <div className="relative z-20 text-center lg:col-start-1 lg:row-start-1 lg:text-left">
+          {/* Ranged left, at every width. Centred copy forces the eye to
+              re-find the start of every line, which is the wrong ask for a
+              three-line paragraph on a phone. */}
+          <div className="relative z-20 text-left lg:col-start-1 lg:row-start-1">
+            {/* The kicker used to fade in from nothing over 0.7s. On a phone
+                over mobile data that fade is a visible stretch in which the
+                first thing on the page is unreadable — it is what the "man
+                erkennt fast nichts" screenshot caught. It now starts at 0.55
+                and rises, so it is legible from the first frame and the
+                animation only adds presence. */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0.55, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: easeOut }}
-              className="mb-4 flex items-center justify-center gap-3 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] sm:mb-5 sm:gap-4 lg:justify-start"
+              className="mb-4 flex items-center justify-center gap-3.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] sm:mb-5 sm:gap-4 lg:justify-start"
             >
               {t.hero.kickerWords.map((word, i) => (
                 <Fragment key={word}>
                   {i > 0 && (
-                    <span aria-hidden className="h-4 w-px shrink-0 bg-white/35 sm:h-5" />
+                    <span aria-hidden className="h-3.5 w-px shrink-0 bg-white/35 sm:h-4" />
                   )}
-                  <span className="whitespace-nowrap font-display text-[13px] font-semibold tracking-tight text-foreground/95 sm:text-[15px] lg:font-medium lg:text-foreground/85">
+                  <span className="whitespace-nowrap font-label text-[13px] font-medium uppercase tracking-[0.14em] text-foreground sm:text-[15px]">
                     {word}
                   </span>
                 </Fragment>
               ))}
             </motion.div>
 
-            <h1 className="mt-4 font-display font-semibold sm:mt-5">
+            {/* Anton, uppercase, tight. The headline is the loudest thing on
+                the site and now looks it — nothing else uses this face, so
+                rank is legible before a word is read. Anton ships one weight,
+                so no font-semibold here: asking for 600 would only make the
+                browser fake a bolder version and smear the edges. */}
+            <h1 className="mt-4 font-poster sm:mt-5">
               <span className="sr-only">{t.hero.headingPlain}</span>
               <span aria-hidden>
                 <span
-                  className="block text-balance"
+                  className="block text-balance uppercase"
                   style={{
-                    fontSize: 'clamp(2.1rem, 9.2vw, 3.5rem)',
-                    lineHeight: 0.98,
-                    letterSpacing: '-0.04em',
+                    fontSize: 'clamp(2.6rem, 11.4vw, 4.6rem)',
+                    lineHeight: 0.92,
+                    letterSpacing: '-0.005em',
                   }}
                 >
                   <LitPhrase text={t.hero.headingLine1} />
                 </span>
+                {/* Was blue→white→purple clipped to the text. Its purple end
+                    sat at 6.7:1 and its white middle vanished outright on
+                    iOS Safari. One solid accent, full strength, and it starts
+                    at 0.4 rather than 0.12 so it is never invisible. */}
                 <span
                   ref={highlightRef}
                   style={{
-                    opacity: 0.12,
-                    fontSize: 'clamp(1.15rem, 5.2vw, 1.85rem)',
-                    lineHeight: 1.12,
-                    letterSpacing: '-0.02em',
+                    opacity: 0.4,
+                    fontSize: 'clamp(1.05rem, 4.4vw, 1.6rem)',
+                    lineHeight: 1.2,
                   }}
-                  className="mt-2.5 block text-balance bg-gradient-to-br from-blue via-white to-purple bg-clip-text italic text-transparent sm:mt-3"
+                  className="mt-3.5 block max-w-[24ch] text-balance font-sans font-semibold tracking-[-0.01em] text-accent-tint sm:mt-4 lg:mx-0"
                 >
                   {t.hero.headingLine2}
                 </span>
               </span>
             </h1>
 
-            <p className="relative z-30 mx-auto mt-6 max-w-[23rem] text-pretty text-[16px] font-medium leading-[1.65] text-foreground/90 drop-shadow-[0_2px_14px_rgba(0,0,0,0.98)] sm:mt-7 sm:max-w-md sm:text-[17px] lg:mx-0 lg:mt-6 lg:max-w-lg lg:text-base lg:font-normal lg:text-muted-foreground lg:drop-shadow-none">
+            {/* The lead. It was 16px, centred, at 90% on mobile and dropped to
+                muted grey on desktop — small, floating and pale, which is
+                exactly the "keine Lust das zu lesen" complaint. It is now
+                18/19px, ranged left with the headline from the sm breakpoint
+                up, and stays at full foreground on every size. */}
+            <p className="relative z-30 mt-6 max-w-[34ch] text-pretty text-[18px] leading-[1.6] text-foreground drop-shadow-[0_2px_14px_rgba(0,0,0,0.98)] sm:mt-7 sm:max-w-[42ch] sm:text-[19px] lg:mt-7 lg:max-w-[46ch] lg:drop-shadow-none">
               {t.hero.lead}
             </p>
           </div>
@@ -375,7 +404,7 @@ export function Hero() {
             </p>
 
             <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 max-lg:[@media(max-height:720px)]:hidden sm:mt-5 lg:justify-start">
-              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+              <span className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.hero.proofLabel}
               </span>
               <span className="text-[13px] font-medium tracking-tight text-foreground/90 sm:text-sm lg:text-foreground/80">

@@ -92,7 +92,7 @@ export function LukasConsentPrompt({
             className="glass w-full max-w-lg rounded-2xl p-6 sm:p-7"
             data-lenis-prevent
           >
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple/90">
+            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple/90">
               {c.askKicker}
             </p>
             <h2

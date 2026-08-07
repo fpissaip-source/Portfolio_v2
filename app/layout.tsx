@@ -1,37 +1,47 @@
 import type { Metadata, Viewport } from 'next'
-import { Bricolage_Grotesque, Geist, Geist_Mono, Space_Grotesk } from 'next/font/google'
+import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
 import './globals.css'
 import './elegant-headings.css'
 
-const geistSans = Geist({
+/* ── Four typefaces, four jobs ────────────────────────────────────────────
+   The old set was Geist + Geist Mono + Bricolage Grotesque + Space Grotesk:
+   three grotesques doing nearly the same job, so nothing on the page had a
+   clear rank. Each face below has exactly one role and looks unmistakably
+   unlike the other three, which is what makes hierarchy readable at a
+   glance rather than something you have to work out. */
+
+// Reading face. Adobe drew Source Sans for interfaces and long screen text:
+// large x-height, open apertures, unambiguous I/l/1. It is the reason body
+// copy can now run at 18px and stay comfortable.
+const bodyFace = Source_Sans_3({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-body-face',
 })
 
-const geistMono = Geist_Mono({
+// Section headings. Geometric, wide-open shapes, and a full 100–900 weight
+// axis so an h2 and an h3 can differ by weight instead of by size alone.
+const headingFace = League_Spartan({
   subsets: ['latin'],
-  variable: '--font-geist-mono',
+  variable: '--font-heading-face',
 })
 
-// Headline face. A contemporary grotesque with real character in the
-// letterforms — narrow apertures, a hard-cut 'a' and 'g', an optical-size
-// axis that keeps large settings from going soft. It carries the same
-// machined feel as the subject matter, where an editorial serif read
-// literary, and it still separates cleanly from Geist in the interface and
-// the mono kickers, which is the whole job of a display face here.
-const displayFace = Bricolage_Grotesque({
+// Poster face. Used only where the page is allowed to shout: the hero
+// headline and the two full-bleed wordmarks. Condensed, so long German
+// compounds still fit on one line, and heavy enough that nothing else on
+// the site can be mistaken for it.
+const posterFace = Anton({
   subsets: ['latin'],
-  variable: '--font-display-face',
+  weight: ['400'],
+  variable: '--font-poster-face',
 })
 
-// Distinctive display face used only for the "I AM ISSA HAREB" name reveal
-// in the cinematic intro — deliberately not the site's default Geist Sans,
-// so the name reads as a designed title moment rather than body type.
-const spaceGrotesk = Space_Grotesk({
+// Labels. Narrow uppercase for section kickers and metadata — the signpost
+// layer. Replaces the old mono, which read as a terminal prop rather than
+// as typography.
+const labelFace = Oswald({
   subsets: ['latin'],
-  weight: ['700'],
-  variable: '--font-space-grotesk',
+  variable: '--font-label-face',
 })
 
 const SITE_URL = 'https://issahareb.me'
@@ -228,7 +238,7 @@ export default function RootLayout({
   return (
     <html
       lang="de"
-      className={`${geistSans.variable} ${geistMono.variable} ${displayFace.variable} ${spaceGrotesk.variable} bg-background`}
+      className={`${bodyFace.variable} ${headingFace.variable} ${posterFace.variable} ${labelFace.variable} bg-background`}
     >
       <head>
         <script

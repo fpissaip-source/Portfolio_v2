@@ -183,7 +183,7 @@ export function LukasVoiceWidget() {
             <span className="relative h-3 w-3 rounded-full bg-[color-mix(in_oklch,var(--purple)_60%,white)] shadow-[0_0_14px_3px_color-mix(in_oklch,var(--purple)_75%,transparent)]" />
           </span>
           <span className="flex flex-col items-start leading-tight">
-            <span className="font-mono text-[9px] uppercase tracking-[0.25em] text-purple/80">
+            <span className="font-label text-[9px] uppercase tracking-[0.25em] text-purple/80">
               {t.lukasVoice.launcherKicker}
             </span>
             <span className="text-sm font-semibold tracking-tight text-foreground">

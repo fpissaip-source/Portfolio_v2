@@ -207,7 +207,7 @@ const DE_REFINED: Dictionary = {
     heading: 'Lass uns über dein Projekt sprechen.',
     subtitle:
       'Schick mir kurz, was du vorhast. Ich antworte mit einer ehrlichen Einschätzung zu Umfang, Vorgehen und dem nächsten sinnvollen Schritt.',
-    offerTitle: 'Ein erster Design-Ansatz – kostenlos.',
+    offerTitle: 'Ein erster Design-Ansatz, kostenlos.',
     offerBody:
       'Beschreibe dein Unternehmen und dein Ziel in zwei Sätzen. Ich schicke dir einen ersten visuellen Ansatz für die Startseite.',
   },

@@ -38,8 +38,8 @@ export function SectionHeading({
       {label && (
         <Reveal>
           <span
-            className={`flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.2em] sm:text-sm ${
-              tone === 'purple' ? 'text-purple' : 'text-blue'
+            className={`flex items-center gap-2.5 font-label text-sm font-medium uppercase tracking-[0.16em] sm:text-base ${
+              tone === 'purple' ? 'text-accent-tint' : 'text-blue'
             }`}
           >
             <span
@@ -58,13 +58,18 @@ export function SectionHeading({
       <WordReveal
         as="h2"
         text={heading}
-        className={`mt-3 text-balance font-display text-4xl font-semibold leading-[1.04] tracking-tight sm:text-5xl md:text-6xl ${headingClassName}`}
+        className={`mt-3.5 text-balance font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-5xl md:text-6xl ${headingClassName}`}
       />
 
+      {/* The paragraph under every section headline. It ran at 16px in
+          `--muted-foreground` (5.6:1) with a 60-character measure — small,
+          grey and wide, so it read as a caption for the headline instead of
+          as the sentence that explains the section. 18/19px, near-white, and
+          a shorter line so the eye returns cleanly. */}
       {description && (
         <Reveal delay={0.1}>
           <p
-            className={`mt-5 max-w-[60ch] text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg ${descriptionClassName}`}
+            className={`mt-5 max-w-[46ch] text-pretty text-[18px] leading-[1.6] text-foreground/85 sm:text-[19px] ${descriptionClassName}`}
           >
             {description}
           </p>

@@ -7,8 +7,8 @@
 }
 
 /* Project metadata stays compact, but uses the normal interface typeface. */
-#work .font-mono {
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+#work .font-label {
+  font-family: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
   letter-spacing: -0.01em;
 }
 
@@ -19,8 +19,8 @@
 }
 
 #lukas [data-lukas-sub],
-#lukas a.font-mono {
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+#lukas a.font-label {
+  font-family: var(--font-body-face), ui-sans-serif, system-ui, sans-serif;
   text-transform: none;
   letter-spacing: -0.01em !important;
   font-weight: 500;

@@ -260,7 +260,7 @@ function CardDetail() {
               alt={selectedCard.alt}
               className="aspect-video w-full rounded-xl bg-black object-cover"
             />
-            <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.22em] text-blue">
+            <p className="mt-4 font-label text-[10px] uppercase tracking-[0.22em] text-blue">
               {selectedCard.kindLabel}
             </p>
             <h3 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">

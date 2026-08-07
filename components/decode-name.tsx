@@ -210,7 +210,7 @@ export const DecodeName = forwardRef<
             // measures comes back as "it fits" when it does not.
             className="inline-flex shrink-0 whitespace-nowrap"
             style={{
-              fontFamily: 'var(--font-space-grotesk)',
+              fontFamily: 'var(--font-poster-face)',
               letterSpacing: '0.05em',
               marginLeft: wi === 0 ? undefined : 0,
             }}

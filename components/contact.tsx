@@ -73,7 +73,7 @@ export function Contact() {
 
         <Reveal delay={0.22}>
           <div className="mt-16 border-y border-purple/25 py-12 text-center sm:py-14">
-            <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
+            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
               {t.contact.offerLabel}
             </p>
             <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">

@@ -147,13 +147,13 @@ export function AffiliatePage() {
           <nav className="hidden items-center gap-8 md:flex" aria-label="Affiliate">
             <a
               href="#benefits"
-              className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
+              className="font-label text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
             >
               {t.benefits}
             </a>
             <a
               href="#process"
-              className="font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
+              className="font-label text-[11px] font-semibold uppercase tracking-[0.14em] text-white/58 transition-colors hover:text-white"
             >
               {t.process}
             </a>

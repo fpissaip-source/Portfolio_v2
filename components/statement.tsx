@@ -285,7 +285,7 @@ export function Statement() {
                 aria-hidden
               />
             </a>
-            <p className="text-xs text-black/55 sm:text-sm">{t.statement.ctaNote}</p>
+            <p className="text-[15px] text-black/65 sm:text-base">{t.statement.ctaNote}</p>
           </div>
         </div>
       </div>

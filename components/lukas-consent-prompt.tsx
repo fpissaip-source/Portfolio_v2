@@ -92,7 +92,7 @@ export function LukasConsentPrompt({
             className="glass w-full max-w-lg rounded-2xl p-6 sm:p-7"
             data-lenis-prevent
           >
-            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple/90">
+            <p className="font-label text-[12px] uppercase tracking-[0.22em] text-purple/90">
               {c.askKicker}
             </p>
             <h2
@@ -101,14 +101,14 @@ export function LukasConsentPrompt({
             >
               {c.askTitle}
             </h2>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-pretty text-[16px] leading-[1.6] text-foreground/78">
               {c.askBody}
             </p>
             {/* Voice is the heavier transfer, so it gets its own line rather
                 than being buried at the end of the paragraph above. */}
             <div className="mt-4 flex gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
               <Mic className="mt-0.5 h-4 w-4 shrink-0 text-purple/80" aria-hidden />
-              <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
+              <p className="text-pretty text-[16px] leading-[1.6] text-foreground/78">
                 {c.askVoiceNote}
               </p>
             </div>

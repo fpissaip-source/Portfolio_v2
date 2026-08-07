@@ -82,7 +82,7 @@ export function About() {
               <dd className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={15} suffix="+" />
               </dd>
-              <dt className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
+              <dt className="mt-1 text-[15px] font-medium tracking-tight text-foreground/72">
                 {t.about.stat1Label}
               </dt>
             </div>
@@ -90,7 +90,7 @@ export function About() {
               <dd className="text-4xl font-semibold tracking-tight text-foreground">
                 <Counter to={7} />
               </dd>
-              <dt className="mt-1 text-sm font-medium tracking-tight text-muted-foreground">
+              <dt className="mt-1 text-[15px] font-medium tracking-tight text-foreground/72">
                 {t.about.stat2Label}
               </dt>
             </div>
@@ -100,7 +100,7 @@ export function About() {
         <div className="flex flex-col gap-3">
           <Reveal y={30}>
             <div className="mb-6">
-              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+              <p className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.about.storyLabel}
               </p>
               <h3 className="mt-3 text-balance font-display text-2xl font-semibold leading-[1.15] tracking-tight sm:text-3xl">
@@ -120,7 +120,7 @@ export function About() {
                     <h4 className="mt-2 text-lg font-semibold tracking-tight text-foreground">
                       {story.title}
                     </h4>
-                    <p className="mt-2 max-w-[62ch] text-pretty text-[15px] leading-relaxed text-muted-foreground">
+                    <p className="mt-2 max-w-[48ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
                       {story.body}
                     </p>
                   </article>
@@ -136,7 +136,7 @@ export function About() {
                   <h3 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                     {pillar.title}
                   </h3>
-                  <p className="mt-2 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
+                  <p className="mt-2 max-w-[48ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
                     {pillar.body}
                   </p>
                 </article>

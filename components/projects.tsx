@@ -40,7 +40,7 @@ function ProjectAudit({ audit }: { audit: NonNullable<Project['audit']> }) {
         <span className="text-4xl font-semibold tabular-nums tracking-tight text-blue">
           {audit.onpage}%
         </span>
-        <span className="font-label text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+        <span className="font-label text-[12px] uppercase tracking-[0.18em] text-foreground/72">
           {t.projects.auditOnpage}
         </span>
       </div>
@@ -50,13 +50,13 @@ function ProjectAudit({ audit }: { audit: NonNullable<Project['audit']> }) {
             <dd className="text-lg font-semibold tabular-nums tracking-tight">
               {s.value}%
             </dd>
-            <dt className="font-label text-[9px] uppercase tracking-[0.16em] text-muted-foreground">
+            <dt className="font-label text-[13px] uppercase tracking-[0.14em] text-foreground/72">
               {s.label}
             </dt>
           </div>
         ))}
       </dl>
-      <p className="mt-4 font-label text-[10px] uppercase tracking-[0.16em] text-muted-foreground/70">
+      <p className="mt-4 font-label text-[12px] uppercase tracking-[0.16em] text-foreground/62">
         {t.projects.auditSource}{' '}
         <a
           href={audit.sourceUrl}
@@ -83,7 +83,7 @@ function LoadingFallback() {
   const t = useT()
   return (
     <div className="absolute inset-0 grid place-items-center">
-      <span className="font-label text-xs uppercase tracking-[0.3em] text-muted-foreground">
+      <span className="font-label text-[13px] uppercase tracking-[0.22em] text-foreground/72">
         {t.projects.loadingConstellation}
       </span>
     </div>
@@ -209,20 +209,20 @@ function ProjectExtras({ project }: { project: Project }) {
   const t = useT()
   return (
     <>
-      <p className="mt-3 max-w-[68ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+      <p className="mt-3 max-w-[52ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
         {project.description}
       </p>
       <ul className="mt-4 flex flex-wrap gap-2">
         {project.stack.map((tech) => (
           <li
             key={tech}
-            className="rounded-full border border-white/10 px-3 py-1 font-label text-[10px] uppercase tracking-[0.14em] text-muted-foreground"
+            className="rounded-full border border-white/10 px-3 py-1 font-label text-[12px] uppercase tracking-[0.13em] text-foreground/72"
           >
             {tech}
           </li>
         ))}
       </ul>
-      <p className="mt-3 font-label text-[10px] uppercase tracking-[0.2em] text-purple/80">
+      <p className="mt-3 font-label text-[12px] uppercase tracking-[0.2em] text-purple/80">
         {project.hobby ? t.projects.hobbyProject : project.status}
       </p>
       {project.audit && <ProjectAudit audit={project.audit} />}
@@ -276,7 +276,7 @@ export function Projects() {
     <section id="work" className="relative mx-auto max-w-7xl px-6 py-32">
       <div className="mb-16 flex flex-col gap-4">
         <Reveal>
-          <span className="font-label text-xs uppercase tracking-[0.3em] text-blue">
+          <span className="font-label text-[13px] uppercase tracking-[0.3em] text-blue">
             {t.projects.kicker}
           </span>
         </Reveal>
@@ -286,7 +286,7 @@ export function Projects() {
           className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
         />
         <Reveal delay={0.1}>
-          <p className="max-w-xl text-pretty text-muted-foreground">
+          <p className="max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
             {t.projects.subtitle}
           </p>
         </Reveal>
@@ -301,7 +301,7 @@ export function Projects() {
         ref={galleryRef}
         className="relative h-[560px] w-full touch-pan-y overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px] sm:border-transparent"
       >
-        <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-label text-[10px] uppercase tracking-[0.25em] text-muted-foreground/70">
+        <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-label text-[12px] uppercase tracking-[0.25em] text-foreground/62">
           {t.projects.dragHint}
         </span>
         <div className="absolute inset-0">
@@ -313,7 +313,7 @@ export function Projects() {
       <div className="mt-24">
         <Reveal>
           <div className="mb-8 flex items-center gap-4">
-            <span className="font-label text-xs uppercase tracking-[0.3em] text-purple">
+            <span className="font-label text-[13px] uppercase tracking-[0.3em] text-purple">
               {t.projects.registerLabel}
             </span>
             <span className="h-px flex-1 bg-gradient-to-r from-purple/30 to-transparent" />
@@ -332,10 +332,10 @@ export function Projects() {
               <span className="font-medium tracking-tight text-foreground">
                 {r.name}
               </span>
-              <span className="font-label text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <span className="font-label text-[13px] uppercase tracking-[0.16em] text-foreground/72">
                 {r.category}
               </span>
-              <span className="font-label text-xs text-purple/80">
+              <span className="font-label text-[13px] text-purple/80">
                 {r.status}
               </span>
             </motion.li>

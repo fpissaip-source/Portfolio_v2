@@ -538,7 +538,7 @@ export function Lukas() {
           href="https://github.com/fpissaip-source/Lukas_autonom"
           target="_blank"
           rel="noreferrer"
-          className="absolute bottom-6 right-5 z-20 hidden items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 font-label text-[10px] uppercase tracking-[0.2em] text-muted-foreground backdrop-blur-sm transition-colors hover:border-purple/50 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:right-9 sm:flex"
+          className="absolute bottom-6 right-5 z-20 hidden items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 font-label text-[12px] uppercase tracking-[0.17em] text-foreground/72 backdrop-blur-sm transition-colors hover:border-purple/50 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:right-9 sm:flex"
         >
           {t.lukas.repoLink} ↗
         </a>
@@ -570,7 +570,7 @@ export function Lukas() {
           </h2>
           <p
             data-lukas-sub
-            className="mt-4 font-label text-xs uppercase tracking-[0.28em] text-muted-foreground sm:text-sm"
+            className="mt-4 font-label text-[13px] uppercase tracking-[0.22em] text-foreground/72 sm:text-sm"
           >
             {t.lukas.subtitle}
           </p>
@@ -594,7 +594,7 @@ export function Lukas() {
                     'radial-gradient(closest-side, rgba(5,5,5,0.85), rgba(5,5,5,0.45) 62%, transparent 100%)',
                 }}
               />
-              <span className="font-label text-xs uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
+              <span className="font-label text-[13px] uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
                 {b.kicker}
               </span>
               <h3 className="mt-4 text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
@@ -606,7 +606,7 @@ export function Lukas() {
                   screen turns a sentence into a tall stack of short lines,
                   and a block per sentence means neither sentence can ever
                   fill the line the other one started. */}
-              <p className="mx-auto mt-6 max-w-2xl text-pretty leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
+              <p className="mx-auto mt-6 max-w-[46ch] text-pretty text-[18px] leading-[1.6] text-foreground/88 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
                 {b.body.map((sentence, si) => (
                   <span key={si} className="sm:block">
                     {sentence}

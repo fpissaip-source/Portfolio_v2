@@ -64,7 +64,7 @@ export function SiteNav() {
         href="#top"
         onClick={(e) => go(e, '#top')}
         data-page-chrome
-        className="fixed left-4 top-4 z-50 rounded-full px-1 py-1.5 font-label text-[10px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-6 sm:text-[11px]"
+        className="fixed left-4 top-4 z-50 rounded-full px-1 py-1.5 font-label text-[12px] uppercase tracking-[0.22em] text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:left-6 sm:text-[11px]"
       >
         Issa Hareb
       </a>
@@ -90,7 +90,7 @@ export function SiteNav() {
                     // enough that "Über mich" wrapped to a second line, which
                     // pushed that one item off the shared baseline and made
                     // the pill visibly taller than its own padding.
-                    className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-[15px] text-foreground/75 transition-colors hover:text-foreground"
                   >
                     {l.label}
                   </a>

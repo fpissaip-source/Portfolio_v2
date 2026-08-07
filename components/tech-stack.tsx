@@ -12,7 +12,7 @@ function StackLoading() {
   const t = useT()
   return (
     <div className="absolute inset-0 grid place-items-center">
-      <span className="text-sm font-medium tracking-tight text-muted-foreground">
+      <span className="text-[15px] font-medium tracking-tight text-foreground/72">
         {t.techStack.loading}
       </span>
     </div>
@@ -89,7 +89,7 @@ export function TechStack() {
           <ul className="mx-auto mt-10 flex max-w-3xl flex-wrap items-center justify-center gap-x-4 gap-y-2">
             {TECH.map((tech, i) => (
               <li key={tech.name} className="flex items-center gap-4">
-                <span className="text-base font-medium tracking-tight text-muted-foreground transition-colors hover:text-foreground">
+                <span className="text-[17px] font-medium tracking-tight text-foreground/78 transition-colors hover:text-foreground">
                   {tech.name}
                 </span>
                 {i < TECH.length - 1 && (
@@ -108,10 +108,10 @@ export function TechStack() {
           <dl className="mx-auto mt-16 grid max-w-4xl gap-x-12 sm:grid-cols-2">
             {t.techStack.matrix.map((m) => (
               <div key={m.layer} className="border-t border-white/10 py-5">
-                <dt className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90">
+                <dt className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90">
                   {m.layer}
                 </dt>
-                <dd className="mt-2.5 text-sm leading-relaxed text-muted-foreground">
+                <dd className="mt-2.5 text-[16px] leading-[1.6] text-foreground/78">
                   {m.items}
                 </dd>
               </div>

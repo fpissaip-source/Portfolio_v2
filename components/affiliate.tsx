@@ -141,7 +141,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
                   <h2 className="mt-5 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                     {benefit.title}
                   </h2>
-                  <p className="mt-3 max-w-sm text-base font-medium leading-relaxed text-foreground/72">
+                  <p className="mt-3 max-w-sm text-[17px] leading-[1.6] text-foreground/80">
                     {benefit.body}
                   </p>
                 </article>
@@ -160,11 +160,11 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
             }`}
           >
             <div>
-              <p className="text-sm font-semibold text-blue/90">{t.processKicker}</p>
+              <p className="font-label text-[15px] font-medium uppercase tracking-[0.14em] text-blue">{t.processKicker}</p>
               <h2 className="mt-3 max-w-md text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
                 {t.processHeading}
               </h2>
-              <p className="mt-4 max-w-md text-base font-medium leading-relaxed text-white/72 sm:text-lg">
+              <p className="mt-4 max-w-[42ch] text-[18px] leading-[1.6] text-white/82">
                 {t.processBody}
               </p>
             </div>
@@ -182,7 +182,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
                     <h3 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
                       {step.title}
                     </h3>
-                    <p className="mt-1.5 text-base font-medium leading-relaxed text-white/70">
+                    <p className="mt-1.5 max-w-[48ch] text-[17px] leading-[1.6] text-white/80">
                       {step.body}
                     </p>
                   </div>
@@ -198,7 +198,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
               <h2 className="max-w-2xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
                 {t.ctaTitle}
               </h2>
-              <p className="mt-3 max-w-xl text-base font-medium leading-relaxed text-white/70">
+              <p className="mt-3 max-w-[48ch] text-[17px] leading-[1.6] text-white/80">
                 {t.ctaBody}
               </p>
             </div>
@@ -211,7 +211,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
             </a>
           </div>
-          <p className="mt-5 text-sm font-medium leading-relaxed text-white/55">
+          <p className="mt-5 max-w-[54ch] text-[16px] leading-[1.6] text-white/70">
             {t.note}
           </p>
         </Reveal>

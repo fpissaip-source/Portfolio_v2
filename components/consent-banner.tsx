@@ -119,10 +119,10 @@ export function ConsentBanner() {
             aria-label={c.bannerAria}
             className="glass fixed inset-x-3 bottom-3 z-[120] rounded-2xl p-5 sm:inset-x-auto sm:left-5 sm:bottom-5 sm:max-w-md sm:p-6"
           >
-            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90">
+            <p className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90">
               {c.kicker}
             </p>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-3 text-pretty text-[16px] leading-[1.6] text-foreground/78">
               {c.bannerBody}{' '}
               <Link
                 href="/datenschutz"
@@ -155,7 +155,7 @@ export function ConsentBanner() {
                   openerRef.current = document.activeElement as HTMLElement | null
                   setSettingsOpen(true)
                 }}
-                className="rounded-full px-5 py-2.5 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-4 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                className="rounded-full px-5 py-2.5 text-[15px] font-medium tracking-tight text-foreground/75 underline decoration-white/20 underline-offset-4 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
               >
                 {c.settings}
               </button>
@@ -193,7 +193,7 @@ export function ConsentBanner() {
               >
                 {c.settingsTitle}
               </h2>
-              <p className="mt-2 text-pretty text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-pretty text-[16px] leading-[1.6] text-foreground/78">
                 {c.settingsIntro}
               </p>
 
@@ -204,11 +204,11 @@ export function ConsentBanner() {
                     <h3 className="text-base font-semibold tracking-tight">
                       {c.necessaryTitle}
                     </h3>
-                    <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-1.5 max-w-[52ch] text-pretty text-[16px] leading-[1.6] text-foreground/78">
                       {c.necessaryBody}
                     </p>
                   </div>
-                  <span className="mt-1 shrink-0 font-label text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  <span className="mt-1 shrink-0 font-label text-[12px] uppercase tracking-[0.16em] text-foreground/72">
                     {c.alwaysOn}
                   </span>
                 </div>
@@ -221,7 +221,7 @@ export function ConsentBanner() {
                     <h3 className="text-base font-semibold tracking-tight">
                       {c.analyticsTitle}
                     </h3>
-                    <p className="mt-1.5 max-w-[52ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-1.5 max-w-[52ch] text-pretty text-[16px] leading-[1.6] text-foreground/78">
                       {c.analyticsBody}
                     </p>
                   </div>
@@ -251,7 +251,7 @@ export function ConsentBanner() {
                   <button
                     type="button"
                     onClick={withdraw}
-                    className="rounded-full px-5 py-2.5 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/20 underline-offset-4 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:mr-auto"
+                    className="rounded-full px-5 py-2.5 text-[15px] font-medium tracking-tight text-foreground/75 underline decoration-white/20 underline-offset-4 transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:mr-auto"
                   >
                     {c.withdraw}
                   </button>

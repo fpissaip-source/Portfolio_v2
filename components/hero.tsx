@@ -399,12 +399,12 @@ export function Hero() {
             className="relative z-20 text-center lg:col-start-1 lg:row-start-2 lg:text-left"
             style={reduced ? undefined : { opacity: 0 }}
           >
-            <p className="mx-auto max-w-xl text-pretty text-[15px] font-medium leading-relaxed text-foreground/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] sm:text-base lg:mx-0 lg:text-lg lg:font-normal lg:text-muted-foreground lg:drop-shadow-none">
+            <p className="max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] sm:text-base lg:text-[18px] lg:drop-shadow-none">
               {t.hero.body}
             </p>
 
             <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 max-lg:[@media(max-height:720px)]:hidden sm:mt-5 lg:justify-start">
-              <span className="font-label text-[10px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+              <span className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.hero.proofLabel}
               </span>
               <span className="text-[13px] font-medium tracking-tight text-foreground/90 sm:text-sm lg:text-foreground/80">

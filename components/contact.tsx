@@ -48,7 +48,7 @@ export function Contact() {
           <dl className="mx-auto grid max-w-3xl gap-x-10 gap-y-8 border-y border-white/10 py-10 sm:grid-cols-3">
             {details.map((detail) => (
               <div key={detail.label} className="text-center sm:text-left">
-                <dt className="flex items-center justify-center gap-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-start">
+                <dt className="flex items-center justify-center gap-2 text-[14px] font-medium tracking-tight text-foreground/70 sm:justify-start">
                   <detail.icon className="h-3.5 w-3.5 text-blue/70" aria-hidden />
                   {detail.label}
                 </dt>
@@ -61,7 +61,7 @@ export function Contact() {
                       {detail.value}
                     </a>
                   ) : (
-                    <span className="text-lg font-medium tracking-tight text-muted-foreground sm:text-xl">
+                    <span className="text-[19px] font-medium tracking-tight text-foreground/80 sm:text-xl">
                       {detail.value}
                     </span>
                   )}
@@ -73,13 +73,13 @@ export function Contact() {
 
         <Reveal delay={0.22}>
           <div className="mt-16 border-y border-purple/25 py-12 text-center sm:py-14">
-            <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
+            <p className="font-label text-[12px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
               {t.contact.offerLabel}
             </p>
             <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
               {t.contact.offerTitle}
             </h3>
-            <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-muted-foreground">
+            <p className="mx-auto mt-5 max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
               {t.contact.offerBody}
             </p>
             <a
@@ -96,7 +96,7 @@ export function Contact() {
           <div className="mt-8 flex justify-center">
             <a
               href={`mailto:info@hareb.org?subject=${encodeURIComponent(t.contact.ctaSubject)}`}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium tracking-tight text-muted-foreground underline decoration-white/15 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              className="inline-flex items-center gap-2 px-4 py-2 text-[15px] font-medium tracking-tight text-foreground/75 underline decoration-white/15 underline-offset-[6px] transition-colors hover:text-foreground hover:decoration-blue focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {t.contact.cta}
               <span aria-hidden>→</span>

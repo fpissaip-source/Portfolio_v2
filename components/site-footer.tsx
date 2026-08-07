@@ -22,7 +22,7 @@ export function SiteFooter() {
         <div className="flex items-center gap-2 text-sm tracking-tight">
           <span className="font-semibold">Issa Hareb</span>
           <span className="text-blue">.</span>
-          <span className="text-muted-foreground">
+          <span className="text-[15px] text-foreground/70">
             {t.footer.tagline}
           </span>
         </div>
@@ -34,7 +34,7 @@ export function SiteFooter() {
               href={s.href}
               aria-label={s.label}
               {...(s.type === 'img' ? { target: '_blank', rel: 'noreferrer' } : {})}
-              className="glass flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-foreground/70 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
             >
               {s.type === 'img' ? (
                 <Image
@@ -51,7 +51,7 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs font-medium tracking-tight text-muted-foreground sm:justify-end">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[13px] font-medium tracking-tight text-foreground/65 sm:justify-end">
           <Link href="/affiliate" className="py-1.5 transition-colors hover:text-foreground">
             Affiliate
           </Link>

@@ -260,14 +260,14 @@ function CardDetail() {
               alt={selectedCard.alt}
               className="aspect-video w-full rounded-xl bg-black object-cover"
             />
-            <p className="mt-4 font-label text-[10px] uppercase tracking-[0.22em] text-blue">
+            <p className="mt-4 font-label text-[12px] uppercase tracking-[0.22em] text-blue">
               {selectedCard.kindLabel}
             </p>
             <h3 className="mt-1.5 text-2xl font-semibold tracking-tight text-foreground">
               {selectedCard.title}
             </h3>
             {selectedCard.meta && (
-              <p className="mt-2 max-w-[62ch] text-pretty text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 max-w-[48ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
                 {selectedCard.meta}
               </p>
             )}

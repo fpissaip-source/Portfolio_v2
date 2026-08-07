@@ -80,7 +80,7 @@ export function Services() {
                     {item.points.map((point) => (
                       <li
                         key={point}
-                        className="flex items-center gap-2 text-sm leading-snug text-muted-foreground"
+                        className="flex items-center gap-2 text-[15px] leading-snug text-foreground/75"
                       >
                         <span
                           aria-hidden
@@ -103,13 +103,13 @@ export function Services() {
             {t.services.closingKicker}
           </h3>
 
-          <p className="mt-5 max-w-[62ch] text-pretty leading-relaxed text-muted-foreground">
+          <p className="mt-5 max-w-[48ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
             {t.services.closingBody}
           </p>
 
           <div className="mt-10">
             {closingHighlight.label && (
-              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-purple/90 sm:text-[11px]">
+              <p className="font-label text-[12px] uppercase tracking-[0.22em] text-purple/90 sm:text-[11px]">
                 {closingHighlight.label.replace(/:$/, '')}
               </p>
             )}

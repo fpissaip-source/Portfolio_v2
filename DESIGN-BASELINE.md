@@ -177,10 +177,6 @@ Two fixes, use both:
 - **MUST** bind the playhead to a scroll progress value in `[0,1]`, and
   **MUST** be idempotent: the same progress always produces the same
   frame, so jump-navigation and refresh-mid-page both land correctly.
-- **MUST** coalesce seeks. Never issue a new seek while one is pending;
-  keep only the newest target and issue it when the previous completes.
-  Uncoalesced seeks queue up and the animation lags seconds behind the
-  thumb.
 - **MUST** show the poster image until the first real frame is decoded.
 - **MUST** provide a reduced-motion path: `prefers-reduced-motion: reduce`
   gets the poster frame and no scrubbing.
@@ -193,7 +189,97 @@ Two fixes, use both:
 > mid-page, the hero snaps to frame 0 and freezes. Only prime from a
 > standing start; otherwise apply the wanted position directly.
 
-### 2.7 What else the hero needs
+### 2.7 Making it smooth
+
+Encoding (§2.4) is necessary and not sufficient. A scrub stutters for
+seven separate reasons, and fixing six of them still leaves a stuttering
+hero. Do all seven.
+
+**1. One frame loop for the whole page. MUST.**
+A smooth-scroll library on its own `requestAnimationFrame`, plus an
+animation library on another, gives two frame budgets that drift apart.
+Drive the smooth-scroll from the animation library's ticker and let it
+push scroll updates:
+
+```js
+lenis.on('scroll', ScrollTrigger.update)
+gsap.ticker.add((t) => lenis.raf(t * 1000))
+gsap.ticker.lagSmoothing(0)   // never "catch up" after a dropped frame
+```
+
+`lagSmoothing(0)` matters: the default behaviour, on a frame that took too
+long, jumps the timeline forward to compensate. On a scrubbed film that
+reads as the video skipping.
+
+**2. Smooth the input, not the output. MUST.**
+A mouse wheel emits large discrete steps. Feeding those straight into a
+playhead produces a stair-step no decoder can rescue. A momentum layer
+(Lenis or equivalent) turns them into a continuous value:
+
+```js
+new Lenis({
+  duration: 1.0,
+  easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  wheelMultiplier: 0.75,
+  smoothWheel: !prefersReduced,
+})
+```
+
+This is the opposite of easing the animation itself (§6.2). Smooth the
+**gesture** going in; never ease the **frame** coming out.
+
+**3. Coalesce seeks. MUST.**
+Never issue a seek while one is pending. Keep only the newest target and
+issue it the moment the previous `seeked` fires, including when the
+visitor has reversed direction. Uncoalesced seeks queue, and the film ends
+up seconds behind the thumb.
+
+**4. Ignore seeks smaller than half a frame. SHOULD.**
+Most requested seeks land on the frame already showing. Skip them:
+
+```js
+const SEEK_EPSILON = 1 / 48          // half a frame at 24 fps
+if (Math.abs(video.currentTime - next) < SEEK_EPSILON) { draw(); return }
+```
+
+This alone removes the majority of seek traffic on a slow scroll.
+
+**5. Paint when a frame actually exists, not on the next tick. SHOULD.**
+`requestVideoFrameCallback` fires when a new frame has been decoded and is
+ready to composite. Painting on `requestAnimationFrame` instead means
+painting the *previous* frame roughly half the time.
+
+**6. Watchdog the seek. MUST.**
+`seeked` is not guaranteed to arrive; on iOS it sometimes does not. Without
+a timeout, the coalescing lock is never released and the hero freezes for
+the rest of the visit:
+
+```js
+watchdog = setTimeout(() => { seeking = false; draw(); drain() }, 280)
+```
+
+**7. Halve the pixels on phones. MUST.**
+Decode cost scales with pixel count. A separate portrait encode at half
+the linear resolution is a quarter of the work per seek, and it is the
+single biggest win on an older phone. It also gives the correct crop
+instead of letting `object-cover` slice the subject away.
+
+**Two more things that decide whether it feels smooth:**
+
+- **Paint to a `<canvas>`, not to the `<video>` element**, if the footage
+  needs any masking, filtering or blending. A CSS `filter` on a live video
+  makes the compositor build a fresh filtered layer every frame; doing the
+  same work in a 2D context is one layer and one draw call.
+- **Nothing else heavy may run during the scrub.** A WebGL scene, a
+  per-word blur or a parallax on the same screen competes for the same
+  main thread. If the hero scrub must be smooth, it gets the budget alone.
+
+**Verify on the worst device you support, by scrubbing.** This class of
+failure is device-specific and does not appear in a screenshot or in a
+desktop browser. If you cannot test on the device, at minimum throttle CPU
+6× in DevTools and scrub the hero end to end, forwards and backwards.
+
+### 2.8 What else the hero needs
 
 - One headline. One supporting line. **One** primary action.
 - The primary action is **filled**, not an outline. It is the single thing
@@ -541,6 +627,8 @@ Run every line. "Looks fine" is not a check.
 
 **Motion**
 - [ ] Hero scroll animation present, scrubbed, reversible (§2).
+- [ ] All seven smoothness rules applied, verified by scrubbing on the
+      slowest supported device (§2.7).
 - [ ] No text entrance starting below 0.45 opacity.
 - [ ] `prefers-reduced-motion` path verified.
 

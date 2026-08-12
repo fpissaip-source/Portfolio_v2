@@ -23,10 +23,9 @@ import { useT } from './language-context'
  * Ported from 21st.dev's "3D Image Gallery" (StellarCardGallerySingle,
  * moazamtrade/shadway). The maths that make it what it is are kept verbatim:
  * the golden-ratio Fibonacci-sphere placement, the three nested wireframe
- * shells, the per-card billboard `lookAt(camera.position)`, and the tilt that
- * follows the pointer in the detail card. Everything below is a change I had
- * to make for it to work on *this* page, listed so the deviations are not
- * mistaken for the original:
+ * shells and the per-card billboard `lookAt(camera.position)`. Everything
+ * below is a change I had to make for it to work on *this* page, listed so
+ * the deviations are not mistaken for the original:
  *
  *   1. **The starfield.** Upstream mounts a second WebGLRenderer in a
  *      `position: fixed; inset: 0` black div sized to `window.innerWidth` —
@@ -49,6 +48,9 @@ import { useT } from './language-context'
  *   7. **A keyboard path.** Upstream is pointer-only inside a canvas, which
  *      makes every card unreachable without a mouse. A visually-hidden but
  *      focusable button per card opens the same detail view.
+ *   8. **No tilt on the open card.** Upstream leans the detail panel toward
+ *      the pointer. That panel is where the project is actually read, and
+ *      text that tips away under the cursor is only harder to read.
  */
 
 /** Blue and purple as hex — three.js materials can't read CSS tokens.
@@ -194,7 +196,6 @@ function FloatingCard({
 function CardDetail() {
   const t = useT()
   const { selectedCard, setSelectedCard } = useCard()
-  const cardRef = useRef<HTMLDivElement>(null)
   const close = useCallback(() => setSelectedCard(null), [setSelectedCard])
 
   useEffect(() => {
@@ -207,23 +208,6 @@ function CardDetail() {
   }, [selectedCard, close])
 
   if (!selectedCard) return null
-
-  // Pointer-following tilt, from upstream.
-  const onMove: React.MouseEventHandler<HTMLDivElement> = (e) => {
-    const el = cardRef.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    el.style.transition = 'none'
-    el.style.transform = `perspective(1000px) rotateX(${
-      (e.clientY - r.top - r.height / 2) / 24
-    }deg) rotateY(${(r.width / 2 - (e.clientX - r.left)) / 24}deg)`
-  }
-  const onLeave = () => {
-    const el = cardRef.current
-    if (!el) return
-    el.style.transition = 'transform 0.5s ease-out'
-    el.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)'
-  }
 
   return (
     <div
@@ -246,12 +230,12 @@ function CardDetail() {
           <X className="h-6 w-6" />
         </button>
 
-        <div style={{ perspective: '1000px' }}>
+        {/* The open card used to follow the pointer with a perspective tilt.
+            It sits still now: this is the panel where the project is read,
+            and text that leans away under the cursor is harder to read for
+            no gain. The gallery behind it is still fully draggable. */}
+        <div>
           <div
-            ref={cardRef}
-            onMouseMove={onMove}
-            onMouseLeave={onLeave}
-            style={{ transformStyle: 'preserve-3d' }}
             className="rounded-2xl border border-white/10 bg-[#0b0b0e] p-4 shadow-[0_40px_120px_-30px_rgba(0,0,0,0.9)]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

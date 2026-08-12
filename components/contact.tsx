@@ -33,14 +33,14 @@ export function Contact() {
     <section id="contact" className="relative overflow-hidden px-6 py-32 sm:py-40">
       <GradientOrbs />
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className="relative z-10 mx-auto max-w-6xl">
         <SectionHeading
           label={t.contact.kicker}
           heading={t.contact.heading}
           description={t.contact.subtitle}
           tone="blue"
           className="mb-14"
-          headingClassName="mx-auto max-w-3xl text-4xl leading-[1.02] sm:text-6xl lg:text-7xl"
+          headingClassName="mx-auto max-w-[20ch] text-4xl leading-[1.02] sm:text-6xl lg:text-7xl"
           descriptionClassName="mx-auto max-w-lg"
         />
 
@@ -76,7 +76,7 @@ export function Contact() {
             <p className="font-label text-[12px] uppercase tracking-[0.22em] text-purple sm:text-[11px]">
               {t.contact.offerLabel}
             </p>
-            <h3 className="mx-auto mt-4 max-w-xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+            <h3 className="mx-auto mt-4 max-w-[24ch] font-display text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
               {t.contact.offerTitle}
             </h3>
             <p className="mx-auto mt-5 max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">

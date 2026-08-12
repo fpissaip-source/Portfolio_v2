@@ -151,8 +151,18 @@ export const ScrubVideo = forwardRef<
       // Crush the encoded near-black floor during the draw itself. Unlike a
       // CSS filter on the live canvas, this does not create a new Safari
       // compositing layer on every scroll frame.
+      // Contrast first, brightness second, and that order is the whole
+      // trick. contrast(1.3) maps the 5/255 black floor to a negative value,
+      // which clamps to 0 — so the floor is already true black before
+      // brightness touches it, and multiplying 0 by anything stays 0. The
+      // `lighten` blend therefore still swallows the frame's background
+      // completely while the subject itself gets lifted.
+      //
+      // It was brightness(0.8): a flat 20% darkening on top of the
+      // black-crush curve baked into the encode. The head was being darkened
+      // twice, which is why it read as murky on a bright screen.
       context.filter = blended
-        ? 'contrast(1.42) brightness(0.8) saturate(1.02)'
+        ? 'contrast(1.3) brightness(1.15) saturate(1.05)'
         : 'none'
       context.drawImage(
         video,

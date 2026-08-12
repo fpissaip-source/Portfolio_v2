@@ -288,7 +288,13 @@ export function Hero() {
 
         <div
           ref={gridRef}
-          className="relative mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.02fr_0.98fr] lg:items-center lg:gap-14"
+          // Desktop split: the copy takes the larger share and the head is
+          // pushed off to the right. It used to be an even 1.02/0.98 inside a
+          // 1280px container, which on a 1920px screen left the copy in a
+          // 624px column and the head sitting at 63% of the viewport with a
+          // quarter of the screen empty behind it — so the head read as
+          // centred and the copy read as small.
+          className="relative mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.18fr_0.82fr] lg:items-center lg:gap-10 2xl:max-w-[96rem]"
         >
           {/* Ranged left, at every width. Centred copy forces the eye to
               re-find the start of every line, which is the wrong ask for a
@@ -381,7 +387,14 @@ export function Hero() {
               // black padding at each edge, and the animation's own bounding
               // box ends well inside that, so what leaves the screen is
               // margin rather than picture.
-              className="relative top-7 h-full w-[132vw] max-w-none shrink-0 lg:top-0 lg:-mr-[4vw] lg:h-full lg:w-auto lg:aspect-[1408/980] 2xl:-mr-[6vw]"
+              // The negative right margin has to cover the master's dead
+              // padding, not just nudge the frame. Measured on the poster:
+              // the animation's own content occupies x 416..1018 of the
+              // 1408-wide master, so 27.7% of the frame's width to the right
+              // of the head is black nothing. A 4vw margin moved the frame
+              // and left the head at 63% of the screen; these values put the
+              // head's own right edge near the screen's right edge.
+              className="relative top-7 h-full w-[132vw] max-w-none shrink-0 lg:top-0 lg:-mr-[13vw] lg:h-full lg:w-auto lg:aspect-[1408/980] 2xl:-mr-[16vw]"
             >
               <ScrubVideo
                 ref={videoRef}

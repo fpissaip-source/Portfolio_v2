@@ -161,7 +161,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
           >
             <div>
               <p className="font-label text-[15px] font-medium uppercase tracking-[0.14em] text-blue">{t.processKicker}</p>
-              <h2 className="mt-3 max-w-md text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
+              <h2 className="mt-3 max-w-[22ch] font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-5xl">
                 {t.processHeading}
               </h2>
               <p className="mt-4 max-w-[42ch] text-[18px] leading-[1.6] text-white/82">
@@ -195,7 +195,7 @@ export function Affiliate({ standalone = false }: AffiliateProps) {
         <Reveal delay={0.14}>
           <div className="mt-14 flex flex-col items-start justify-between gap-7 border-t border-white/15 pt-8 sm:flex-row sm:items-end">
             <div>
-              <h2 className="max-w-2xl text-balance font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
+              <h2 className="max-w-[24ch] font-display text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
                 {t.ctaTitle}
               </h2>
               <p className="mt-3 max-w-[48ch] text-[17px] leading-[1.6] text-white/80">

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, type Variants } from 'motion/react'
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 
 const easeOut = [0.22, 1, 0.36, 1] as const
 
@@ -115,20 +115,24 @@ export function WordReveal({
       transition={{ delayChildren: delay }}
       aria-label={text}
     >
+      {/* The separator is an ordinary space BETWEEN the outer spans, and it
+          used to be a non-breaking space INSIDE them.
+          Both halves of that were wrong. A U+00A0 is by definition a place
+          the browser may not break, and with no whitespace between the
+          spans either, a heading had almost no legal break points left. The
+          line breaker fell back to squeezing one or two words per line: at
+          1920px a seven-word headline in a 1232px box was using 311px of it
+          across four lines. Every "five words, three lines" headline on the
+          site came from here. */}
       {words.map((word, i) => (
-        <span
-          key={i}
-          className="inline-block overflow-hidden align-bottom"
-          aria-hidden
-        >
-          <motion.span
-            className="inline-block will-transform"
-            variants={wordVariant}
-          >
-            {word}
-            {i < words.length - 1 ? '\u00A0' : ''}
-          </motion.span>
-        </span>
+        <Fragment key={i}>
+          <span className="inline-block overflow-hidden align-bottom" aria-hidden>
+            <motion.span className="inline-block will-transform" variants={wordVariant}>
+              {word}
+            </motion.span>
+          </span>
+          {i < words.length - 1 ? ' ' : ''}
+        </Fragment>
       ))}
     </MotionTag>
   )

@@ -414,7 +414,7 @@ function CardGalaxy() {
   // the desktop ran at 10 — smaller cards on the smaller screen, which is
   // backwards. A phone gets the largest cards of all now; there is less
   // room, so each card has to carry more of it.
-  const htmlFactor = portrait ? 12 : Math.min(10, Math.max(7, aspect * 5.2))
+  const htmlFactor = portrait ? 12 : Math.min(13, Math.max(9, aspect * 6.4))
   // …and the sphere is pulled in to match. Cards that big on the old radii
   // would sit half outside the frame; drawing them closer together keeps
   // the constellation whole while each card stays readable.
@@ -491,7 +491,7 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
     <CardContext.Provider value={{ selectedCard, setSelectedCard, cards }}>
       <div className="absolute inset-0">
         <Canvas
-          camera={{ position: [0, 0, 34], fov: 60 }}
+          camera={{ position: [0, 0, 26], fov: 60 }}
           className="absolute inset-0"
         >
           <Suspense fallback={null}>

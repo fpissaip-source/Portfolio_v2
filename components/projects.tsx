@@ -273,7 +273,7 @@ export function Projects() {
   ]
 
   return (
-    <section id="work" className="relative mx-auto max-w-7xl px-6 py-32">
+    <section id="work" className="relative mx-auto max-w-7xl px-6 py-32 2xl:max-w-[104rem]">
       <div className="mb-16 flex flex-col gap-4">
         <Reveal>
           <span className="font-label text-[13px] uppercase tracking-[0.3em] text-blue">
@@ -283,10 +283,10 @@ export function Projects() {
         <WordReveal
           as="h2"
           text={t.projects.heading}
-          className="max-w-3xl text-balance text-4xl font-semibold tracking-tight sm:text-6xl"
+          className="text-4xl font-semibold tracking-tight sm:text-6xl"
         />
         <Reveal delay={0.1}>
-          <p className="max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
+          <p className="max-w-[58ch] text-pretty text-[17px] leading-[1.6] text-foreground/80">
             {t.projects.subtitle}
           </p>
         </Reveal>
@@ -299,7 +299,11 @@ export function Projects() {
           doesn't blend into the surrounding page. */}
       <div
         ref={galleryRef}
-        className="relative h-[560px] w-full touch-pan-y overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[640px] sm:border-transparent"
+        // The stage is the exhibit, so it is sized against the screen rather
+        // than pinned to a fixed 640px box. On a 1080px-tall display that box
+        // was filling barely half the height while the section around it sat
+        // empty, which made the projects read as thumbnails.
+        className="relative h-[72svh] max-h-[1100px] min-h-[520px] w-full touch-pan-y overflow-hidden rounded-2xl border border-white/[0.06] shadow-[0_0_140px_-40px_rgba(167,139,250,0.4)] sm:h-[84svh] sm:border-transparent"
       >
         <span className="pointer-events-none absolute right-4 top-4 z-10 whitespace-nowrap font-label text-[12px] uppercase tracking-[0.25em] text-foreground/62">
           {t.projects.dragHint}

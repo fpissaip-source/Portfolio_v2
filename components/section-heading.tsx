@@ -55,21 +55,30 @@ export function SectionHeading({
         </Reveal>
       )}
 
+      {/* No `text-balance` here.
+          Balance minimises the longest line, and on a headline made of
+          inline-block words it collapses the whole thing into a narrow
+          stack: a seven-word headline was taking four lines inside a
+          1232px box. Ordinary wrapping fills the line it is given, which
+          is what a headline should do. `max-w-[30ch]` is the width limit
+          instead, and it is per-character rather than absolute, so it
+          holds across both languages and every font size step. */}
       <WordReveal
         as="h2"
         text={heading}
-        className={`mt-3.5 text-balance font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-5xl md:text-6xl ${headingClassName}`}
+        className={`mt-3.5 max-w-[30ch] font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-5xl md:text-6xl ${headingClassName}`}
       />
 
       {/* The paragraph under every section headline. It ran at 16px in
-          `--muted-foreground` (5.6:1) with a 60-character measure — small,
-          grey and wide, so it read as a caption for the headline instead of
-          as the sentence that explains the section. 18/19px, near-white, and
-          a shorter line so the eye returns cleanly. */}
+          `--muted-foreground`, which is 5.6:1 on this canvas, so it read as
+          a caption for the headline rather than as the sentence explaining
+          the section. 18/19px and near-white now. The 58ch measure is set
+          against the headline above it: 46ch looked stranded under 30ch of
+          60px type, and 58 is still well inside the 75-character limit. */}
       {description && (
         <Reveal delay={0.1}>
           <p
-            className={`mt-5 max-w-[46ch] text-pretty text-[18px] leading-[1.6] text-foreground/85 sm:text-[19px] ${descriptionClassName}`}
+            className={`mt-5 max-w-[58ch] text-pretty text-[18px] leading-[1.6] text-foreground/85 sm:text-[19px] ${descriptionClassName}`}
           >
             {description}
           </p>

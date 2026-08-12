@@ -18,7 +18,7 @@ export function Process() {
   const particleY = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
   return (
-    <section id="process" className="relative mx-auto max-w-4xl px-6 py-32">
+    <section id="process" className="relative mx-auto max-w-6xl px-6 py-32 2xl:max-w-7xl">
       <SectionHeading
         label={t.process.kicker}
         heading={t.process.heading}

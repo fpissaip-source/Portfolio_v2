@@ -65,7 +65,7 @@ export function About() {
     <section id="about" className="relative">
       <AboutIntro />
 
-      <div className="mx-auto grid max-w-7xl gap-16 px-6 pb-32 pt-24 lg:grid-cols-[0.9fr_1.1fr]">
+      <div className="mx-auto grid max-w-7xl gap-16 px-6 pb-32 pt-24 lg:grid-cols-[1.08fr_1fr] 2xl:max-w-[96rem]">
         <div className="lg:sticky lg:top-28 lg:self-start">
           <SectionHeading
             label={t.about.kicker}
@@ -73,8 +73,8 @@ export function About() {
             description={t.about.intro}
             align="left"
             tone="purple"
-            headingClassName="sm:text-5xl"
-            descriptionClassName="max-w-md"
+            headingClassName="max-w-[30ch] sm:text-4xl md:text-[2.5rem] lg:text-[2.6rem]"
+            descriptionClassName="max-w-[46ch]"
           />
 
           <dl className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-7">

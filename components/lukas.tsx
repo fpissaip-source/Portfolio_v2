@@ -582,7 +582,7 @@ export function Lukas() {
             <div
               key={b.kicker}
               data-beat
-              className="absolute max-w-2xl px-6 text-center opacity-0 will-transform"
+              className="absolute w-full max-w-3xl px-6 text-center opacity-0 will-transform lg:max-w-4xl"
             >
               {/* Soft light-absorbing pocket: keeps the words readable over
                   bright filaments without drawing a visible box. */}
@@ -597,7 +597,7 @@ export function Lukas() {
               <span className="font-label text-[13px] uppercase tracking-[0.3em] text-purple [text-shadow:0_1px_14px_rgba(0,0,0,0.95)]">
                 {b.kicker}
               </span>
-              <h3 className="mt-4 text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
+              <h3 className="mx-auto mt-4 max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-[-0.02em] [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-6xl">
                 {b.title}
               </h3>
               {/* One sentence per line from `sm` up, one flowing paragraph
@@ -606,7 +606,7 @@ export function Lukas() {
                   screen turns a sentence into a tall stack of short lines,
                   and a block per sentence means neither sentence can ever
                   fill the line the other one started. */}
-              <p className="mx-auto mt-6 max-w-[46ch] text-pretty text-[18px] leading-[1.6] text-foreground/88 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
+              <p className="mx-auto mt-6 max-w-[52ch] text-pretty text-[19px] leading-[1.6] text-foreground/90 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">
                 {b.body.map((sentence, si) => (
                   <span key={si} className="sm:block">
                     {sentence}
@@ -643,7 +643,7 @@ export function Lukas() {
                   'radial-gradient(closest-side, color-mix(in oklch, var(--purple) 22%, transparent), transparent 72%)',
               }}
             />
-            <h3 className="text-balance font-display font-semibold text-4xl leading-[1.1] tracking-tight text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
+            <h3 className="mx-auto max-w-[20ch] font-display text-4xl font-semibold leading-[1.05] tracking-[-0.02em] text-foreground [text-shadow:0_2px_28px_rgba(0,0,0,0.9)] sm:text-5xl">
               {t.lukas.inviteTitle}
             </h3>
             <p className="mx-auto mt-4 max-w-md text-pretty leading-relaxed text-foreground/80 [text-shadow:0_1px_16px_rgba(0,0,0,0.95)]">

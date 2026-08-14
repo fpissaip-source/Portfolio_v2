@@ -108,6 +108,17 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION_EN,
   },
+  /* The icon files were in /public and served fine, but nothing in the
+     document pointed at them. With no declaration a browser falls back to
+     requesting /favicon.ico, which this site does not have, so every visit
+     spent a request on a 404 and every tab showed a blank page icon. */
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 }
 
 /**

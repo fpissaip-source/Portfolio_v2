@@ -18,6 +18,33 @@
 const IMMUTABLE = 'public, max-age=31536000, immutable'
 
 const nextConfig = {
+  /**
+   * www to the apex, permanently.
+   *
+   * Both hostnames were serving the whole site with 200 and no redirect:
+   * measured, https://issahareb.me/ and https://www.issahareb.me/ returned
+   * the same 158,665 bytes. That is the same page on two hostnames, which
+   * Bing's guidelines name explicitly as a reason not to index, and it
+   * splits whatever authority the domain earns across two addresses.
+   *
+   * The canonical tag already pointed at the apex from both, but a canonical
+   * is a hint. A 301 is the instruction.
+   *
+   * 301 rather than Next's `permanent: true` (which emits 308): every
+   * crawler has understood 301 for twenty years, and this is exactly the
+   * case it was made for.
+   */
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.issahareb.me' }],
+        destination: 'https://issahareb.me/:path*',
+        statusCode: 301,
+      },
+    ]
+  },
+
   async headers() {
     return [
       {

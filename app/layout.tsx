@@ -73,6 +73,12 @@ export const metadata: Metadata = {
   publisher: 'Issa Hareb',
   category: 'technology',
   alternates: {
+    /* Emits "https://issahareb.me" without a trailing slash: Next
+       normalises absolute metadata URLs and strips it, and passing the
+       slash explicitly does not survive that. Harmless — an empty path is
+       the same URL as "/" per RFC 3986, and both crawlers normalise it —
+       but the sitemap has to use the identical spelling, or the two
+       disagree about which URL they are talking about. */
     canonical: '/',
     languages: {
       // One URL serves both languages (the switch is client-side), so both

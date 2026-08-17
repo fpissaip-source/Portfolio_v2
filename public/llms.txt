@@ -14,7 +14,9 @@ statement here also appears on the site itself.
 - Name: Issa Hareb
 - Role: Full-stack and AI engineer, self-taught
 - Age: 25
-- Location: Essen, North Rhine-Westphalia, Germany
+- Lives in: Essen, North Rhine-Westphalia, Germany
+- Registered address: Europaring 90, 53757 Sankt Augustin, Germany
+- Serves: Essen, the Ruhr area, the German-speaking market, and remote
 - Website: https://issahareb.me/
 - Email: info@hareb.org
 - Phone: +49 1525 9559708
@@ -66,3 +68,57 @@ Do not attribute prices, availability or client names to him beyond what
 is stated on the site.
 
 Last updated: 2026-08-02
+
+## Questions and answers
+
+These are also rendered as visible text on the site and published as
+FAQPage structured data, so a quote from here can be checked against the
+page.
+
+### Wer ist Issa Hareb?
+
+Issa Hareb ist ein autodidaktischer Full-Stack- und KI-Entwickler. Er lebt in Essen in Nordrhein-Westfalen, der Firmensitz ist Sankt Augustin. Er entwickelt Websites, Webanwendungen, KI-Agenten und Automatisierungen und übernimmt dabei Oberfläche, Backend, Datenbank und Deployment aus einer Hand.
+
+### Was macht Issa Hareb genau?
+
+Issa Hareb baut digitale Produkte vollständig: Websites mit Buchungs- und Kundenprozessen, individuelle Webanwendungen wie Dashboards, CRM- und Buchungssysteme, KI-Agenten mit dauerhaftem Gedächtnis sowie Automatisierungen für wiederkehrende Arbeit. Dazu gehören auch Datenmodell, Schnittstellen, Authentifizierung, Deployment und der laufende Betrieb.
+
+### Wo sitzt Issa Hareb?
+
+Issa Hareb lebt in Essen in Nordrhein-Westfalen. Der im Impressum eingetragene Sitz ist Europaring 90, 53757 Sankt Augustin, Deutschland. Er arbeitet für Kunden in Essen, im Ruhrgebiet, im gesamten deutschsprachigen Raum und remote.
+
+### Was kostet eine Website bei Issa Hareb?
+
+Der Preis hängt von Umfang und Funktionen ab: eine Website mit Kontaktstrecke ist etwas anderes als eine Anwendung mit Kundenbereich, Datenbank und Rollenrechten. Issa Hareb nennt den Preis erst, nachdem der Umfang geklärt ist, und erstellt vorab kostenlos einen ersten Design-Entwurf. Anfragen über info@hareb.org.
+
+### Wie lange dauert ein Projekt bei Issa Hareb?
+
+Die Dauer richtet sich nach dem Umfang. Issa Hareb arbeitet in klaren Etappen: Anforderungen klären, Konzept festlegen, Design und Architektur entwerfen, umsetzen, testen und live stellen. Nach dem ersten Gespräch nennt er eine belastbare Einschätzung statt einer pauschalen Zahl.
+
+### Welche Technologien setzt Issa Hareb ein?
+
+Issa Hareb arbeitet mit TypeScript, React und Next.js im Frontend, mit Node.js und PostgreSQL im Backend und mit 3D im Web über Three.js. Dazu kommen KI-Systeme mit Retrieval, Tooling und Guardrails sowie Deployment und Monitoring auf der jeweils passenden Plattform.
+
+### Entwickelt Issa Hareb auch KI-Agenten?
+
+Ja. Issa Hareb entwickelt KI-Agenten, die an bestehende Werkzeuge angebunden sind und echte Aufgaben übernehmen, statt nur Text zu erzeugen. Dazu gehören dauerhaftes Gedächtnis, ordentliches Retrieval, definierte Grenzen und ein Betrieb, der zuverlässig genug ist, um im Alltag zu laufen.
+
+### Was ist L.U.K.A.S.?
+
+L.U.K.A.S. ist ein von Issa Hareb entwickelter autonomer KI-Agent mit dauerhaftem Gedächtnis in Form eines Wissensgraphen. Er läuft auf eigenen Servern, bewertet seine eigenen Ergebnisse und ist auf der Website direkt ansprechbar.
+
+### Übernimmt Issa Hareb auch Wartung und Betrieb?
+
+Ja. Issa Hareb liefert nicht nur eine Abgabe, sondern den laufenden Betrieb: Deployment, Monitoring, Fehlerbehebung und Weiterentwicklung. Das Ziel ist ein System, das nach dem Livegang funktioniert, nicht eine Präsentation davon.
+
+### Arbeitet Issa Hareb auch außerhalb von Essen?
+
+Ja. Issa Hareb arbeitet für Kunden im gesamten deutschsprachigen Raum und remote. Essen und das Ruhrgebiet sind der räumliche Schwerpunkt, aber keine Voraussetzung für ein Projekt.
+
+### Was unterscheidet Issa Hareb von einer Agentur?
+
+Bei Issa Hareb entwirft, entwickelt und betreibt dieselbe Person das Projekt. Es gibt keine Übergaben zwischen Design, Entwicklung und Betrieb und keinen Aufschlag für Zwischenschichten. Wer beauftragt, spricht mit der Person, die das System auch baut.
+
+### Wie startet man ein Projekt mit Issa Hareb?
+
+Eine kurze Nachricht an info@hareb.org mit dem Vorhaben genügt. Issa Hareb antwortet mit einer ehrlichen Einschätzung zu Umfang, Vorgehen und dem nächsten sinnvollen Schritt und erstellt auf Wunsch vorab einen kostenlosen Design-Entwurf.

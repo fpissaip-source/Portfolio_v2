@@ -18,6 +18,7 @@ import { Projects } from '@/components/projects'
 import { About } from '@/components/about'
 import { TechStack } from '@/components/tech-stack'
 import { Process } from '@/components/process'
+import { Faq } from '@/components/faq'
 import { Contact } from '@/components/contact'
 import { Affiliate } from '@/components/affiliate'
 import { SiteFooter } from '@/components/site-footer'
@@ -76,6 +77,8 @@ export default function Page() {
           <Process />
         </Scene>
         <Scene labelKey="contact" backdrop="aurora">
+          <Faq />
+
           <Contact />
         </Scene>
         <Affiliate />

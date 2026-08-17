@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
+import { FAQ_DE } from '@/lib/faq'
 import './globals.css'
 import './elegant-headings.css'
 
@@ -57,6 +58,7 @@ const SITE_DESCRIPTION_EN =
 const PERSON_ID = `${SITE_URL}/#person`
 const WEBSITE_ID = `${SITE_URL}/#website`
 const PAGE_ID = `${SITE_URL}/#webpage`
+const FAQ_ID = `${SITE_URL}/#faq`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -170,18 +172,51 @@ const siteJsonLd = {
       '@type': 'Person',
       '@id': PERSON_ID,
       name: 'Issa Hareb',
+      /* Split out so a parser can resolve the person rather than treating
+         the name as one opaque string. */
+      givenName: 'Issa',
+      familyName: 'Hareb',
+      /* The spellings the name is actually searched and written in. This is
+         the same device taxibbessen.de uses to hold "Taxi Essen", "Taxi BB
+         Essen" and "BB Taxi Essen" as one entity instead of three. */
+      alternateName: ['Issa Hareb Essen', 'Hareb, Issa'],
       url: `${SITE_URL}/`,
       jobTitle: 'Full-Stack & AI Engineer',
       description: SITE_DESCRIPTION,
       email: 'mailto:info@hareb.org',
       telephone: '+49-1525-9559708',
       nationality: { '@type': 'Country', name: 'Germany' },
-      knowsLanguage: ['de', 'en'],
+      knowsLanguage: ['de', 'en', 'es'],
+      /* The registered address, matching the imprint exactly.
+         It used to say Essen while the imprint said Sankt Augustin, 90km
+         apart. Google cross-checks the imprint against structured data, and
+         a contradiction there is a reason it cannot resolve the entity at
+         all — which is precisely what a knowledge panel needs it to do.
+         Seat and market are now stated separately, the way a real business
+         entity is modelled: `address` is where the business is registered,
+         `homeLocation`/`workLocation` is where the person actually is, and
+         the offers below carry `areaServed`. */
       address: {
         '@type': 'PostalAddress',
-        addressLocality: 'Essen',
+        streetAddress: 'Europaring 90',
+        postalCode: '53757',
+        addressLocality: 'Sankt Augustin',
         addressRegion: 'Nordrhein-Westfalen',
         addressCountry: 'DE',
+      },
+      homeLocation: {
+        '@type': 'Place',
+        name: 'Essen, Nordrhein-Westfalen',
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: 'Essen',
+          addressRegion: 'Nordrhein-Westfalen',
+          addressCountry: 'DE',
+        },
+      },
+      workLocation: {
+        '@type': 'Place',
+        name: 'Essen und Ruhrgebiet',
       },
       knowsAbout: [
         'Full-Stack-Entwicklung',
@@ -209,6 +244,14 @@ const siteJsonLd = {
           ],
         },
       })),
+      /* The corroboration list, and the weakest part of this graph.
+         A knowledge panel is not granted by markup: Google builds it when
+         several independent sources agree on one identity. taxibbessen.de
+         carries seven (Instagram, Google Maps, Gelbe Seiten, Das Örtliche,
+         GoLocal, taxi.de, Creditreform); this carries one. Add the LinkedIn
+         and Xing URLs here as soon as those profiles exist — one line each,
+         and the name, location and role on them must match this file word
+         for word, or they weaken the entity instead of confirming it. */
       sameAs: ['https://github.com/fpissaip-source'],
     },
     {
@@ -216,8 +259,9 @@ const siteJsonLd = {
       '@id': WEBSITE_ID,
       url: `${SITE_URL}/`,
       name: 'Issa Hareb',
+      alternateName: ['Issa Hareb Portfolio', 'issahareb.me'],
       description: SITE_DESCRIPTION,
-      inLanguage: ['de-DE', 'en'],
+      inLanguage: ['de-DE', 'en', 'es'],
       publisher: { '@id': PERSON_ID },
     },
     {
@@ -230,6 +274,29 @@ const siteJsonLd = {
       isPartOf: { '@id': WEBSITE_ID },
       about: { '@id': PERSON_ID },
       mainEntity: { '@id': PERSON_ID },
+      /* Ties the answers below to this page and to the person they are
+         about, so the FAQ is not a free-floating block a parser has to
+         guess the subject of. */
+      hasPart: { '@id': FAQ_ID },
+    },
+    {
+      /* The part an answer engine can quote verbatim.
+         Every question and answer here is rendered as visible text by
+         components/faq.tsx from the same source (lib/faq.ts) — Google only
+         honours FAQ markup the page actually shows, and an answer that
+         cannot be checked against the page is worse than none.
+         German, because <html lang="de"> and that is what an anonymous
+         crawler is served. */
+      '@type': 'FAQPage',
+      '@id': FAQ_ID,
+      inLanguage: 'de-DE',
+      isPartOf: { '@id': PAGE_ID },
+      about: { '@id': PERSON_ID },
+      mainEntity: FAQ_DE.map((entry) => ({
+        '@type': 'Question',
+        name: entry.question,
+        acceptedAnswer: { '@type': 'Answer', text: entry.answer },
+      })),
     },
   ],
 }

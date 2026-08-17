@@ -401,6 +401,7 @@ export function Hero() {
                 src={SRC}
                 srcMobile={SRC_MOBILE}
                 poster={POSTER}
+                alt="Kopf eines Roboters, dessen Bauteile sich voneinander lösen, mit leuchtendem neuronalem Netz im Inneren"
                 fit="contain"
                 className="h-full w-full mix-blend-lighten"
               />

@@ -47,10 +47,14 @@ const labelFace = Oswald({
 
 const SITE_URL = 'https://issahareb.me'
 const SITE_TITLE = 'Issa Hareb | Full-Stack & AI Engineer aus Essen'
+/* 156 characters. It was 206, which Bing's own URL inspection flags and
+   which both engines cut off around 160 anyway — the tail was being
+   written for nobody. The name leads, because that is the query this page
+   is trying to answer. */
 const SITE_DESCRIPTION =
-  'Issa Hareb entwickelt intelligente Systeme aus Essen: Websites, Webanwendungen, KI-Agenten und Automatisierungen. Oberfläche, Backend und Deployment aus einer Hand, von der ersten Idee bis zum Livebetrieb.'
+  'Issa Hareb entwickelt Websites, Webanwendungen, KI-Agenten und Automatisierungen. Oberfläche, Backend und Betrieb aus einer Hand. Aus Essen, deutschlandweit.'
 const SITE_DESCRIPTION_EN =
-  'Issa Hareb builds intelligent systems from Essen, Germany: websites, web applications, AI agents and automations. Interface, backend and deployment from one pair of hands.'
+  'Issa Hareb builds websites, web applications, AI agents and automations. Interface, backend and operation from one pair of hands. Based in Essen, Germany.'
 
 /** Entity ids. Stable, absolute and reused by every node in the graph, so a
  *  parser links them into one description of one person instead of three

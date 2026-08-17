@@ -24,11 +24,16 @@ export const ScrubVideo = forwardRef<
     src: string
     srcMobile?: string
     poster: string
+    /** Describes the poster frame. Empty means genuinely decorative. */
+    alt?: string
     className?: string
     style?: CSSProperties
     fit?: 'cover' | 'contain'
   }
->(function ScrubVideo({ src, srcMobile, poster, className = '', style, fit = 'cover' }, ref) {
+>(function ScrubVideo(
+  { src, srcMobile, poster, alt = '', className = '', style, fit = 'cover' },
+  ref,
+) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const posterRef = useRef<HTMLImageElement>(null)
@@ -384,19 +389,26 @@ export const ScrubVideo = forwardRef<
   }, [src, srcMobile, fit, blended])
 
   return (
-    <div aria-hidden style={style} className={`relative overflow-hidden ${className}`.trim()}>
+    /* `aria-hidden` used to sit here, on the wrapper, which hid the poster
+       along with the canvas. That was one decision too coarse: the moving
+       frames are decoration and should be skipped, but the poster is the
+       page's main picture and belongs in image search. The two elements
+       that carry no meaning are marked individually now, and the poster is
+       described. */
+    <div style={style} className={`relative overflow-hidden ${className}`.trim()}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         ref={posterRef}
         src={poster}
-        alt=""
+        alt={alt}
         style={fallbackMaskStyle}
         className={`absolute inset-0 h-full w-full transition-opacity duration-200 ${
           fit === 'cover' ? 'object-cover' : 'object-contain'
         }`}
       />
-      <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" />
+      <canvas aria-hidden ref={canvasRef} className="absolute inset-0 h-full w-full" />
       <video
+        aria-hidden
         ref={videoRef}
         muted
         playsInline

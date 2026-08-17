@@ -92,7 +92,11 @@ export function AboutIntro() {
           ) : (
             // The poster alone until then: same picture, no 29 MB.
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={POSTER} alt="" className="h-full w-full object-cover opacity-[0.9]" />
+            <img
+              src={POSTER}
+              alt="Blick über die Dächer von Essen bei Nacht, ein einzelnes Fenster violett beleuchtet"
+              className="h-full w-full object-cover opacity-[0.9]"
+            />
           )}
         </div>
         <div

@@ -114,6 +114,18 @@ export const metadata: Metadata = {
      document pointed at them. With no declaration a browser falls back to
      requesting /favicon.ico, which this site does not have, so every visit
      spent a request on a 404 and every tab showed a blank page icon. */
+  /* Ownership proofs for the webmaster tools.
+     Bing accepts either the meta tag or /BingSiteAuth.xml; both are in
+     place, because a verification that drops out silently is the kind of
+     thing nobody notices until an index goes stale. Bing's own note is
+     explicit that the tag has to stay after verification succeeds.
+     Google's token goes in beside it as `google:` once the Search Console
+     property is created. */
+  verification: {
+    other: {
+      'msvalidate.01': '9BFD7C2DBC8998DFAC0198132F9FB5B9',
+    },
+  },
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },

@@ -11,7 +11,14 @@ const SITE = 'https://issahareb.me'
  * this content is meant to be read and quoted, rather than something a
  * wildcard happens to permit by default.
  *
- * The only exclusion is /_next/, which is build output with no content.
+ * Nothing is excluded any more.
+ *
+ * `/_next/` used to be disallowed on the reasoning that build output is not
+ * content. It is not content, but Google fetches it to *render* the page,
+ * and Google's own guidance is explicit that blocking JavaScript and CSS
+ * stops it seeing what a visitor sees. Search Console reported the
+ * consequence on 17 Aug: three URLs under "Blocked by robots.txt".
+ * Hashed build assets are not indexable on their own and need no rule.
  */
 const AI_CRAWLERS = [
   // OpenAI: training, live browsing, and the search index respectively
@@ -40,7 +47,7 @@ const AI_CRAWLERS = [
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      { userAgent: '*', allow: '/', disallow: '/_next/' },
+      { userAgent: '*', allow: '/' },
       ...AI_CRAWLERS.map((userAgent) => ({ userAgent, allow: '/' })),
     ],
     sitemap: `${SITE}/sitemap.xml`,

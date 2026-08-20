@@ -98,8 +98,14 @@ Anlegen bzw. vervollständigen, jeweils mit exakt der Identität von oben:
 - [ ] **GitHub** — vorhanden, aber Profil mit vollem Namen, Ort, Website und
       Beschreibung füllen
 - [ ] **Instagram** (geschäftlich), falls vorhanden
-- [ ] **Google-Unternehmensprofil**, falls du als Selbstständiger eines
-      führst
+- [x] **Google-Unternehmensprofil** — angelegt als „Hareb Digital",
+      https://share.google/EUZlSQOOkoXIK0AMM. Google führt dafür bereits eine
+      eigene Knowledge-Graph-Entität (kgmid `/g/11zw_y65ct`). Im Graph
+      verbunden über den `ProfessionalService`-Knoten in `app/layout.tsx`.
+      Offen im Profil selbst: Website-Feld exakt `https://issahareb.me`,
+      Hauptkategorie „Softwareunternehmen" oder „Webdesigner", Anschrift
+      Europaring 90 / 53757 Sankt Augustin, Essen und Ruhrgebiet als
+      Dienstleistungsgebiet
 - [ ] Ein Verzeichniseintrag für Freiberufler/IT-Dienstleister
 
 Sobald eine URL existiert: in `app/layout.tsx` in das `sameAs`-Array

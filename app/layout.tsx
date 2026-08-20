@@ -63,6 +63,7 @@ const PERSON_ID = `${SITE_URL}/#person`
 const WEBSITE_ID = `${SITE_URL}/#website`
 const PAGE_ID = `${SITE_URL}/#webpage`
 const FAQ_ID = `${SITE_URL}/#faq`
+const ORGANIZATION_ID = `${SITE_URL}/#organization`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -223,6 +224,13 @@ const siteJsonLd = {
       },
       email: 'mailto:info@hareb.org',
       telephone: '+49-1525-9559708',
+      /* The sole trader and the name he trades under, stated in both
+         directions. Google verified "Hareb Digital" itself when it verified
+         the business profile, so that entity carries weight this page cannot
+         claim on its own — but only if the graph says the two are the same
+         operation. Without this edge they are two strangers who happen to
+         share an address. */
+      worksFor: { '@id': ORGANIZATION_ID },
       nationality: { '@type': 'Country', name: 'Germany' },
       knowsLanguage: ['de', 'en', 'es'],
       /* The registered address, matching the imprint exactly.
@@ -286,7 +294,8 @@ const siteJsonLd = {
          A knowledge panel is not granted by markup: Google builds it when
          several independent sources agree on one identity. taxibbessen.de
          carries seven (Instagram, Google Maps, Gelbe Seiten, Das Örtliche,
-         GoLocal, taxi.de, Creditreform); this carries three. Add each further
+         GoLocal, taxi.de, Creditreform); this carries three, plus the
+         verified business profile on the organisation node. Add each further
          profile here as it goes live — one line, and the name, location and
          role on it must match this file word for word, or it weakens the
          entity instead of confirming it.
@@ -297,6 +306,73 @@ const siteJsonLd = {
         'https://www.linkedin.com/in/issa-hareb-10a61642b',
         'https://www.xing.com/profile/Issa_Hareb02082',
       ],
+    },
+    /**
+     * Hareb Digital: the business, as distinct from the person running it.
+     *
+     * This node exists because a verified Google business profile does. That
+     * profile already resolved to a Knowledge Graph entity of its own
+     * (kgmid /g/11zw_y65ct), which is the thing this site has been trying to
+     * earn for months — except Google filed it under the company name, not
+     * under "Issa Hareb". Modelling only the person would leave that entity
+     * floating unattached, and a strong signal pointing at nothing helps
+     * nobody.
+     *
+     * ProfessionalService rather than plain Organization: it is the type
+     * Google's own documentation pairs with a business profile, and it is
+     * what this actually is — a service business with a seat, an area it
+     * serves, and a person behind it.
+     *
+     * Name, address and phone are copied from the imprint character for
+     * character, because that is the comparison Google runs. The address is
+     * the registered seat in Sankt Augustin; Essen and the Ruhrgebiet are
+     * areaServed, which is how a service-area business is meant to be
+     * expressed.
+     */
+    {
+      '@type': 'ProfessionalService',
+      '@id': ORGANIZATION_ID,
+      name: 'Hareb Digital',
+      /* The legal form is a sole proprietorship, so the person's own name is
+         the second name this business is found under. */
+      alternateName: 'Issa Hareb',
+      url: `${SITE_URL}/`,
+      description:
+        'Hareb Digital ist das Einzelunternehmen von Issa Hareb: Websites, Webanwendungen, KI-Agenten und Automatisierungen, entwickelt vom Entwurf bis zum laufenden Betrieb.',
+      founder: { '@id': PERSON_ID },
+      employee: { '@id': PERSON_ID },
+      email: 'mailto:info@hareb.org',
+      telephone: '+49-1525-9559708',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: 'Europaring 90',
+        postalCode: '53757',
+        addressLocality: 'Sankt Augustin',
+        addressRegion: 'Nordrhein-Westfalen',
+        addressCountry: 'DE',
+      },
+      /* Work is delivered remotely, so the seat is an address rather than a
+         shopfront. Stating the served area explicitly keeps the profile and
+         the markup telling the same story. */
+      areaServed: [
+        { '@type': 'City', name: 'Essen' },
+        { '@type': 'City', name: 'Sankt Augustin' },
+        { '@type': 'AdministrativeArea', name: 'Ruhrgebiet' },
+        { '@type': 'Country', name: 'Germany' },
+      ],
+      knowsLanguage: ['de', 'en', 'es'],
+      /* Not a schema.org core property but a legitimate use of `identifier`:
+         it hands a parser the exact Knowledge Graph node this business
+         already occupies, instead of asking it to infer one from the name. */
+      identifier: {
+        '@type': 'PropertyValue',
+        propertyID: 'Google Knowledge Graph',
+        value: 'kg:/g/11zw_y65ct',
+      },
+      /* The verified business profile. Google checked these details itself
+         before publishing them, which makes this the only entry in the whole
+         graph that is not simply this site vouching for itself. */
+      sameAs: ['https://share.google/EUZlSQOOkoXIK0AMM'],
     },
     {
       '@type': 'WebSite',

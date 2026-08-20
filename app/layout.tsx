@@ -286,7 +286,7 @@ const siteJsonLd = {
          A knowledge panel is not granted by markup: Google builds it when
          several independent sources agree on one identity. taxibbessen.de
          carries seven (Instagram, Google Maps, Gelbe Seiten, Das Örtliche,
-         GoLocal, taxi.de, Creditreform); this carries two. Add each further
+         GoLocal, taxi.de, Creditreform); this carries three. Add each further
          profile here as it goes live — one line, and the name, location and
          role on it must match this file word for word, or it weakens the
          entity instead of confirming it.
@@ -295,6 +295,7 @@ const siteJsonLd = {
       sameAs: [
         'https://github.com/fpissaip-source',
         'https://www.linkedin.com/in/issa-hareb-10a61642b',
+        'https://www.xing.com/profile/Issa_Hareb02082',
       ],
     },
     {

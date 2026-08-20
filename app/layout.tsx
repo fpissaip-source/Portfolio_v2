@@ -201,10 +201,26 @@ const siteJsonLd = {
       /* The spellings the name is actually searched and written in. This is
          the same device taxibbessen.de uses to hold "Taxi Essen", "Taxi BB
          Essen" and "BB Taxi Essen" as one entity instead of three. */
-      alternateName: ['Issa Hareb Essen', 'Hareb, Issa'],
+      alternateName: ['Hareb, Issa'],
       url: `${SITE_URL}/`,
       jobTitle: 'Full-Stack & AI Engineer',
       description: SITE_DESCRIPTION,
+      /* schema.org has a property for exactly this situation: telling one
+         entity apart from others that share its name. Searching "Issa
+         Hareb" currently surfaces a takeaway owner of the same name in
+         Berlin and a footballer spelled "Issa Harb" in Essen, and Google's
+         summary offers both because nothing distinguishes them from this
+         one. The sentence names what is different — the field, the work,
+         the site — rather than repeating the description. */
+      disambiguatingDescription:
+        'Issa Hareb aus Essen ist Full-Stack- und KI-Entwickler und betreibt issahareb.me. Nicht zu verwechseln mit gleichnamigen Personen in anderen Branchen oder mit dem ähnlich geschriebenen Namen Issa Harb.',
+      hasOccupation: {
+        '@type': 'Occupation',
+        name: 'Full-Stack- und KI-Entwickler',
+        occupationalCategory: '15-1252.00',
+        responsibilities:
+          'Entwicklung von Websites, Webanwendungen, KI-Agenten und Automatisierungen einschließlich Backend, Datenbank, Deployment und Betrieb.',
+      },
       email: 'mailto:info@hareb.org',
       telephone: '+49-1525-9559708',
       nationality: { '@type': 'Country', name: 'Germany' },

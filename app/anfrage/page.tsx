@@ -82,9 +82,9 @@ export default function AnfrageRoute() {
         </h1>
 
         <p className="mt-6 max-w-[56ch] text-pretty text-[19px] leading-[1.6] text-foreground/85 sm:text-[20px]">
-          Vier Fragen, zwei Minuten. Danach weiß ich genug, um dir zu sagen, was
-          dein Vorhaben realistisch kostet, wie lange es dauert und ob es sich
-          überhaupt lohnt.
+          Fünf Felder, zwei Minuten, eines davon freiwillig. Danach weiß ich
+          genug, um dir zu sagen, was dein Vorhaben realistisch kostet, wie
+          lange es dauert und ob es sich überhaupt lohnt.
         </p>
 
         <ul className="mt-9 grid gap-x-8 gap-y-4 sm:grid-cols-3">

@@ -204,6 +204,45 @@ const PROJECT_OPTIONS: Record<'de' | 'en' | 'es', readonly ProjectOption[]> = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+/**
+ * One field: number, label, input, baseline, glow, tick.
+ *
+ * A component rather than five copies of the same eight elements, and the
+ * reason is `data-filled`. Every visual state below — the label brightening,
+ * the rule staying drawn, the tick appearing — hangs off that one attribute
+ * in CSS. Written out by hand at each field it would drift, and the form
+ * would end up telling the visitor two different things about the same
+ * answer.
+ */
+function Field({
+  id,
+  index,
+  label,
+  filled,
+  children,
+}: {
+  id: string
+  index: string
+  label: string
+  filled: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <div className="enquiry-row" data-filled={filled ? 'true' : 'false'}>
+      <label className="enquiry-label" htmlFor={id}>
+        <span className="enquiry-num" aria-hidden>
+          {index}
+        </span>
+        {label}
+      </label>
+      {children}
+      <div className="enquiry-rule" />
+      <span className="enquiry-glow" aria-hidden />
+      <Check className="enquiry-done h-4 w-4" aria-hidden />
+    </div>
+  )
+}
+
 export function EnquiryForm() {
   const { lang } = useLanguage()
   const reduce = useReducedMotion()
@@ -327,7 +366,7 @@ export function EnquiryForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-7" noValidate>
+    <form onSubmit={onSubmit} className="space-y-9" noValidate>
       {/* Honeypot. Off-screen rather than display:none, which some bots skip,
           and hidden from assistive tech so nobody is ever asked to fill it. */}
       <div aria-hidden className="absolute left-[-9999px] top-0 h-0 w-0 overflow-hidden">
@@ -340,6 +379,7 @@ export function EnquiryForm() {
           they have started rather than a form they are facing. */}
       <ProjectTypeSelect
         name="projectType"
+        index="01"
         options={options}
         value={values.projectType}
         onChange={set('projectType')}
@@ -347,11 +387,8 @@ export function EnquiryForm() {
         placeholder={t.projectPlaceholder}
       />
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div>
-          <label className="enquiry-label" htmlFor="name">
-            {t.name}
-          </label>
+      <div className="grid gap-8 sm:grid-cols-2">
+        <Field id="name" index="02" label={t.name} filled={values.name.trim().length > 1}>
           <input
             id="name"
             name="name"
@@ -360,13 +397,16 @@ export function EnquiryForm() {
             placeholder={t.namePlaceholder}
             value={values.name}
             onChange={(e) => set('name')(e.target.value)}
-            className={`enquiry-field mt-2.5 ${values.name.trim() ? 'enquiry-field-filled' : ''}`}
+            className="enquiry-input mt-2"
           />
-        </div>
-        <div>
-          <label className="enquiry-label" htmlFor="email">
-            {t.email}
-          </label>
+        </Field>
+
+        <Field
+          id="email"
+          index="03"
+          label={t.email}
+          filled={EMAIL_RE.test(values.email.trim())}
+        >
           <input
             id="email"
             name="email"
@@ -377,17 +417,17 @@ export function EnquiryForm() {
             placeholder={t.emailPlaceholder}
             value={values.email}
             onChange={(e) => set('email')(e.target.value)}
-            className={`enquiry-field mt-2.5 ${
-              EMAIL_RE.test(values.email.trim()) ? 'enquiry-field-filled' : ''
-            }`}
+            className="enquiry-input mt-2"
           />
-        </div>
+        </Field>
       </div>
 
-      <div>
-        <label className="enquiry-label" htmlFor="company">
-          {t.company}
-        </label>
+      <Field
+        id="company"
+        index="04"
+        label={t.company}
+        filled={values.company.trim().length > 1}
+      >
         <input
           id="company"
           name="company"
@@ -395,27 +435,29 @@ export function EnquiryForm() {
           placeholder={t.companyPlaceholder}
           value={values.company}
           onChange={(e) => set('company')(e.target.value)}
-          className={`enquiry-field mt-2.5 ${values.company.trim() ? 'enquiry-field-filled' : ''}`}
+          className="enquiry-input mt-2"
         />
-      </div>
+      </Field>
 
       <div>
-        <label className="enquiry-label" htmlFor="message">
-          {t.message}
-        </label>
-        <textarea
+        <Field
           id="message"
-          name="message"
-          required
-          rows={6}
-          placeholder={t.messagePlaceholder}
-          value={values.message}
-          onChange={(e) => set('message')(e.target.value)}
-          className={`enquiry-field mt-2.5 resize-y ${
-            values.message.trim().length >= 10 ? 'enquiry-field-filled' : ''
-          }`}
-        />
-        <p className="mt-2.5 text-[15px] leading-[1.55] text-foreground/60">
+          index="05"
+          label={t.message}
+          filled={values.message.trim().length >= 10}
+        >
+          <textarea
+            id="message"
+            name="message"
+            required
+            rows={6}
+            placeholder={t.messagePlaceholder}
+            value={values.message}
+            onChange={(e) => set('message')(e.target.value)}
+            className="enquiry-input mt-2"
+          />
+        </Field>
+        <p className="mt-3 text-[15px] leading-[1.55] text-foreground/60">
           {t.messageHint}
         </p>
       </div>

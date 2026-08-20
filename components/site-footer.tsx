@@ -8,9 +8,15 @@ import { openConsentSettings } from '@/lib/consent'
 
 const SOCIALS = [
   { type: 'img' as const, src: '/logos/github.svg', href: 'https://github.com/fpissaip-source', label: 'GitHub' },
-  // LinkedIn intentionally absent: it shipped as href="#", which looks like
-  // a live profile link and instead jumps to the top of a 21,000px page.
-  // Restore it here with the real profile URL when there is one.
+  // Restored with the real profile URL. It had shipped as href="#", which
+  // looks like a live profile link and instead jumps to the top of a
+  // 21,000px page, so it was pulled until there was something to point at.
+  //
+  // The www form rather than de.linkedin.com: the locale subdomain is a
+  // mirror that redirects, and this URL is also the one in `sameAs` — a
+  // corroborating profile only corroborates if both places name it
+  // identically.
+  { type: 'img' as const, src: '/logos/linkedin.svg', href: 'https://www.linkedin.com/in/issa-hareb-10a61642b', label: 'LinkedIn' },
   { type: 'icon' as const, href: 'mailto:info@hareb.org', label: 'Email' },
 ]
 

@@ -712,3 +712,182 @@ body:has([data-lukas-launcher]) [data-mobile-menu] {
 body:has([data-lukas-launcher]) footer {
   padding-bottom: 6rem;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Die Anfrageseite.
+
+   Eigene Klassen statt einer langen Utility-Kette an jedem Feld, weil hier
+   Zustände beteiligt sind, die Tailwind nicht ausdrücken kann: der Fokusring
+   ist zweifarbig, das Menü hat eine eigene Tiefe, und der Absendeknopf
+   wechselt seine Animation, sobald das Formular vollständig ist.
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Feldbeschriftung. Oswald, versal, gesperrt — dieselbe Stimme wie die
+   Sektionslabels auf der Startseite, damit die Seite dazugehört und nicht
+   wie ein zugekauftes Formular wirkt. */
+.enquiry-label {
+  display: block;
+  font-family: var(--font-label);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, var(--foreground) 72%, transparent);
+}
+
+.enquiry-field {
+  width: 100%;
+  border-radius: 0.85rem;
+  border: 1px solid color-mix(in oklch, var(--foreground) 14%, transparent);
+  background: color-mix(in oklch, var(--foreground) 4%, transparent);
+  padding: 0.95rem 1.1rem;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--foreground);
+  transition:
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.enquiry-field::placeholder {
+  color: color-mix(in oklch, var(--foreground) 38%, transparent);
+}
+
+/* Ein ausgefülltes Feld sieht anders aus als ein leeres. Ohne das muss man
+   das Formular lesen, um zu wissen, wie weit man ist — mit ihm sieht man es. */
+.enquiry-field-filled {
+  border-color: color-mix(in oklch, var(--purple) 30%, transparent);
+  background: color-mix(in oklch, var(--purple) 6%, transparent);
+}
+
+.enquiry-field:focus,
+.enquiry-field:focus-visible,
+.enquiry-field-open {
+  outline: none;
+  border-color: color-mix(in oklch, var(--purple) 62%, transparent);
+  background: color-mix(in oklch, var(--purple) 8%, transparent);
+  /* Zwei Ringe: ein enger, klarer für die Sichtbarkeit und ein weiter,
+     weicher als Schein. Einer allein ist entweder hart oder unscharf. */
+  box-shadow:
+    0 0 0 3px color-mix(in oklch, var(--purple) 26%, transparent),
+    0 0 34px -6px color-mix(in oklch, var(--purple) 42%, transparent);
+}
+
+.enquiry-menu {
+  border-radius: 1.1rem;
+  border: 1px solid color-mix(in oklch, var(--purple) 26%, transparent);
+  /* Deckend, nicht durchscheinend: durch ein Menü hindurch den Text
+     darunter zu lesen ist genau die Art von Effekt, die auf dem Bildschirm
+     des Entwicklers gut aussieht und auf dem des Besuchers unlesbar ist. */
+  background: color-mix(in oklch, #0c0d12 96%, var(--purple));
+  box-shadow:
+    0 28px 60px -18px rgb(0 0 0 / 0.75),
+    0 0 0 1px rgb(255 255 255 / 0.04) inset;
+}
+
+.enquiry-menu-highlight {
+  background: color-mix(in oklch, var(--purple) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--purple) 34%, transparent);
+}
+
+/* ── Der Absendeknopf ──────────────────────────────────────────────────────
+   Er pulsiert von Anfang an, damit klar ist, wo diese Seite hinführt. Sobald
+   alles Nötige ausgefüllt ist, wechselt er die Farbe und pulsiert deutlicher.
+   Das ist kein Schmuck: es ist die Antwort auf "bin ich fertig?", ohne dass
+   jemand das Formular noch einmal von oben durchsehen muss. */
+@keyframes enquiry-pulse-idle {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(255 255 255 / 0.16);
+  }
+  50% {
+    box-shadow: 0 0 0 9px rgb(255 255 255 / 0);
+  }
+}
+
+@keyframes enquiry-pulse-ready {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 color-mix(in oklch, var(--purple) 55%, transparent),
+      0 14px 40px -12px color-mix(in oklch, var(--purple) 70%, transparent);
+  }
+  50% {
+    box-shadow:
+      0 0 0 16px color-mix(in oklch, var(--purple) 0%, transparent),
+      0 18px 52px -10px color-mix(in oklch, var(--purple) 85%, transparent);
+  }
+}
+
+.enquiry-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 0.85rem;
+  background: color-mix(in oklch, var(--foreground) 92%, transparent);
+  color: #050505;
+  /* Der Farbwechsel ist der eigentliche Übergang und darf nicht schnappen —
+     0.55s ist lang genug, um als Bewegung gelesen zu werden. */
+  transition:
+    background-color 0.55s ease,
+    color 0.55s ease,
+    transform 0.2s ease;
+  animation: enquiry-pulse-idle 3.4s ease-in-out infinite;
+}
+
+.enquiry-cta:hover {
+  transform: translateY(-1px);
+}
+
+.enquiry-cta-ready {
+  background: linear-gradient(
+    100deg,
+    var(--accent-soft) 0%,
+    var(--purple) 52%,
+    var(--blue) 100%
+  );
+  color: #0a0410;
+  animation: enquiry-pulse-ready 1.9s ease-in-out infinite;
+}
+
+/* Der Schimmer läuft nur im fertigen Zustand. Vorher wäre er Dekoration,
+   nachher ist er die Bestätigung, dass sich etwas geändert hat. */
+.enquiry-cta-ready::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgb(255 255 255 / 0.42) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  animation: enquiry-sheen 2.8s ease-in-out infinite;
+}
+
+@keyframes enquiry-sheen {
+  0%,
+  55% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Wer Bewegung abgeschaltet hat, bekommt den Zustandswechsel trotzdem — nur
+   als Farbe und Ring statt als Puls. Die Information darf nicht an der
+   Animation hängen. */
+@media (prefers-reduced-motion: reduce) {
+  .enquiry-cta,
+  .enquiry-cta-ready,
+  .enquiry-cta-ready::after {
+    animation: none;
+  }
+  .enquiry-cta-ready {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--purple) 45%, transparent);
+  }
+}

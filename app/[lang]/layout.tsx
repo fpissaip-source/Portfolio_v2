@@ -1,9 +1,23 @@
 import type { Metadata, Viewport } from 'next'
 import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
 import { LanguageProvider } from '@/components/language-context'
-import { FAQ_DE } from '@/lib/faq'
-import './globals.css'
-import './elegant-headings.css'
+import { FAQ_DE, FAQ_EN, FAQ_ES } from '@/lib/faq'
+import {
+  alternatesFor,
+  DEFAULT_LANG,
+  HREFLANG,
+  isLang,
+  LANGS,
+  langUrl,
+  OG_LOCALE,
+  type Lang,
+} from '@/lib/i18n'
+
+/** Die Route liefert einen beliebigen String; hier wird daraus eine der drei
+ *  Sprachen oder Deutsch. */
+const toLang = (value: string): Lang => (isLang(value) ? value : DEFAULT_LANG)
+import '../globals.css'
+import '../elegant-headings.css'
 
 /* ── Four typefaces, four jobs ────────────────────────────────────────────
    The old set was Geist + Geist Mono + Bricolage Grotesque + Space Grotesk:
@@ -55,6 +69,26 @@ const SITE_DESCRIPTION =
   'Issa Hareb entwickelt Websites, Webanwendungen, KI-Agenten und Automatisierungen. Oberfläche, Backend und Betrieb aus einer Hand. Aus Essen, deutschlandweit.'
 const SITE_DESCRIPTION_EN =
   'Issa Hareb builds websites, web applications, AI agents and automations. Interface, backend and operation from one pair of hands. Based in Essen, Germany.'
+const SITE_DESCRIPTION_ES =
+  'Issa Hareb desarrolla webs, aplicaciones, agentes de IA y automatizaciones. Interfaz, backend y operación de una sola mano. Desde Essen, Alemania.'
+
+/* Ein Satz pro Sprache, nicht eine Übersetzung des deutschen.
+   Der Name steht in allen dreien vorn, weil das die Suchanfrage ist, die
+   diese Seite beantworten soll — der Rest darf sich lesen, als wäre er in
+   der jeweiligen Sprache geschrieben worden. */
+const TITLES: Record<Lang, string> = {
+  de: SITE_TITLE,
+  en: 'Issa Hareb | Full-Stack & AI Engineer from Essen, Germany',
+  es: 'Issa Hareb | Desarrollador Full-Stack e IA desde Essen',
+}
+
+const DESCRIPTIONS: Record<Lang, string> = {
+  de: SITE_DESCRIPTION,
+  en: SITE_DESCRIPTION_EN,
+  es: SITE_DESCRIPTION_ES,
+}
+
+const FAQ_BY_LANG = { de: FAQ_DE, en: FAQ_EN, es: FAQ_ES } as const
 
 /** Entity ids. Stable, absolute and reused by every node in the graph, so a
  *  parser links them into one description of one person instead of three
@@ -84,34 +118,56 @@ const PAGE_ID = `${SITE_URL}/#webpage`
 const FAQ_ID = `${SITE_URL}/#faq`
 const ORGANIZATION_ID = `${SITE_URL}/#hareb-digital`
 
-export const metadata: Metadata = {
+/**
+ * Titel, Beschreibung und vor allem die Sprachverweise.
+ *
+ * Bis hierher stand in `alternates.languages` dreimal derselbe Pfad, mit dem
+ * ehrlichen Kommentar: eine URL bedient beide Sprachen, der Wechsel passiert
+ * im Browser. Das war korrekt beschrieben und trotzdem wertlos — hreflang
+ * ohne unterschiedliche Adressen sagt einem Crawler nichts.
+ *
+ * Jetzt hat jede Sprache ihre eigene Adresse, und jede Seite nennt alle drei
+ * plus x-default. Damit weiss eine Suchmaschine, dass es dieselbe Seite in
+ * drei Fassungen ist, statt drei Seiten mit verdaechtig aehnlichem Inhalt.
+ */
+export function generateStaticParams() {
+  return LANGS.map((lang) => ({ lang }))
+}
+
+/* Alles ausserhalb der drei bekannten Sprachen ist keine Seite. Ohne diese
+   Zeile wuerde `[lang]` jeden beliebigen ersten Pfadteil annehmen und eine
+   deutsche Seite unter einer erfundenen Adresse ausliefern. */
+export const dynamicParams = false
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>
+}): Promise<Metadata> {
+  /* Next typisiert den Parameter als string, nicht als Vereinigung der drei
+     Sprachen — die Route weiss nicht, was generateStaticParams zurueckgibt.
+     Also hier einengen statt die Signatur zu erzwingen: `dynamicParams =
+     false` sorgt dafuer, dass nie etwas anderes ankommt, und der Rueckfall
+     auf Deutsch macht daraus trotzdem keinen Absturz. */
+  const lang = toLang((await params).lang)
+  return {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: SITE_TITLE,
+    default: TITLES[lang],
     template: '%s | Issa Hareb',
   },
-  description: SITE_DESCRIPTION,
+  description: DESCRIPTIONS[lang],
   applicationName: 'Issa Hareb',
   authors: [{ name: 'Issa Hareb', url: SITE_URL }],
   creator: 'Issa Hareb',
   publisher: 'Issa Hareb',
   category: 'technology',
-  alternates: {
-    /* Emits "https://issahareb.me" without a trailing slash: Next
-       normalises absolute metadata URLs and strips it, and passing the
-       slash explicitly does not survive that. Harmless — an empty path is
-       the same URL as "/" per RFC 3986, and both crawlers normalise it —
-       but the sitemap has to use the identical spelling, or the two
-       disagree about which URL they are talking about. */
-    canonical: '/',
-    languages: {
-      // One URL serves both languages (the switch is client-side), so both
-      // hreflang values point at it rather than at pages that don't exist.
-      'de-DE': '/',
-      'en': '/',
-      'x-default': '/',
-    },
-  },
+  /* Liefert "https://issahareb.me" ohne Schrägstrich am Ende: Next
+     normalisiert absolute Metadaten-URLs und streift ihn ab. Harmlos — ein
+     leerer Pfad ist dieselbe URL wie "/" nach RFC 3986 —, aber die Sitemap
+     muss dieselbe Schreibweise verwenden, sonst reden beide über
+     verschiedene Adressen. */
+  alternates: alternatesFor(lang),
   // Explicit rather than inherited: the defaults cap snippet length and
   // image previews, which is the opposite of what a site written to be
   // quoted by answer engines wants.
@@ -127,18 +183,18 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
+    title: TITLES[lang],
+    description: DESCRIPTIONS[lang],
+    url: langUrl(lang),
     siteName: 'Issa Hareb',
     type: 'profile',
-    locale: 'de_DE',
-    alternateLocale: ['en_US'],
+    locale: OG_LOCALE[lang],
+    alternateLocale: LANGS.filter((l) => l !== lang).map((l) => OG_LOCALE[l]),
   },
   twitter: {
     card: 'summary_large_image',
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION_EN,
+    title: TITLES[lang],
+    description: DESCRIPTIONS[lang],
   },
   /* The icon files were in /public and served fine, but nothing in the
      document pointed at them. With no declaration a browser falls back to
@@ -190,6 +246,7 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/apple-icon-v2.png', sizes: '180x180', type: 'image/png' }],
   },
+  }
 }
 
 /**
@@ -234,7 +291,22 @@ const OFFERS = [
   },
 ]
 
-const siteJsonLd = {
+/**
+ * Der Graph, jetzt in der Sprache der Seite.
+ *
+ * Vorher lag hier ein fester deutscher Graph, der auch unter einer
+ * englischen Fassung ausgeliefert worden wäre. Eine FAQPage, deren Antworten
+ * in einer anderen Sprache stehen als die Seite, ist für eine Antwortmaschine
+ * kein Gewinn, sondern ein Widerspruch — und Google wertet FAQ-Auszeichnung
+ * ohnehin nur, wenn derselbe Text sichtbar auf der Seite steht.
+ *
+ * Person, Anschrift und Bezeichner bleiben in allen drei Fassungen identisch.
+ * Sie sind die Entität, und eine Entität wechselt nicht die Identität, nur
+ * weil jemand die Sprache umstellt.
+ */
+function buildJsonLd(lang: Lang) {
+  const faq = FAQ_BY_LANG[lang]
+  return {
   '@context': 'https://schema.org',
   '@graph': [
     {
@@ -433,10 +505,10 @@ const siteJsonLd = {
     {
       '@type': 'ProfilePage',
       '@id': PAGE_ID,
-      url: `${SITE_URL}/`,
-      name: SITE_TITLE,
-      description: SITE_DESCRIPTION,
-      inLanguage: 'de-DE',
+      url: langUrl(lang),
+      name: TITLES[lang],
+      description: DESCRIPTIONS[lang],
+      inLanguage: HREFLANG[lang],
       isPartOf: { '@id': WEBSITE_ID },
       about: { '@id': PERSON_ID },
       mainEntity: { '@id': PERSON_ID },
@@ -451,20 +523,22 @@ const siteJsonLd = {
          components/faq.tsx from the same source (lib/faq.ts) — Google only
          honours FAQ markup the page actually shows, and an answer that
          cannot be checked against the page is worse than none.
-         German, because <html lang="de"> and that is what an anonymous
-         crawler is served. */
+         In der Sprache der Seite: eine FAQPage, deren Antworten anders
+         lauten als der sichtbare Text darunter, ist kein Gewinn, sondern
+         ein Widerspruch. */
       '@type': 'FAQPage',
       '@id': FAQ_ID,
-      inLanguage: 'de-DE',
+      inLanguage: HREFLANG[lang],
       isPartOf: { '@id': PAGE_ID },
       about: { '@id': PERSON_ID },
-      mainEntity: FAQ_DE.map((entry) => ({
+      mainEntity: faq.map((entry) => ({
         '@type': 'Question',
         name: entry.question,
         acceptedAnswer: { '@type': 'Answer', text: entry.answer },
       })),
     },
   ],
+  }
 }
 
 export const viewport: Viewport = {
@@ -474,25 +548,33 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params,
 }: Readonly<{
   children: React.ReactNode
+  params: Promise<{ lang: string }>
 }>) {
+  const lang = toLang((await params).lang)
   return (
     <html
-      lang="de"
+      /* Stand fest auf "de", auch wenn der Besucher auf Englisch umgestellt
+         hatte. Ein falsches lang-Attribut betrifft nicht nur Suchmaschinen:
+         ein Screenreader spricht den Text dann mit deutscher Aussprache
+         vor. Jetzt kommt es aus der Adresse und ist im ersten ausgelieferten
+         HTML schon richtig. */
+      lang={HREFLANG[lang]}
       className={`${bodyFace.variable} ${headingFace.variable} ${posterFace.variable} ${labelFace.variable} bg-background`}
     >
       <head>
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(buildJsonLd(lang)) }}
         />
       </head>
       <body className="antialiased">
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider lang={lang}>{children}</LanguageProvider>
         {/* @vercel/analytics is deliberately not mounted. This site is
             deployed on Railway, not Vercel, so the script it injects —
             /_vercel/insights/script.js — is served by nothing: verified 404

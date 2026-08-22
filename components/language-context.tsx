@@ -1,24 +1,34 @@
 'use client'
 
+import { usePathname, useRouter } from 'next/navigation'
+import { langPath, stripLangPrefix } from '@/lib/i18n'
+
 import {
   createContext,
   useContext,
   useEffect,
   useLayoutEffect,
   useRef,
-  useState,
   type ReactNode,
 } from 'react'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { EN, DE, type Dictionary } from '@/lib/translations'
 import { ES } from '@/lib/translations-es'
 
-export type Lang = 'de' | 'en' | 'es'
+/* Eine Definition, zwei Orte, die sie brauchen. Die Middleware und die
+   Metadaten koennen keinen Client-Kontext importieren, also liegt die Wahrheit
+   in lib/i18n und wird hier nur weitergereicht — zwei getrennte Listen der
+   Sprachen waeren genau die Sorte Duplikat, die irgendwann auseinanderlaeuft. */
+export type { Lang } from '@/lib/i18n'
+import type { Lang } from '@/lib/i18n'
 
 const STORAGE_KEY = 'site-lang'
 
 type LanguageContextValue = {
-  lang: Lang | null
+  /* Nicht mehr nullable. Frueher stand hier null, bis der Effekt im Browser
+     die gespeicherte Sprache gelesen hatte; jetzt kommt sie mit der Adresse
+     und steht schon beim Serverrendern fest. */
+  lang: Lang
   setLang: (lang: Lang) => void
 }
 
@@ -222,24 +232,40 @@ const DE_REFINED: Dictionary = {
   },
 }
 
-export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang | null>(null)
+/**
+ * Die Sprache kommt aus der Adresse, nicht mehr aus dem Browser.
+ *
+ * Vorher entschied localStorage — oder, beim ersten Besuch,
+ * `navigator.language`. Für einen Menschen war das bequem, für eine
+ * Suchmaschine unbrauchbar: es gab genau eine Adresse, sie lieferte immer
+ * deutschen Text aus, und die englische und spanische Fassung existierte
+ * für einen Crawler nicht.
+ *
+ * Jetzt bestimmt `/`, `/en` oder `/es`, was ausgeliefert wird — schon im
+ * ersten HTML, ohne dass JavaScript gelaufen sein muss. localStorage
+ * entscheidet nichts mehr; es merkt sich die Wahl nur noch für den
+ * nächsten Besuch über die blanke Adresse.
+ */
+export function LanguageProvider({
+  children,
+  lang,
+}: {
+  children: ReactNode
+  lang: Lang
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
 
   useLayoutEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY)
-    if (stored === 'de' || stored === 'en' || stored === 'es') {
-      setLangState(stored)
-      return
+    /* Nicht mehr die Quelle der Wahrheit, aber weiterhin nützlich: wer
+       später issahareb.me ohne Präfix aufruft, soll dort landen, wo er
+       zuletzt war. Die Weiterleitung dafür passiert in der Middleware. */
+    try {
+      window.localStorage.setItem(STORAGE_KEY, lang)
+    } catch {
+      /* Privates Fenster, gesperrter Speicher — die Seite funktioniert
+         auch ohne diese Bequemlichkeit. */
     }
-
-    const browserLanguage = (navigator.languages?.[0] ?? navigator.language).toLowerCase()
-    if (browserLanguage.startsWith('de')) setLangState('de')
-    else if (browserLanguage.startsWith('es')) setLangState('es')
-    else setLangState('en')
-  }, [])
-
-  useLayoutEffect(() => {
-    if (lang) document.documentElement.lang = lang
   }, [lang])
 
   const firstLangRef = useRef(true)
@@ -256,9 +282,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(frame)
   }, [lang])
 
+  /**
+   * Sprachwechsel heisst jetzt Seitenwechsel.
+   *
+   * Vorher wurde nur der Zustand getauscht; die Adresse blieb dieselbe.
+   * Damit liess sich eine englische Fassung weder verlinken noch teilen
+   * noch als Lesezeichen ablegen — und genau das ist es, was eine
+   * Suchmaschine indexiert. Der Wechsel führt auf denselben Pfad in der
+   * anderen Sprache, nicht auf die Startseite: wer auf /impressum steht
+   * und auf Englisch stellt, will /en/impressum sehen.
+   */
   const setLang = (next: Lang) => {
-    window.localStorage.setItem(STORAGE_KEY, next)
-    setLangState(next)
+    if (next === lang) return
+    try {
+      window.localStorage.setItem(STORAGE_KEY, next)
+    } catch {}
+    router.push(langPath(next, stripLangPrefix(pathname ?? '/')))
   }
 
   return (

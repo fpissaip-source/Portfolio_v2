@@ -1,29 +1,50 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
+import '../globals.css'
 
 /**
- * The customer-facing group.
+ * Die Kundenseite — und ein eigenes Wurzel-Layout, kein geschachteltes.
  *
- * It exists as its own layout for one reason: everything Hareb Digital shows
- * a paying stranger has different obligations from everything the portfolio
- * shows a fellow engineer. The portfolio may be loud and heavy; this must be
- * quick and plain, and the two must not be able to leak into each other by
- * accident.
+ * Seit die Sprachen eigene Adressen haben, liegt das bisherige Wurzel-Layout
+ * unter `app/[lang]/`. Damit gibt es kein `app/layout.tsx` mehr, das `<html>`
+ * und `<body>` für alle Zweige aufspannt, und jeder oberste Zweig muss es
+ * selbst tun. Ohne das lieferte /start ein Dokument ohne html- und
+ * body-Element aus — gemessen, nicht vermutet.
  *
- * Right now it is nested under the root layout, which is lean enough to
- * carry it — html, four font variables, the JSON-LD graph and the language
- * provider, no Lenis, no GSAP, no three.js. Once the customer domain exists,
- * the portfolio moves into a `(portfolio)` group of its own and a middleware
- * decides between them by hostname. Nothing written here changes at that
- * point, which is the whole point of putting it in a group now.
+ * Das ist kein Umweg, sondern der Grund, warum die Trennung überhaupt gewollt
+ * ist: Hareb Digital soll nicht den Graphen, die Metadaten und die Sprachlogik
+ * des Portfolios erben. Es teilt sich die Schriften und die Farbtoken, sonst
+ * nichts.
  *
- * `noindex` until then. The page is reachable at /start so it can be looked
- * at, and a page that is going to live somewhere else must not first collect
- * rankings under the portfolio's domain and then compete with itself.
+ * `noindex`, solange die eigene Domain fehlt. Eine Seite, die erst unter
+ * issahareb.me Bewertungen sammelt und danach umzieht, träte gegen sich
+ * selbst an.
  */
+
+const bodyFace = Source_Sans_3({ subsets: ['latin'], variable: '--font-body-face' })
+const headingFace = League_Spartan({ subsets: ['latin'], variable: '--font-heading-face' })
+const posterFace = Anton({ subsets: ['latin'], weight: ['400'], variable: '--font-poster-face' })
+const labelFace = Oswald({ subsets: ['latin'], variable: '--font-label-face' })
+
 export const metadata: Metadata = {
+  metadataBase: new URL('https://issahareb.me'),
   robots: { index: false, follow: false },
 }
 
+export const viewport: Viewport = {
+  colorScheme: 'dark',
+  themeColor: '#07070c',
+  width: 'device-width',
+  initialScale: 1,
+}
+
 export default function KundenLayout({ children }: { children: React.ReactNode }) {
-  return <div className="hd bg-[#07070c] text-white">{children}</div>
+  return (
+    <html
+      lang="de"
+      className={`${bodyFace.variable} ${headingFace.variable} ${posterFace.variable} ${labelFace.variable}`}
+    >
+      <body className="hd bg-[#07070c] text-white antialiased">{children}</body>
+    </html>
+  )
 }

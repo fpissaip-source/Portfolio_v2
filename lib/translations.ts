@@ -671,7 +671,13 @@ export const EN: Dictionary = {
     impressum: [
       {
         heading: 'Information according to § 5 DDG',
-        body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Germany'],
+        body: [
+          'Hareb Digital',
+          'Owner: Issa Hareb',
+          'Europaring 90',
+          '53757 Sankt Augustin',
+          'Germany',
+        ],
       },
       {
         heading: 'Contact',
@@ -693,7 +699,7 @@ export const EN: Dictionary = {
         heading: 'Controller',
         body: [
           'The controller for data processing on this website is:',
-          'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Germany',
+          'Issa Hareb (Hareb Digital), Europaring 90, 53757 Sankt Augustin, Germany',
           'Email: Impressum@hareb.org · Phone: +49 1525 9559708',
         ],
       },
@@ -1114,7 +1120,13 @@ export const DE: Dictionary = {
     impressum: [
       {
         heading: 'Angaben gemäß § 5 DDG',
-        body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Deutschland'],
+        body: [
+          'Hareb Digital',
+          'Inhaber: Issa Hareb',
+          'Europaring 90',
+          '53757 Sankt Augustin',
+          'Deutschland',
+        ],
       },
       {
         heading: 'Kontakt',
@@ -1136,7 +1148,7 @@ export const DE: Dictionary = {
         heading: 'Verantwortlicher',
         body: [
           'Verantwortlich für die Datenverarbeitung auf dieser Website ist:',
-          'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Deutschland',
+          'Issa Hareb (Hareb Digital), Europaring 90, 53757 Sankt Augustin, Deutschland',
           'E-Mail: Impressum@hareb.org · Telefon: 01525 9559708',
         ],
       },

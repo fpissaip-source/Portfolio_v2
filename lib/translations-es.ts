@@ -399,7 +399,13 @@ export const ES: Dictionary = {
     impressum: [
       {
         heading: 'Información conforme al § 5 DDG',
-        body: ['Issa Hareb', 'Europaring 90', '53757 Sankt Augustin', 'Alemania'],
+        body: [
+          'Hareb Digital',
+          'Titular: Issa Hareb',
+          'Europaring 90',
+          '53757 Sankt Augustin',
+          'Alemania',
+        ],
       },
       {
         heading: 'Contacto',
@@ -421,7 +427,7 @@ export const ES: Dictionary = {
         heading: 'Responsable del tratamiento',
         body: [
           'El responsable del tratamiento de datos en este sitio web es:',
-          'Issa Hareb, Europaring 90, 53757 Sankt Augustin, Alemania',
+          'Issa Hareb (Hareb Digital), Europaring 90, 53757 Sankt Augustin, Alemania',
           'Correo: Impressum@hareb.org · Teléfono: +49 1525 9559708',
         ],
       },

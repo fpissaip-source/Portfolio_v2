@@ -24,6 +24,18 @@ const SOCIALS = [
   // and inventing a path for a trademarked mark from memory renders
   // garbage; the letters are unambiguous at this size and cost nothing.
   { type: 'text' as const, href: 'https://www.xing.com/profile/Issa_Hareb02082', label: 'Xing', mark: 'Xg' },
+  // Das verifizierte Unternehmensprofil. Es steht laengst im sameAs-Array,
+  // war aber nirgends auf der Seite verlinkt — und genau das ist der
+  // Unterschied, den diese Datei an anderer Stelle selbst benennt: eine
+  // Identitaetsbehauptung, die die Seite nicht auch sichtbar macht, ist die
+  // schwaechere. Von allen Quellen im Graphen ist dies die einzige, deren
+  // Angaben Google selbst geprueft hat, bevor es sie veroeffentlicht hat.
+  {
+    type: 'text' as const,
+    href: 'https://share.google/EUZlSQOOkoXIK0AMM',
+    label: 'Google-Unternehmensprofil',
+    mark: 'G',
+  },
   { type: 'icon' as const, href: 'mailto:info@hareb.org', label: 'Email' },
 ]
 
@@ -88,8 +100,12 @@ export function SiteFooter() {
           >
             {t.consent.footerLink}
           </button>
+          {/* Die Geschaeftsbezeichnung gehoert sichtbar auf die Seite, nicht
+              nur ins Impressum und in die strukturierten Daten. Google prueft
+              das eine gegen das andere, und ein Name, den nur der Quelltext
+              kennt, bestaetigt nichts. */}
           <p>
-            &copy; {new Date().getFullYear()} · {t.footer.copyright}
+            &copy; {new Date().getFullYear()} · Hareb Digital · {t.footer.copyright}
           </p>
         </div>
       </div>

@@ -117,6 +117,66 @@ Entität, statt sie zu stützen.
 
 ---
 
+## 4b. Registereinträge — der eigentliche Hebel
+
+Google hat den Grund am 22.08.2026 selbst genannt. Auf die Suche nach
+„issa hareb" antwortete der KI-Modus mit dem Berliner Gastronomen und
+begründete das so:
+
+> „… durch eine deutlich höhere digitale Präsenz (**Sicherer Eintrag im
+> Handelsregister und Impressum**) in den Suchergebnissen dominierte.
+> Persönliche Portfolio-Websites wie issahareb.me sind für Suchmaschinen
+> oft schwerer eindeutig zuzuordnen."
+
+Das ist die Auskunft, auf die es ankommt. Nicht Design, nicht Keywords,
+nicht noch ein Absatz auf der Startseite: **unabhängige Registerdaten**.
+Der Berliner Treffer gewinnt, weil ihn eine Stelle dokumentiert, die
+nicht ihm gehört. Die Seite hier kann über sich behaupten, was sie will —
+sie bleibt eine Quelle, die sich selbst bestätigt.
+
+On-Page ist damit weitgehend ausgereizt. Was jetzt zählt, steht unten und
+kann **nur Issa selbst** erledigen.
+
+### In dieser Reihenfolge
+
+- [ ] **Creditreform-Firmeneintrag** (`firmeneintrag.creditreform.de`).
+      Genau die Quelle, die den Berliner Namensvetter auf Platz 2 der
+      Namenssuche trägt. Ein Basiseintrag ist kostenlos. Höchste Wirkung
+      pro Aufwand.
+- [ ] **Gelbe Seiten**, **Das Örtliche**, **GoLocal** — dieselben drei,
+      die taxibbessen.de tragen. Kostenlos, redaktionell geprüft.
+- [ ] **IHK-Eintrag** prüfen. Mit angemeldetem Gewerbe besteht die
+      Mitgliedschaft ohnehin; der Eintrag im IHK-Verzeichnis ist eine
+      unabhängige Bestätigung durch eine Körperschaft des öffentlichen
+      Rechts.
+- [ ] **wlw** (Wer liefert was) oder ein IT-Dienstleisterverzeichnis für
+      den B2B-Kontext.
+
+### Handelsregister — die stärkste Option, mit Preis
+
+Ein Einzelunternehmen steht **nicht** automatisch im Handelsregister; das
+gilt für e.K., OHG, KG, GmbH. Eine freiwillige Eintragung als
+**„Hareb Digital e.K."** ist möglich und wäre das stärkste Einzelsignal
+überhaupt — genau das, was Google oben beim Berliner Treffer benennt.
+
+Sie ist aber keine SEO-Maßnahme, sondern eine unternehmerische
+Entscheidung: mit der Eintragung gilt das HGB, es entstehen
+Buchführungspflichten, und die Firmierung ist bindend. Vor einem
+Notartermin mit Steuerberater sprechen. Nicht wegen einer Suchmaschine
+eintragen lassen — nur wenn es geschäftlich ohnehin passt.
+
+### Was bereits erledigt ist
+
+Das Impressum nennt seit dem 22.08.2026 „Hareb Digital / Inhaber: Issa
+Hareb" statt nur des Personennamens, und die Geschäftsbezeichnung steht
+sichtbar im Fußbereich jeder Seite. Das Unternehmensprofil ist verifiziert
+und im Fußbereich verlinkt, nicht nur im `sameAs`-Array. Damit stimmen
+Impressum, strukturierte Daten und Profil zeichengenau überein — das ist
+die Voraussetzung dafür, dass ein Registereintrag überhaupt zugeordnet
+werden kann, nicht ihr Ersatz.
+
+---
+
 ## 5. Eingehende Links
 
 Crawler finden Seiten über Links. Eine Domain ohne einen einzigen

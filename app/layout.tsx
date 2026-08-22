@@ -148,10 +148,15 @@ export const metadata: Metadata = {
      eine einzige herunterzurechnen.
 
      Hell und dunkel zeigen dasselbe Bild: die Marke bringt ihren eigenen
-     dunklen Grund mit, sie braucht also keine zweite Fassung. */
+     dunklen Grund mit, sie braucht also keine zweite Fassung.
+
+     Kein icon.svg mehr. Dort lag ein Nachbau der Marke, solange die
+     Originaldatei fehlte; jetzt liegt sie vor. Beides nebeneinander haette
+     bedeutet, dass ein Browser mit SVG-Unterstuetzung ein anderes Zeichen
+     zeigt als einer ohne — zwei Marken fuer dieselbe Firma, je nach
+     Browser. Ein Zeichen, in mehreren Groessen. */
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
       { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },

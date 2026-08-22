@@ -1291,3 +1291,26 @@ button.enquiry-input {
     transform: none;
   }
 }
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Dekorative Buchstaben.
+
+   Die animierten Schlagzeilen zeichnen jeden Buchstaben einzeln, damit sie
+   nacheinander aufleuchten können. Solange dabei echte Textknoten entstehen,
+   steht der Satz ein zweites Mal im Dokument — und beim dreilagigen
+   Namenszug stand dort IIICCCHHH statt ICH. `aria-hidden` verhindert das
+   nicht: es gilt für Screenreader, nicht für Crawler.
+
+   Erzeugter Inhalt löst das. Er wird gerendert, er wird gemessen, er erbt
+   Schrift, Farbe und Laufweite — aber er ist kein DOM-Text. Die lesbare
+   Fassung steht daneben genau einmal als sr-only, und damit sieht ein
+   Crawler dasselbe wie ein Mensch: einen Satz, nicht drei.
+   ───────────────────────────────────────────────────────────────────────── */
+.lit-char::before {
+  content: attr(data-ch);
+}
+
+.lit-line::before {
+  content: attr(data-text);
+}

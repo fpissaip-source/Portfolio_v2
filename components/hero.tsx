@@ -34,9 +34,20 @@ function LitWord({ word }: { word: string }) {
         // headline is a grey smudge for the first second of the visit. A
         // reveal is only worth having if the thing revealed was legible
         // the whole time.
-        <span key={i} data-lit style={{ opacity: 0.45 }} className="inline-block">
-          {ch}
-        </span>
+        // Der Buchstabe steht in `data-ch` und wird per ::before gezeichnet,
+        // nicht als Textknoten. Grund: darüber liegt bereits eine saubere
+        // sr-only-Fassung derselben Überschrift. Ein Crawler liest aria-hidden
+        // nicht als "ignorieren" — das gilt nur für Screenreader —, also stand
+        // die Schlagzeile zweimal im Dokument. Erzeugter Inhalt gehört nicht
+        // zum DOM-Text und wird nicht ausgelesen; gerendert, gemessen und von
+        // GSAP animiert wird er trotzdem, denn die Deckkraft liegt am Span.
+        <span
+          key={i}
+          data-lit
+          data-ch={ch}
+          style={{ opacity: 0.45 }}
+          className="lit-char inline-block"
+        />
       ))}
     </span>
   )
@@ -353,10 +364,14 @@ export function Hero() {
                     fontSize: 'clamp(1.05rem, 4.4vw, 1.6rem)',
                     lineHeight: 1.2,
                   }}
-                  className="mt-3.5 block max-w-[24ch] text-balance font-sans font-semibold tracking-[-0.01em] text-accent-tint sm:mt-4 lg:mx-0"
-                >
-                  {t.hero.headingLine2}
-                </span>
+                  /* Aus demselben Grund wie die Buchstaben darüber: die
+                     vollständige Schlagzeile steht bereits als sr-only im
+                     Dokument, und dieser Zweig ist ihre sichtbare Fassung.
+                     Stünde der Satz hier als Textknoten, hätte ihn ein
+                     Crawler zweimal gelesen. */
+                  data-text={t.hero.headingLine2}
+                  className="lit-line mt-3.5 block max-w-[24ch] text-balance font-sans font-semibold tracking-[-0.01em] text-accent-tint sm:mt-4 lg:mx-0"
+                />
               </span>
             </h1>
 

@@ -217,13 +217,21 @@ export const DecodeName = forwardRef<
           >
             {word.split('').map((ch, li) => (
               <span key={li} className="relative inline-grid">
+                {/* Drei Ebenen pro Buchstabe — Platzhalter, Glitch, Leuchtend
+                    — und bis eben jede davon mit einem eigenen Textknoten.
+                    Im Dokument stand deshalb IIICCCHHH statt ICH. aria-hidden
+                    am Wurzelelement half nicht: das gilt für Screenreader,
+                    nicht für Crawler. Alle drei zeichnen den Buchstaben jetzt
+                    per ::before aus data-ch. Erzeugter Inhalt wird gerendert
+                    und gemessen, gehört aber nicht zum DOM-Text — und da die
+                    Überschrift daneben ohnehin als sr-only sauber dasteht,
+                    darf diese Ebene aus dem Text vollständig verschwinden. */}
                 <span
                   aria-hidden
-                  className="pointer-events-none [grid-area:1/1]"
+                  data-ch={ch}
+                  className="lit-char pointer-events-none [grid-area:1/1]"
                   style={{ opacity: 0 }}
-                >
-                  {ch}
-                </span>
+                />
                 <span
                   ref={(el) => {
                     letterRefs.current[wi][li] = {
@@ -231,11 +239,10 @@ export const DecodeName = forwardRef<
                       glitch: el,
                     }
                   }}
-                  className="[grid-area:1/1]"
+                  data-ch={ch}
+                  className="lit-char [grid-area:1/1]"
                   style={{ opacity: 0 }}
-                >
-                  {ch}
-                </span>
+                />
                 <span
                   ref={(el) => {
                     letterRefs.current[wi][li] = {
@@ -243,15 +250,14 @@ export const DecodeName = forwardRef<
                       solid: el,
                     }
                   }}
-                  className="[grid-area:1/1]"
+                  data-ch={ch}
+                  className="lit-char [grid-area:1/1]"
                   style={{
                     opacity: 0,
                     color: 'color-mix(in oklch, var(--purple) 55%, white)',
                     textShadow: '0 0 14px color-mix(in oklch, var(--purple) 85%, transparent)',
                   }}
-                >
-                  {ch}
-                </span>
+                />
               </span>
             ))}
           </span>

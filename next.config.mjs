@@ -69,9 +69,27 @@ const nextConfig = {
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       },
       {
-        // The icons are referenced from every page and never change.
-        source: '/:file(favicon.ico|apple-icon.png|icon-512.png|icon-dark-32x32.png|icon-light-32x32.png)',
+        /*
+         * Die Bilddateien der Marke. Sie tragen eine Fassungsnummer im Namen,
+         * also gilt hier dasselbe wie fuer die Filme: eine neue Fassung ist
+         * eine neue Datei, und die alte darf beliebig lange im Zwischenspeicher
+         * bleiben.
+         */
+        source: '/:file(apple-icon-v2.png|icon-512-v2.png|icon-32-v2.png)',
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
+      },
+      {
+        /*
+         * /favicon.ico ist die eine Ausnahme und muss es sein: Googles
+         * Favicon-Crawler fragt genau diesen Pfad ab, er laesst sich also
+         * nicht umbenennen. Eine unveraenderliche Datei unter einem festen
+         * Namen ist ein Widerspruch — beim letzten Wechsel lieferte
+         * Cloudflare tagelang das alte Zeichen aus. Ein Tag ist lang genug,
+         * um Anfragen zu buendeln, und kurz genug, damit ein neues Zeichen
+         * ankommt, ohne dass jemand den Zwischenspeicher leeren muss.
+         */
+        source: '/favicon.ico',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=86400' }],
       },
     ]
   },

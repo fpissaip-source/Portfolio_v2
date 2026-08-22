@@ -173,14 +173,22 @@ export const metadata: Metadata = {
      Originaldatei fehlte; jetzt liegt sie vor. Beides nebeneinander haette
      bedeutet, dass ein Browser mit SVG-Unterstuetzung ein anderes Zeichen
      zeigt als einer ohne — zwei Marken fuer dieselbe Firma, je nach
-     Browser. Ein Zeichen, in mehreren Groessen. */
+     Browser. Ein Zeichen, in mehreren Groessen.
+
+     Das -v2 im Dateinamen ist kein Schmuck. Diese Pfade tragen ein Jahr
+     `immutable`, und die Begruendung dafuer lautet ausdruecklich: eine neue
+     Fassung ist eine neue Datei. Beim ersten Austausch wurde genau dagegen
+     verstossen — ueberschrieben statt umbenannt —, und Cloudflare lieferte
+     danach tagelang weiter das alte Zeichen aus, gemessen mit
+     cf-cache-status HIT und einem Alter von 30 Stunden. Wer diese Bilder
+     wieder aendert, aendert den Namen mit. */
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
-      { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icon-32-v2.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-512-v2.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-icon-v2.png', sizes: '180x180', type: 'image/png' }],
   },
 }
 

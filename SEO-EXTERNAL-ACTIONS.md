@@ -177,6 +177,48 @@ werden kann, nicht ihr Ersatz.
 
 ---
 
+## 4c. taxibbessen.de — geprüft am 22.08.2026
+
+Behauptet wurde, die Seite liefere nur eine STRATO-Fehlerseite und die
+Erwähnung sei deshalb nicht crawlbar. **Das stimmt nicht.** Gemessen:
+
+| | |
+|---|---|
+| `https://taxibbessen.de/` | 200, 26.425 Bytes, leitet auf `www` |
+| `robots` | `index, follow` |
+| Verweis auf issahareb.me | auf **jeder** Seite, auch `/ueber-uns/` und `/impressum/` |
+
+Der Hinweis steht im Fußbereich als echter HTML-Link:
+
+```html
+Website designed &amp; developed by
+<a href="https://issahareb.me/" rel="author external">Issa Hareb · Hareb Digital</a>
+```
+
+Dazu strukturierte Daten mit einem `Person`- und einem
+`Organization`-Knoten, die beide auf `https://issahareb.me/` zeigen. Das
+ist die einzige Quelle im ganzen Graphen, die nicht Issa selbst gehört —
+und sie ist deutlich besser als ein Name im Fußbereich.
+
+**Ein echter Fehler kam dabei ans Licht.** taxibbessen.de nennt die
+Entitäten `#issa-hareb` und `#hareb-digital`; issahareb.me führte sie als
+`#person` und `#organization`. In verknüpften Daten ist die `@id` der
+Schlüssel der Identität — die Referenz von außen zeigte damit auf einen
+Knoten, den es hier gar nicht gab. Angeglichen wurde issahareb.me, weil
+das zwei Zeilen statt eines Deploys auf einer Kundenseite kostet.
+
+### Was dort noch besser ginge
+
+- [ ] Ein eigener Abschnitt auf `/ueber-uns/` statt nur der Fußzeile.
+      Ein Link im Fließtext mit Kontext („Die Website wurde von Issa
+      Hareb aus Essen entwickelt") wiegt mehr als derselbe Link auf jeder
+      Seite unten — sitzt er überall, wird er als Vorlagenbestandteil
+      gewertet.
+- [ ] Im Satz das Wort **Essen** unterbringen. Name, Tätigkeit und Ort in
+      einem Satz sind das, was eine Entität bestätigt.
+
+---
+
 ## 5. Eingehende Links
 
 Crawler finden Seiten über Links. Eine Domain ohne einen einzigen

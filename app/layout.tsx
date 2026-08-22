@@ -59,11 +59,30 @@ const SITE_DESCRIPTION_EN =
 /** Entity ids. Stable, absolute and reused by every node in the graph, so a
  *  parser links them into one description of one person instead of three
  *  unrelated fragments (the pattern the taxibbessen site scores on). */
-const PERSON_ID = `${SITE_URL}/#person`
+/*
+ * Die Bezeichner der Entitaeten, und sie muessen genau so lauten.
+ *
+ * taxibbessen.de traegt in seinen strukturierten Daten einen Person- und
+ * einen Organization-Knoten, die auf diese Seite zeigen — die einzige
+ * Fremdquelle im Graphen, die nicht Issa selbst gehoert. Sie nennt dabei
+ * `#issa-hareb` und `#hareb-digital`. Hier standen `#person` und
+ * `#organization`.
+ *
+ * In verknuepften Daten ist die @id der Schluessel der Identitaet. Zwei
+ * verschiedene @id sind zwei verschiedene Dinge, und die Referenz von aussen
+ * zeigte damit auf einen Knoten, den es hier gar nicht gibt — statt auf den,
+ * der ihn bestaetigen soll.
+ *
+ * Angeglichen wurde diese Seite, nicht die andere: das kostet zwei Zeilen
+ * statt eines Deploys auf einer Kundenseite, und die sprechenden Namen sind
+ * ohnehin die besseren. Alle internen Verweise laufen ueber diese Konstanten
+ * und folgen von selbst.
+ */
+const PERSON_ID = `${SITE_URL}/#issa-hareb`
 const WEBSITE_ID = `${SITE_URL}/#website`
 const PAGE_ID = `${SITE_URL}/#webpage`
 const FAQ_ID = `${SITE_URL}/#faq`
-const ORGANIZATION_ID = `${SITE_URL}/#organization`
+const ORGANIZATION_ID = `${SITE_URL}/#hareb-digital`
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

@@ -137,10 +137,24 @@ export const metadata: Metadata = {
       'msvalidate.01': '9BFD7C2DBC8998DFAC0198132F9FB5B9',
     },
   },
+  /* Das Zeichen von Hareb Digital. Hier stand bis zuletzt das v0-Logo aus
+     dem Projekt-Gerüst — sichtbar auf jedem Browser-Tab und, wie die
+     Namenssuche zeigte, auch neben dem Suchergebnis.
+
+     /favicon.ico ist trotz dieser Liste unverzichtbar: Googles
+     Favicon-Crawler fragt genau diesen Pfad ab und liest die Deklarationen
+     hier gar nicht erst. Die Datei ist eine echte Multi-Size-ICO von 16 bis
+     256, damit jede Oberfläche die Größe bekommt, die sie braucht, statt
+     eine einzige herunterzurechnen.
+
+     Hell und dunkel zeigen dasselbe Bild: die Marke bringt ihren eigenen
+     dunklen Grund mit, sie braucht also keine zweite Fassung. */
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
       { url: '/icon-light-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
   },

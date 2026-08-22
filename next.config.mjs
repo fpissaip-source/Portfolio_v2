@@ -70,7 +70,7 @@ const nextConfig = {
       },
       {
         // The icons are referenced from every page and never change.
-        source: '/:file(icon.svg|apple-icon.png|icon-dark-32x32.png|icon-light-32x32.png)',
+        source: '/:file(icon.svg|favicon.ico|apple-icon.png|icon-512.png|icon-dark-32x32.png|icon-light-32x32.png)',
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       },
     ]

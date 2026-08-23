@@ -18,3 +18,12 @@ next-env.d.ts
 
 # TypeScript incremental build cache
 tsconfig.tsbuildinfo
+
+# playwright-cli: Momentaufnahmen und Ablaufspuren einer Browsersitzung.
+# Sie entstehen bei jedem Aufruf neu und beschreiben einen Zustand, den es
+# beim nächsten Mal so nicht mehr gibt — im Verlauf haben sie nichts verloren.
+.playwright-cli/
+
+# Die Konfiguration dagegen bleibt versioniert (.playwright/cli.config.json):
+# sie legt fest, welcher Browser genommen wird, und ohne sie greift der Skill
+# zu Google Chrome, der in dieser Umgebung nicht existiert.

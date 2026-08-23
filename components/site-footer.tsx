@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Mail } from 'lucide-react'
+import { ArrowRight, Mail } from 'lucide-react'
 import { useT } from './language-context'
 import { openConsentSettings } from '@/lib/consent'
 
@@ -42,7 +42,63 @@ const SOCIALS = [
 export function SiteFooter() {
   const t = useT()
   return (
-    <footer className="relative border-t border-white/5 px-6 py-12">
+    <>
+      {/*
+       * Das Partnerprogramm, vor der Fusszeile statt darin.
+       *
+       * Es stand als schmaler Link zwischen Impressum und Datenschutz. Dort
+       * bietet die Seite 660 Euro Provision an und legt das Angebot unter
+       * Rechtstexten ab: an der Stelle sucht es niemand, und wer es findet,
+       * haelt es fuer Pflichttext.
+       *
+       * Jetzt ein eigenes Band mit der Zahl im Klartext. Die Zahl ist das
+       * Argument, nicht der Wortlaut "Affiliate" — wer sie sieht, weiss in
+       * einer Sekunde, worum es geht, und braucht die Seite dahinter nur
+       * noch, um zu pruefen, ob es stimmt.
+       */}
+      <section className="relative border-t border-white/10 px-6 py-14 sm:py-16">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(70% 120% at 20% 100%, color-mix(in oklch, var(--purple) 16%, transparent) 0%, transparent 70%)',
+          }}
+        />
+        <div className="relative mx-auto flex max-w-7xl flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <span className="font-label text-[13px] uppercase tracking-[0.16em] text-accent-tint">
+              {t.footer.affiliateLabel}
+            </span>
+            <h2 className="mt-3 max-w-[22ch] font-display text-2xl font-bold leading-[1.12] tracking-[-0.02em] sm:text-[2rem]">
+              {t.footer.affiliateHeadline}
+            </h2>
+            <p className="mt-3 max-w-[54ch] text-[17px] leading-[1.6] text-foreground/75">
+              {t.footer.affiliateBody}
+            </p>
+          </div>
+
+          <div className="flex shrink-0 flex-col items-start gap-5 lg:items-end">
+            <div className="lg:text-right">
+              <div className="font-poster text-[3.2rem] leading-none tracking-[-0.02em] text-accent-tint sm:text-[3.8rem]">
+                {t.footer.affiliateAmount}
+              </div>
+              <p className="mt-2 max-w-[34ch] text-[15px] leading-[1.45] text-foreground/60">
+                {t.footer.affiliateAmountNote}
+              </p>
+            </div>
+            <Link
+              href="/affiliate"
+              className="inline-flex items-center gap-2.5 rounded-full bg-white px-7 py-3.5 text-[16px] font-semibold text-[#050505] transition-transform hover:scale-[1.02] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+            >
+              {t.footer.affiliateCta}
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <footer className="relative border-t border-white/5 px-6 py-12">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
         <div className="flex items-center gap-2 text-sm tracking-tight">
           <span className="font-semibold">Issa Hareb</span>
@@ -81,9 +137,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[13px] font-medium tracking-tight text-foreground/65 sm:justify-end">
-          <Link href="/affiliate" className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground">
-            Affiliate
-          </Link>
+
           <Link href="/impressum" className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground">
             {t.footer.imprint}
           </Link>
@@ -109,6 +163,7 @@ export function SiteFooter() {
           </p>
         </div>
       </div>
-    </footer>
+      </footer>
+    </>
   )
 }

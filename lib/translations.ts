@@ -230,6 +230,16 @@ export type Dictionary = {
     copyright: string
     imprint: string
     privacy: string
+    /* Das Partnerprogramm. Es stand als schmaler Link zwischen Impressum und
+       Datenschutz — ein Angebot über 660 Euro Provision, abgelegt unter
+       Rechtstexten. Dort sucht es niemand, und wer es findet, hält es für
+       Pflichttext. */
+    affiliateLabel: string
+    affiliateHeadline: string
+    affiliateBody: string
+    affiliateAmount: string
+    affiliateAmountNote: string
+    affiliateCta: string
   }
   legal: {
     back: string
@@ -663,6 +673,13 @@ export const EN: Dictionary = {
     copyright: 'Directed, written & built by Issa Hareb.',
     imprint: 'Imprint',
     privacy: 'Privacy Policy',
+    affiliateLabel: 'Partner programme',
+    affiliateHeadline: 'Know someone who needs a website?',
+    affiliateBody:
+      'You make the introduction. I handle the quote, the build and the support. You get paid once the project is done.',
+    affiliateAmount: '660 €+',
+    affiliateAmountNote: 'commission per completed client project',
+    affiliateCta: 'See the partner programme',
   },
   legal: {
     back: 'Back to home',
@@ -1112,6 +1129,13 @@ export const DE: Dictionary = {
     copyright: 'Konzipiert, geschrieben & gebaut von Issa Hareb.',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
+    affiliateLabel: 'Partnerprogramm',
+    affiliateHeadline: 'Kennst du jemanden, der eine Website braucht?',
+    affiliateBody:
+      'Du stellst den Kontakt her. Ich übernehme Angebot, Umsetzung und Betreuung. Bezahlt wirst du, sobald das Projekt abgeschlossen ist.',
+    affiliateAmount: '660 €+',
+    affiliateAmountNote: 'Provision pro abgeschlossenem Kundenprojekt',
+    affiliateCta: 'Partnerprogramm ansehen',
   },
   legal: {
     back: 'Zurück zur Startseite',

@@ -391,6 +391,13 @@ export const ES: Dictionary = {
     copyright: 'Diseñado, programado y construido por Issa Hareb.',
     imprint: 'Aviso legal',
     privacy: 'Privacidad',
+    affiliateLabel: 'Programa de socios',
+    affiliateHeadline: '¿Conoces a alguien que necesite una web?',
+    affiliateBody:
+      'Tú haces la presentación. Yo me encargo del presupuesto, del desarrollo y del soporte. Cobras cuando el proyecto está terminado.',
+    affiliateAmount: '660 €+',
+    affiliateAmountNote: 'de comisión por proyecto de cliente cerrado',
+    affiliateCta: 'Ver el programa de socios',
   },
   legal: {
     back: 'Volver al inicio',

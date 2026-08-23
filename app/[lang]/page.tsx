@@ -20,7 +20,6 @@ import { TechStack } from '@/components/tech-stack'
 import { Process } from '@/components/process'
 import { Faq } from '@/components/faq'
 import { Contact } from '@/components/contact'
-import { Affiliate } from '@/components/affiliate'
 import { SiteFooter } from '@/components/site-footer'
 import { Scene, FilmGrain } from '@/components/scene'
 
@@ -81,7 +80,6 @@ export default function Page() {
 
           <Contact />
         </Scene>
-        <Affiliate />
         <SiteFooter />
       </main>
     </SmoothScroll>

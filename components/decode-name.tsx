@@ -64,7 +64,11 @@ export const DecodeName = forwardRef<
         // Settled — steady, with a brief bright spark right as it locks in
         // that decays over the next stretch of head movement.
         const flash = clamp01(1 - (dist - 1) / 0.5)
-        els.glitch.textContent = word[li]
+        // Der Buchstabe wandert ins data-ch, nicht in den Textknoten. Diese
+        // Ebene zeichnet ihn per ::before aus genau diesem Attribut; stünde er
+        // zusätzlich als Text darin, stünden beide nebeneinander in derselben
+        // Rasterzelle — und die Zeile las sich "IICCHH BBIINN".
+        els.glitch.dataset.ch = word[li]
         els.glitch.style.opacity = String(1 - s)
         els.glitch.style.color =
           flash > 0.01
@@ -184,7 +188,7 @@ export const DecodeName = forwardRef<
             const dist = head - li
             if (dist > -1.4 && dist < 1) {
               const el = letterRefs.current[wi]?.[li]?.glitch
-              if (el) el.textContent = randomChar()
+              if (el) el.dataset.ch = randomChar()
             }
           }
         })

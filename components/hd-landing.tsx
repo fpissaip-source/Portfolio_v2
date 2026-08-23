@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
@@ -106,6 +106,48 @@ function Auf({
   )
 }
 
+/* Eine Überschrift baut sich Wort für Wort auf, hinter einer Kante hervor.
+   Was es mitteilt: hier beginnt ein Akt, und er nimmt sich die Zeit dafür.
+   Das ist der Vorspann-Trick: nicht die Bewegung ist der Punkt, sondern die
+   Kante, die sie freigibt.
+
+   Der Satz steht als gewöhnlicher Text im Dokument, nur in Wortstücke
+   zerlegt. Ein Crawler liest ihn also einmal und vollständig. Die schmale
+   Fusszone am Maskenrand ist kein Zierrat: ohne sie schneidet die Kante die
+   Unterlängen von g, j und p ab. */
+function Titel({ children, className }: { children: string; className?: string }) {
+  const reduce = useReducedMotion()
+  const woerter = children.split(' ')
+
+  return (
+    <motion.h2
+      className={className}
+      initial={reduce ? false : 'aus'}
+      whileInView="an"
+      viewport={{ once: true, amount: 0.4 }}
+      variants={{ an: { transition: { staggerChildren: 0.055 } } }}
+    >
+      {woerter.map((wort, i) => (
+        <span
+          key={`${wort}-${i}`}
+          className="inline-block overflow-hidden pb-[0.14em] align-bottom -mb-[0.14em]"
+        >
+          <motion.span
+            className="inline-block"
+            variants={
+              reduce ? undefined : { aus: { y: '108%', opacity: 0 }, an: { y: 0, opacity: 1 } }
+            }
+            transition={{ duration: 0.75, ease: EASE }}
+          >
+            {wort}
+            {i < woerter.length - 1 ? '\u00A0' : ''}
+          </motion.span>
+        </span>
+      ))}
+    </motion.h2>
+  )
+}
+
 /* Die Zahlen zählen hoch. Was es mitteilt: hin zu den einzigen vier Angaben
    auf der Seite, die man nachrechnen kann. Genau ein Element pro Zahl, keine
    Zustandsänderung in React pro Bild. */
@@ -177,6 +219,10 @@ export function HdLanding() {
   })
   const bildY = useTransform(buehneP, [0, 1], [0, reduce ? 0 : 70])
   const bildWeich = useSpring(bildY, { stiffness: 120, damping: 26, mass: 0.4 })
+  /* Das Bild wächst beim Scrollen ein Stück über seinen Rahmen hinaus. Was es
+     mitteilt: die Kamera fährt heran. Ein Prozent Maßstab pro Scrollweg reicht
+     dafür; mehr sieht nach Effekt aus statt nach Bewegung. */
+  const bildZoom = useTransform(buehneP, [0, 1], [1, reduce ? 1 : 1.06])
 
   /* Der Beleg im Arbeitsteil richtet sich beim Hereinscrollen auf: von leicht
      nach hinten gekippt auf gerade. Was es mitteilt: hier liegt etwas auf dem
@@ -196,17 +242,52 @@ export function HdLanding() {
      ausgibt, wäre schlicht falsch gewesen. Das Bewegungsbudget liegt
      stattdessen dort, wo es etwas mitteilt: bei den durchgestrichenen
      Sätzen, den hochzählenden Zahlen und dem Aufbau der Abschnitte. */
+  /* Die Kopfzeile kippt mit, solange der dunkle Akt hinter ihr liegt. Was es
+     mitteilt: die Seite hat den Raum gewechselt, nicht nur die Farbe. Ein
+     heller Balken über einer schwarzen Einstellung sieht aus wie ein Fehler
+     im Vorführraum, nicht wie eine Entscheidung.
+
+     Gemessen wird gegen die tatsächliche Höhe der Leiste statt gegen eine
+     abgeschriebene Zahl, und der Zustand ist ein Wahrheitswert: React rendert
+     nur beim Umschlag neu, nicht bei jedem Scrollschritt. */
+  const kopf = useRef<HTMLElement>(null)
+  const akt = useRef<HTMLElement>(null)
+  const [imAkt, setImAkt] = useState(false)
+
+  useEffect(() => {
+    const abschnitt = akt.current
+    if (!abschnitt) return
+    const pruefen = () => {
+      const kante = kopf.current?.getBoundingClientRect().height ?? 64
+      const r = abschnitt.getBoundingClientRect()
+      setImAkt(r.top <= kante && r.bottom > kante)
+    }
+    pruefen()
+    window.addEventListener('scroll', pruefen, { passive: true })
+    window.addEventListener('resize', pruefen)
+    return () => {
+      window.removeEventListener('scroll', pruefen)
+      window.removeEventListener('resize', pruefen)
+    }
+  }, [])
+
   const film = useRef<HTMLDivElement>(null)
   const { scrollYProgress: filmP } = useScroll({
     target: film,
     offset: ['start end', 'center center'],
   })
   const bildKippen = useTransform(filmP, [0, 1], [reduce ? 0 : 9, 0])
+  /* Die Kamera fährt auf das Standbild zu, während es in den Blick kommt, und
+     kommt genau dann zur Ruhe, wenn es mittig steht. Was es mitteilt: das ist
+     die Einstellung, auf die der Abschnitt hinauswollte. */
+  const kamera = useTransform(filmP, [0, 1], [reduce ? 1 : 1.14, 1])
 
   return (
     <div>
       {/* ── Kopfzeile ───────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 border-b backdrop-blur-md"
+      <header
+        ref={kopf}
+        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-500 ${imAkt ? 'hd-akt' : ''}`}
         style={{ borderColor: 'var(--hd-line)', background: 'color-mix(in oklch, var(--hd-paper) 82%, transparent)' }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -260,11 +341,15 @@ export function HdLanding() {
 
           <motion.figure
             style={{ y: bildWeich }}
-            initial={reduce ? false : { opacity: 0, scale: 0.96, y: 30 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
+            /* Die Blende öffnet sich von der Mitte nach oben und unten, wie
+               ein Vorhang. Der Maßstab dahinter gehört dem Scrollen, die
+               Blende dem Laden — zwei getrennte Bewegungen auf demselben
+               Element, sonst kämpfen sie um dasselbe Bild. */
+            initial={reduce ? false : { clipPath: 'inset(46% 0% 46% 0%)', opacity: 0 }}
+            animate={{ clipPath: 'inset(0% 0% 0% 0%)', opacity: 1 }}
+            transition={{ duration: 1.1, delay: 0.15, ease: EASE }}
           >
-            <div className="hd-shot">
+            <motion.div className="hd-shot" style={{ scale: bildZoom }}>
               <Image
                 src="/projects/taxibb.png"
                 alt="Startseite von taxibbessen.de, gebaut für Taxi B&B in Essen"
@@ -274,7 +359,7 @@ export function HdLanding() {
                 sizes="(max-width: 1024px) 100vw, 560px"
                 className="h-auto w-full"
               />
-            </div>
+            </motion.div>
             <figcaption className="mt-3 text-[15px] text-[color:var(--hd-ink-soft)]">
               taxibbessen.de, gebaut für Taxi B&amp;B in Essen. Läuft seit 2026.
             </figcaption>
@@ -285,11 +370,9 @@ export function HdLanding() {
       {/* ── Wiedererkennung ─────────────────────────────────────────────── */}
       <section className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <Auf>
-            <h2 className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl">
-              Kommt dir einer dieser Sätze bekannt vor?
-            </h2>
-          </Auf>
+          <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl">
+            Kommt dir einer dieser Sätze bekannt vor?
+          </Titel>
           <ul className="mt-9 grid gap-x-12 gap-y-4 sm:grid-cols-2">
             {PROBLEME.map((p, i) => (
               <Problem key={p} text={p} index={i % 3} />
@@ -302,14 +385,24 @@ export function HdLanding() {
       </section>
 
       {/* ── Arbeiten ────────────────────────────────────────────────────── */}
-      <section id="arbeiten" className="hd-rule scroll-mt-16" style={{ background: 'var(--hd-paper-2)' }}>
-        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <Auf>
+      <section ref={akt} id="arbeiten" className="hd-akt scroll-mt-16">
+        {/* Der Schnitt. Eine Haarlinie im Akzent an der Kante, an der die Seite
+            ins Dunkle kippt: sie macht aus dem Farbwechsel eine Absicht. */}
+        <div
+          aria-hidden
+          className="h-px w-full"
+          style={{
+            background:
+              'linear-gradient(to right, transparent, var(--hd-accent), transparent)',
+          }}
+        />
+        <div className="mx-auto max-w-6xl px-6 py-20 sm:py-32">
+          <Auf className="text-center">
             <span className="hd-label">Arbeiten</span>
-            <h2 className="mt-4 max-w-[22ch] font-display text-3xl font-bold leading-[1.08] tracking-[-0.02em] sm:text-[2.6rem]">
-              Gebaut, online gestellt, im Betrieb.
-            </h2>
           </Auf>
+          <Titel className="mx-auto mt-4 max-w-[20ch] text-center font-display text-[2.1rem] font-bold leading-[1.08] tracking-[-0.025em] sm:text-[3.1rem]">
+            Gebaut, online gestellt, im Betrieb.
+          </Titel>
 
           <div ref={film} className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <Auf>
@@ -361,16 +454,17 @@ export function HdLanding() {
               viewport={{ once: true, amount: 0.3 }}
               transition={{ duration: 0.9, ease: EASE }}
             >
-              <div className="hd-shot">
-                <Image
-                  src="/projects/taxibb.png"
-                  alt="Buchungsstrecke und Startseite von taxibbessen.de"
-                  width={1320}
-                  height={808}
-                  loading="lazy"
-                  sizes="(max-width: 1024px) 100vw, 680px"
-                  className="h-auto w-full"
-                />
+              <div className="hd-kino hd-shot">
+                <motion.div className="relative h-full w-full" style={{ scale: kamera }}>
+                  <Image
+                    src="/projects/taxibb.png"
+                    alt="Buchungsstrecke und Startseite von taxibbessen.de"
+                    fill
+                    loading="lazy"
+                    sizes="(max-width: 1024px) 100vw, 680px"
+                    className="object-cover object-top"
+                  />
+                </motion.div>
               </div>
             </motion.div>
           </div>
@@ -433,10 +527,10 @@ export function HdLanding() {
       {/* ── Leistungen ──────────────────────────────────────────────────── */}
       <section className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <Auf>
-            <h2 className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
-              Such dir aus, was gerade drückt.
-            </h2>
+          <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+            Such dir aus, was gerade drückt.
+          </Titel>
+          <Auf delay={0.1}>
             <p className="mt-5 max-w-[54ch] text-[18px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
               Du musst nicht alles auf einmal machen. Meistens ist es einer
               dieser vier Punkte, und der bringt schon den Unterschied.
@@ -469,10 +563,10 @@ export function HdLanding() {
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
           <Auf>
             <span className="hd-label">So läuft es</span>
-            <h2 className="mt-4 max-w-[18ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
-              Vier Schritte, kein Kleingedrucktes.
-            </h2>
           </Auf>
+          <Titel className="mt-4 max-w-[18ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+            Vier Schritte, kein Kleingedrucktes.
+          </Titel>
           <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {ABLAUF.map((s, i) => (
               <Auf key={s.n} delay={i * 0.09}>
@@ -510,10 +604,10 @@ export function HdLanding() {
       {/* ── Schluss ─────────────────────────────────────────────────────── */}
       <section className="hd-rule" style={{ background: 'var(--hd-accent-soft)' }}>
         <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
-          <Auf>
-            <h2 className="mx-auto max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.025em] sm:text-[2.7rem]">
-              Zwei Minuten, dann weißt du, woran du bist.
-            </h2>
+          <Titel className="mx-auto max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.025em] sm:text-[2.7rem]">
+            Zwei Minuten, dann weißt du, woran du bist.
+          </Titel>
+          <Auf delay={0.1}>
             <p className="mx-auto mt-5 max-w-[48ch] text-[18px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
               Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden
               hast du eine ehrliche Einschätzung zu Umfang, Dauer und Preis.

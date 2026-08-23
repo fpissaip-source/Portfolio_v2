@@ -1226,6 +1226,76 @@ button.enquiry-input {
   }
 }
 
+/* ── Der dunkle Akt ────────────────────────────────────────────────────────
+   Die Seite ist hell und bleibt es. Genau eine Sektion kippt ins Dunkle: die
+   Arbeiten. Das ist kein Bruch der Themensperre, sondern ihre ausdrücklich
+   erlaubte Ausnahme — ein einziger, bewusster Wechsel als Komposition, nicht
+   zufälliges Abwechseln.
+
+   Er steht dort, wo er hingehört. Bildschirmfotos sind selbst dunkel; auf
+   Papier schwimmen sie, auf Schwarz stehen sie. Und der Abschnitt, der die
+   Arbeit zeigt, ist der, an dem die Seite kurz die Luft anhalten darf. */
+/* Ein warmer Lichtkegel hinter der Titelkarte, wie von einem Projektor.
+   Er sitzt oben, wo die Überschrift steht, und läuft nach unten aus: das
+   Standbild darunter soll das hellste im Bild bleiben. Nur der Abschnitt
+   bekommt ihn, nicht die Kopfzeile, die dieselben Marken benutzt. */
+section.hd-akt {
+  background:
+    radial-gradient(
+      90% 55% at 50% 18%,
+      color-mix(in oklch, var(--hd-accent) 11%, transparent) 0%,
+      transparent 72%
+    ),
+    var(--hd-paper);
+}
+
+.hd-akt {
+  --hd-paper: #0d0c0b;
+  --hd-paper-2: #131211;
+  --hd-ink: #f7f4f0;
+  --hd-ink-soft: #a49c93;
+  --hd-line: #2a2724;
+  --hd-accent: oklch(0.76 0.15 55);
+
+  background: var(--hd-paper);
+  color: var(--hd-ink);
+}
+
+/* Kinoformat. Ein Bildschirmfoto im Breitbild gelesen zu bekommen ist etwas
+   anderes, als es im Fensterformat zu sehen — der Schnitt allein macht aus
+   einer Aufnahme eine Einstellung. */
+.hd-kino {
+  position: relative;
+  aspect-ratio: 21 / 9;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--hd-line);
+  background: #000;
+}
+
+/* Auf dem Telefon wird aus dem Breitbild ein Streifen von 146 Pixeln Höhe:
+   das ist kein Kinoformat mehr, das ist ein Sehschlitz. Dort steht das
+   Standbild im 16:9-Schnitt. */
+@media (max-width: 640px) {
+  .hd-kino {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+.hd-akt .hd-shot {
+  border-color: var(--hd-line);
+  background: #000;
+  box-shadow: 0 40px 90px -50px rgb(0 0 0 / 0.9);
+}
+
+/* Der Umriss-Knopf erbt seine Farben aus den Marken des Akts. Nur sein
+   Hover-Grund nicht: der stand fest auf Weiss und waere im Dunkeln ein
+   Loch gewesen. */
+.hd-akt .hd-cta-ghost:hover {
+  border-color: var(--hd-ink);
+  background: color-mix(in oklch, var(--hd-ink) 12%, transparent);
+}
+
 /* ---------------------------------------------------------------------
    Kurze Telefondisplays
 

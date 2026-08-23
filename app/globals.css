@@ -1225,3 +1225,79 @@ button.enquiry-input {
     transition: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+   Kurze Telefondisplays
+
+   Die Heldenbühne ist genau eine Bildschirmhöhe hoch und schneidet ab, was
+   nicht hineinpasst — zuletzt war das der Knopf "Projekt anfragen". Statt
+   eines einzelnen Umbruchpunkts staffeln diese Regeln den senkrechten
+   Rhythmus: je kürzer das Display, desto enger sitzt die Kopie. Der
+   Roboterkopf bekommt in hero.tsx nur, was danach übrig bleibt, deshalb
+   muss der Text nachgeben und nicht der Knopf.
+
+   Die Regeln stehen bewusst ausserhalb jeder @layer, damit sie die
+   Tailwind-Klassen an denselben Elementen schlagen.
+   --------------------------------------------------------------------- */
+@media (max-width: 1023px) and (max-height: 800px) {
+  [data-hero='stage'] {
+    padding-top: 4rem;
+    padding-bottom: 1rem;
+  }
+  [data-hero='grid'] {
+    row-gap: 0.875rem;
+  }
+  [data-hero='kicker'] {
+    margin-bottom: 0.625rem;
+  }
+  [data-hero='head'] {
+    margin-top: 0.625rem;
+  }
+  [data-hero='lead'] {
+    margin-top: 1rem;
+  }
+  [data-hero='proof'] {
+    margin-top: 0.75rem;
+  }
+  [data-hero='cta'] {
+    margin-top: 1.125rem;
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 700px) {
+  /* Die Belegzeile und der zweite Absatz sagen noch einmal, was Schlagzeile
+     und Vorspann schon gesagt haben. Auf einem so kurzen Display wiegt der
+     sichtbare Knopf mehr als die Wiederholung. */
+  [data-hero='proof'],
+  [data-hero='body'] {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 600px) {
+  /* Quer gehaltene Telefone und sehr kleine Geraete: es bleiben Schlagzeile,
+     Kopf und Knopf. */
+  [data-hero='lead'] {
+    display: none;
+  }
+}
+
+@media (max-width: 1023px) and (max-height: 500px) {
+  /* Der obere Abstand bleibt bei 4rem: darunter liegt die feste Navigation,
+     und der Text darf nicht unter ihr verschwinden. Enger wird alles andere. */
+  [data-hero='stage'] {
+    padding-bottom: 0.5rem;
+  }
+  [data-hero='grid'] {
+    row-gap: 0.5rem;
+  }
+  [data-hero='kicker'] {
+    margin-bottom: 0.25rem;
+  }
+  [data-hero='head'] {
+    margin-top: 0.25rem;
+  }
+  [data-hero='cta'] {
+    margin-top: 0.75rem;
+  }
+}

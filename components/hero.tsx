@@ -149,7 +149,13 @@ export function Hero() {
       const gaps = 2 * parseFloat(window.getComputedStyle(grid).rowGap || '20')
       // The row's height: what is left once the copy is on screen. This is
       // layout, so the call to action can never be pushed off the bottom.
-      const settled = Math.max(150, available - header.offsetHeight - reveal.offsetHeight - gaps)
+      // Der Boden, den der Kopf behalten darf. Auf einem kurzen Display ist
+      // ein kleinerer Kopf richtig und ein abgeschnittener Knopf falsch, also
+      // gibt der Boden dort nach — die Stufen entsprechen denen in
+      // globals.css, die zugleich den Text darüber enger setzen.
+      const hoehe = window.innerHeight
+      const boden = hoehe <= 500 ? 70 : hoehe <= 600 ? 90 : hoehe <= 700 ? 120 : 150
+      const settled = Math.max(boden, available - header.offsetHeight - reveal.offsetHeight - gaps)
 
       // The head's own size is driven by the screen's *width*, not by what
       // the copy leaves over.
@@ -243,7 +249,8 @@ export function Hero() {
     >
       <div
         ref={stageRef}
-        className="sticky top-0 flex h-svh items-start overflow-hidden px-6 pb-8 pt-28 max-lg:[@media(max-height:720px)]:pb-4 max-lg:[@media(max-height:720px)]:pt-16 lg:items-center lg:pb-10 lg:pt-24"
+        data-hero="stage"
+        className="sticky top-0 flex h-svh items-start overflow-hidden px-6 pb-8 pt-28 lg:items-center lg:pb-10 lg:pt-24"
       >
         <div
           aria-hidden
@@ -305,6 +312,7 @@ export function Hero() {
           // 624px column and the head sitting at 63% of the viewport with a
           // quarter of the screen empty behind it — so the head read as
           // centred and the copy read as small.
+          data-hero="grid"
           className="relative mx-auto grid w-full max-w-7xl gap-5 sm:gap-8 lg:grid-cols-[1.18fr_0.82fr] lg:items-center lg:gap-10 2xl:max-w-[96rem]"
         >
           {/* Ranged left, at every width. Centred copy forces the eye to
@@ -321,6 +329,7 @@ export function Hero() {
               initial={{ opacity: 0.55, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15, ease: easeOut }}
+              data-hero="kicker"
               className="mb-4 flex items-center justify-center gap-3.5 drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)] sm:mb-5 sm:gap-4 lg:justify-start"
             >
               {t.hero.kickerWords.map((word, i) => (
@@ -340,7 +349,7 @@ export function Hero() {
                 rank is legible before a word is read. Anton ships one weight,
                 so no font-semibold here: asking for 600 would only make the
                 browser fake a bolder version and smear the edges. */}
-            <h1 className="mt-4 font-poster sm:mt-5">
+            <h1 data-hero="head" className="mt-4 font-poster sm:mt-5">
               <span className="sr-only">{t.hero.headingPlain}</span>
               <span aria-hidden>
                 <span
@@ -380,7 +389,7 @@ export function Hero() {
                 exactly the "keine Lust das zu lesen" complaint. It is now
                 18/19px, ranged left with the headline from the sm breakpoint
                 up, and stays at full foreground on every size. */}
-            <p className="relative z-30 mt-6 max-w-[34ch] text-pretty text-[18px] leading-[1.6] text-foreground drop-shadow-[0_2px_14px_rgba(0,0,0,0.98)] sm:mt-7 sm:max-w-[42ch] sm:text-[19px] lg:mt-7 lg:max-w-[46ch] lg:drop-shadow-none">
+            <p data-hero="lead" className="relative z-30 mt-6 max-w-[34ch] text-pretty text-[18px] leading-[1.6] text-foreground drop-shadow-[0_2px_14px_rgba(0,0,0,0.98)] sm:mt-7 sm:max-w-[42ch] sm:text-[19px] lg:mt-7 lg:max-w-[46ch] lg:drop-shadow-none">
               {t.hero.lead}
             </p>
           </div>
@@ -428,11 +437,11 @@ export function Hero() {
             className="relative z-20 text-center lg:col-start-1 lg:row-start-2 lg:text-left"
             style={reduced ? undefined : { opacity: 0 }}
           >
-            <p className="max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] sm:text-base lg:text-[18px] lg:drop-shadow-none">
+            <p data-hero="body" className="max-w-[46ch] text-pretty text-[17px] leading-[1.6] text-foreground/85 drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] sm:text-base lg:text-[18px] lg:drop-shadow-none">
               {t.hero.body}
             </p>
 
-            <p className="mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 max-lg:[@media(max-height:720px)]:hidden sm:mt-5 lg:justify-start">
+            <p data-hero="proof" className="mt-4 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 sm:mt-5 lg:justify-start">
               <span className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
                 {t.hero.proofLabel}
               </span>
@@ -441,7 +450,7 @@ export function Hero() {
               </span>
             </p>
 
-            <div className="mt-6 flex justify-center sm:mt-7 lg:justify-start">
+            <div data-hero="cta" className="mt-6 flex justify-center sm:mt-7 lg:justify-start">
               <SpecularButton
                 href="#contact"
                 onClick={(event) => handleAnchorClick(event, '#contact')}

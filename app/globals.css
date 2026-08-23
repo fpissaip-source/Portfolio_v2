@@ -1199,3 +1199,29 @@ button.enquiry-input {
 .hd-rule {
   border-top: 1px solid var(--hd-line);
 }
+
+/* Der Ruf-zur-Tat pulsiert leise. Was es mitteilt: hier geht es weiter. Ein
+   einziger Selbstläufer auf der ganzen Seite, und er sitzt an der Stelle, an
+   der die Seite ihr Ziel hat. Bei abgeschalteter Bewegung fällt er weg. */
+@keyframes hd-cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--hd-accent) 42%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 12px color-mix(in oklch, var(--hd-accent) 0%, transparent);
+  }
+}
+
+.hd-cta-pulse {
+  animation: hd-cta-pulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hd-cta-pulse {
+    animation: none;
+  }
+  .hd-shot img {
+    transition: none;
+  }
+}

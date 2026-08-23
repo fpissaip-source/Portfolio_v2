@@ -110,8 +110,20 @@ Die Seite benutzt durchgehend den falschen:
 | `lib/translations.ts` | 6 |
 | `lib/faq.ts` | 2 |
 
-Nicht ersetzen, sondern austauschen: `—` → `–`. Typografisch korrekt, und der
-Nebeneffekt ist, dass die Seite die auffälligste KI-Signatur verliert.
+**Nachtrag vom 23.08.2026, Entscheidung des Auftraggebers:** der Strich fällt
+ganz weg, nicht nur der falsche. „Den nutzt keiner." Für eine Seite, die
+Handwerksbetriebe anspricht, ist das die richtige Entscheidung: der
+Gedankenstrich ist zwar korrekt, liest sich aber schriftstellerisch, und das
+ist nicht der Ton.
+
+Umgesetzt wurde er nicht gelöscht, sondern jeder Satz umgeschrieben. Ein
+weggenommener Strich hinterlässt sonst einen Satz ohne Fuge. Aus
+„Schneller – die meisten Seiten laden dreimal so lang" wurde „Schneller. Die
+meisten Seiten laden dreimal so lang", aus dem Seitentitel ein Doppelpunkt,
+aus „2–3 Kunden" ein „2 bis 3 Kunden".
+
+Gemessen auf allen neun Seiten in allen drei Sprachen: **null Striche im
+sichtbaren Text, keiner in einem Seitentitel.**
 
 ---
 
@@ -198,7 +210,7 @@ Gemessen am Produktionsbuild, 23.08.2026.
 | Unsichtbare Elemente bei reduzierter Bewegung | 1 | **0** |
 | `filter: blur()` an Textelementen | vorhanden | **0** |
 | Tippziele unter 24 px | 7 | **0** |
-| Geviertstriche im sichtbaren Text | 30 | **0** |
+| Gedankenstriche im sichtbaren Text | 30 | **0** (ganz entfernt, Sätze umgeschrieben) |
 | Bühnentext Landingpage | 33 Wörter | **19** |
 | `spellCheck` am E-Mail-Feld | fehlt | gesetzt |
 | Fokus beim unvollständigen Absenden | keiner | erstes fehlendes Feld |

@@ -136,7 +136,7 @@ const PROJECT_OPTIONS: Record<'de' | 'en' | 'es', readonly ProjectOption[]> = {
       value: 'Komplett neue Website',
       title: 'Komplett neue Website',
       detail:
-        'Von der ersten Skizze bis zum laufenden Betrieb – inklusive maximaler Auffindbarkeit bei Google und bei ChatGPT, Gemini, Claude & Co.',
+        'Von der ersten Skizze bis zum laufenden Betrieb, inklusive maximaler Auffindbarkeit bei Google und bei ChatGPT, Gemini, Claude & Co.',
     },
     {
       value: 'Bestehende Website überarbeiten',
@@ -159,7 +159,7 @@ const PROJECT_OPTIONS: Record<'de' | 'en' | 'es', readonly ProjectOption[]> = {
       value: 'Komplett neue Website',
       title: 'A completely new website',
       detail:
-        'From the first sketch to running in production – including maximum findability on Google and in ChatGPT, Gemini, Claude and the rest.',
+        'From the first sketch to running in production, including maximum findability on Google and in ChatGPT, Gemini, Claude and the rest.',
     },
     {
       value: 'Bestehende Website überarbeiten',

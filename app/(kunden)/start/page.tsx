@@ -31,7 +31,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react'
  * brands, two palettes, one hand.
  */
 
-const title = 'Hareb Digital – Websites, die gefunden werden und Arbeit abnehmen'
+const title = 'Hareb Digital: Websites, die gefunden werden und Arbeit abnehmen'
 const description =
   'Hareb Digital baut Websites, Webanwendungen und Automatisierungen für kleine und mittlere Unternehmen. Ein Ansprechpartner, fester Preis, Antwort in 24 Stunden.'
 
@@ -51,7 +51,7 @@ const SERVICES = [
     lead: 'Von der ersten Skizze bis zu dem Tag, an dem sie läuft.',
     points: [
       'Sieht auf dem Handy so gut aus wie am Rechner',
-      'Wird bei Google gefunden – und von ChatGPT, Gemini und Claude zitiert',
+      'Wird bei Google gefunden und von ChatGPT, Gemini und Claude zitiert',
       'Anfragen landen direkt bei dir, nicht in einem Formular-Nirvana',
       'Du kannst Texte und Bilder selbst ändern',
     ],
@@ -62,7 +62,7 @@ const SERVICES = [
     lead: 'Wenn das Grundgerüst steht, aber nichts davon mehr stimmt.',
     points: [
       'Neues Aussehen, ohne bei null anzufangen',
-      'Schneller – die meisten Seiten laden dreimal so lang wie nötig',
+      'Schneller. Die meisten Seiten laden dreimal so lang wie nötig',
       'Endlich sauber auf dem Handy',
       'Technik auf Stand, damit sie nicht in zwei Jahren wieder fällig ist',
     ],
@@ -74,7 +74,7 @@ const SERVICES = [
     points: [
       'Angebote und Rechnungen entstehen von selbst',
       'Anfragen werden sortiert, beantwortet und eingetragen',
-      'Termine, Erinnerungen, Nachfassen – ohne dass du daran denkst',
+      'Termine, Erinnerungen und Nachfassen, ohne dass du daran denkst',
       'KI-Assistenten, die deine Abläufe kennen, nicht nur plaudern',
     ],
   },
@@ -95,7 +95,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Du erzählst',
-    body: 'Zwei Minuten Formular oder ein Telefonat. Ich will wissen, was dich stört – nicht, welche Technik du dir vorstellst.',
+    body: 'Zwei Minuten Formular oder ein Telefonat. Ich will wissen, was dich stört, nicht welche Technik du dir vorstellst.',
   },
   {
     n: '02',
@@ -109,7 +109,7 @@ const STEPS = [
   },
   {
     n: '04',
-    title: 'Es läuft – und bleibt betreut',
+    title: 'Es läuft und bleibt betreut',
     body: 'Gebaut, online gestellt, überwacht. Wenn etwas klemmt, rufst du nicht bei einer Hotline an, sondern schreibst mir.',
   },
 ]
@@ -219,7 +219,7 @@ function HeroProof() {
         <p className="mt-4 text-[16px] leading-[1.6] text-white/80">
           „Für Möbel nach Maß in Essen wird häufig{' '}
           <span className="font-medium text-white">deine Schreinerei</span>{' '}
-          genannt – bekannt für Einbauschränke und kurze Termine.“
+          genannt, bekannt für Einbauschränke und kurze Termine.“
         </p>
         <div className="mt-5 flex items-center gap-2">
           <span
@@ -490,7 +490,7 @@ export default function HarebDigitalLanding() {
           </h2>
           <p className="mx-auto mt-7 max-w-[48ch] text-[19px] leading-[1.6] text-white/75">
             Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden hast
-            du eine ehrliche Einschätzung – zu Umfang, Dauer und Preis.
+            du eine ehrliche Einschätzung zu Umfang, Dauer und Preis.
           </p>
           <Link
             href="/anfrage"

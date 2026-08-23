@@ -188,6 +188,10 @@ export function ProjectTypeSelect({
 
       <button
         ref={buttonRef}
+        /* Fester Bezeichner neben der erzeugten `useId`-Familie: das Formular
+           setzt beim unvollstaendigen Absenden den Fokus auf das erste
+           fehlende Feld, und dafuer braucht es einen Namen, den es kennt. */
+        id="projekt-auswahl"
         type="button"
         role="combobox"
         aria-haspopup="listbox"

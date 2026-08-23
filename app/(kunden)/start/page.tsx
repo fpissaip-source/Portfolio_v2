@@ -31,7 +31,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react'
  * brands, two palettes, one hand.
  */
 
-const title = 'Hareb Digital — Websites, die gefunden werden und Arbeit abnehmen'
+const title = 'Hareb Digital – Websites, die gefunden werden und Arbeit abnehmen'
 const description =
   'Hareb Digital baut Websites, Webanwendungen und Automatisierungen für kleine und mittlere Unternehmen. Ein Ansprechpartner, fester Preis, Antwort in 24 Stunden.'
 
@@ -51,7 +51,7 @@ const SERVICES = [
     lead: 'Von der ersten Skizze bis zu dem Tag, an dem sie läuft.',
     points: [
       'Sieht auf dem Handy so gut aus wie am Rechner',
-      'Wird bei Google gefunden — und von ChatGPT, Gemini und Claude zitiert',
+      'Wird bei Google gefunden – und von ChatGPT, Gemini und Claude zitiert',
       'Anfragen landen direkt bei dir, nicht in einem Formular-Nirvana',
       'Du kannst Texte und Bilder selbst ändern',
     ],
@@ -62,7 +62,7 @@ const SERVICES = [
     lead: 'Wenn das Grundgerüst steht, aber nichts davon mehr stimmt.',
     points: [
       'Neues Aussehen, ohne bei null anzufangen',
-      'Schneller — die meisten Seiten laden dreimal so lang wie nötig',
+      'Schneller – die meisten Seiten laden dreimal so lang wie nötig',
       'Endlich sauber auf dem Handy',
       'Technik auf Stand, damit sie nicht in zwei Jahren wieder fällig ist',
     ],
@@ -74,7 +74,7 @@ const SERVICES = [
     points: [
       'Angebote und Rechnungen entstehen von selbst',
       'Anfragen werden sortiert, beantwortet und eingetragen',
-      'Termine, Erinnerungen, Nachfassen — ohne dass du daran denkst',
+      'Termine, Erinnerungen, Nachfassen – ohne dass du daran denkst',
       'KI-Assistenten, die deine Abläufe kennen, nicht nur plaudern',
     ],
   },
@@ -95,7 +95,7 @@ const STEPS = [
   {
     n: '01',
     title: 'Du erzählst',
-    body: 'Zwei Minuten Formular oder ein Telefonat. Ich will wissen, was dich stört — nicht, welche Technik du dir vorstellst.',
+    body: 'Zwei Minuten Formular oder ein Telefonat. Ich will wissen, was dich stört – nicht, welche Technik du dir vorstellst.',
   },
   {
     n: '02',
@@ -109,7 +109,7 @@ const STEPS = [
   },
   {
     n: '04',
-    title: 'Es läuft — und bleibt betreut',
+    title: 'Es läuft – und bleibt betreut',
     body: 'Gebaut, online gestellt, überwacht. Wenn etwas klemmt, rufst du nicht bei einer Hotline an, sondern schreibst mir.',
   },
 ]
@@ -219,7 +219,7 @@ function HeroProof() {
         <p className="mt-4 text-[16px] leading-[1.6] text-white/80">
           „Für Möbel nach Maß in Essen wird häufig{' '}
           <span className="font-medium text-white">deine Schreinerei</span>{' '}
-          genannt — bekannt für Einbauschränke und kurze Termine."
+          genannt – bekannt für Einbauschränke und kurze Termine.“
         </p>
         <div className="mt-5 flex items-center gap-2">
           <span
@@ -281,9 +281,8 @@ export default function HarebDigitalLanding() {
           </h1>
 
           <p className="mt-8 max-w-[54ch] text-[19px] leading-[1.62] text-white/78 sm:text-[21px]">
-            Ich baue Websites und Programme für Betriebe, die keine
-            IT-Abteilung haben und auch keine wollen. Du sagst mir, was dich
-            stört. Ich sage dir ehrlich, was es kostet und ob es sich lohnt.
+            Websites und Programme für Betriebe ohne IT-Abteilung. Du sagst
+            mir, was dich stört. Ich sage dir, was es kostet.
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -303,10 +302,7 @@ export default function HarebDigitalLanding() {
             </a>
           </div>
 
-          <p className="mt-7 text-[15px] text-white/50">
-            Antwort in 24 Stunden · Fester Preis, keine Überraschungen · Sitz in
-            Sankt Augustin, zuhause in Essen
-          </p>
+
         </div>
 
           <HeroProof />
@@ -321,6 +317,18 @@ export default function HarebDigitalLanding() {
             HAREB DIGITAL
           </div>
         </div>
+      </section>
+
+      {/* Die drei Zusagen standen als Kleinzeile unter den Schaltflächen — der
+          Ort, an dem eine Bühne aufhört, eine Bühne zu sein. Sie sind richtig
+          und wichtig, also stehen sie jetzt als eigene Zeile, mit Trennlinien
+          statt Mittelpunkten. */}
+      <section className="mx-auto max-w-7xl px-6 pb-16">
+        <ul className="grid gap-y-4 text-[15px] text-white/60 sm:grid-cols-3 sm:divide-x sm:divide-white/10">
+          <li className="sm:pr-6">Antwort in 24 Stunden</li>
+          <li className="sm:px-6">Fester Preis, keine Überraschungen</li>
+          <li className="sm:pl-6">Sitz in Sankt Augustin, zuhause in Essen</li>
+        </ul>
       </section>
 
       {/* ── Laufband ────────────────────────────────────────────────────── */}
@@ -482,7 +490,7 @@ export default function HarebDigitalLanding() {
           </h2>
           <p className="mx-auto mt-7 max-w-[48ch] text-[19px] leading-[1.6] text-white/75">
             Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden hast
-            du eine ehrliche Einschätzung — zu Umfang, Dauer und Preis.
+            du eine ehrliche Einschätzung – zu Umfang, Dauer und Preis.
           </p>
           <Link
             href="/anfrage"
@@ -506,7 +514,7 @@ export default function HarebDigitalLanding() {
             </span>
             <span className="text-[15px] text-white/50">· Inhaber Issa Hareb</span>
           </span>
-          <nav className="flex flex-wrap items-center gap-x-7 gap-y-2 text-[15px] text-white/60">
+          <nav className="flex flex-wrap items-center gap-x-7 gap-y-1 text-[15px] text-white/60 [&_a]:inline-flex [&_a]:min-h-[24px] [&_a]:items-center">
             <a href="mailto:info@hareb.org" className="transition-colors hover:text-white">
               info@hareb.org
             </a>

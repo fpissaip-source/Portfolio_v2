@@ -61,7 +61,7 @@ export default function AnfrageRoute() {
       >
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-label text-[13px] uppercase tracking-[0.17em] text-foreground/70 transition-colors hover:text-foreground"
+          className="inline-flex min-h-[24px] items-center gap-2 font-label text-[13px] uppercase tracking-[0.17em] text-foreground/70 transition-colors hover:text-foreground"
         >
           <span aria-hidden>←</span> Issa Hareb
         </Link>
@@ -106,7 +106,7 @@ export default function AnfrageRoute() {
           Lieber direkt schreiben?{' '}
           <a
             href="mailto:info@hareb.org"
-            className="underline decoration-purple/50 underline-offset-4 transition-colors hover:text-foreground"
+            className="inline-flex min-h-[24px] items-center underline decoration-purple/50 underline-offset-4 transition-colors hover:text-foreground"
           >
             info@hareb.org
           </a>

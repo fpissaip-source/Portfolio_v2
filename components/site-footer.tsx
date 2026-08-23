@@ -81,13 +81,13 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[13px] font-medium tracking-tight text-foreground/65 sm:justify-end">
-          <Link href="/affiliate" className="py-1.5 transition-colors hover:text-foreground">
+          <Link href="/affiliate" className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground">
             Affiliate
           </Link>
-          <Link href="/impressum" className="py-1.5 transition-colors hover:text-foreground">
+          <Link href="/impressum" className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground">
             {t.footer.imprint}
           </Link>
-          <Link href="/datenschutz" className="py-1.5 transition-colors hover:text-foreground">
+          <Link href="/datenschutz" className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground">
             {t.footer.privacy}
           </Link>
           {/* Withdrawing consent has to be as reachable as giving it, so the
@@ -96,7 +96,7 @@ export function SiteFooter() {
           <button
             type="button"
             onClick={openConsentSettings}
-            className="py-1.5 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
+            className="inline-flex min-h-[24px] items-center py-1.5 transition-colors hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue"
           >
             {t.consent.footerLink}
           </button>

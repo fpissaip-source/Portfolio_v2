@@ -372,6 +372,23 @@ export function Lukas() {
         },
       })
 
+      /* Bei abgeschalteter Bewegung stehen die Buchstaben sofort da.
+         Gemessen war es sonst schlimmer als eine ungewollte Animation: der
+         Untertitel "Logical Universal Knowledge Agent System" blieb auf
+         Deckkraft 0 hängen, weil der Anfangszustand dieser Zeitleiste gesetzt
+         wurde, der auslösende Bildlauf aber nie kam. Inhalt, den niemand
+         sieht, ist der teuerste Fehler in dieser Liste.
+
+         Der Tween muss dabei ganz entfallen, nicht nur vorher überschrieben
+         werden: `fromTo` setzt seinen Anfangszustand sofort beim Anlegen der
+         Zeitleiste und macht ein vorangehendes `set` damit wirkungslos. */
+      if (prefersReduced) {
+        gsap.set(q('[data-lukas-letter]'), {
+          opacity: 1,
+          yPercent: 0,
+          filter: 'blur(0px)',
+        })
+      } else
       tl.fromTo(
         q('[data-lukas-letter]'),
         { opacity: 0, yPercent: 60, filter: 'blur(14px)' },

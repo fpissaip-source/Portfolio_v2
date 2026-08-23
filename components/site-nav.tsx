@@ -1,11 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { useT } from './language-context'
 
 export function SiteNav() {
+  const reduce = useReducedMotion()
   const t = useT()
   const LINKS = [
     // Mirrors the page order: L.U.K.A.S. right after the hero, then the
@@ -73,10 +74,10 @@ export function SiteNav() {
       <AnimatePresence>
         {show && (
           <motion.nav
-            initial={{ opacity: 0, y: -20 }}
+            initial={reduce ? false : { opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -20 }}
+            transition={reduce ? { duration: 0 } : { duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="fixed left-1/2 top-4 z-50 hidden -translate-x-1/2 sm:block"
           >
             <div data-page-chrome className="glass flex items-center gap-1 rounded-full px-2 py-1.5">

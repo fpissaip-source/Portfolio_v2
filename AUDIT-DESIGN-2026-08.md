@@ -16,7 +16,11 @@ passt, steht der Grund dabei statt eines Häkchens.
 
 ---
 
-## A. Was zu beheben ist
+## A. Was zu beheben war — am 23.08.2026 erledigt
+
+Alle sechs Punkte sind behoben und am laufenden Build nachgemessen. Die
+Beschreibungen unten stehen unverändert, damit nachvollziehbar bleibt, was
+gefunden wurde; der Stand danach steht in Abschnitt F.
 
 ### A1. Bewegung ignoriert die Systemeinstellung — der wichtigste Befund
 
@@ -180,3 +184,38 @@ Richtung für eine neue Seite, nicht zum Prüfen einer bestehenden.
 4. **A5** — Bühnentext kürzen, Kleinzeile nach unten verschieben.
 5. **A4** — `spellCheck` und Fokus auf das erste Fehlerfeld.
 6. **A2** — tote Datei löschen.
+
+
+---
+
+## F. Stand nach der Behebung
+
+Gemessen am Produktionsbuild, 23.08.2026.
+
+| | vorher | nachher |
+|---|---|---|
+| Animationen bei `prefers-reduced-motion: reduce` | 1 laufend | **0** |
+| Unsichtbare Elemente bei reduzierter Bewegung | 1 | **0** |
+| `filter: blur()` an Textelementen | vorhanden | **0** |
+| Tippziele unter 24 px | 7 | **0** |
+| Geviertstriche im sichtbaren Text | 30 | **0** |
+| Bühnentext Landingpage | 33 Wörter | **19** |
+| `spellCheck` am E-Mail-Feld | fehlt | gesetzt |
+| Fokus beim unvollständigen Absenden | keiner | erstes fehlendes Feld |
+| toter `components/ui/button.tsx` | vorhanden | gelöscht |
+
+Bei normaler Bewegung läuft alles unverändert: Überschriften erscheinen mit
+voller Deckkraft, neun Routen mit je einem `h1`, korrektem `lang`, ohne
+waagerechten Überlauf und ohne Konsolenfehler.
+
+### Zwei Dinge, die beim Beheben erst sichtbar wurden
+
+**Ein Absatz war unsichtbar, nicht nur animiert.** Der Untertitel „Logical
+Universal Knowledge Agent System" stand bei abgeschalteter Bewegung dauerhaft
+auf Deckkraft 0: die Zeitleiste hatte ihren Anfangszustand gesetzt, der
+auslösende Bildlauf kam aber nie. Inhalt, den niemand sieht, wiegt schwerer
+als eine ungewollte Animation.
+
+**Ein `gsap.set` davor reicht nicht.** `fromTo` setzt seinen Anfangszustand
+sofort beim Anlegen der Zeitleiste und macht jedes vorangehende `set`
+wirkungslos. Der Tween muss bei reduzierter Bewegung ganz entfallen.

@@ -136,7 +136,7 @@ const PROJECT_OPTIONS: Record<'de' | 'en' | 'es', readonly ProjectOption[]> = {
       value: 'Komplett neue Website',
       title: 'Komplett neue Website',
       detail:
-        'Von der ersten Skizze bis zum laufenden Betrieb — inklusive maximaler Auffindbarkeit bei Google und bei ChatGPT, Gemini, Claude & Co.',
+        'Von der ersten Skizze bis zum laufenden Betrieb – inklusive maximaler Auffindbarkeit bei Google und bei ChatGPT, Gemini, Claude & Co.',
     },
     {
       value: 'Bestehende Website überarbeiten',
@@ -159,7 +159,7 @@ const PROJECT_OPTIONS: Record<'de' | 'en' | 'es', readonly ProjectOption[]> = {
       value: 'Komplett neue Website',
       title: 'A completely new website',
       detail:
-        'From the first sketch to running in production — including maximum findability on Google and in ChatGPT, Gemini, Claude and the rest.',
+        'From the first sketch to running in production – including maximum findability on Google and in ChatGPT, Gemini, Claude and the rest.',
     },
     {
       value: 'Bestehende Website überarbeiten',
@@ -299,6 +299,20 @@ export function EnquiryForm() {
 
     if (!ready) {
       setError(t.required)
+      /* Den Fokus auf das erste fehlende Feld setzen, nicht nur eine Meldung
+         zeigen. Wer mit der Tastatur oder einem Screenreader arbeitet, hoert
+         sonst "bitte ausfuellen" und muss die Felder selbst absuchen. Die
+         Reihenfolge stammt aus derselben Liste, die den Zustand bestimmt. */
+      const firstMissing =
+        (!values.projectType && 'projectType') ||
+        (!values.name.trim() && 'name') ||
+        (!EMAIL_RE.test(values.email.trim()) && 'email') ||
+        'message'
+      const el = document.getElementById(
+        firstMissing === 'projectType' ? 'projekt-auswahl' : firstMissing,
+      )
+      el?.focus()
+      el?.scrollIntoView({ block: 'center', behavior: 'smooth' })
       return
     }
 
@@ -414,6 +428,11 @@ export function EnquiryForm() {
             required
             autoComplete="email"
             inputMode="email"
+            /* Ohne das unterkringelt der Browser jede Adresse rot, weil in
+               keinem Woerterbuch steht, wie jemand heisst. */
+            spellCheck={false}
+            autoCorrect="off"
+            autoCapitalize="off"
             placeholder={t.emailPlaceholder}
             value={values.email}
             onChange={(e) => set('email')(e.target.value)}

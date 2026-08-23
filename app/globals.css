@@ -1371,3 +1371,31 @@ section.hd-akt {
     margin-top: 0.75rem;
   }
 }
+
+/* ---------------------------------------------------------------------
+   Abgeschaltete Bewegung: der Ruhezustand als Regel, nicht als Absicht
+
+   Ein Element, dessen Anfangszustand aus einer Variante kommt, hat ein
+   Loch in genau dieser Kombination: der Server kennt die Systemeinstellung
+   des Besuchers nicht und rendert deshalb immer den Anfangszustand, also
+   verborgen. Im Browser wird die Bewegung dann uebersprungen, und weil sie
+   uebersprungen wird, animiert niemand mehr auf sichtbar. Ergebnis:
+   ausgerechnet wer ruhige Seiten bestellt hat, bekommt gar keine
+   Ueberschriften zu sehen. Nachgemessen auf der Portfolio-Startseite: 52
+   von 52 Wortmasken standen auf Deckkraft 0.
+
+   Die Korrektur gehoert nach CSS und nicht nach JavaScript. CSS kennt die
+   Einstellung schon vor der ersten Zeile Skript, und Server und Browser
+   rendern weiterhin dasselbe Markup, es gibt also nichts, was beim
+   Einhaengen auseinanderlaufen koennte.
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-wortmaske] > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [data-lesesatz] > span {
+    opacity: 1 !important;
+  }
+}

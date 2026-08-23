@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
@@ -8,10 +8,13 @@ import {
   animate,
   motion,
   useInView,
+  useMotionValue,
+  useMotionValueEvent,
   useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
+  type MotionValue,
 } from 'motion/react'
 
 /**
@@ -128,24 +131,140 @@ function Titel({ children, className }: { children: string; className?: string }
       variants={{ an: { transition: { staggerChildren: 0.055 } } }}
     >
       {woerter.map((wort, i) => (
-        <span
-          key={`${wort}-${i}`}
-          className="inline-block overflow-hidden pb-[0.14em] align-bottom -mb-[0.14em]"
-        >
-          <motion.span
-            className="inline-block"
-            variants={
-              reduce ? undefined : { aus: { y: '108%', opacity: 0 }, an: { y: 0, opacity: 1 } }
-            }
-            transition={{ duration: 0.75, ease: EASE }}
+        <Fragment key={`${wort}-${i}`}>
+          <span
+            data-wortmaske
+            className="inline-block overflow-hidden pb-[0.14em] align-bottom -mb-[0.14em]"
           >
-            {wort}
-            {i < woerter.length - 1 ? '\u00A0' : ''}
-          </motion.span>
-        </span>
+            <motion.span
+              className="inline-block"
+              variants={
+                reduce ? undefined : { aus: { y: '108%', opacity: 0 }, an: { y: 0, opacity: 1 } }
+              }
+              transition={{ duration: 0.75, ease: EASE }}
+            >
+              {wort}
+            </motion.span>
+          </span>
+          {/* Das Leerzeichen steht zwischen den Masken, nicht in ihnen. In
+              einem inline-block fiele es am Rand weg, die Wörter klebten
+              zusammen, und kopierter Text trüge geschützte Leerzeichen. */}
+          {i < woerter.length - 1 ? ' ' : ''}
+        </Fragment>
       ))}
     </motion.h2>
   )
+}
+
+/* Ein Satz, der sich beim Scrollen selbst liest: Wort für Wort geht von
+   fast unsichtbar auf volle Deckkraft, gebunden an den Scrollweg statt an
+   eine Uhr. Was es mitteilt: lies langsam, das hier ist die Behauptung, auf
+   der alles andere steht.
+
+   Der Trick liegt in der Bindung. Eine Uhr würde den Satz abspulen, egal wie
+   schnell jemand scrollt; so bestimmt der Leser das Tempo und hält an, wenn
+   er anhält. Das Wort bleibt gewöhnlicher Text mit einem Leerzeichen darin,
+   deshalb ein inline-Element und kein inline-block: bei inline-block würde
+   das schliessende Leerzeichen wegfallen und die Wörter kleben zusammen. */
+function LeuchtWort({
+  fortschritt,
+  von,
+  bis,
+  aus,
+  children,
+}: {
+  fortschritt: MotionValue<number>
+  von: number
+  bis: number
+  aus: boolean
+  children: string
+}) {
+  const deckung = useTransform(fortschritt, [von, bis], [0.15, 1])
+  return <motion.span style={aus ? undefined : { opacity: deckung }}>{children}</motion.span>
+}
+
+function LeuchtSatz({ text, className }: { text: string; className?: string }) {
+  const reduce = useReducedMotion()
+  const ref = useRef<HTMLParagraphElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.6'] })
+  const woerter = text.split(' ')
+
+  return (
+    <p ref={ref} data-lesesatz className={className}>
+      {woerter.map((wort, i) => (
+        <LeuchtWort
+          key={`${wort}-${i}`}
+          fortschritt={scrollYProgress}
+          von={i / woerter.length}
+          bis={(i + 1) / woerter.length}
+          aus={!!reduce}
+        >
+          {i < woerter.length - 1 ? `${wort} ` : wort}
+        </LeuchtWort>
+      ))}
+    </p>
+  )
+}
+
+/* Der Knopf zieht den Zeiger an: er folgt ihm ein Stück weit, federt zurück,
+   sobald der Zeiger geht. Was es mitteilt: hier will etwas angefasst werden.
+
+   Nur bei einem feinen Zeiger. Auf einem Touchscreen gibt es kein Schweben,
+   und ein Element, das erst beim Antippen wegrutscht, ist kein Effekt,
+   sondern ein Ziel, das ausweicht. */
+function Magnet({ children, className }: { children: React.ReactNode; className?: string }) {
+  const reduce = useReducedMotion()
+  const ref = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const fx = useSpring(x, { stiffness: 240, damping: 18, mass: 0.3 })
+  const fy = useSpring(y, { stiffness: 240, damping: 18, mass: 0.3 })
+  const [fein, setFein] = useState(false)
+
+  useEffect(() => {
+    const m = window.matchMedia('(pointer: fine)')
+    const setzen = () => setFein(m.matches)
+    setzen()
+    m.addEventListener('change', setzen)
+    return () => m.removeEventListener('change', setzen)
+  }, [])
+
+  const an = fein && !reduce
+
+  return (
+    <motion.div
+      ref={ref}
+      className={`inline-block ${className ?? ''}`}
+      style={an ? { x: fx, y: fy } : undefined}
+      onPointerMove={(e) => {
+        if (!an || !ref.current) return
+        const r = ref.current.getBoundingClientRect()
+        x.set((e.clientX - (r.left + r.width / 2)) * 0.28)
+        y.set((e.clientY - (r.top + r.height / 2)) * 0.34)
+      }}
+      onPointerLeave={() => {
+        x.set(0)
+        y.set(0)
+      }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+/* Ob die Seite breit genug für das gepinnte Laufwerk ist. Der erste Durchlauf
+   meldet immer false, auf dem Server gibt es kein matchMedia: die Liste ist
+   damit der Grundzustand und das Laufwerk die Zutat, nicht umgekehrt. */
+function useBreit(abfrage = '(min-width: 1024px)') {
+  const [an, setAn] = useState(false)
+  useEffect(() => {
+    const m = window.matchMedia(abfrage)
+    const setzen = () => setAn(m.matches)
+    setzen()
+    m.addEventListener('change', setzen)
+    return () => m.removeEventListener('change', setzen)
+  }, [abfrage])
+  return an
 }
 
 /* Die Zahlen zählen hoch. Was es mitteilt: hin zu den einzigen vier Angaben
@@ -159,8 +278,12 @@ function Zahl({ ziel, suffix }: { ziel: number; suffix: string }) {
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (reduce || !sichtbar) {
-      if (reduce) el.textContent = String(ziel) + suffix
+    if (reduce) {
+      el.textContent = String(ziel) + suffix
+      return
+    }
+    if (!sichtbar) {
+      el.textContent = '0' + suffix
       return
     }
     const controls = animate(0, ziel, {
@@ -173,7 +296,12 @@ function Zahl({ ziel, suffix }: { ziel: number; suffix: string }) {
     return () => controls.stop()
   }, [sichtbar, ziel, suffix, reduce])
 
-  return <span ref={ref}>{reduce ? ziel + suffix : '0' + suffix}</span>
+  /* Im Dokument steht die richtige Zahl, nicht die Null. Zwei Gründe: ein
+     Crawler liest "24 h" und nicht "0 h", und der Server rendert dasselbe wie
+     der Browser im ersten Durchgang, egal ob dort Bewegung abgeschaltet ist.
+     Auf null gesetzt wird erst danach, im Effekt, lange bevor der Abschnitt
+     überhaupt in den Blick kommt. */
+  return <span ref={ref}>{ziel + suffix}</span>
 }
 
 /* Jeder Satz wird durchgestrichen, sobald er in den Blick kommt. Was es
@@ -202,6 +330,102 @@ function Problem({ text, index }: { text: string; index: number }) {
         />
       </span>
     </li>
+  )
+}
+
+/* Das Laufwerk: die vier Leistungen liegen nebeneinander und fahren quer
+   durchs Bild, während man senkrecht scrollt. Was es mitteilt: das ist eine
+   Auswahl zum Durchsehen, kein Stapel Text zum Durchlesen.
+
+   Eigene Komponente, nicht bloss ein Zweig im Baum darüber. useScroll misst
+   seinen Ref beim Einhängen; steht der Zweig beim ersten Rendern noch nicht
+   da, weil matchMedia erst nach dem Einhängen antwortet, greift die Messung
+   ins Leere und startet nie wieder. Als eigene Komponente wird sie erst
+   erzeugt, wenn ihr Element auch entsteht.
+
+   Der Weg wird gemessen statt geschätzt: sonst bleibt am Ende entweder eine
+   Lücke stehen oder die letzte Karte hängt halb aus dem Bild. */
+function Laufwerk() {
+  const bahn = useRef<HTMLDivElement>(null)
+  const spur = useRef<HTMLOListElement>(null)
+  const [weg, setWeg] = useState(0)
+  const [karte, setKarte] = useState(0)
+  const { scrollYProgress } = useScroll({ target: bahn, offset: ['start start', 'end end'] })
+  const x = useTransform(scrollYProgress, [0, 1], [0, -weg])
+  const weich = useSpring(x, { stiffness: 200, damping: 34, mass: 0.5 })
+
+  useEffect(() => {
+    const messen = () => {
+      const el = spur.current
+      if (!el) return
+      setWeg(Math.max(0, el.scrollWidth - window.innerWidth + 24))
+    }
+    messen()
+    const beobachter = new ResizeObserver(messen)
+    if (spur.current) beobachter.observe(spur.current)
+    window.addEventListener('resize', messen)
+    return () => {
+      beobachter.disconnect()
+      window.removeEventListener('resize', messen)
+    }
+  }, [])
+
+  /* Der Zähler oben rechts. Er hängt am selben Fortschritt wie die Fahrt,
+     rendert aber nur, wenn die Karte wechselt: vier Zustände auf der ganzen
+     Strecke statt einer Zustandsänderung pro Bild. */
+  useMotionValueEvent(scrollYProgress, 'change', (v) => {
+    const i = Math.min(LEISTUNGEN.length - 1, Math.floor(v * LEISTUNGEN.length + 0.0001))
+    setKarte(i < 0 ? 0 : i)
+  })
+
+  return (
+    <div ref={bahn} className="relative h-[280vh]">
+      <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
+        <div className="mx-auto flex w-[min(72rem,calc(100vw-3rem))] items-baseline justify-between pb-8">
+          <span className="hd-label">Leistungen</span>
+          <span className="font-display text-[15px] font-bold tabular-nums tracking-tight">
+            {LEISTUNGEN[karte].n}
+            <span className="text-[color:var(--hd-ink-soft)]"> / 0{LEISTUNGEN.length}</span>
+          </span>
+        </div>
+
+        <motion.ol ref={spur} style={{ x: weich }} className="flex gap-7 px-6">
+          {LEISTUNGEN.map((l, i) => (
+            <li
+              key={l.n}
+              className="hd-surface flex min-h-[21rem] w-[min(82vw,34rem)] shrink-0 flex-col justify-between p-10"
+              /* Die Karte, die gerade dran ist, steht vorn: volle Deckkraft,
+                 die anderen treten zurück. Was es mitteilt: eine nach der
+                 anderen, nicht alle auf einmal. */
+              style={{ opacity: i === karte ? 1 : 0.55, transition: 'opacity 0.45s ease' }}
+            >
+              <span className="hd-num">{l.n}</span>
+              <div>
+                <h3 className="font-display text-[28px] font-bold leading-[1.12] tracking-[-0.02em]">
+                  {l.titel}
+                </h3>
+                <p className="mt-4 max-w-[46ch] text-[17px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
+                  {l.text}
+                </p>
+              </div>
+            </li>
+          ))}
+        </motion.ol>
+
+        {/* Der zurückgelegte Weg als Balken. Was es mitteilt: es sind vier,
+            und du bist bei der zweiten. */}
+        <div
+          aria-hidden
+          className="mx-auto mt-10 h-px w-[min(72rem,calc(100vw-3rem))]"
+          style={{ background: 'var(--hd-line)' }}
+        >
+          <motion.div
+            className="h-full origin-left"
+            style={{ scaleX: scrollYProgress, background: 'var(--hd-accent)' }}
+          />
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -271,6 +495,25 @@ export function HdLanding() {
     }
   }, [])
 
+  /* Ein Band unter der Kopfzeile zeigt, wie weit die Seite gelesen ist. Was
+     es mitteilt: wie viel noch kommt. Es ist die einzige Bewegung der Seite,
+     die auch bei abgeschalteter Bewegung bleibt, weil sie keine ist: es zeigt
+     eine Position an, es animiert nichts von allein. Die Feder nimmt dem
+     Zeiger nur das Zucken bei ruckeligem Scrollen. */
+  const { scrollYProgress: seiteP } = useScroll()
+  const band = useSpring(seiteP, { stiffness: 140, damping: 30, mass: 0.3 })
+
+  const laufwerk = useBreit() && !reduce
+
+  /* Die Linie unter dem Ablauf zeichnet sich mit dem Scrollen. Was es
+     mitteilt: die vier Schritte sind ein Weg und keine vier Kästen. */
+  const ablauf = useRef<HTMLDivElement>(null)
+  const { scrollYProgress: ablaufP } = useScroll({
+    target: ablauf,
+    offset: ['start 0.85', 'end 0.65'],
+  })
+  const linie = useSpring(ablaufP, { stiffness: 120, damping: 28, mass: 0.4 })
+
   const film = useRef<HTMLDivElement>(null)
   const { scrollYProgress: filmP } = useScroll({
     target: film,
@@ -287,7 +530,7 @@ export function HdLanding() {
       {/* ── Kopfzeile ───────────────────────────────────────────────────── */}
       <header
         ref={kopf}
-        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-500 ${imAkt ? 'hd-akt' : ''}`}
+        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-500 ${imAkt ? 'hd-akt' : ''} relative`}
         style={{ borderColor: 'var(--hd-line)', background: 'color-mix(in oklch, var(--hd-paper) 82%, transparent)' }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -300,6 +543,11 @@ export function HdLanding() {
             <ArrowRight className="h-4 w-4" aria-hidden />
           </Link>
         </div>
+        <motion.div
+          aria-hidden
+          className="absolute inset-x-0 -bottom-px h-[2px] origin-left"
+          style={{ scaleX: band, background: 'var(--hd-accent)' }}
+        />
       </header>
 
       {/* ── Bühne ───────────────────────────────────────────────────────── */}
@@ -329,10 +577,12 @@ export function HdLanding() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.22, ease: EASE }}
             >
-              <Link href="/anfrage" className="hd-cta hd-cta-pulse px-7 py-3.5 text-[17px]">
-                Projekt anfragen
-                <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
-              </Link>
+              <Magnet>
+                <Link href="/anfrage" className="hd-cta hd-cta-pulse px-7 py-3.5 text-[17px]">
+                  Projekt anfragen
+                  <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
+                </Link>
+              </Magnet>
               <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
                 Arbeiten ansehen
               </a>
@@ -378,9 +628,16 @@ export function HdLanding() {
               <Problem key={p} text={p} index={i % 3} />
             ))}
           </ul>
-          <Auf delay={0.15}>
-            <p className="mt-9 text-[17px] font-medium">Genau das ist die Arbeit.</p>
-          </Auf>
+        </div>
+      </section>
+
+      {/* ── Behauptung ──────────────────────────────────────────────────── */}
+      <section className="hd-rule">
+        <div className="mx-auto max-w-5xl px-6 py-24 sm:py-36">
+          <LeuchtSatz
+            className="font-display text-[1.75rem] font-bold leading-[1.28] tracking-[-0.02em] text-[color:var(--hd-ink)] sm:text-[2.4rem] sm:leading-[1.25]"
+            text="Genau das ist die Arbeit. Du bekommst keine Präsentation, sondern eine Seite, die läuft. Kein Baukasten, kein Abo, keine Warteschleife. Klemmt etwas, schreibst du mir und nicht einer Hotline."
+          />
         </div>
       </section>
 
@@ -526,7 +783,7 @@ export function HdLanding() {
 
       {/* ── Leistungen ──────────────────────────────────────────────────── */}
       <section className="hd-rule">
-        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+        <div className="mx-auto max-w-6xl px-6 pb-4 pt-16 sm:pt-24">
           <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
             Such dir aus, was gerade drückt.
           </Titel>
@@ -536,26 +793,30 @@ export function HdLanding() {
               dieser vier Punkte, und der bringt schon den Unterschied.
             </p>
           </Auf>
+        </div>
 
-          <div className="mt-12">
+        {laufwerk ? (
+          <Laufwerk />
+        ) : (
+          <div className="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:pb-24">
             {LEISTUNGEN.map((l, i) => (
               <Auf key={l.n} delay={i * 0.06}>
                 {/* Die Zeile bekommt beim Zeigen einen hellen Grund und rückt
                     ein Stück nach rechts. Was es mitteilt: das hier ist eine
                     Auswahl, keine Aufzählung. */}
-                <div className="hd-rule grid gap-x-10 gap-y-3 py-8 transition-[background-color,padding] duration-300 hover:bg-white hover:pl-4 sm:grid-cols-[8rem_1fr] lg:grid-cols-[10rem_22rem_1fr]">
+                <div className="hd-rule grid gap-x-10 gap-y-3 py-8 transition-[background-color,padding] duration-300 hover:bg-white hover:pl-4 sm:grid-cols-[8rem_1fr]">
                   <span className="hd-num">{l.n}</span>
                   <h3 className="font-display text-xl font-bold tracking-[-0.015em] sm:text-[22px]">
                     {l.titel}
                   </h3>
-                  <p className="max-w-[56ch] text-[17px] leading-[1.6] text-[color:var(--hd-ink-soft)] sm:col-span-2 lg:col-span-1">
+                  <p className="max-w-[56ch] text-[17px] leading-[1.6] text-[color:var(--hd-ink-soft)] sm:col-span-2">
                     {l.text}
                   </p>
                 </div>
               </Auf>
             ))}
           </div>
-        </div>
+        )}
       </section>
 
       {/* ── Ablauf ──────────────────────────────────────────────────────── */}
@@ -567,7 +828,15 @@ export function HdLanding() {
           <Titel className="mt-4 max-w-[18ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
             Vier Schritte, kein Kleingedrucktes.
           </Titel>
-          <ol className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+
+          <div ref={ablauf}>
+            <div aria-hidden className="mt-12 h-px w-full" style={{ background: 'var(--hd-line)' }}>
+              <motion.div
+                className="h-full origin-left"
+                style={{ scaleX: reduce ? 1 : linie, background: 'var(--hd-accent)' }}
+              />
+            </div>
+            <ol className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {ABLAUF.map((s, i) => (
               <Auf key={s.n} delay={i * 0.09}>
                 <li>
@@ -581,7 +850,8 @@ export function HdLanding() {
                 </li>
               </Auf>
             ))}
-          </ol>
+            </ol>
+          </div>
         </div>
       </section>
 
@@ -612,10 +882,12 @@ export function HdLanding() {
               Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden
               hast du eine ehrliche Einschätzung zu Umfang, Dauer und Preis.
             </p>
-            <Link href="/anfrage" className="hd-cta hd-cta-pulse mt-9 px-8 py-4 text-[17px]">
-              Projekt anfragen
-              <ArrowRight className="h-5 w-5" aria-hidden />
-            </Link>
+            <Magnet className="mt-9">
+              <Link href="/anfrage" className="hd-cta hd-cta-pulse px-8 py-4 text-[17px]">
+                Projekt anfragen
+                <ArrowRight className="h-5 w-5" aria-hidden />
+              </Link>
+            </Magnet>
           </Auf>
         </div>
       </section>

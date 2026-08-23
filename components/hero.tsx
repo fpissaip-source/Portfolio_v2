@@ -238,6 +238,21 @@ export function Hero() {
     return () => {
       stageObserver.disconnect()
       trigger.kill()
+      // Aufräumen, was dieser Effekt direkt ins style-Attribut geschrieben
+      // hat. Nötig, weil er einmal läuft, bevor die Systemeinstellung
+      // ausgelesen ist: schaltet der Besucher Bewegung ab, kippt `reduced`
+      // erst danach auf true, der Effekt wird abgebaut, und ohne diese
+      // Zeilen bliebe seine letzte Setzung stehen. Genau so standen der
+      // zweite Absatz und die Belegzeile bei abgeschalteter Bewegung
+      // dauerhaft auf Deckkraft 0.
+      rows.forEach((row) => {
+        row.style.opacity = ''
+        row.style.transform = ''
+      })
+      reveal.style.opacity = ''
+      robot.style.height = ''
+      robotBox.style.width = ''
+      robotBox.style.height = ''
     }
   }, [reduced])
 

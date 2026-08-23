@@ -152,7 +152,7 @@ export function WordReveal({
           site came from here. */}
       {words.map((word, i) => (
         <Fragment key={i}>
-          <span className="inline-block overflow-hidden align-bottom" aria-hidden>
+          <span className="inline-block overflow-hidden align-bottom" aria-hidden data-wortmaske>
                 <motion.span
                 className="inline-block will-transform"
                 variants={reduce ? undefined : wordVariant}

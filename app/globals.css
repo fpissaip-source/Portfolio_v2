@@ -1058,242 +1058,6 @@ button.enquiry-input {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   Hareb Digital — die Kundenseite.
-
-   Eigene Farben, und das ist Absicht. Das Portfolio kennt Violett und Blau,
-   zwei Nachbarn auf dem Farbkreis. Das Logo von Hareb Digital läuft über drei
-   Stationen: Cyan, Magenta, Orange. Diese Spanne ist die Handschrift der
-   Kundenmarke und wäre im Portfolio falsch — dort trägt der Kontrast die
-   Arbeit, hier trägt ihn die Marke.
-
-   Alles hier kommt ohne three.js, ohne GSAP und ohne Lenis aus. Die Seite hat
-   eine Aufgabe: erklären und zum Formular führen. Was den Aufbau verzögert,
-   arbeitet gegen sie.
-   ───────────────────────────────────────────────────────────────────────── */
-
-.hd {
-  --hd-cyan: oklch(0.78 0.15 220);
-  --hd-blue: oklch(0.62 0.21 268);
-  --hd-magenta: oklch(0.66 0.26 340);
-  --hd-orange: oklch(0.74 0.18 45);
-  --hd-ink: #07070c;
-}
-
-/* Der Verlauf, der durch die grosse Schrift läuft.
-
-   `background-clip: text` statt einer Farbe: die Schrift wird zum Fenster auf
-   den Verlauf, und weil das Fenster steht und der Verlauf wandert, bewegt sich
-   das Licht in den Buchstaben statt der Buchstaben selbst. Das ist der Grund,
-   warum es teuer aussieht und nichts kostet — animiert wird eine
-   Hintergrundposition, kein Layout. */
-.hd-gradient-text {
-  background-image: linear-gradient(
-    100deg,
-    var(--hd-cyan) 0%,
-    var(--hd-blue) 26%,
-    var(--hd-magenta) 58%,
-    var(--hd-orange) 82%,
-    var(--hd-cyan) 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: hd-drift 14s linear infinite;
-}
-
-@keyframes hd-drift {
-  to {
-    background-position: 220% 0;
-  }
-}
-
-/* Die Klammern aus dem Logo, <H/D>. Sie rahmen die Marken der Abschnitte und
-   sind das einzige Ornament, das die Seite sich erlaubt — dafür überall
-   dasselbe, damit es als Handschrift gelesen wird und nicht als Zufall. */
-.hd-bracket {
-  font-family: var(--font-poster);
-  color: color-mix(in oklch, var(--hd-magenta) 70%, transparent);
-}
-
-.hd-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-family: var(--font-label);
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: color-mix(in oklch, #fff 78%, transparent);
-}
-
-/* Der Geister-Schriftzug, der hinter dem Bild aus dem Rand läuft. */
-.hd-ghost {
-  font-family: var(--font-poster);
-  line-height: 0.78;
-  letter-spacing: -0.03em;
-  color: transparent;
-  -webkit-text-stroke: 1px color-mix(in oklch, #fff 12%, transparent);
-  user-select: none;
-}
-
-/* ── Das Laufband ──────────────────────────────────────────────────────────
-   Zwei identische Spuren nebeneinander, die zweite per aria-hidden. Eine
-   einzelne Spur, die zurückspringt, ist an der Nahtstelle sichtbar; zwei, die
-   um genau ihre eigene Breite wandern, laufen endlos. */
-.hd-marquee {
-  display: flex;
-  width: max-content;
-  animation: hd-marquee 38s linear infinite;
-}
-
-@keyframes hd-marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.hd-marquee-mask {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-}
-
-/* ── Karten ───────────────────────────────────────────────────────────────
-   Eine Lichtkante oben statt eines Rahmens ringsum: ein Rahmen umschliesst,
-   eine Kante trägt. Der Unterschied entscheidet, ob eine Fläche wie ein
-   Kasten wirkt oder wie eine Platte. */
-.hd-card {
-  position: relative;
-  border-radius: 1.35rem;
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklch, #fff 6%, transparent),
-    color-mix(in oklch, #fff 2%, transparent)
-  );
-  border: 1px solid color-mix(in oklch, #fff 8%, transparent);
-  transition:
-    border-color 0.35s ease,
-    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.hd-card::before {
-  content: '';
-  position: absolute;
-  inset: 0 2rem auto;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    color-mix(in oklch, var(--hd-magenta) 65%, transparent),
-    transparent
-  );
-  opacity: 0.55;
-  transition: opacity 0.35s ease;
-}
-
-.hd-card:hover {
-  border-color: color-mix(in oklch, var(--hd-magenta) 30%, transparent);
-  transform: translateY(-3px);
-}
-
-.hd-card:hover::before {
-  opacity: 1;
-}
-
-.hd-num {
-  font-family: var(--font-poster);
-  font-size: 3.25rem;
-  line-height: 0.8;
-  letter-spacing: -0.02em;
-  background-image: linear-gradient(
-    150deg,
-    var(--hd-cyan),
-    var(--hd-magenta) 60%,
-    var(--hd-orange)
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  opacity: 0.28;
-  transition: opacity 0.35s ease;
-}
-
-.hd-card:hover .hd-num {
-  opacity: 0.85;
-}
-
-/* ── Der Knopf ────────────────────────────────────────────────────────────
-   Pille mit Verlauf, wie im Formular — dieselbe Geste an beiden Enden des
-   Weges, damit der Besucher am Ziel wiedererkennt, worauf er geklickt hat. */
-.hd-cta {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border-radius: 999px;
-  background: linear-gradient(
-    100deg,
-    var(--hd-cyan) 0%,
-    var(--hd-blue) 32%,
-    var(--hd-magenta) 66%,
-    var(--hd-orange) 100%
-  );
-  background-size: 180% 100%;
-  color: #07070c;
-  font-weight: 600;
-  transition:
-    background-position 0.6s ease,
-    transform 0.2s ease,
-    box-shadow 0.35s ease;
-  box-shadow: 0 14px 40px -14px color-mix(in oklch, var(--hd-magenta) 75%, transparent);
-}
-
-.hd-cta:hover {
-  background-position: 100% 0;
-  transform: translateY(-2px);
-  box-shadow: 0 20px 54px -14px color-mix(in oklch, var(--hd-magenta) 90%, transparent);
-}
-
-.hd-cta-ghost {
-  border-radius: 999px;
-  border: 1px solid color-mix(in oklch, #fff 20%, transparent);
-  color: #fff;
-  transition:
-    border-color 0.3s ease,
-    background-color 0.3s ease,
-    transform 0.2s ease;
-}
-
-.hd-cta-ghost:hover {
-  border-color: color-mix(in oklch, var(--hd-cyan) 55%, transparent);
-  background: color-mix(in oklch, #fff 5%, transparent);
-  transform: translateY(-2px);
-}
-
-/* Der Verlaufsstrich, der Abschnitte trennt. Kein volles Lineal: er läuft aus,
-   weil eine Kante quer über die Seite die Seite in Stücke schneidet. */
-.hd-rule {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    color-mix(in oklch, var(--hd-magenta) 45%, transparent),
-    color-mix(in oklch, #fff 8%, transparent) 45%,
-    transparent
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hd-gradient-text,
-  .hd-marquee {
-    animation: none;
-  }
-  .hd-card:hover {
-    transform: none;
-  }
-}
-
-
-/* ─────────────────────────────────────────────────────────────────────────
    Dekorative Buchstaben.
 
    Die animierten Schlagzeilen zeichnen jeden Buchstaben einzeln, damit sie
@@ -1313,4 +1077,125 @@ button.enquiry-input {
 
 .lit-line::before {
   content: attr(data-text);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   Hareb Digital — die Kundenseite, zweiter Anlauf.
+
+   Der erste war dunkel, mit Neon-Verlauf durch die Grossbuchstaben und vier
+   nachgebauten Oberflaechen als Bildersatz. Drei Regeln auf einmal gebrochen:
+   Verlaufsschrift auf Grossueberschriften, die Violett-Glow-Aesthetik, und
+   div-Attrappen statt echter Bilder. Dazu null Fotos auf der ganzen Seite.
+   Eine reine Textseite ist kein Minimalismus, sondern unfertige Arbeit.
+
+   Jetzt das Gegenteil, und zwar aus einem sachlichen Grund: der Besucher ist
+   kein Designer, sondern jemand, der eine Schreinerei oder eine Praxis
+   fuehrt und ueberlegt, ob er hier fuenfstellig ausgibt. Den ueberzeugt
+   nicht, wie die Seite leuchtet, sondern ob er sieht, was schon gebaut
+   wurde. Also: heller Grund, fast schwarze Schrift, ein einziger warmer
+   Akzent aus dem Logo, und der Platz gehoert den echten Bildschirmfotos.
+
+   Richtung aus `awesome-design/styles/editorial`: es ist der einzige Stil in
+   der Sammlung mit eigener Handschrift statt des ueblichen Standard-Blau.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.hd {
+  --hd-paper: #fbfaf8;
+  --hd-paper-2: #f2efea;
+  --hd-ink: #14120f;
+  --hd-ink-soft: #57514a;
+  --hd-line: #e2ddd5;
+  /* Ein Akzent, aus dem warmen Ende des Logoverlaufs. Dunkel genug, um als
+     Flaeche mit weisser Schrift 4.5:1 zu erreichen — die helle Fassung des
+     Logo-Orange haette das auf Papier nicht geschafft. */
+  --hd-accent: oklch(0.55 0.16 42);
+  --hd-accent-soft: oklch(0.96 0.02 60);
+
+  background: var(--hd-paper);
+  color: var(--hd-ink);
+}
+
+/* Eine Radiusfamilie fuer die ganze Seite: Flaechen 14px, Bedienelemente
+   voll gerundet. Gemischte Systeme sind der Grund, warum Seiten unruhig
+   wirken, ohne dass man sagen kann, woran es liegt. */
+.hd-surface {
+  border: 1px solid var(--hd-line);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.hd-shot {
+  border: 1px solid var(--hd-line);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--hd-paper-2);
+  /* Der Schatten ist auf den Papierton getoent, nicht schwarz. Reines
+     Schwarz unter einem warmen Weiss sieht immer nach Fremdkoerper aus. */
+  box-shadow: 0 18px 40px -28px rgb(60 45 30 / 0.45);
+}
+
+.hd-label {
+  display: inline-block;
+  font-family: var(--font-label);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hd-accent);
+}
+
+/* Bedienelemente. Bewegung steht auf Stufe 3: kein Selbstlaeufer, nur
+   Zustaende. Der Knopf hebt sich beim Zeigen um einen Pixel und geht beim
+   Druecken einen wieder herunter, sonst passiert nichts von allein. */
+.hd-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  background: var(--hd-ink);
+  color: var(--hd-paper);
+  font-weight: 600;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.hd-cta:hover {
+  background: var(--hd-accent);
+  transform: translateY(-1px);
+}
+
+.hd-cta:active {
+  transform: translateY(0);
+}
+
+.hd-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--hd-line);
+  color: var(--hd-ink);
+  font-weight: 500;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.hd-cta-ghost:hover {
+  border-color: var(--hd-ink);
+  background: #fff;
+}
+
+/* Die Ziffern vor den Leistungen. Plakatschrift, aber klein und in der
+   Linienfarbe: sie ordnen, sie schreien nicht. */
+.hd-num {
+  font-family: var(--font-poster);
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  color: var(--hd-accent);
+}
+
+.hd-rule {
+  border-top: 1px solid var(--hd-line);
 }

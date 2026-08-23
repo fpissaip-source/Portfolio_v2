@@ -32,8 +32,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'dark',
-  themeColor: '#07070c',
+  /* Hell, und das ist die Entscheidung, die den zweiten Anlauf traegt. Die
+     Kundenseite soll nicht aussehen wie das Portfolio, und ein Besucher, der
+     eine Schreinerei fuehrt, liest auf Papier besser als auf Schwarz. */
+  colorScheme: 'light',
+  themeColor: '#fbfaf8',
   width: 'device-width',
   initialScale: 1,
 }
@@ -44,7 +47,7 @@ export default function KundenLayout({ children }: { children: React.ReactNode }
       lang="de"
       className={`${bodyFace.variable} ${headingFace.variable} ${posterFace.variable} ${labelFace.variable}`}
     >
-      <body className="hd bg-[#07070c] text-white antialiased">{children}</body>
+      <body className="hd antialiased">{children}</body>
     </html>
   )
 }

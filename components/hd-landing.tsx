@@ -4,6 +4,8 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
+import { langPath } from '@/lib/i18n'
 import {
   animate,
   motion,
@@ -34,52 +36,6 @@ import {
  * dieser Dichte an Bewegung wäre die Seite ohne den Schalter für einen Teil
  * der Besucher unbenutzbar.
  */
-
-const PROBLEME = [
-  'Das Telefon klingelt nicht mehr so wie früher.',
-  'Bei Google finden uns nur die, die uns sowieso kennen.',
-  'Die Seite sieht aus wie 2014.',
-  'Auf dem Handy ist alles verrutscht.',
-  'Angebote schreiben dauert jedes Mal ewig.',
-  'Die Agentur meldet sich seit Wochen nicht.',
-]
-
-const LEISTUNGEN = [
-  {
-    n: '01',
-    titel: 'Eine neue Website',
-    text: 'Von der ersten Skizze bis zu dem Tag, an dem sie läuft. Sie sieht auf dem Handy so gut aus wie am Rechner, wird bei Google gefunden und schickt dir Anfragen direkt zu.',
-  },
-  {
-    n: '02',
-    titel: 'Die bestehende überarbeiten',
-    text: 'Wenn das Grundgerüst steht, aber nichts davon mehr stimmt. Neues Aussehen ohne bei null anzufangen, schneller, endlich sauber auf dem Handy.',
-  },
-  {
-    n: '03',
-    titel: 'Abläufe automatisieren',
-    text: 'Alles, was du jede Woche von Hand machst und nicht müsstest. Angebote, Rechnungen, Terminerinnerungen, Anfragen sortieren und beantworten.',
-  },
-  {
-    n: '04',
-    titel: 'Nur gefunden werden',
-    text: 'Die Seite bleibt, wie sie ist. Sichtbar wird sie trotzdem: ganz oben bei Google und in den Antworten von ChatGPT und Perplexity.',
-  },
-]
-
-const ABLAUF = [
-  { n: '01', t: 'Du erzählst', b: 'Zwei Minuten Formular oder ein Telefonat. Ich will wissen, was dich stört, nicht welche Technik du dir vorstellst.' },
-  { n: '02', t: 'Ich sage, was geht', b: 'Innerhalb von 24 Stunden: was es kostet, wie lange es dauert, ob es sich lohnt. Auch wenn die Antwort nein ist.' },
-  { n: '03', t: 'Du siehst es vorher', b: 'Auf Wunsch ein erster Entwurf, bevor du dich festlegst. Gefällt er nicht, hast du nichts verloren.' },
-  { n: '04', t: 'Es läuft und bleibt betreut', b: 'Gebaut, online gestellt, überwacht. Klemmt etwas, schreibst du mir statt einer Hotline.' },
-]
-
-const FAKTEN = [
-  { zahl: 24, suffix: ' h', v: 'bis du eine Antwort hast' },
-  { zahl: 1, suffix: '', v: 'Ansprechpartner, von Anfang bis Ende' },
-  { zahl: 0, suffix: ' €', v: 'für den ersten Entwurf' },
-  { zahl: 3, suffix: '', v: 'Sprachen: Deutsch, Englisch, Spanisch' },
-]
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
@@ -112,6 +68,10 @@ const EASE = [0.22, 1, 0.36, 1] as const
    fest positionierter Knopf müsste bei jedem Scrollschritt per Skript
    nachgeführt werden, und genau das ist auf dem Telefon das Zittern, das
    hier nicht vorkommen soll. */
+
+/* Die Bildschirmfotos der beiden eigenen Produkte. Sie stehen hier und nicht
+   im Wörterbuch: eine Bilddatei ist kein Text, der übersetzt wird. */
+const EIGENE_BILDER = ['/projects/guardiangrid-login.jpg', '/projects/lukas.png']
 
 const FLUGDAUER = 520
 
@@ -486,11 +446,12 @@ function Problem({ text, index }: { text: string; index: number }) {
 
    Der Weg wird gemessen statt geschätzt: sonst bleibt am Ende entweder eine
    Lücke stehen oder die letzte Karte hängt halb aus dem Bild. */
-function Laufwerk() {
+function Laufwerk({ t }: { t: HdTexte }) {
   const bahn = useRef<HTMLDivElement>(null)
   const spur = useRef<HTMLOListElement>(null)
   const [weg, setWeg] = useState(0)
   const [karte, setKarte] = useState(0)
+  const punkte = t.leistungen.punkte
   const { scrollYProgress } = useScroll({ target: bahn, offset: ['start start', 'end end'] })
   const x = useTransform(scrollYProgress, [0, 1], [0, -weg])
   const weich = useSpring(x, { stiffness: 200, damping: 34, mass: 0.5 })
@@ -515,7 +476,7 @@ function Laufwerk() {
      rendert aber nur, wenn die Karte wechselt: vier Zustände auf der ganzen
      Strecke statt einer Zustandsänderung pro Bild. */
   useMotionValueEvent(scrollYProgress, 'change', (v) => {
-    const i = Math.min(LEISTUNGEN.length - 1, Math.floor(v * LEISTUNGEN.length + 0.0001))
+    const i = Math.min(punkte.length - 1, Math.floor(v * punkte.length + 0.0001))
     setKarte(i < 0 ? 0 : i)
   })
 
@@ -523,15 +484,15 @@ function Laufwerk() {
     <div ref={bahn} className="relative h-[280vh]">
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
         <div className="mx-auto flex w-[min(72rem,calc(100vw-3rem))] items-baseline justify-between pb-8">
-          <span className="hd-label">Leistungen</span>
+          <span className="hd-label">{t.leistungen.label}</span>
           <span className="font-display text-[15px] font-bold tabular-nums tracking-tight">
-            {LEISTUNGEN[karte].n}
-            <span className="text-[color:var(--hd-ink-soft)]"> / 0{LEISTUNGEN.length}</span>
+            {punkte[karte].n}
+            <span className="text-[color:var(--hd-ink-soft)]"> / 0{punkte.length}</span>
           </span>
         </div>
 
         <motion.ol ref={spur} style={{ x: weich }} className="flex gap-7 px-6">
-          {LEISTUNGEN.map((l, i) => (
+          {punkte.map((l, i) => (
             <li
               key={l.n}
               className="hd-surface flex min-h-[21rem] w-[min(82vw,34rem)] shrink-0 flex-col justify-between p-10"
@@ -570,7 +531,11 @@ function Laufwerk() {
   )
 }
 
-export function HdLanding() {
+export function HdLanding({ lang }: { lang: HdLang }) {
+  const t = HD_TEXTE[lang]
+  /* Die beiden Zielseiten liegen im Portfolio und tragen dessen Sprachpfade.
+     Wer die englische Fassung liest, soll nicht im deutschen Formular landen. */
+  const zumFormular = langPath(lang, '/anfrage')
   const reduce = useReducedMotion()
 
   /* Die Bühne: das Bild liegt eine Spur hinter dem Text und zieht beim
@@ -694,9 +659,9 @@ export function HdLanding() {
             {ruf.ort === 'kopf' && !ruf.flug && (
               <Link
                 ref={ruf.sichtbar}
-                href="/anfrage"
-                aria-label="Projekt anfragen"
-                title="Projekt anfragen"
+                href={zumFormular}
+                aria-label={t.ctaHaupt}
+                title={t.ctaHaupt}
                 className="hd-cta hd-cta-pulse absolute inset-0 justify-center p-0"
               >
                 <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
@@ -721,7 +686,7 @@ export function HdLanding() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: EASE }}
             >
-              Gefunden werden. Arbeit loswerden.
+              {t.buehne.titel}
             </motion.h1>
             <motion.p
               className="mt-6 max-w-[46ch] text-[19px] leading-[1.6] text-[color:var(--hd-ink-soft)]"
@@ -729,8 +694,7 @@ export function HdLanding() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
             >
-              Websites und Programme für Betriebe ohne IT-Abteilung. Du sagst
-              mir, was dich stört. Ich sage dir, was es kostet.
+              {t.buehne.vorspann}
             </motion.p>
             <motion.div
               className="mt-9 flex flex-wrap items-center gap-3"
@@ -748,22 +712,22 @@ export function HdLanding() {
                   macht aus der ruhigen Bahn einen Sprung. */}
               <span ref={ruf.buehneAnker} className="relative inline-flex">
                 <span aria-hidden className="hd-cta invisible px-7 py-3.5 text-[17px]">
-                  Projekt anfragen
+                  {t.ctaHaupt}
                   <ArrowRight className="h-[18px] w-[18px]" />
                 </span>
                 {ruf.ort === 'buehne' && !ruf.flug && (
                   <Link
                     ref={ruf.sichtbar}
-                    href="/anfrage"
+                    href={zumFormular}
                     className="hd-cta hd-cta-pulse absolute inset-0 justify-center px-7 text-[17px]"
                   >
-                    Projekt anfragen
+                    {t.ctaHaupt}
                     <ArrowRight className="h-[18px] w-[18px] shrink-0" aria-hidden />
                   </Link>
                 )}
               </span>
                             <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
-                Arbeiten ansehen
+                {t.buehne.arbeitenAnsehen}
               </a>
             </motion.div>
           </div>
@@ -781,7 +745,7 @@ export function HdLanding() {
             <motion.div className="hd-shot" style={{ scale: bildZoom }}>
               <Image
                 src="/projects/taxibb.png"
-                alt="Startseite von taxibbessen.de, gebaut für Taxi B&B in Essen"
+                alt={t.buehne.bildAlt}
                 width={1320}
                 height={808}
                 priority
@@ -790,7 +754,7 @@ export function HdLanding() {
               />
             </motion.div>
             <figcaption className="mt-3 text-[15px] text-[color:var(--hd-ink-soft)]">
-              taxibbessen.de, gebaut für Taxi B&amp;B in Essen. Läuft seit 2026.
+              {t.buehne.bildText}
             </figcaption>
           </motion.figure>
         </div>
@@ -800,10 +764,10 @@ export function HdLanding() {
       <section className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
           <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl">
-            Kommt dir einer dieser Sätze bekannt vor?
+            {t.probleme.titel}
           </Titel>
           <ul className="mt-9 grid gap-x-12 gap-y-4 sm:grid-cols-2">
-            {PROBLEME.map((p, i) => (
+            {t.probleme.punkte.map((p, i) => (
               <Problem key={p} text={p} index={i % 3} />
             ))}
           </ul>
@@ -815,7 +779,7 @@ export function HdLanding() {
         <div className="mx-auto max-w-5xl px-6 py-24 sm:py-36">
           <LeuchtSatz
             className="font-display text-[1.75rem] font-bold leading-[1.28] tracking-[-0.02em] text-[color:var(--hd-ink)] sm:text-[2.4rem] sm:leading-[1.25]"
-            text="Genau das ist die Arbeit. Du bekommst keine Präsentation, sondern eine Seite, die läuft. Kein Baukasten, kein Abo, keine Warteschleife. Klemmt etwas, schreibst du mir und nicht einer Hotline."
+            text={t.behauptung}
           />
         </div>
       </section>
@@ -834,27 +798,24 @@ export function HdLanding() {
         />
         <div className="mx-auto max-w-6xl px-6 py-20 sm:py-32">
           <Auf className="text-center">
-            <span className="hd-label">Arbeiten</span>
+            <span className="hd-label">{t.arbeiten.label}</span>
           </Auf>
           <Titel className="mx-auto mt-4 max-w-[20ch] text-center font-display text-[2.1rem] font-bold leading-[1.08] tracking-[-0.025em] sm:text-[3.1rem]">
-            Gebaut, online gestellt, im Betrieb.
+            {t.arbeiten.titel}
           </Titel>
 
           <div ref={film} className="mt-12 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
             <Auf>
-              <span className="hd-label">Kundenprojekt</span>
+              <span className="hd-label">{t.arbeiten.kundeLabel}</span>
               <h3 className="mt-3 font-display text-2xl font-bold tracking-[-0.02em]">
-                Taxi B&amp;B Essen
+                {t.arbeiten.kundeName}
               </h3>
               <p className="mt-3 max-w-[44ch] text-[17px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
-                Buchungen sofort oder auf Termin, ein Verwaltungsbereich mit
-                eigener Datenbank, automatische E-Mails und technisches SEO bis
-                hinunter zu den strukturierten Daten.
+                {t.arbeiten.kundeText}
               </p>
 
               <dl className="mt-7 grid max-w-sm grid-cols-2 gap-x-8 gap-y-5">
-                {[['92', 'Onpage'], ['99', 'Technik'], ['97', 'Struktur'], ['80', 'Inhalt']].map(
-                  ([wert, name]) => (
+                {t.arbeiten.werte.map(({ wert, name }) => (
                     <div key={name}>
                       <dt className="sr-only">{name}</dt>
                       <dd className="font-display text-3xl font-bold tabular-nums tracking-tight">
@@ -867,7 +828,7 @@ export function HdLanding() {
                 )}
               </dl>
               <p className="mt-5 text-[14px] text-[color:var(--hd-ink-soft)]">
-                Gemessen von seobility.net am 28.07.2026.
+                {t.arbeiten.quelle}
               </p>
 
               <a
@@ -876,7 +837,7 @@ export function HdLanding() {
                 rel="noreferrer"
                 className="hd-cta-ghost mt-7 px-5 py-2.5 text-[16px]"
               >
-                Seite ansehen
+                {t.arbeiten.seiteAnsehen}
                 <ArrowUpRight className="h-4 w-4" aria-hidden />
               </a>
             </Auf>
@@ -894,7 +855,7 @@ export function HdLanding() {
                 <motion.div className="relative h-full w-full" style={{ scale: kamera }}>
                   <Image
                     src="/projects/taxibb.png"
-                    alt="Buchungsstrecke und Startseite von taxibbessen.de"
+                    alt={t.arbeiten.belegAlt}
                     fill
                     loading="lazy"
                     sizes="(max-width: 1024px) 100vw, 680px"
@@ -906,27 +867,12 @@ export function HdLanding() {
           </div>
 
           <div className="mt-16 grid gap-8 sm:grid-cols-2">
-            {[
-              {
-                bild: '/projects/guardiangrid-login.jpg',
-                name: 'GuardianGrid',
-                alt: 'Anmeldebereich von guardiangrid.io',
-                text: 'Eigenes Produkt: Anmeldung über einen fremden Anbieter, Auswertung großer Datenmengen, laufender Betrieb auf eigener Infrastruktur.',
-                url: 'https://www.guardiangrid.io',
-              },
-              {
-                bild: '/projects/lukas.png',
-                name: 'L.U.K.A.S.',
-                alt: 'Oberfläche des KI-Agenten L.U.K.A.S.',
-                text: 'Eigenes Produkt: ein KI-Agent mit dauerhaftem Gedächtnis, der echte Aufgaben übernimmt statt nur zu antworten.',
-                url: null,
-              },
-            ].map((p, i) => (
+            {t.arbeiten.projekte.map((p, i) => (
               <Auf key={p.name} delay={i * 0.1}>
                 <article className="group flex flex-col">
                   <div className="hd-shot relative aspect-[16/10] w-full">
                     <Image
-                      src={p.bild}
+                      src={EIGENE_BILDER[i] ?? EIGENE_BILDER[0]}
                       alt={p.alt}
                       fill
                       loading="lazy"
@@ -949,7 +895,7 @@ export function HdLanding() {
                       rel="noreferrer"
                       className="mt-3 inline-flex min-h-[24px] items-center gap-1.5 text-[16px] font-medium text-[color:var(--hd-accent)] hover:underline"
                     >
-                      Ansehen
+                      {t.arbeiten.ansehen}
                       <ArrowUpRight className="h-4 w-4" aria-hidden />
                     </a>
                   )}
@@ -964,21 +910,20 @@ export function HdLanding() {
       <section className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 pb-4 pt-16 sm:pt-24">
           <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
-            Such dir aus, was gerade drückt.
+            {t.leistungen.titel}
           </Titel>
           <Auf delay={0.1}>
             <p className="mt-5 max-w-[54ch] text-[18px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
-              Du musst nicht alles auf einmal machen. Meistens ist es einer
-              dieser vier Punkte, und der bringt schon den Unterschied.
+              {t.leistungen.vorspann}
             </p>
           </Auf>
         </div>
 
         {laufwerk ? (
-          <Laufwerk />
+          <Laufwerk t={t} />
         ) : (
           <div className="mx-auto max-w-6xl px-6 pb-16 pt-8 sm:pb-24">
-            {LEISTUNGEN.map((l, i) => (
+            {t.leistungen.punkte.map((l, i) => (
               <Auf key={l.n} delay={i * 0.06}>
                 {/* Die Zeile bekommt beim Zeigen einen hellen Grund und rückt
                     ein Stück nach rechts. Was es mitteilt: das hier ist eine
@@ -1002,10 +947,10 @@ export function HdLanding() {
       <section className="hd-rule" style={{ background: 'var(--hd-paper-2)' }}>
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
           <Auf>
-            <span className="hd-label">So läuft es</span>
+            <span className="hd-label">{t.ablauf.label}</span>
           </Auf>
           <Titel className="mt-4 max-w-[18ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
-            Vier Schritte, kein Kleingedrucktes.
+            {t.ablauf.titel}
           </Titel>
 
           <div ref={ablauf}>
@@ -1016,7 +961,7 @@ export function HdLanding() {
               />
             </div>
             <ol className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-            {ABLAUF.map((s, i) => (
+            {t.ablauf.schritte.map((s, i) => (
               <Auf key={s.n} delay={i * 0.09}>
                 <li>
                   <span className="hd-num">{s.n}</span>
@@ -1036,8 +981,11 @@ export function HdLanding() {
 
       {/* ── Zahlen ──────────────────────────────────────────────────────── */}
       <section className="hd-rule">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-4">
-          {FAKTEN.map((f, i) => (
+        {/* Drei Angaben, drei Spalten. Die vierte war "3 Sprachen: Deutsch,
+            Englisch, Spanisch" — die sagt die Seite jetzt selbst, indem sie in
+            der Sprache des Browsers dasteht. */}
+        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-3">
+          {t.fakten.map((f, i) => (
             <Auf key={f.v} delay={i * 0.08}>
               <div className="font-display text-[2.6rem] font-bold leading-none tabular-nums tracking-tight">
                 <Zahl ziel={f.zahl} suffix={f.suffix} />
@@ -1054,16 +1002,15 @@ export function HdLanding() {
       <section className="hd-rule" style={{ background: 'var(--hd-accent-soft)' }}>
         <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
           <Titel className="mx-auto max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.025em] sm:text-[2.7rem]">
-            Zwei Minuten, dann weißt du, woran du bist.
+            {t.schluss.titel}
           </Titel>
           <Auf delay={0.1}>
             <p className="mx-auto mt-5 max-w-[48ch] text-[18px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
-              Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden
-              hast du eine ehrliche Einschätzung zu Umfang, Dauer und Preis.
+              {t.schluss.text}
             </p>
             <Magnet className="mt-9">
-              <Link href="/anfrage" className="hd-cta hd-cta-pulse px-8 py-4 text-[17px]">
-                Projekt anfragen
+              <Link href={zumFormular} className="hd-cta hd-cta-pulse px-8 py-4 text-[17px]">
+                {t.ctaHaupt}
                 <ArrowRight className="h-5 w-5" aria-hidden />
               </Link>
             </Magnet>
@@ -1078,7 +1025,7 @@ export function HdLanding() {
       {ruf.flug && (
         <Link
           ref={ruf.flieger}
-          href="/anfrage"
+          href={zumFormular}
           tabIndex={-1}
           aria-hidden
           className="hd-cta hd-cta-pulse fixed z-50 justify-center gap-0 overflow-hidden whitespace-nowrap px-0 text-[17px]"
@@ -1105,13 +1052,13 @@ export function HdLanding() {
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
           <span className="text-[15px] text-[color:var(--hd-ink-soft)]">
             <strong className="font-semibold text-[color:var(--hd-ink)]">Hareb Digital</strong>,
-            Inhaber Issa Hareb
+            {t.fuss.inhaber}
           </span>
           <nav className="flex flex-wrap items-center gap-x-7 gap-y-1 text-[15px] text-[color:var(--hd-ink-soft)] [&_a]:inline-flex [&_a]:min-h-[24px] [&_a]:items-center [&_a:hover]:text-[color:var(--hd-ink)]">
             <a href="mailto:info@hareb.org">info@hareb.org</a>
-            <Link href="/impressum">Impressum</Link>
-            <Link href="/datenschutz">Datenschutz</Link>
-            <Link href="/">Portfolio</Link>
+            <Link href={langPath(lang, '/impressum')}>{t.fuss.impressum}</Link>
+            <Link href={langPath(lang, '/datenschutz')}>{t.fuss.datenschutz}</Link>
+            <Link href={langPath(lang, '/')}>{t.fuss.portfolio}</Link>
           </nav>
         </div>
       </footer>

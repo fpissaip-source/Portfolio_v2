@@ -42,9 +42,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  /* Die Kundenseite liegt bewusst ausserhalb des Sprachbaums: sie ist nur
-     auf Deutsch geschrieben, und eine englische Adresse mit deutschem Text
-     wäre schlechter als gar keine. */
+  /* Die Kundenseite liegt bewusst ausserhalb des Sprachbaums. Sie hat keine
+     Sprachpfade, sondern richtet sich nach der Einstellung des Browsers: sie
+     trägt `noindex` und bekommt ihren Verkehr aus Anzeigen, da zählt nur, dass
+     der Besucher ohne weiteren Klick in seiner Sprache ankommt.
+
+     Ein Vary auf Accept-Language waere hier das Naheliegende, damit kein
+     Zwischenspeicher die zuerst geholte Fassung an alle weiterreicht. Es hat
+     keinen Zweck: Next setzt den Vary-Kopf fuer Seitenantworten selbst und
+     ueberschreibt einen eigenen, gemessen in der Entwicklung wie im Build.
+     Noetig ist er auch nicht, denn die Seite wird bei jedem Aufruf gerendert
+     und geht mit "private, no-store" hinaus, was jedem geteilten Speicher das
+     Ablegen ohnehin verbietet. */
   if (pathname === '/start' || pathname.startsWith('/start/')) {
     return NextResponse.next()
   }

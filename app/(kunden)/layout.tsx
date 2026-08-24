@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next'
+import { headers } from 'next/headers'
 import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
+import { HD_HREFLANG, sprachAusKopf } from '@/lib/hd-texte'
 import '../globals.css'
 
 /**
@@ -41,10 +43,15 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export default function KundenLayout({ children }: { children: React.ReactNode }) {
+export default async function KundenLayout({ children }: { children: React.ReactNode }) {
+  /* Dieselbe Sprachwahl wie in der Seite darunter, aus demselben Kopf. Sie
+     steht hier ein zweites Mal, weil nur das Layout das html-Element schreibt
+     und ein falsches lang-Attribut echte Folgen hat: Vorleseprogramme sprechen
+     die Seite dann mit deutscher Aussprache englisch vor. */
+  const lang = sprachAusKopf((await headers()).get('accept-language'))
   return (
     <html
-      lang="de"
+      lang={HD_HREFLANG[lang]}
       className={`${bodyFace.variable} ${headingFace.variable} ${posterFace.variable} ${labelFace.variable}`}
     >
       <body className="hd antialiased">{children}</body>

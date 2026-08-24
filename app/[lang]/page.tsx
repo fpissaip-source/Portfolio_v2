@@ -1,4 +1,5 @@
 import { SmoothScroll } from '@/components/smooth-scroll'
+import { ClickSpark } from '@/components/click-spark'
 import { IonTrail } from '@/components/ion-trail'
 import { MouseGlow } from '@/components/mouse-glow'
 import { EdgeGlow } from '@/components/edge-glow'
@@ -26,6 +27,11 @@ import { Scene, FilmGrain } from '@/components/scene'
 export default function Page() {
   return (
     <SmoothScroll>
+      {/* Funken am Zeiger, bei jedem Klick. Die Leinwand ist fest am
+          Bildschirm und genau fenstergross: die Vorlage spannt sie ueber ihre
+          Kinder, und das waere hier eine Leinwand von rund 27.000 Pixeln
+          Hoehe, ueber jedem Browserdeckel. */}
+      <ClickSpark sparkColor="#b6c8ff" sparkSize={11} sparkRadius={17} sparkCount={8} duration={430} />
       <SkipLink />
       {/* Measures what this device can actually paint and, if it cannot keep
           up, takes the expensive layers off (lib/perf-tier.ts). */}

@@ -5,6 +5,7 @@ import { motion } from 'motion/react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { GradientOrbs } from './gradient-orbs'
+import { LightTunnel } from './light-tunnel'
 import { LightningFlash, type LightningHandle } from './lightning-flash'
 import { useT } from './language-context'
 import { handleAnchorClick } from '@/lib/scroll-to'
@@ -277,6 +278,37 @@ export function Hero() {
               'linear-gradient(to bottom, transparent 0%, black 14%, black 55%, transparent 94%)',
           }}
         >
+          {/* Der Tunnel liegt hinter Orbs und Strahlen und benutzt die Farben
+              der Seite, nicht die der Vorlage. Gedaempft: er ist Atmosphaere
+              hinter dem Kopf und nicht die Hauptsache. Der Fluchtpunkt sitzt
+              etwas hoeher als die Mitte, damit er nicht genau hinter dem
+              Gesicht steht. */}
+          <div className="absolute inset-0">
+            <LightTunnel
+              cableColor="#8f7bd6"
+              pulseColor="#7aa2e8"
+              tunnelColor="#3b2f7a"
+              tunnelOpacity={0}
+              speed={0.08}
+              flowDirection="outward"
+              pulseSpeed={1.6}
+              pulseLength={0.22}
+              cableCount={26}
+              thickness={0.24}
+              rimWidth={0.1}
+              waviness={0.35}
+              sway={0.35}
+              size={1.15}
+              centerY={0.06}
+              glow={0.8}
+              fadeNear={0.35}
+              fadeFar={1.7}
+              brightness={0.85}
+              opacity={0.42}
+              grainIntensity={0.03}
+              mouseStrength={0.06}
+            />
+          </div>
           <GradientOrbs />
           <SideRays />
         </div>

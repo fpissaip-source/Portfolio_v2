@@ -1493,3 +1493,13 @@ section.hd-akt {
   width: 100%;
   height: 100%;
 }
+
+/* LightTunnel und GradientWaves, portiert von React Bits. Beide bringen in
+   der Vorlage nur diese eine Regel mit. */
+.light-tunnel,
+.gradient-waves {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}

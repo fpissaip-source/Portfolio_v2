@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowRight, Mail } from 'lucide-react'
 import { useLanguage, useT } from './language-context'
 import { langPath } from '@/lib/i18n'
+import { GradientWaves } from './gradient-waves'
 import { openConsentSettings } from '@/lib/consent'
 
 const SOCIALS = [
@@ -49,6 +50,41 @@ export function SiteFooter() {
   const { lang } = useLanguage()
   return (
     <>
+      {/* Das Wellenfeld am Fuss der Seite. Unterhalb des Kontaktteils war der
+          Hintergrund nur noch schwarz; jetzt hoert die Seite dort auf, statt
+          einfach zu enden.
+
+          Es liegt hinter dem Band und der Fusszeile und ist nach oben
+          ausmaskiert, damit es aus dem Schwarz herauswaechst statt mit einer
+          Kante anzufangen. Die Farben sind die der Seite, nicht die der
+          Vorlage. */}
+      <div className="relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 overflow-hidden"
+          style={{
+            maskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 30%, black 100%)',
+          }}
+        >
+          <GradientWaves
+            horizonColor="#120f22"
+            waveColor="#5b47a8"
+            crestColor="#9fb6e8"
+            speed={0.22}
+            amplitude={2.1}
+            waveScale={0.55}
+            tilt={1.16}
+            height={5.2}
+            fogDepth={18}
+            detail="low"
+            brightness={1}
+            opacity={0.9}
+            parallaxStrength={0.35}
+            grainIntensity={0.03}
+          />
+        </div>
+
       {/*
        * Das Partnerprogramm, vor der Fusszeile statt darin.
        *
@@ -170,6 +206,7 @@ export function SiteFooter() {
         </div>
       </div>
       </footer>
+      </div>
     </>
   )
 }

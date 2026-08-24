@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { ClickSpark } from './click-spark'
 import { EchoText } from './echo-text'
 import { HalftoneReveal } from './halftone-reveal'
 import { HdSprachschalter } from './hd-sprachschalter'
@@ -646,6 +647,10 @@ export function HdLanding({ lang }: { lang: HdLang }) {
 
   return (
     <div>
+      {/* Funken am Zeiger, bei jedem Klick. Dunkle Tinte, die Seite ist
+          hell. */}
+      <ClickSpark sparkColor="#8a7a68" sparkSize={10} sparkRadius={16} sparkCount={8} duration={420} />
+
       {/* ── Kopfzeile ───────────────────────────────────────────────────── */}
       <header
         ref={kopf}

@@ -139,6 +139,16 @@ export type HdTexte = {
     ansehen: string
     projekte: { name: string; alt: string; text: string; url: string | null }[]
   }
+  werkschau: {
+    label: string
+    ansehen: string
+    ziehen: string
+    vorher: string
+    weiter: string
+    /* Nur die Kategorie wird uebersetzt. Die Namen sind Eigennamen und
+       bleiben in jeder Sprache gleich. */
+    kategorien: Record<string, string>
+  }
   leistungen: {
     label: string
     titel: string
@@ -215,6 +225,18 @@ const DE: HdTexte = {
       },
     ],
   },
+  werkschau: {
+    label: 'Websites',
+    ansehen: 'Projekt ansehen',
+    ziehen: 'Ziehen',
+    vorher: 'Vorheriges Projekt',
+    weiter: 'Nächstes Projekt',
+    kategorien: {
+      taxibb: 'Webdesign · Entwicklung · SEO',
+      guardiangrid: 'Produkt · Anmeldung · Auswertung',
+      lukas: 'Produkt · KI-Agent · Betrieb',
+    },
+  },
   leistungen: {
     label: 'Leistungen',
     titel: 'Such dir aus, was gerade drückt.',
@@ -275,7 +297,7 @@ const DE: HdTexte = {
     { zahl: 0, suffix: ' €', v: 'für den ersten Entwurf' },
   ],
   schluss: {
-    titel: 'Zwei Minuten, dann weißt du, woran du bist.',
+    titel: 'Erzähl mir, was dich stört.',
     text: 'Fünf Felder, eines davon freiwillig. Innerhalb von 24 Stunden hast du eine ehrliche Einschätzung zu Umfang, Dauer und Preis.',
   },
   fuss: {
@@ -347,6 +369,18 @@ const EN: HdTexte = {
       },
     ],
   },
+  werkschau: {
+    label: 'Websites',
+    ansehen: 'View project',
+    ziehen: 'Drag',
+    vorher: 'Previous project',
+    weiter: 'Next project',
+    kategorien: {
+      taxibb: 'Web design · Development · SEO',
+      guardiangrid: 'Product · Sign-in · Analysis',
+      lukas: 'Product · AI agent · Operations',
+    },
+  },
   leistungen: {
     label: 'Services',
     titel: 'Pick whatever hurts most right now.',
@@ -407,7 +441,7 @@ const EN: HdTexte = {
     { zahl: 0, suffix: ' €', v: 'for the first draft' },
   ],
   schluss: {
-    titel: 'Two minutes, and you know where you stand.',
+    titel: 'Tell me what bothers you.',
     text: 'Five fields, one of them optional. Within 24 hours you have an honest read on scope, timeline and price.',
   },
   fuss: {
@@ -479,6 +513,18 @@ const ES: HdTexte = {
       },
     ],
   },
+  werkschau: {
+    label: 'Webs',
+    ansehen: 'Ver proyecto',
+    ziehen: 'Arrastra',
+    vorher: 'Proyecto anterior',
+    weiter: 'Proyecto siguiente',
+    kategorien: {
+      taxibb: 'Diseño web · Desarrollo · SEO',
+      guardiangrid: 'Producto · Acceso · Análisis',
+      lukas: 'Producto · Agente de IA · Operación',
+    },
+  },
   leistungen: {
     label: 'Servicios',
     titel: 'Elige lo que más aprieta ahora.',
@@ -539,7 +585,7 @@ const ES: HdTexte = {
     { zahl: 0, suffix: ' €', v: 'por la primera propuesta' },
   ],
   schluss: {
-    titel: 'Dos minutos y sabes a qué atenerte.',
+    titel: 'Cuéntame qué te molesta.',
     text: 'Cinco campos, uno de ellos opcional. En menos de 24 horas tienes una valoración honesta de alcance, plazo y precio.',
   },
   fuss: {

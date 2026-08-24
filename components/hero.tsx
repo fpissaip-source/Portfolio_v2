@@ -81,9 +81,19 @@ export function Hero() {
   const videoRef = useRef<ScrubVideoHandle>(null)
   const lightningRef = useRef<LightningHandle>(null)
   const [reduced, setReduced] = useState(false)
+  /* Der Lichttunnel laeuft nur am Rechner. Auf dem Telefon steht der Kopf
+     fast bildschirmfuellend vor ihm, es bleibt also kaum etwas von ihm zu
+     sehen — und was bleibt, kostet eine dauerhaft laufende WebGL-Flaeche auf
+     dem Geraet mit der schwaechsten Grafik und dem knappsten Akku. */
+  const [breit, setBreit] = useState(false)
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+    const m = window.matchMedia('(min-width: 1024px)')
+    const setzen = () => setBreit(m.matches)
+    setzen()
+    m.addEventListener('change', setzen)
+    return () => m.removeEventListener('change', setzen)
   }, [])
 
   useEffect(() => {
@@ -283,6 +293,7 @@ export function Hero() {
               hinter dem Kopf und nicht die Hauptsache. Der Fluchtpunkt sitzt
               etwas hoeher als die Mitte, damit er nicht genau hinter dem
               Gesicht steht. */}
+          {breit && (
           <div className="absolute inset-0">
             <LightTunnel
               cableColor="#8f7bd6"
@@ -309,6 +320,7 @@ export function Hero() {
               mouseStrength={0.06}
             />
           </div>
+          )}
           <GradientOrbs />
           <SideRays />
         </div>

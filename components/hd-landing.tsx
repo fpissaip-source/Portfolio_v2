@@ -6,8 +6,8 @@ import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { ClickSpark } from './click-spark'
 import { FoldText } from './fold-text'
+import { Werkschau, type Werk } from './werkschau'
 import { EchoText } from './echo-text'
-import { HalftoneReveal } from './halftone-reveal'
 import { HdSprachschalter } from './hd-sprachschalter'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
 import { langPath } from '@/lib/i18n'
@@ -77,6 +77,17 @@ const EASE = [0.22, 1, 0.36, 1] as const
 /* Die Bildschirmfotos der beiden eigenen Produkte. Sie stehen hier und nicht
    im Wörterbuch: eine Bilddatei ist kein Text, der übersetzt wird. */
 const EIGENE_BILDER = ['/projects/guardiangrid-login.jpg', '/projects/lukas.png']
+
+/* Die Werkschau. Bild, Masse und Adresse stehen hier, die Kategorie kommt aus
+   dem Woerterbuch: nur sie wird uebersetzt, die Namen sind Eigennamen.
+   Nachlegen heisst: eine Zeile hier und eine Kategorie je Sprache. Die Masse
+   muessen stimmen, sie halten den Platz frei und bestimmen, wie weit das Bild
+   im Rahmen hochfahren kann. */
+const WERKE: Omit<Werk, 'kategorie'>[] = [
+  { id: 'taxibb', titel: 'Taxi B&B Essen', bild: '/projects/taxibb.png', breite: 1320, hoehe: 808, url: 'https://taxibbessen.de' },
+  { id: 'guardiangrid', titel: 'GuardianGrid', bild: '/projects/guardiangrid-login.jpg', breite: 1280, hoehe: 800, url: 'https://www.guardiangrid.io' },
+  { id: 'lukas', titel: 'L.U.K.A.S.', bild: '/projects/lukas.png', breite: 1024, hoehe: 1024, url: null },
+]
 
 const FLUGDAUER = 520
 
@@ -591,10 +602,6 @@ export function HdLanding({ lang }: { lang: HdLang }) {
   const band = useSpring(seiteP, { stiffness: 140, damping: 30, mass: 0.3 })
 
   const laufwerk = useBreit() && !reduce
-  /* Ob der Zeiger fein ist. Auf dem Telefon gibt es kein Schweben, die Lupe
-     kaeme dort also nie zum Einsatz, und der Beleg bliebe dauerhaft ein
-     Rasterdruck. Dort steht er deshalb halb scharf. */
-  const feinerZeiger = useBreit('(hover: hover) and (pointer: fine)')
 
   /* Die Linie unter dem Ablauf zeichnet sich mit dem Scrollen. Was es
      mitteilt: die vier Schritte sind ein Weg und keine vier Kästen. */
@@ -913,9 +920,6 @@ export function HdLanding({ lang }: { lang: HdLang }) {
             >
               <div className="hd-kino hd-shot">
                 <motion.div className="relative h-full w-full" style={{ scale: kamera }}>
-                  {/* Das gewoehnliche Bild bleibt liegen: es traegt den
-                      Alternativtext, und faellt WebGL aus, steht der Beleg
-                      trotzdem da. Der Rasterdruck liegt nur darueber. */}
                   <Image
                     src="/projects/taxibb.png"
                     alt={t.arbeiten.belegAlt}
@@ -924,71 +928,26 @@ export function HdLanding({ lang }: { lang: HdLang }) {
                     sizes="(max-width: 1024px) 100vw, 680px"
                     className="object-cover object-top"
                   />
-                  {/* Heller Druck auf schwarzem Papier, die Marken des Akts.
-                      idleReveal haelt einen Rest Schaerfe auch ohne Zeiger:
-                      auf dem Telefon gibt es kein Schweben, und ein Beleg, den
-                      man dort nie lesen kann, ist kein Beleg. */}
-                  <HalftoneReveal
-                    src="/projects/taxibb.png"
-                    className="absolute inset-0"
-                    inkColor="#e8853a"
-                    paperColor="#0d0c0b"
-                    mode="mono"
-                    shape="circle"
-                    dotSize={0.82}
-                    dotDensity={104}
-                    angle={28}
-                    contrast={1.3}
-                    invert
-                    revealRadius={0.3}
-                    edge={0.85}
-                    follow={0.22}
-                    idleReveal={feinerZeiger ? 0.2 : 0.55}
-                    trigger="hover"
-                    borderRadius="0"
-                  />
                 </motion.div>
               </div>
             </motion.div>
           </div>
 
-          <div className="mt-16 grid gap-8 sm:grid-cols-2">
-            {t.arbeiten.projekte.map((p, i) => (
-              <Auf key={p.name} delay={i * 0.1}>
-                <article className="group flex flex-col">
-                  <div className="hd-shot relative aspect-[16/10] w-full">
-                    <Image
-                      src={EIGENE_BILDER[i] ?? EIGENE_BILDER[0]}
-                      alt={p.alt}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 640px) 100vw, 460px"
-                      /* Der Bildausschnitt zieht beim Zeigen leicht auf. Was
-                         es mitteilt: das ist anklickbar. */
-                      className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
-                    />
-                  </div>
-                  <h3 className="mt-5 font-display text-xl font-bold tracking-[-0.015em]">
-                    {p.name}
-                  </h3>
-                  <p className="mt-2 max-w-[42ch] text-[16px] leading-[1.55] text-[color:var(--hd-ink-soft)]">
-                    {p.text}
-                  </p>
-                  {p.url && (
-                    <a
-                      href={p.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-flex min-h-[24px] items-center gap-1.5 text-[16px] font-medium text-[color:var(--hd-accent)] hover:underline"
-                    >
-                      {t.arbeiten.ansehen}
-                      <ArrowUpRight className="h-4 w-4" aria-hidden />
-                    </a>
-                  )}
-                </article>
-              </Auf>
-            ))}
-          </div>
+        </div>
+
+        {/* Die Werkschau steht ausserhalb des Textcontainers und nimmt die
+            volle Breite. Im gepolsterten Container waere die aktive Karte
+            genau so breit wie das Fenster, und die Nachbarn raegen nicht
+            herein: dann sieht niemand, dass man ziehen kann. */}
+        <div className="pb-20 sm:pb-32">
+          <Werkschau
+            werke={WERKE.map((w) => ({ ...w, kategorie: t.werkschau.kategorien[w.id] ?? '' }))}
+            label={t.werkschau.label}
+            ansehen={t.werkschau.ansehen}
+            ziehen={t.werkschau.ziehen}
+            vorher={t.werkschau.vorher}
+            weiter={t.werkschau.weiter}
+          />
         </div>
       </section>
 

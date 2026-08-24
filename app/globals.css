@@ -1472,3 +1472,24 @@ section.hd-akt {
   line-height: 1.03;
   letter-spacing: -0.025em;
 }
+
+/* HalftoneReveal, portiert von React Bits.
+
+   touch-action steht auf pan-y statt none. Die Vorlage sperrt jede Beruehrung,
+   damit die Lupe dem Finger folgen kann. In einer Demoseite ist das richtig,
+   hier waere es ein Fehler: das Bild steht mitten in einer langen Seite, und
+   wer mit dem Finger darauf nach unten wischt, kaeme nicht weiter. */
+.halftone-reveal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+
+.halftone-reveal canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

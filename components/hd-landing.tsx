@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { EchoText } from './echo-text'
+import { HalftoneReveal } from './halftone-reveal'
 import { HdSprachschalter } from './hd-sprachschalter'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
 import { langPath } from '@/lib/i18n'
@@ -616,6 +617,10 @@ export function HdLanding({ lang }: { lang: HdLang }) {
   const band = useSpring(seiteP, { stiffness: 140, damping: 30, mass: 0.3 })
 
   const laufwerk = useBreit() && !reduce
+  /* Ob der Zeiger fein ist. Auf dem Telefon gibt es kein Schweben, die Lupe
+     kaeme dort also nie zum Einsatz, und der Beleg bliebe dauerhaft ein
+     Rasterdruck. Dort steht er deshalb halb scharf. */
+  const feinerZeiger = useBreit('(hover: hover) and (pointer: fine)')
 
   /* Die Linie unter dem Ablauf zeichnet sich mit dem Scrollen. Was es
      mitteilt: die vier Schritte sind ein Weg und keine vier Kästen. */
@@ -902,6 +907,9 @@ export function HdLanding({ lang }: { lang: HdLang }) {
             >
               <div className="hd-kino hd-shot">
                 <motion.div className="relative h-full w-full" style={{ scale: kamera }}>
+                  {/* Das gewoehnliche Bild bleibt liegen: es traegt den
+                      Alternativtext, und faellt WebGL aus, steht der Beleg
+                      trotzdem da. Der Rasterdruck liegt nur darueber. */}
                   <Image
                     src="/projects/taxibb.png"
                     alt={t.arbeiten.belegAlt}
@@ -909,6 +917,29 @@ export function HdLanding({ lang }: { lang: HdLang }) {
                     loading="lazy"
                     sizes="(max-width: 1024px) 100vw, 680px"
                     className="object-cover object-top"
+                  />
+                  {/* Heller Druck auf schwarzem Papier, die Marken des Akts.
+                      idleReveal haelt einen Rest Schaerfe auch ohne Zeiger:
+                      auf dem Telefon gibt es kein Schweben, und ein Beleg, den
+                      man dort nie lesen kann, ist kein Beleg. */}
+                  <HalftoneReveal
+                    src="/projects/taxibb.png"
+                    className="absolute inset-0"
+                    inkColor="#e8853a"
+                    paperColor="#0d0c0b"
+                    mode="mono"
+                    shape="circle"
+                    dotSize={0.82}
+                    dotDensity={104}
+                    angle={28}
+                    contrast={1.3}
+                    invert
+                    revealRadius={0.3}
+                    edge={0.85}
+                    follow={0.22}
+                    idleReveal={feinerZeiger ? 0.2 : 0.55}
+                    trigger="hover"
+                    borderRadius="0"
                   />
                 </motion.div>
               </div>

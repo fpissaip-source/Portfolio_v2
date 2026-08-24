@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { ClickSpark } from './click-spark'
+import { FoldText } from './fold-text'
 import { EchoText } from './echo-text'
 import { HalftoneReveal } from './halftone-reveal'
 import { HdSprachschalter } from './hd-sprachschalter'
@@ -413,34 +414,6 @@ function Zahl({ ziel, suffix }: { ziel: number; suffix: string }) {
   return <span ref={ref}>{ziel + suffix}</span>
 }
 
-/* Jeder Satz wird durchgestrichen, sobald er in den Blick kommt. Was es
-   mitteilt: das sind die Probleme, die weggehen. Es ist die einzige Stelle
-   der Seite, an der die Bewegung selbst das Argument trägt. */
-function Problem({ text, index }: { text: string; index: number }) {
-  const reduce = useReducedMotion()
-  const ref = useRef<HTMLLIElement>(null)
-  const sichtbar = useInView(ref, { once: true, amount: 0.9 })
-
-  return (
-    <li
-      ref={ref}
-      className="relative border-l-2 py-1 pl-4 text-[17px] leading-[1.55]"
-      style={{ borderColor: 'var(--hd-line)' }}
-    >
-      <span className="relative inline-block text-[color:var(--hd-ink-soft)]">
-        {text}
-        <motion.span
-          aria-hidden
-          className="absolute left-0 top-1/2 h-[2px] w-full origin-left"
-          style={{ background: 'var(--hd-accent)' }}
-          initial={reduce ? { scaleX: 1 } : { scaleX: 0 }}
-          animate={sichtbar || reduce ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 0.45, delay: reduce ? 0 : 0.08 * index, ease: EASE }}
-        />
-      </span>
-    </li>
-  )
-}
 
 /* Das Laufwerk: die vier Leistungen liegen nebeneinander und fahren quer
    durchs Bild, während man senkrecht scrollt. Was es mitteilt: das ist eine
@@ -825,9 +798,37 @@ export function HdLanding({ lang }: { lang: HdLang }) {
           <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl">
             {t.probleme.titel}
           </Titel>
-          <ul className="mt-9 grid gap-x-12 gap-y-4 sm:grid-cols-2">
-            {t.probleme.punkte.map((p, i) => (
-              <Problem key={p} text={p} index={i % 3} />
+          {/* Zitate, keine Liste mit Strichen.
+              Vorher stand hier je ein Satz mit einer Linie am linken Rand und
+              einem Strich mitten hindurch. Der Strich sass auf halber Hoehe
+              des Kastens: bei einem Satz, der ueber zwei Zeilen laeuft, ging
+              er quer durch die erste und liess die zweite unberuehrt stehen.
+              Das sah nicht nach Durchstreichen aus, sondern nach Fehler.
+
+              Jetzt klappt jeder Satz beim Hereinscrollen auf wie ein Blatt,
+              das gefaltet war. Was es mitteilt: das hier sind Saetze, die
+              jemand gesagt hat, und sie werden gerade aufgeschlagen. Die
+              Anfuehrungszeichen sind Typografie und keine Linien. */}
+          <ul className="hd-satzfalz mt-10 grid gap-x-12 gap-y-8 sm:grid-cols-2">
+            {t.probleme.punkte.map((p) => (
+              <li key={p} className="text-[18px] text-[color:var(--hd-ink-soft)] sm:text-[19px]">
+                <span aria-hidden className="mr-0.5 text-[color:var(--hd-accent)]">
+                  &bdquo;
+                </span>
+                {/* Das schliessende Zeichen steht im Text und nicht daneben.
+                    Daneben ist es ein eigenes Wort und landet bei einem Satz,
+                    der die Zeile fuellt, allein in der naechsten. */}
+                <FoldText
+                  text={`${p}\u201c`}
+                  splitBy="word"
+                  hinge="top"
+                  trigger="scroll"
+                  duration={0.55}
+                  stagger={0.035}
+                  creaseShading={0.4}
+                  perspective={520}
+                />
+              </li>
             ))}
           </ul>
         </div>

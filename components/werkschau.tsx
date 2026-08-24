@@ -3,14 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useReducedMotion,
-  useTransform,
-  type MotionValue,
-} from 'motion/react'
+import { animate, motion, useMotionValue, useReducedMotion, useTransform, type MotionValue } from 'motion/react'
+import { useSnapCarousel } from './snap-carousel'
 
 /**
  * Die Werkschau.
@@ -20,20 +14,24 @@ import {
  * Nachbarn ragen links und rechts herein, kleiner und ein Stück
  * zurückgesetzt: damit ist ohne Beschriftung klar, dass man ziehen kann.
  *
- * Warum ohne Bibliothek. Embla und Swiper bringen ihre eigene Physik mit, und
- * beide gehen davon aus, dass alle Karten gleich aussehen. Hier haengen
- * Groesse, Deckkraft und Tiefe jeder Karte am gezogenen Wert selbst, Bild fuer
- * Bild. Das sind vierzig Zeilen ueber einem Motion-Wert und keine
- * Abhaengigkeit, die man dafuer verbiegen muss.
+ * Die Physik kommt aus useSnapCarousel (21st.dev, @ddoemonn) — Wurf mit
+ * Deckel, Federstoss an den Enden, Tastatur, Fokusfalle beim Scrollen. Das
+ * Aussehen kommt von hier: die Vorlage setzt eine Karte so breit wie das
+ * Fenster und blendet die Nachbarn hinter einer Maske aus, hier ragen sie
+ * wirklich herein.
+ *
+ * Groesse, Deckkraft und Tiefe jeder Karte haengen am gezogenen Wert selbst
+ * und nicht an ihrem Index: waehrend des Ziehens waechst die kommende Karte
+ * Bild fuer Bild, statt am Ende umzuspringen.
  *
  * Das Hochscrollen im Rahmen: faehrt der Zeiger ueber das aktive Projekt,
  * wandert das Bild langsam nach oben und zeigt die Seite weiter unten. Der
  * Rahmen steht dabei still. Es rechnet den Ueberstand aus den natuerlichen
- * Massen des Bildes aus und schaltet sich ab, wenn es nichts zu zeigen gibt —
- * ein bildschirmhoher Screenshot in einem 16:10-Rahmen hat keinen Ueberstand,
- * ein ganzseitiger hat mehrere Tausend Pixel. Auf Touchgeraeten passiert
- * nichts davon: dort gibt es kein Schweben, und ein Bild, das beim Wischen
- * losfaehrt, waere ein Fehler.
+ * Massen des Bildes und schaltet sich ab, wenn es nichts zu zeigen gibt — ein
+ * bildschirmhoher Screenshot in einem 16:10-Rahmen hat keinen Ueberstand, ein
+ * ganzseitiger hat mehrere Tausend Pixel. Auf Touchgeraeten passiert nichts
+ * davon: dort gibt es kein Schweben, und ein Bild, das beim Wischen losfaehrt,
+ * waere ein Fehler.
  */
 
 export type Werk = {
@@ -42,8 +40,8 @@ export type Werk = {
   titel: string
   kategorie: string
   bild: string
-  /** Natuerliche Masse des Bildes. Ohne sie kann Next kein Bild ohne
-      Sprung ausliefern, und der Ueberstand waere nicht berechenbar. */
+  /** Natuerliche Masse des Bildes. Ohne sie kann Next kein Bild ohne Sprung
+      ausliefern, und der Ueberstand waere nicht berechenbar. */
   breite: number
   hoehe: number
   url?: string | null
@@ -62,7 +60,14 @@ type Props = {
    nicht wie ein Kinoformat: es soll nach Website aussehen. */
 const FENSTER = '16 / 10'
 
-const FEDER = { type: 'spring' as const, stiffness: 210, damping: 34, mass: 0.9 }
+/* Ein Abstand fuer alle Breiten. Er steht in der Physik und im Kasten, und
+   zwei Quellen fuer dieselbe Zahl waeren eine zu viel.
+
+   Klein gehalten, weil er zweimal vom Guckloch abgeht: der Nachbar steht um
+   den Abstand weiter aussen und ist zusaetzlich auf 87 Prozent verkleinert,
+   seine sichtbare Kante rutscht also noch einmal um sechs Prozent seiner
+   Breite nach innen. Mit 24 Pixeln blieb auf dem Telefon nichts uebrig. */
+const ABSTAND = 12
 
 function Karte({
   werk,
@@ -73,6 +78,8 @@ function Karte({
   nah,
   zeigerFein,
   reduce,
+  schmal,
+  kartenRef,
 }: {
   werk: Werk
   index: number
@@ -82,6 +89,8 @@ function Karte({
   nah: boolean
   zeigerFein: boolean
   reduce: boolean
+  schmal: boolean
+  kartenRef?: React.Ref<HTMLLIElement>
 }) {
   const rahmen = useRef<HTMLDivElement>(null)
   const bildY = useMotionValue(0)
@@ -89,13 +98,17 @@ function Karte({
 
   /* Der Abstand dieser Karte zur Mitte, in Karten gerechnet: 0 mittig, ±1 bei
      den Nachbarn. Die Schrittweite steht in einem Ref, weil sie sich bei jeder
-     Groessenaenderung aendert und die Umrechnung sie sonst einmalig
-     einfrieren wuerde. */
+     Groessenaenderung aendert und die Umrechnung sie sonst einfrieren wuerde. */
   const schrittRef = useRef(schritt)
   schrittRef.current = schritt || 1
   const abstand = useTransform(x, (v) => (v + index * schrittRef.current) / schrittRef.current)
 
-  const scale = useTransform(abstand, [-1, 0, 1], [0.87, 1, 0.87], { clamp: true })
+  /* Auf schmalen Bildschirmen faellt der Nachbar kaum zurueck. Nicht aus
+     Geschmack, sondern aus Arithmetik: seine Verkleinerung zieht seine
+     sichtbare Kante nach innen, und bei 390 Pixeln frisst sie genau das
+     Guckloch auf, an dem man erkennt, dass hier etwas zu ziehen ist. */
+  const klein = schmal ? 0.94 : 0.87
+  const scale = useTransform(abstand, [-1, 0, 1], [klein, 1, klein], { clamp: true })
   const opacity = useTransform(abstand, [-1.15, 0, 1.15], [0.3, 1, 0.3], { clamp: true })
   const y = useTransform(abstand, [-1, 0, 1], [22, 0, 22], { clamp: true })
 
@@ -127,9 +140,13 @@ function Karte({
 
   return (
     <motion.li
+      ref={kartenRef}
       className="relative shrink-0"
       style={{ width: 'var(--werk-breite)', scale, opacity, y }}
-      aria-hidden={!aktiv}
+      role="group"
+      aria-roledescription="slide"
+      aria-label={werk.titel}
+      inert={!aktiv}
     >
       <div
         ref={rahmen}
@@ -153,7 +170,7 @@ function Karte({
             alt={werk.titel}
             width={werk.breite}
             height={werk.hoehe}
-            sizes="(max-width: 640px) 88vw, (max-width: 1024px) 78vw, 68vw"
+            sizes="(max-width: 640px) 76vw, (max-width: 1024px) 72vw, 64vw"
             loading={nah ? 'eager' : 'lazy'}
             className="h-auto w-full select-none"
             draggable={false}
@@ -166,72 +183,57 @@ function Karte({
 
 export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Props) {
   const reduce = !!useReducedMotion()
-  const fenster = useRef<HTMLDivElement>(null)
   const spur = useRef<HTMLUListElement>(null)
-  const x = useMotionValue(0)
+  const ersteKarte = useRef<HTMLLIElement>(null)
 
-  const [index, setIndex] = useState(0)
-  const [schritt, setSchritt] = useState(0)
+  const schau = useSnapCarousel({
+    count: werke.length,
+    slideRef: ersteKarte,
+    gap: ABSTAND,
+    momentum: 0.16,
+    maxFlick: 1,
+  })
+
   const [rand, setRand] = useState(0)
   const [zeigerFein, setZeigerFein] = useState(false)
+  const [schmal, setSchmal] = useState(false)
   const [zeigt, setZeigt] = useState(false)
   const zeigerX = useMotionValue(0)
   const zeigerY = useMotionValue(0)
 
-  const letzter = werke.length - 1
-  const indexRef = useRef(index)
-  indexRef.current = index
-
   useEffect(() => {
-    const m = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const setzen = () => setZeigerFein(m.matches)
+    const zeiger = window.matchMedia('(hover: hover) and (pointer: fine)')
+    const eng = window.matchMedia('(max-width: 639px)')
+    const setzen = () => {
+      setZeigerFein(zeiger.matches)
+      setSchmal(eng.matches)
+    }
     setzen()
-    m.addEventListener('change', setzen)
-    return () => m.removeEventListener('change', setzen)
+    zeiger.addEventListener('change', setzen)
+    eng.addEventListener('change', setzen)
+    return () => {
+      zeiger.removeEventListener('change', setzen)
+      eng.removeEventListener('change', setzen)
+    }
   }, [])
 
-  /* Die Schrittweite ist die Kartenbreite plus Abstand, gemessen statt
-     gerechnet: beides steht in CSS und haengt an der Bildschirmbreite. */
+  /* Der Innenabstand zentriert die erste und die letzte Karte im Fenster,
+     damit x = 0 wirklich "erste Karte mittig" heisst. */
   useEffect(() => {
-    const el = spur.current
-    if (!el) return
     const messen = () => {
-      const erste = el.children[0] as HTMLElement | undefined
-      const zweite = el.children[1] as HTMLElement | undefined
-      if (!erste) return
-      const s = zweite
-        ? zweite.getBoundingClientRect().left - erste.getBoundingClientRect().left
-        : erste.getBoundingClientRect().width
-      setSchritt(s)
-      /* Der Innenabstand zentriert die erste und die letzte Karte im Fenster,
-         damit x = 0 wirklich "erste Karte mittig" heisst. */
-      const f = fenster.current
-      if (f) setRand(Math.max(0, (f.clientWidth - erste.getBoundingClientRect().width) / 2))
-      x.set(-indexRef.current * s)
+      const f = schau.fensterRef.current
+      const k = ersteKarte.current
+      if (!f || !k) return
+      setRand(Math.max(0, (f.clientWidth - k.getBoundingClientRect().width) / 2))
     }
     messen()
     const beobachter = new ResizeObserver(messen)
-    beobachter.observe(el)
-    window.addEventListener('resize', messen)
-    return () => {
-      beobachter.disconnect()
-      window.removeEventListener('resize', messen)
-    }
-  }, [x, werke.length])
+    if (schau.fensterRef.current) beobachter.observe(schau.fensterRef.current)
+    return () => beobachter.disconnect()
+  }, [schau.fensterRef, schau.kartenbreite])
 
-  const zu = useCallback(
-    (ziel: number) => {
-      const i = Math.max(0, Math.min(letzter, ziel))
-      setIndex(i)
-      if (!schritt) return
-      if (reduce) x.set(-i * schritt)
-      else animate(x, -i * schritt, FEDER)
-    },
-    [letzter, schritt, reduce, x],
-  )
-
-  /* Waagerechtes Rad und Trackpad. Senkrechtes Rad bleibt der Seite: wer
-     durch die Seite scrollt, will nicht in der Schau haengen bleiben. */
+  /* Waagerechtes Rad und Trackpad. Senkrechtes Rad bleibt der Seite: wer durch
+     die Seite scrollt, will nicht in der Schau haengen bleiben. */
   const radSperre = useRef(0)
   const beiRad = useCallback(
     (e: React.WheelEvent) => {
@@ -239,19 +241,22 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
       const jetzt = performance.now()
       if (jetzt < radSperre.current) return
       radSperre.current = jetzt + 420
-      zu(indexRef.current + (e.deltaX > 0 ? 1 : -1))
+      if (e.deltaX > 0) schau.weiter()
+      else schau.zurueck()
     },
-    [zu],
+    [schau],
   )
 
-  const werk = werke[index]
+  /* Waehrend des Ziehens steht schon die Karte in der Beschriftung, auf der es
+     landen wird. Sonst hinkt der Titel der Bewegung hinterher. */
+  const werk = werke[schau.gezeigt]
 
   return (
-    <section aria-roledescription="carousel" aria-label={label} className="relative">
+    <section aria-label={label} className="relative">
       <div className="mx-auto flex max-w-6xl items-baseline justify-between px-6">
         <span className="hd-label">{label}</span>
         <span className="font-display text-[15px] font-bold tabular-nums tracking-tight">
-          {String(index + 1).padStart(2, '0')}
+          {String(schau.gezeigt + 1).padStart(2, '0')}
           <span className="text-[color:var(--hd-ink-soft)]">
             {' '}
             / {String(werke.length).padStart(2, '0')}
@@ -260,20 +265,9 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
       </div>
 
       <div
-        ref={fenster}
-        tabIndex={0}
-        role="group"
+        {...schau.fensterProps}
+        ref={schau.fensterRef}
         aria-label={label}
-        onKeyDown={(e) => {
-          if (e.key === 'ArrowRight') {
-            e.preventDefault()
-            zu(index + 1)
-          }
-          if (e.key === 'ArrowLeft') {
-            e.preventDefault()
-            zu(index - 1)
-          }
-        }}
         onWheel={beiRad}
         onPointerMove={(e) => {
           zeigerX.set(e.clientX)
@@ -281,38 +275,35 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
         }}
         onPointerEnter={() => setZeigt(true)}
         onPointerLeave={() => setZeigt(false)}
-        /* Die Kartenbreite je Bildschirm: auf dem Telefon fast die ganze
-           Breite mit einem Streifen der naechsten Karte, auf dem Rechner gut
-           zwei Drittel, damit beide Nachbarn hereinragen. */
-        className={`mt-8 overflow-hidden [--werk-breite:88vw] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hd-accent)] sm:[--werk-breite:78vw] lg:[--werk-breite:min(68vw,1100px)] ${
+        /* Die Kartenbreite je Bildschirm. Auf dem Telefon 80vw und nicht die
+           88vw aus dem Entwurf: gemessen bei 390 Pixeln steht die naechste
+           Karte bei 88vw plus Abstand exakt hinter der rechten Kante, es ragt
+           also nichts herein — und genau daran erkennt man, dass man ziehen
+           kann. Auf dem Rechner gut zwei Drittel, damit beide Nachbarn
+           sichtbar sind. */
+        className={`mt-8 overflow-hidden [--werk-breite:76vw] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--hd-accent)] sm:[--werk-breite:72vw] lg:[--werk-breite:min(64vw,1040px)] ${
           zeigerFein ? 'cursor-none' : ''
         }`}
-
       >
         <motion.ul
+          {...schau.spurProps}
           ref={spur}
-          drag="x"
-          dragElastic={0.08}
-          dragMomentum={false}
-          style={{ x, paddingLeft: rand, paddingRight: rand }}
-          onDragEnd={(_, info) => {
-            if (!schritt) return
-            const roh = (-x.get() - info.velocity.x * 0.12) / schritt
-            zu(Math.round(roh))
-          }}
-          className="flex touch-pan-y items-center gap-5 sm:gap-7"
+          style={{ ...schau.spurProps.style, paddingLeft: rand, paddingRight: rand }}
+          className="flex items-center"
         >
           {werke.map((w, i) => (
             <Karte
               key={w.id}
+              kartenRef={i === 0 ? ersteKarte : undefined}
               werk={w}
               index={i}
-              x={x}
-              schritt={schritt}
-              aktiv={i === index}
-              nah={Math.abs(i - index) <= 1}
+              x={schau.x}
+              schritt={schau.schritt}
+              aktiv={i === schau.index}
+              nah={Math.abs(i - schau.index) <= 1}
               zeigerFein={zeigerFein}
               reduce={reduce}
+              schmal={schmal}
             />
           ))}
         </motion.ul>
@@ -342,8 +333,8 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => zu(index - 1)}
-            disabled={index === 0}
+            onClick={schau.zurueck}
+            disabled={schau.index === 0}
             aria-label={vorher}
             className="hd-cta-ghost h-11 w-11 justify-center p-0 disabled:opacity-35"
           >
@@ -351,8 +342,8 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
           </button>
           <button
             type="button"
-            onClick={() => zu(index + 1)}
-            disabled={index === letzter}
+            onClick={schau.weiter}
+            disabled={schau.index === werke.length - 1}
             aria-label={weiter}
             className="hd-cta-ghost h-11 w-11 justify-center p-0 disabled:opacity-35"
           >
@@ -372,6 +363,10 @@ export function Werkschau({ werke, label, ansehen, ziehen, vorher, weiter }: Pro
           {ziehen}
         </motion.div>
       )}
+
+      <span aria-live="polite" aria-atomic className="sr-only">
+        {schau.index + 1} / {werke.length}: {werke[schau.index]?.titel}
+      </span>
     </section>
   )
 }

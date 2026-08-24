@@ -63,7 +63,13 @@ export type HdTexte = {
   meta: { titel: string; beschreibung: string }
   ctaHaupt: string
   buehne: {
-    titel: string
+    /* Zwei Zeilen, und zwar als zwei Angaben. Ein einziger Satz haette dem
+       Zeilenumbruch des Browsers vertraut, und der bricht dort, wo die Breite
+       endet, nicht dort, wo der Sinn endet: aus "Gefunden werden. Arbeit
+       loswerden." wurde auf dem Telefon "Gefunden / werden. Arbeit /
+       loswerden." Zwei Zeilen, zwei Felder. */
+    titelOben: string
+    titelUnten: string
     vorspann: string
     arbeitenAnsehen: string
     bildAlt: string
@@ -104,7 +110,8 @@ const DE: HdTexte = {
   },
   ctaHaupt: 'Projekt anfragen',
   buehne: {
-    titel: 'Gefunden werden. Arbeit loswerden.',
+    titelOben: 'Maximale Sichtbarkeit.',
+    titelUnten: 'Maximale Entlastung.',
     vorspann:
       'Websites und Programme für Betriebe ohne IT-Abteilung. Du sagst mir, was dich stört. Ich sage dir, was es kostet.',
     arbeitenAnsehen: 'Arbeiten ansehen',
@@ -126,7 +133,10 @@ const DE: HdTexte = {
     'Genau das ist die Arbeit. Du bekommst keine Präsentation, sondern eine Seite, die läuft. Kein Baukasten, kein Abo, keine Warteschleife. Klemmt etwas, schreibst du mir und nicht einer Hotline.',
   arbeiten: {
     label: 'Arbeiten',
-    titel: 'Gebaut, online gestellt, im Betrieb.',
+    /* Geschuetzte Leerzeichen: "online gestellt" und "im Betrieb" sind je
+       eine Aussage. Der Zeilenumbruch darf zwischen ihnen liegen, nicht in
+       ihnen. Ohne das stand hier "Gebaut, online / gestellt, im Betrieb." */
+    titel: 'Gebaut, online gestellt, im Betrieb.',
     kundeLabel: 'Kundenprojekt',
     kundeName: 'Taxi B&B Essen',
     kundeText:
@@ -235,7 +245,8 @@ const EN: HdTexte = {
   },
   ctaHaupt: 'Start a project',
   buehne: {
-    titel: 'Get found. Get work off your desk.',
+    titelOben: 'Maximum visibility.',
+    titelUnten: 'Minimum busywork.',
     vorspann:
       'Websites and software for businesses without an IT department. You tell me what bothers you. I tell you what it costs.',
     arbeitenAnsehen: 'See the work',
@@ -257,7 +268,7 @@ const EN: HdTexte = {
     'That is exactly the work. You get a site that runs, not a presentation. No page builder, no subscription, no hold music. If something breaks, you write to me and not to a hotline.',
   arbeiten: {
     label: 'Work',
-    titel: 'Built, shipped, and running.',
+    titel: 'Built, shipped, and running.',
     kundeLabel: 'Client project',
     kundeName: 'Taxi B&B Essen',
     kundeText:
@@ -366,7 +377,8 @@ const ES: HdTexte = {
   },
   ctaHaupt: 'Solicitar proyecto',
   buehne: {
-    titel: 'Que te encuentren. Quitarte trabajo.',
+    titelOben: 'Máxima visibilidad.',
+    titelUnten: 'Mínima carga.',
     vorspann:
       'Webs y programas para empresas sin departamento de informática. Tú me cuentas qué te molesta. Yo te digo lo que cuesta.',
     arbeitenAnsehen: 'Ver los trabajos',
@@ -388,7 +400,7 @@ const ES: HdTexte = {
     'Ese es justo el trabajo. No recibes una presentación, sino una web que funciona. Sin plantillas, sin cuota mensual, sin música de espera. Si algo falla, me escribes a mí y no a un centro de atención.',
   arbeiten: {
     label: 'Trabajos',
-    titel: 'Hecho, publicado y en marcha.',
+    titel: 'Hecho, publicado y en marcha.',
     kundeLabel: 'Proyecto de cliente',
     kundeName: 'Taxi B&B Essen',
     kundeText:

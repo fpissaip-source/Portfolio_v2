@@ -1399,3 +1399,19 @@ section.hd-akt {
     opacity: 1 !important;
   }
 }
+
+/* Die Schlagzeile der Landingpage.
+
+   Zwei Zeilen, jede in einem Stueck. Die Groesse haengt an der
+   Bildschirmbreite und nicht an einem festen Wert: die laengere der beiden
+   Zeilen soll die verfuegbare Breite ausnutzen und trotzdem nie ueber sie
+   hinauslaufen. Der vw-Anteil ist an der deutschen Fassung ausgemessen
+   ("Maximale Sichtbarkeit." ist die laengste Zeile aller drei Sprachen). */
+.hd-schlagzeile {
+  /* Der untere Wert ist gemessen, nicht geschaetzt: bei 320px Breite und
+     1,75rem stand die deutsche Zeile mit 270 von 272 Pixeln zwei Pixel vor der
+     Kante. Das haelt zwar, aber ein Ersatzschriftschnitt vor dem Laden der
+     Hausschrift setzt breiter, und dann schoebe die Zeile die Seite quer.
+     1,6rem laesst Luft. */
+  font-size: clamp(1.6rem, 7.6vw, 3.6rem);
+}

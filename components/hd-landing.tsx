@@ -225,7 +225,11 @@ function Titel({ children, className }: { children: string; className?: string }
 
   return (
     <motion.h2
-      className={className}
+      /* text-balance verteilt die Zeilen gleichmaessig, statt jede bis zur
+         Kante zu fuellen und den Rest fallen zu lassen. Ohne das stand hier
+         "Gebaut, online gestellt, im / Betrieb." — ein Waisenwort in der
+         zweiten Zeile, weil "im" gerade noch in die erste passte. */
+      className={`text-balance ${className ?? ''}`}
       initial={reduce ? false : 'aus'}
       whileInView="an"
       viewport={{ once: true, amount: 0.4 }}
@@ -680,13 +684,24 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       <section ref={buehne} className="mx-auto max-w-6xl px-6 pb-24 pt-12 sm:pt-20">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
+            {/* Jede Aussage eine Zeile, und zwar erzwungen.
+                Vorher war es ein Satz in einem Kasten mit max-w-[16ch]: der
+                Browser brach ihn dort, wo die Breite endete, und auf dem
+                Telefon stand "Gefunden / werden. Arbeit / loswerden." — der
+                Umbruch mitten in der zweiten Aussage.
+
+                nowrap erzwingt die Zeile, und die Schriftgroesse haengt an der
+                Bildschirmbreite statt an einem festen Wert, damit die laengere
+                der beiden Zeilen immer hineinpasst. Ausgemessen an der
+                deutschen Fassung, weil die die laengste ist. */}
             <motion.h1
-              className="max-w-[16ch] font-display text-[2.7rem] font-bold leading-[1.03] tracking-[-0.025em] sm:text-[3.6rem]"
+              className="hd-schlagzeile font-display font-bold leading-[1.03] tracking-[-0.025em]"
               initial={reduce ? false : { opacity: 0, y: 22 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: EASE }}
             >
-              {t.buehne.titel}
+              <span className="block whitespace-nowrap">{t.buehne.titelOben}</span>
+              <span className="block whitespace-nowrap">{t.buehne.titelUnten}</span>
             </motion.h1>
             <motion.p
               className="mt-6 max-w-[46ch] text-[19px] leading-[1.6] text-[color:var(--hd-ink-soft)]"

@@ -4,6 +4,8 @@ import { Fragment, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
+import { EchoText } from './echo-text'
+import { HdSprachschalter } from './hd-sprachschalter'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
 import { langPath } from '@/lib/i18n'
 import {
@@ -656,6 +658,9 @@ export function HdLanding({ lang }: { lang: HdLang }) {
             <Image src="/icon-32-v2.png" alt="" width={30} height={30} className="rounded-lg" />
             <span className="font-display text-[19px] font-bold tracking-tight">Hareb Digital</span>
           </Link>
+          <div className="flex items-center gap-3">
+            <HdSprachschalter lang={lang} />
+
           {/* Der Anker steht immer da und haelt die Zeilenhöhe. Der Knopf
               selbst liegt darauf und fehlt, solange er unten in der Bühne
               steht oder gerade unterwegs ist. */}
@@ -671,7 +676,8 @@ export function HdLanding({ lang }: { lang: HdLang }) {
                 <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
               </Link>
             )}
-          </span>
+            </span>
+          </div>
         </div>
         <motion.div
           aria-hidden
@@ -700,8 +706,36 @@ export function HdLanding({ lang }: { lang: HdLang }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, ease: EASE }}
             >
-              <span className="block whitespace-nowrap">{t.buehne.titelOben}</span>
-              <span className="block whitespace-nowrap">{t.buehne.titelUnten}</span>
+              {/* Jede Zeile ein eigener Nachhall. Die Vorlage kennt nur eine
+                  Zeile (white-space: nowrap), was hier genau richtig ist: die
+                  beiden Aussagen sollen ohnehin nie umbrechen.
+
+                  Massvolle Werte, aus zwei Gruenden. Die Schatten liegen
+                  absolut und laufen beim Einlauf nach rechts aus dem Kasten
+                  heraus, ein grosses offset schoebe auf dem Telefon die Seite
+                  quer. Und Unschaerfe auf Text ist teuer: sieben Schatten mal
+                  zwei Zeilen sind schon vierzehn Ebenen, die am Rechner
+                  waehrend des Schwebens in jedem Bild neu gezeichnet werden. */}
+              {[t.buehne.titelOben, t.buehne.titelUnten].map((zeile) => (
+                <span key={zeile} className="block">
+                  <EchoText
+                    text={zeile}
+                    echoes={7}
+                    offset={14}
+                    lag={0.26}
+                    fade={0.66}
+                    blur={2}
+                    direction="right"
+                    duration={1100}
+                    ease="ease-out"
+                    cursorRadius={420}
+                    tint="#b3541c"
+                    color="#14120f"
+                    fontSize="inherit"
+                    fontWeight="inherit"
+                  />
+                </span>
+              ))}
             </motion.h1>
             <motion.p
               className="mt-6 max-w-[46ch] text-[19px] leading-[1.6] text-[color:var(--hd-ink-soft)]"

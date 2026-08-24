@@ -1415,3 +1415,60 @@ section.hd-akt {
      1,6rem laesst Luft. */
   font-size: clamp(1.6rem, 7.6vw, 3.6rem);
 }
+
+/* EchoText, portiert von React Bits. Die Vorlage bringt eine eigene
+   .css-Datei mit; hier steht sie bei den anderen Klassen der Seite.
+
+   Der Unterschied zur Vorlage: die Schatten zeichnen ihren Text per ::before
+   aus data-text statt ihn als Textknoten zu tragen. In der Vorlage steht die
+   Schlagzeile so oft im Dokument, wie es Schatten gibt. */
+.echo-text {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  user-select: none;
+  contain: layout style;
+  font-kerning: normal;
+  text-rendering: geometricPrecision;
+}
+
+.echo-text__echo {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.echo-text__echo[data-text]::before {
+  content: attr(data-text);
+}
+
+.echo-text__echo--front {
+  position: relative;
+  z-index: 2;
+  opacity: 1;
+  filter: none;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .echo-text__echo:not(.echo-text__echo--front) {
+    display: none;
+  }
+
+  .echo-text__echo--front {
+    transform: none !important;
+  }
+}
+
+/* Die Schlagzeile behaelt ihren eigenen Satz: die Vorlage setzt zeilenhoehe
+   0.9 und Sperrung -0.04em fest, und beides gehoert hier zur Seite und nicht
+   zum Bauteil. */
+.hd-schlagzeile .echo-text {
+  line-height: 1.03;
+  letter-spacing: -0.025em;
+}

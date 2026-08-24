@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { HdLanding } from '@/components/hd-landing'
-import { HD_TEXTE, sprachAusKopf } from '@/lib/hd-texte'
+import { HD_KEKS, HD_TEXTE, hdSprache } from '@/lib/hd-texte'
 
 /**
  * Die Landingpage von Hareb Digital.
@@ -11,8 +11,9 @@ import { HD_TEXTE, sprachAusKopf } from '@/lib/hd-texte'
  * Formsache: die Scroll-Kopplung und die hochzählenden Zahlen brauchen den
  * Browser, die Metadaten nicht.
  *
- * Die Sprache kommt aus dem Accept-Language-Kopf, also aus der Einstellung des
- * Browsers, und nicht aus der Adresse. Auf einer indexierten Seite wäre das
+ * Die Sprache kommt aus der Wahl im Schalter, sonst aus dem
+ * Accept-Language-Kopf, sonst aus dem Land, und in keinem Fall aus der
+ * Adresse. Auf einer indexierten Seite wäre das
  * falsch, weil ein Crawler unter derselben Adresse mal die eine und mal die
  * andere Fassung bekäme. Diese Seite trägt `noindex` und bekommt ihren Verkehr
  * aus Anzeigen: für sie zählt, dass der Besucher ohne einen weiteren Klick in
@@ -23,8 +24,20 @@ import { HD_TEXTE, sprachAusKopf } from '@/lib/hd-texte'
  * eine Handvoll Millisekunden.
  */
 
+/* Eine Stelle, drei Quellen: Keks, Browser, Land. Das Land steht in dem Kopf,
+   den Cloudflare setzt; der zweite ist fuer den Fall, dass die Seite einmal
+   woanders liegt. */
+async function sprache() {
+  const [kopf, keks] = await Promise.all([headers(), cookies()])
+  return hdSprache({
+    gewaehlt: keks.get(HD_KEKS)?.value,
+    akzeptiert: kopf.get('accept-language'),
+    land: kopf.get('cf-ipcountry') ?? kopf.get('x-vercel-ip-country'),
+  })
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const t = HD_TEXTE[sprachAusKopf((await headers()).get('accept-language'))]
+  const t = HD_TEXTE[await sprache()]
   return {
     title: t.meta.titel,
     description: t.meta.beschreibung,
@@ -33,6 +46,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HarebDigitalLanding() {
-  const lang = sprachAusKopf((await headers()).get('accept-language'))
-  return <HdLanding lang={lang} />
+  return <HdLanding lang={await sprache()} />
 }

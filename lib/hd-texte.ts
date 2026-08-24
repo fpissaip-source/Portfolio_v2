@@ -21,6 +21,52 @@ export const HD_STANDARD: HdLang = 'de'
 
 export const HD_HREFLANG: Record<HdLang, string> = { de: 'de-DE', en: 'en', es: 'es' }
 
+/** Der Name des Kekses, in dem eine ausdrückliche Wahl liegt. */
+export const HD_KEKS = 'hd-sprache'
+
+export function istHdLang(wert: string | null | undefined): wert is HdLang {
+  return !!wert && (HD_SPRACHEN as readonly string[]).includes(wert)
+}
+
+/**
+ * Die Sprache der Landingpage, aus drei Quellen in dieser Reihenfolge.
+ *
+ * 1. Die ausdrückliche Wahl aus dem Schalter. Wer einmal umgestellt hat, will
+ *    nicht bei jedem Aufruf wieder umstellen.
+ * 2. Die Einstellung des Browsers, sofern wir die Sprache haben.
+ * 3. Das Land. Und hier steht bewusst nicht Deutsch als Rückfall: wer aus
+ *    Frankreich mit französischem Browser kommt, versteht Englisch eher als
+ *    Deutsch. Deutsch bleibt der Rückfall nur innerhalb Deutschlands.
+ *
+ * Das Land kommt aus dem Kopf, den Cloudflare setzt. Fehlt der, wird die
+ * Region aus dem Accept-Language-Kopf gelesen ("de-AT" nennt AT). Das ist kein
+ * Ersatz, aber besser als zu raten.
+ */
+export function hdSprache({
+  gewaehlt,
+  akzeptiert,
+  land,
+}: {
+  gewaehlt?: string | null
+  akzeptiert?: string | null
+  land?: string | null
+}): HdLang {
+  if (istHdLang(gewaehlt)) return gewaehlt
+
+  const ausBrowser = sprachAusKopf(akzeptiert)
+  if (ausBrowser) return ausBrowser
+
+  const wo = (land || regionAusKopf(akzeptiert) || '').toUpperCase()
+  return wo === 'DE' ? 'de' : 'en'
+}
+
+/** Die Region der ersten Sprachmarke: "de-AT,de;q=0.9" nennt AT. */
+export function regionAusKopf(kopf: string | null | undefined): string | null {
+  const erste = kopf?.split(',')[0]?.split(';')[0]?.trim()
+  const teil = erste?.split('-')[1]
+  return teil && teil.length === 2 ? teil.toUpperCase() : null
+}
+
 /**
  * Die beste unterstützte Sprache aus einem Accept-Language-Kopf.
  *
@@ -29,11 +75,14 @@ export const HD_HREFLANG: Record<HdLang, string> = { de: 'de-DE', en: 'en', es: 
  * Reihenfolge, denn die Reihenfolge ist nicht vorgeschrieben. Verglichen wird
  * nur das Sprachkürzel vor dem Bindestrich: wer de-AT spricht, soll die
  * deutsche Fassung sehen und nicht die deutsche verfehlen.
+ *
+ * Null, wenn keine der genannten Sprachen dabei ist. Was dann gilt, entscheidet
+ * hdSprache und nicht diese Funktion: hier steht nur, was im Kopf steht.
  */
-export function sprachAusKopf(kopf: string | null | undefined): HdLang {
-  if (!kopf) return HD_STANDARD
+export function sprachAusKopf(kopf: string | null | undefined): HdLang | null {
+  if (!kopf) return null
 
-  let beste: HdLang = HD_STANDARD
+  let beste: HdLang | null = null
   let bestesGewicht = -1
 
   for (const teil of kopf.split(',')) {

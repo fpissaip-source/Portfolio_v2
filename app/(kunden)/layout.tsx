@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { Anton, League_Spartan, Oswald, Source_Sans_3 } from 'next/font/google'
-import { HD_HREFLANG, sprachAusKopf } from '@/lib/hd-texte'
+import { HD_HREFLANG, HD_KEKS, hdSprache } from '@/lib/hd-texte'
 import '../globals.css'
 
 /**
@@ -48,7 +48,12 @@ export default async function KundenLayout({ children }: { children: React.React
      steht hier ein zweites Mal, weil nur das Layout das html-Element schreibt
      und ein falsches lang-Attribut echte Folgen hat: Vorleseprogramme sprechen
      die Seite dann mit deutscher Aussprache englisch vor. */
-  const lang = sprachAusKopf((await headers()).get('accept-language'))
+  const [kopf, keks] = await Promise.all([headers(), cookies()])
+  const lang = hdSprache({
+    gewaehlt: keks.get(HD_KEKS)?.value,
+    akzeptiert: kopf.get('accept-language'),
+    land: kopf.get('cf-ipcountry') ?? kopf.get('x-vercel-ip-country'),
+  })
   return (
     <html
       lang={HD_HREFLANG[lang]}

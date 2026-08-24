@@ -83,7 +83,148 @@ const FAKTEN = [
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
-/* Ein Abschnitt fährt beim Eintreten auf. Was es mitteilt: hier fängt etwas
+/* Die Flugbahn des Rufs zur Tat.
+   ------------------------------------------------------------------------
+   Der Knopf steht zuerst nur in der Bühne. Verschwindet er beim Scrollen
+   unter der Kopfzeile, fliegt er dort hinauf und schrumpft dabei auf seinen
+   Pfeil zusammen. Was es mitteilt: der Weg zum Formular geht nicht verloren,
+   nur weil man weiterliest.
+
+   Warum von Hand und nicht mit layoutId, wofür Motion genau diesen Fall
+   vorsieht: nachgemessen. Dasselbe Markup fliegt sauber, wenn der Wechsel von
+   einem Klick kommt, und springt ohne jede Bewegung, wenn er aus einem
+   Scroll-Ereignis kommt. Motion rechnet Scrollversätze aus seinen
+   Layoutmessungen heraus — sinnvoll, sonst würde jedes klebende Element bei
+   jedem Scrollschritt animieren, hier aber genau das Gegenteil von dem, was
+   gebraucht wird. Der Wechsel kommt hier immer aus dem Scrollen.
+
+   Deshalb: klassisches FLIP. Vor dem Wechsel den Kasten messen, nach dem
+   Wechsel den Zielkasten, und die Strecke dazwischen selbst abfahren.
+
+   Zwei Dinge, die das besser macht als eine Bibliothek es könnte:
+   Der Zielkasten wird in jedem Bild neu gelesen. Fliegt der Knopf zurück in
+   die Bühne, während weitergescrollt wird, wandert sein Ziel mit — ein
+   einmal gemessener Endpunkt hätte am Ende einen sichtbaren Versatz.
+   Und er fliegt fest am Bildschirm (position: fixed), also unbeeinflusst
+   davon, wie weit während des Flugs gescrollt wird.
+
+   In Ruhe steht der Knopf dagegen ganz gewöhnlich im Fluss. Ein dauerhaft
+   fest positionierter Knopf müsste bei jedem Scrollschritt per Skript
+   nachgeführt werden, und genau das ist auf dem Telefon das Zittern, das
+   hier nicht vorkommen soll. */
+
+const FLUGDAUER = 520
+
+type Flug = {
+  von: { left: number; top: number; breite: number; hoehe: number }
+  ziel: 'buehne' | 'kopf'
+}
+
+function kasten(el: HTMLElement) {
+  const r = el.getBoundingClientRect()
+  return { left: r.left, top: r.top, breite: r.width, hoehe: r.height }
+}
+
+const misch = (a: number, b: number, t: number) => a + (b - a) * t
+
+function useFliegenderRuf(kopf: React.RefObject<HTMLElement | null>, reduce: boolean) {
+  const buehneAnker = useRef<HTMLSpanElement>(null)
+  const kopfAnker = useRef<HTMLSpanElement>(null)
+  /* Beide Knöpfe teilen sich einen Ref: es ist immer nur einer eingehängt,
+     und der Flug muss den messen, der gerade dasteht. */
+  const sichtbar = useRef<HTMLAnchorElement>(null)
+  const flieger = useRef<HTMLAnchorElement>(null)
+
+  const [ort, setOrt] = useState<'buehne' | 'kopf'>('buehne')
+  const [flug, setFlug] = useState<Flug | null>(null)
+  const ortRef = useRef(ort)
+  const flugRef = useRef<Flug | null>(null)
+  ortRef.current = ort
+  flugRef.current = flug
+
+  useEffect(() => {
+    const anker = buehneAnker.current
+    if (!anker) return
+
+    const pruefen = () => {
+      if (flugRef.current) return
+      const kante = kopf.current?.getBoundingClientRect().height ?? 64
+      const unten = anker.getBoundingClientRect().bottom
+      /* Zwei Schwellen. Mit nur einer steht der Knopf genau auf der Kante und
+         ein einziger Pixel Scrollweg lässt ihn zwischen oben und unten
+         flackern. */
+      const soll: 'buehne' | 'kopf' =
+        ortRef.current === 'kopf' ? (unten < kante + 34 ? 'kopf' : 'buehne') : unten < kante + 10 ? 'kopf' : 'buehne'
+      if (soll === ortRef.current) return
+
+      if (reduce || !sichtbar.current) {
+        setOrt(soll)
+        return
+      }
+      setFlug({ von: kasten(sichtbar.current), ziel: soll })
+    }
+
+    pruefen()
+    window.addEventListener('scroll', pruefen, { passive: true })
+    window.addEventListener('resize', pruefen)
+    return () => {
+      window.removeEventListener('scroll', pruefen)
+      window.removeEventListener('resize', pruefen)
+    }
+  }, [kopf, reduce])
+
+  useEffect(() => {
+    if (!flug) return
+    const el = flieger.current
+    const ziel = flug.ziel === 'kopf' ? kopfAnker.current : buehneAnker.current
+    if (!el || !ziel) {
+      setOrt(flug.ziel)
+      setFlug(null)
+      return
+    }
+
+    const beginn = performance.now()
+    let raf = 0
+    /* Die natürliche Breite der Beschriftung, einmal gemessen. Sie muss beim
+       Flug mitschrumpfen und nicht nur ausblenden: eine unsichtbare
+       Beschriftung nimmt weiter Platz ein und schiebt den Pfeil aus dem
+       schmaler werdenden Kasten heraus. Genau so war der Knopf unterwegs eine
+       leere schwarze Scheibe. */
+    let wortbreite = 0
+    const schritt = () => {
+      const p = Math.min(1, (performance.now() - beginn) / FLUGDAUER)
+      const e = 1 - Math.pow(1 - p, 3)
+      const nach = kasten(ziel)
+      el.style.left = `${misch(flug.von.left, nach.left, e)}px`
+      el.style.top = `${misch(flug.von.top, nach.top, e)}px`
+      el.style.width = `${misch(flug.von.breite, nach.breite, e)}px`
+      el.style.height = `${misch(flug.von.hoehe, nach.hoehe, e)}px`
+      /* Die Beschriftung geht früh weg und kommt spät wieder. Sie soll
+         verschwunden sein, bevor der Kasten so schmal ist, dass sie
+         angeschnitten aussieht. */
+      const wort = el.querySelector<HTMLElement>('[data-beschriftung]')
+      if (wort) {
+        if (!wortbreite) wortbreite = wort.scrollWidth
+        const k = Math.max(0, Math.min(1, flug.ziel === 'kopf' ? 1 - e * 1.8 : e * 1.8 - 0.8))
+        wort.style.opacity = String(k)
+        wort.style.width = `${wortbreite * k}px`
+        wort.style.marginRight = `${9.6 * k}px`
+      }
+      if (p < 1) {
+        raf = requestAnimationFrame(schritt)
+      } else {
+        setOrt(flug.ziel)
+        setFlug(null)
+      }
+    }
+    raf = requestAnimationFrame(schritt)
+    return () => cancelAnimationFrame(raf)
+  }, [flug])
+
+  return { buehneAnker, kopfAnker, sichtbar, flieger, ort, flug }
+}
+
+/* Ein Abschnitt fährt beim Eintreten auf./* Ein Abschnitt fährt beim Eintreten auf. Was es mitteilt: hier fängt etwas
    Neues an. Einmalig, nicht bei jedem Vorbeiscrollen — ein Element, das bei
    jedem Richtungswechsel neu aufblendet, wirkt kaputt, nicht lebendig. */
 function Auf({
@@ -514,6 +655,8 @@ export function HdLanding() {
   })
   const linie = useSpring(ablaufP, { stiffness: 120, damping: 28, mass: 0.4 })
 
+  const ruf = useFliegenderRuf(kopf, !!reduce)
+
   const film = useRef<HTMLDivElement>(null)
   const { scrollYProgress: filmP } = useScroll({
     target: film,
@@ -534,14 +677,32 @@ export function HdLanding() {
         style={{ borderColor: 'var(--hd-line)', background: 'color-mix(in oklch, var(--hd-paper) 82%, transparent)' }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/start" className="flex items-center gap-2.5">
+          {/* min-h-11: die Zeile ist immer so hoch wie der ankommende Knopf.
+              Die Mindesthöhe sitzt am Zeichen und nicht an der Zeile, weil
+              sie am Kasten der Zeile die Polsterung mitzaehlen wuerde und
+              damit wirkungslos waere. Ohne sie waechst die Kopfzeile genau in
+              dem Moment, in dem der Pfeil ankommt, und die ganze Seite
+              darunter ruckt um vierzehn Pixel. */}
+          <Link href="/start" className="flex min-h-11 items-center gap-2.5">
             <Image src="/icon-32-v2.png" alt="" width={30} height={30} className="rounded-lg" />
             <span className="font-display text-[19px] font-bold tracking-tight">Hareb Digital</span>
           </Link>
-          <Link href="/anfrage" className="hd-cta hd-cta-pulse px-5 py-2.5 text-[15px]">
-            Projekt anfragen
-            <ArrowRight className="h-4 w-4" aria-hidden />
-          </Link>
+          {/* Der Anker steht immer da und haelt die Zeilenhöhe. Der Knopf
+              selbst liegt darauf und fehlt, solange er unten in der Bühne
+              steht oder gerade unterwegs ist. */}
+          <span ref={ruf.kopfAnker} className="relative inline-flex h-11 w-11 shrink-0">
+            {ruf.ort === 'kopf' && !ruf.flug && (
+              <Link
+                ref={ruf.sichtbar}
+                href="/anfrage"
+                aria-label="Projekt anfragen"
+                title="Projekt anfragen"
+                className="hd-cta hd-cta-pulse absolute inset-0 justify-center p-0"
+              >
+                <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
+              </Link>
+            )}
+          </span>
         </div>
         <motion.div
           aria-hidden
@@ -577,13 +738,31 @@ export function HdLanding() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.22, ease: EASE }}
             >
-              <Magnet>
-                <Link href="/anfrage" className="hd-cta hd-cta-pulse px-7 py-3.5 text-[17px]">
+              {/* Der Anker haelt Breite und Höhe, waehrend der Knopf oben in
+                  der Kopfzeile sitzt. Ohne ihn ruecke "Arbeiten ansehen" in
+                  genau dem Moment nach links, in dem der Knopf abhebt.
+
+                  Kein Magnet um diesen Knopf: der Magnet legt eine
+                  verschobene Huelle darum, und die Flugbahn wird in
+                  Bildschirmkoordinaten gemessen. Eine Verschiebung dazwischen
+                  macht aus der ruhigen Bahn einen Sprung. */}
+              <span ref={ruf.buehneAnker} className="relative inline-flex">
+                <span aria-hidden className="hd-cta invisible px-7 py-3.5 text-[17px]">
                   Projekt anfragen
-                  <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
-                </Link>
-              </Magnet>
-              <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
+                  <ArrowRight className="h-[18px] w-[18px]" />
+                </span>
+                {ruf.ort === 'buehne' && !ruf.flug && (
+                  <Link
+                    ref={ruf.sichtbar}
+                    href="/anfrage"
+                    className="hd-cta hd-cta-pulse absolute inset-0 justify-center px-7 text-[17px]"
+                  >
+                    Projekt anfragen
+                    <ArrowRight className="h-[18px] w-[18px] shrink-0" aria-hidden />
+                  </Link>
+                )}
+              </span>
+                            <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
                 Arbeiten ansehen
               </a>
             </motion.div>
@@ -891,6 +1070,35 @@ export function HdLanding() {
           </Auf>
         </div>
       </section>
+
+      {/* Der Knopf waehrend des Flugs. Fest am Bildschirm, damit
+          Weiterscrollen die Bahn nicht verzieht, und ohne Tastaturziel: er
+          existiert nur eine halbe Sekunde, und in dieser Zeit gibt es keinen
+          zweiten Knopf, der ihn vertreten müsste. */}
+      {ruf.flug && (
+        <Link
+          ref={ruf.flieger}
+          href="/anfrage"
+          tabIndex={-1}
+          aria-hidden
+          className="hd-cta hd-cta-pulse fixed z-50 justify-center gap-0 overflow-hidden whitespace-nowrap px-0 text-[17px]"
+          style={{
+            left: ruf.flug.von.left,
+            top: ruf.flug.von.top,
+            width: ruf.flug.von.breite,
+            height: ruf.flug.von.hoehe,
+          }}
+        >
+          <span
+            data-beschriftung
+            className="inline-block overflow-hidden whitespace-nowrap"
+            style={{ opacity: ruf.flug.ziel === 'kopf' ? 1 : 0 }}
+          >
+            Projekt anfragen
+          </span>
+          <ArrowRight className="h-[18px] w-[18px] shrink-0" aria-hidden />
+        </Link>
+      )}
 
       {/* ── Fusszeile ───────────────────────────────────────────────────── */}
       <footer className="hd-rule px-6 py-10">

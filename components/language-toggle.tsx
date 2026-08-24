@@ -18,7 +18,12 @@ export function LanguageToggle() {
     <div
       data-page-chrome
       data-language-toggle
-      className="fixed right-16 top-4 z-50 flex items-center gap-0.5 rounded-full border border-white/10 bg-black/30 p-0.5 font-label text-[13px] uppercase tracking-[0.08em] backdrop-blur-sm sm:right-4"
+      /* Links neben der Schalterblase des Menues und auf deren Mitte
+         ausgerichtet. Die Blase sitzt bei 2em vom rechten Rand und ist 48
+         Pixel breit (ab 768 dann 56), der Umschalter muss also davor
+         beginnen; die Hoehen unterscheiden sich, deshalb der eigene obere
+         Abstand statt eines gemeinsamen. */
+      className="fixed right-[92px] top-[42px] z-50 flex items-center gap-0.5 rounded-full border border-white/10 bg-black/30 p-0.5 font-label text-[13px] uppercase tracking-[0.08em] backdrop-blur-sm md:right-[100px] md:top-[46px]"
     >
       {(['de', 'en', 'es'] as const).map((language) => (
         <button

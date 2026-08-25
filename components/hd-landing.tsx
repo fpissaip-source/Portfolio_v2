@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { ClickSpark } from './click-spark'
 import { FoldText } from './fold-text'
-import { Werkschau, type Werk } from './werkschau'
+import { Galerie, type Schaustueck } from './galerie'
 import { EchoText } from './echo-text'
 import { HdSprachschalter } from './hd-sprachschalter'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
@@ -74,19 +74,22 @@ const EASE = [0.22, 1, 0.36, 1] as const
    nachgeführt werden, und genau das ist auf dem Telefon das Zittern, das
    hier nicht vorkommen soll. */
 
-/* Die Bildschirmfotos der beiden eigenen Produkte. Sie stehen hier und nicht
-   im Wörterbuch: eine Bilddatei ist kein Text, der übersetzt wird. */
-const EIGENE_BILDER = ['/projects/guardiangrid-login.jpg', '/projects/lukas.png']
+/* Die Galerie. Nur Medien, keine Beschriftung: Titel, Kategorie und Verweis
+   sind bewusst weg — die Schau soll zeigen und nicht erzaehlen. Die Reihenfolge
+   wechselt zwischen Standbild und Bewegtbild, damit beim Ziehen etwas passiert.
 
-/* Die Werkschau. Bild, Masse und Adresse stehen hier, die Kategorie kommt aus
-   dem Woerterbuch: nur sie wird uebersetzt, die Namen sind Eigennamen.
-   Nachlegen heisst: eine Zeile hier und eine Kategorie je Sprache. Die Masse
-   muessen stimmen, sie halten den Platz frei und bestimmen, wie weit das Bild
-   im Rahmen hochfahren kann. */
-const WERKE: Omit<Werk, 'kategorie'>[] = [
-  { id: 'taxibb', titel: 'Taxi B&B Essen', bild: '/projects/taxibb.png', breite: 1320, hoehe: 808, url: 'https://taxibbessen.de' },
-  { id: 'guardiangrid', titel: 'GuardianGrid', bild: '/projects/guardiangrid-login.jpg', breite: 1280, hoehe: 800, url: 'https://www.guardiangrid.io' },
-  { id: 'lukas', titel: 'L.U.K.A.S.', bild: '/projects/lukas.png', breite: 1024, hoehe: 1024, url: null },
+   Die Videos liegen auf 16:10 beschnitten und ohne Tonspur bereit: in jedem
+   steckt ein Browserfenster mittig im Bild, der Beschnitt trifft genau dieses
+   Fenster, und stumm laufen sie ohnehin.
+
+   Nachlegen heisst: eine Zeile hier. Bei Bildern muessen die Masse stimmen,
+   sie halten den Platz frei. */
+const SCHAU: Schaustueck[] = [
+  { art: 'bild', id: 'taxibb', quelle: '/projects/taxibb.png', breite: 1320, hoehe: 808 },
+  { art: 'video', id: 'schau-1', quelle: '/videos/schau-1.mp4', standbild: '/videos/schau-1.jpg' },
+  { art: 'bild', id: 'guardiangrid', quelle: '/projects/guardiangrid-login.jpg', breite: 1280, hoehe: 800 },
+  { art: 'video', id: 'schau-2', quelle: '/videos/schau-2.mp4', standbild: '/videos/schau-2.jpg' },
+  { art: 'video', id: 'schau-3', quelle: '/videos/schau-3.mp4', standbild: '/videos/schau-3.jpg' },
 ]
 
 const FLUGDAUER = 520
@@ -935,18 +938,16 @@ export function HdLanding({ lang }: { lang: HdLang }) {
 
         </div>
 
-        {/* Die Werkschau steht ausserhalb des Textcontainers und nimmt die
-            volle Breite. Im gepolsterten Container waere die aktive Karte
-            genau so breit wie das Fenster, und die Nachbarn raegen nicht
-            herein: dann sieht niemand, dass man ziehen kann. */}
+        {/* Die Galerie steht ausserhalb des Textcontainers und nimmt die
+            volle Breite: der Stapel kippt nach hinten weg und braucht links
+            und rechts Luft fuer die zurueckgesetzten Nachbarn. */}
         <div className="pb-20 sm:pb-32">
-          <Werkschau
-            werke={WERKE.map((w) => ({ ...w, kategorie: t.werkschau.kategorien[w.id] ?? '' }))}
+          <Galerie
+            stuecke={SCHAU}
             label={t.werkschau.label}
-            ansehen={t.werkschau.ansehen}
-            ziehen={t.werkschau.ziehen}
             vorher={t.werkschau.vorher}
             weiter={t.werkschau.weiter}
+            folie={t.werkschau.folie}
           />
         </div>
       </section>

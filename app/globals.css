@@ -1907,3 +1907,175 @@ section.hd-akt {
 .bubble-menu-items .pill-link {
   height: auto;
 }
+
+/* ── Galerie (DepthCarousel, React Bits) ─────────────────────────────────
+
+   Kein einziger fester Farbwert: alles steht in den Marken der Landingpage.
+   Die Schau steht im dunklen Akt, wo `.hd-akt` dieselben Marken umdefiniert —
+   der Schleier, der die hinteren Karten zuruecknimmt, wird dort von selbst
+   dunkel und im Hellen von selbst hell. Ein fester Farbwert waere genau
+   einmal richtig.
+
+   Die Masse und die Anordnung sind die der Vorlage, die Farben nicht: dort
+   liegen die Pfeile als Milchglas auf Schwarz und der Schleier multipliziert. */
+
+.galerie {
+  position: relative;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  perspective: 1400px;
+  perspective-origin: 50% 50%;
+  /* Waagerecht zieht die Schau, senkrecht scrollt die Seite. */
+  touch-action: pan-y;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.galerie:active {
+  cursor: grabbing;
+}
+
+.galerie:focus-visible {
+  outline: 2px solid var(--hd-accent);
+  outline-offset: 6px;
+  border-radius: 18px;
+}
+
+/* Die Buehne selbst faengt nichts ab. Sie liegt als Kasten ueber der ganzen
+   Flaeche bei z = 0, die hinteren Karten stehen dahinter — und in einem
+   `preserve-3d`-Raum gewinnt bei der Trefferpruefung, was weiter vorne
+   liegt. Gemessen: ein Tipp auf den herausragenden Nachbarn landete auf der
+   Buehne und nicht auf der Karte, die man sieht. Die Karten setzen den Wert
+   selbst wieder auf `auto`. */
+.galerie-buehne {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.galerie-karte {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  overflow: hidden;
+  border: 1px solid var(--hd-line);
+  border-radius: 16px;
+  background: var(--hd-paper-2);
+  /* Der Schatten faellt nach unten und hinten. Im dunklen Akt traegt ihn
+     kaum jemand — dort trennt die Haarlinie die Karte vom Grund. */
+  box-shadow:
+    0 34px 70px -28px rgb(0 0 0 / 0.55),
+    0 10px 24px -14px rgb(0 0 0 / 0.4);
+  will-change: transform, opacity, filter;
+  cursor: pointer;
+}
+
+.galerie-medium {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Oben ausgerichtet: bei einem Bildschirmfoto ist der Kopf der Seite die
+     Aussage, nicht die Mitte. Die Videos sind bereits auf 16:10 beschnitten,
+     dort schneidet nichts. */
+  object-position: 50% 0;
+  -webkit-user-drag: none;
+}
+
+.galerie-schleier {
+  position: absolute;
+  inset: 0;
+  background: var(--hd-paper);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.galerie-pfeil {
+  position: absolute;
+  top: 50%;
+  z-index: 3000;
+  display: grid;
+  height: 44px;
+  width: 44px;
+  transform: translateY(-50%);
+  place-items: center;
+  border: 1px solid var(--hd-line);
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--hd-paper) 78%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--hd-ink);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.galerie-pfeil:hover {
+  background: var(--hd-ink);
+  border-color: var(--hd-ink);
+  color: var(--hd-paper);
+}
+
+.galerie-pfeil:active {
+  transform: translateY(-50%) scale(0.94);
+}
+
+.galerie-punkte {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  z-index: 3000;
+  display: flex;
+  transform: translateX(-50%);
+  gap: 2px;
+}
+
+/* Der Punkt ist sieben Pixel gross, die Trefferflaeche darf es nicht sein.
+   Sie steckt deshalb im Knopf und der Punkt darin — und nicht, wie zuerst
+   versucht, in einem vergroesserten `::after`: mit acht Pixeln Abstand
+   ueberlappten sich die Flaechen, und der spaeter gezeichnete Nachbar fing
+   jeden Klick ab. Nachgemessen: der Klick auf Punkt zwei landete auf drei. */
+.galerie-punkt {
+  display: grid;
+  border: none;
+  background: none;
+  padding: 12px 5px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.galerie-punkt > span {
+  display: block;
+  height: 7px;
+  width: 7px;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--hd-ink) 24%, transparent);
+  transition:
+    width 0.25s ease,
+    background 0.25s ease;
+}
+
+.galerie-punkt.ist-aktiv > span {
+  width: 22px;
+  background: var(--hd-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galerie-karte {
+    will-change: auto;
+  }
+
+  .galerie-pfeil,
+  .galerie-punkt > span {
+    transition: none;
+  }
+}

@@ -141,13 +141,12 @@ export type HdTexte = {
   }
   werkschau: {
     label: string
-    ansehen: string
-    ziehen: string
     vorher: string
     weiter: string
-    /* Nur die Kategorie wird uebersetzt. Die Namen sind Eigennamen und
-       bleiben in jeder Sprache gleich. */
-    kategorien: Record<string, string>
+    /* Die Beschriftung einer Folie fuer Vorlesegeraete. Sichtbar steht in der
+       Galerie nichts als das Bild — die Namen der Projekte standen frueher
+       darunter und sind bewusst weg. `{n}` und `{von}` werden ersetzt. */
+    folie: string
   }
   leistungen: {
     label: string
@@ -227,15 +226,9 @@ const DE: HdTexte = {
   },
   werkschau: {
     label: 'Websites',
-    ansehen: 'Projekt ansehen',
-    ziehen: 'Ziehen',
-    vorher: 'Vorheriges Projekt',
-    weiter: 'Nächstes Projekt',
-    kategorien: {
-      taxibb: 'Webdesign · Entwicklung · SEO',
-      guardiangrid: 'Produkt · Anmeldung · Auswertung',
-      lukas: 'Produkt · KI-Agent · Betrieb',
-    },
+    vorher: 'Vorheriges Bild',
+    weiter: 'Nächstes Bild',
+    folie: 'Bild {n} von {von}',
   },
   leistungen: {
     label: 'Leistungen',
@@ -371,15 +364,9 @@ const EN: HdTexte = {
   },
   werkschau: {
     label: 'Websites',
-    ansehen: 'View project',
-    ziehen: 'Drag',
-    vorher: 'Previous project',
-    weiter: 'Next project',
-    kategorien: {
-      taxibb: 'Web design · Development · SEO',
-      guardiangrid: 'Product · Sign-in · Analysis',
-      lukas: 'Product · AI agent · Operations',
-    },
+    vorher: 'Previous image',
+    weiter: 'Next image',
+    folie: 'Image {n} of {von}',
   },
   leistungen: {
     label: 'Services',
@@ -515,15 +502,9 @@ const ES: HdTexte = {
   },
   werkschau: {
     label: 'Webs',
-    ansehen: 'Ver proyecto',
-    ziehen: 'Arrastra',
-    vorher: 'Proyecto anterior',
-    weiter: 'Proyecto siguiente',
-    kategorien: {
-      taxibb: 'Diseño web · Desarrollo · SEO',
-      guardiangrid: 'Producto · Acceso · Análisis',
-      lukas: 'Producto · Agente de IA · Operación',
-    },
+    vorher: 'Imagen anterior',
+    weiter: 'Imagen siguiente',
+    folie: 'Imagen {n} de {von}',
   },
   leistungen: {
     label: 'Servicios',

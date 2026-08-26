@@ -82,10 +82,13 @@ const EASE = [0.22, 1, 0.36, 1] as const
    steckt ein Browserfenster mittig im Bild, der Beschnitt trifft genau dieses
    Fenster, und stumm laufen sie ohnehin.
 
+   Vorne steht ein Video und kein Standbild: es laeuft an, sobald die Schau
+   ins Bild kommt, und Bewegung sagt schneller als jede Beschriftung, dass
+   hier etwas zu sehen ist.
+
    Nachlegen heisst: eine Zeile hier. Bei Bildern muessen die Masse stimmen,
    sie halten den Platz frei. */
 const SCHAU: Schaustueck[] = [
-  { art: 'bild', id: 'taxibb', quelle: '/projects/taxibb.png', breite: 1320, hoehe: 808 },
   { art: 'video', id: 'schau-1', quelle: '/videos/schau-1.mp4', standbild: '/videos/schau-1.jpg' },
   { art: 'bild', id: 'guardiangrid', quelle: '/projects/guardiangrid-login.jpg', breite: 1280, hoehe: 800 },
   { art: 'video', id: 'schau-2', quelle: '/videos/schau-2.mp4', standbild: '/videos/schau-2.jpg' },

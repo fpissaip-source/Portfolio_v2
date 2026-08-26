@@ -1965,11 +1965,13 @@ section.hd-akt {
   transform: translate(-50%, -50%);
   transform-origin: center center;
   overflow: hidden;
-  border: 1px solid var(--hd-line);
+  /* Die Kante ist heller als eine Haarlinie sonst sein duerfte. Im dunklen
+     Akt steht eine Karte auf schwarzem Grund, und ohne sichtbare Kante
+     zerfliesst sie darin — man sieht dann Bilder schweben und keinen
+     Stapel. */
+  border: 1px solid color-mix(in oklch, var(--hd-ink) 18%, transparent);
   border-radius: 16px;
   background: var(--hd-paper-2);
-  /* Der Schatten faellt nach unten und hinten. Im dunklen Akt traegt ihn
-     kaum jemand — dort trennt die Haarlinie die Karte vom Grund. */
   box-shadow:
     0 34px 70px -28px rgb(0 0 0 / 0.55),
     0 10px 24px -14px rgb(0 0 0 / 0.4);
@@ -1997,18 +1999,25 @@ section.hd-akt {
   pointer-events: none;
 }
 
+.galerie-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 22px;
+}
+
 .galerie-pfeil {
-  position: absolute;
-  top: 50%;
-  z-index: 3000;
   display: grid;
-  height: 44px;
-  width: 44px;
-  transform: translateY(-50%);
+  height: 52px;
+  width: 52px;
   place-items: center;
-  border: 1px solid var(--hd-line);
+  /* Deutlich statt dezent: auf schwarzem Grund verschwindet ein Knopf aus
+     dunklem Milchglas, und mit ihm der Hinweis, dass die Schau weitergeht. */
+  border: 1px solid color-mix(in oklch, var(--hd-ink) 30%, transparent);
   border-radius: 999px;
-  background: color-mix(in oklch, var(--hd-paper) 78%, transparent);
+  background: color-mix(in oklch, var(--hd-ink) 12%, transparent);
+  font-size: 18px;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--hd-ink);
@@ -2026,16 +2035,11 @@ section.hd-akt {
 }
 
 .galerie-pfeil:active {
-  transform: translateY(-50%) scale(0.94);
+  transform: scale(0.94);
 }
 
 .galerie-punkte {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  z-index: 3000;
   display: flex;
-  transform: translateX(-50%);
   gap: 2px;
 }
 
@@ -2055,17 +2059,17 @@ section.hd-akt {
 
 .galerie-punkt > span {
   display: block;
-  height: 7px;
-  width: 7px;
+  height: 8px;
+  width: 8px;
   border-radius: 999px;
-  background: color-mix(in oklch, var(--hd-ink) 24%, transparent);
+  background: color-mix(in oklch, var(--hd-ink) 34%, transparent);
   transition:
     width 0.25s ease,
     background 0.25s ease;
 }
 
 .galerie-punkt.ist-aktiv > span {
-  width: 22px;
+  width: 26px;
   background: var(--hd-ink);
 }
 

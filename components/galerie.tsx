@@ -69,8 +69,8 @@ type Props = {
 /* Der Entwurf, in dem die Zahlen unten stimmen. Alles darunter wird
    proportional verkleinert, nichts einzeln nachgestellt. 16:10, weil in jeder
    Karte ein Browserfenster steckt und kein Kinobild. */
-const KARTE_BREIT = 720
-const KARTE_HOCH = 450
+const KARTE_BREIT = 880
+const KARTE_HOCH = 550
 
 /* Zwei Geometrien statt einer. Der Faecher der Vorlage rechnet mit hochkant
    stehenden Karten, deren Versatz fast ein Drittel ihrer Breite betraegt —
@@ -84,7 +84,7 @@ const KARTE_HOCH = 450
    Versatz einer, der der vorderen Karte fehlt. Enger Faecher, dafuer eine
    Karte, die noch etwas zeigt. */
 type Geometrie = { versatz: number; tiefe: number; neigung: number; luft: number; weich: number }
-const WEIT: Geometrie = { versatz: 170, tiefe: 260, neigung: 22, luft: 110, weich: 5 }
+const WEIT: Geometrie = { versatz: 190, tiefe: 260, neigung: 22, luft: 90, weich: 3 }
 /* Auf dem Telefon liegt der Stapel fast flach. Nicht aus Geschmack, sondern
    aus Arithmetik: Tiefe und Neigung verkleinern den Nachbarn, und was er an
    Breite verliert, zieht seine sichtbare Kante wieder hinter die vordere
@@ -94,7 +94,7 @@ const WEIT: Geometrie = { versatz: 170, tiefe: 260, neigung: 22, luft: 110, weic
 
    Kein Weichzeichner: `filter: blur()` auf einem laufenden Video kostet auf
    dem Telefon mehr, als es aussieht. */
-const ENG: Geometrie = { versatz: 110, tiefe: 90, neigung: 0, luft: 20, weich: 0 }
+const ENG: Geometrie = { versatz: 120, tiefe: 90, neigung: 0, luft: 10, weich: 0 }
 
 /* Der Stapel faechert nur nach einer Seite auf. Ohne Ausgleich staende die
    vordere Karte mittig und der Faecher rechts daneben, die Schau haette also
@@ -136,6 +136,10 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
 
   const [aktiv, setAktiv] = useState(0)
   const [hoehe, setHoehe] = useState(KARTE_HOCH)
+  /* Um so viel steht die vordere Karte links der Mitte (siehe AUSGLEICH). Die
+     Bedienleiste unten macht den Versatz mit, sonst steht sie neben der Karte,
+     unter die sie gehoert. */
+  const [schub, setSchub] = useState(0)
   const [imBild, setImBild] = useState(false)
   const [stumm, setStumm] = useState(false)
 
@@ -183,7 +187,7 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
         el.style.pointerEvents = sichtbar && deckung > 0.05 ? 'auto' : 'none'
 
         const s = schleier.current[i]
-        if (s) s.style.opacity = klemm(zurueck * 0.26, 0, 0.72).toFixed(3)
+        if (s) s.style.opacity = klemm(zurueck * 0.2, 0, 0.6).toFixed(3)
       }
     },
     [anzahl],
@@ -245,10 +249,11 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
       geo.current = g
       const sc = klemm(b / (KARTE_BREIT + g.versatz * 2 + g.luft), 0.34, 1)
       faktor.current = sc
-      /* Der Kasten ist so hoch wie die Karte plus Luft fuer die Punkte
-         darunter. Ohne die Rechnung stuende die Schau in einem festen Rahmen
+      /* Der Kasten ist so hoch wie die Karte plus etwas Luft
+         herum. Ohne die Rechnung stuende die Schau in einem festen Rahmen
          und liesse auf dem Telefon die halbe Hoehe leer. */
-      setHoehe(Math.round(KARTE_HOCH * sc + 76))
+      setHoehe(Math.round(KARTE_HOCH * sc + 24))
+      setSchub(Math.round(g.versatz * AUSGLEICH * sc))
       anordnen(pos.current)
     })
     beobachter.observe(el)
@@ -448,7 +453,7 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
                     width={stueck.breite}
                     height={stueck.hoehe}
                     sizes="(max-width: 640px) 90vw, 720px"
-                    loading={i === 0 ? 'eager' : 'lazy'}
+                    loading={i <= 1 ? 'eager' : 'lazy'}
                     className="galerie-medium"
                     draggable={false}
                   />
@@ -480,21 +485,17 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => um(-1)}
-          aria-label={vorher}
-          className="galerie-pfeil left-3 sm:left-6"
-        >
+      </div>
+
+      {/* Die Bedienung steht unter der Schau und nicht darin. Vorher lagen die
+          Pfeile am Rand des Rahmens: auf dem Telefon ist der Rahmen 390 Pixel
+          breit und die Karte 304 — die Knoepfe lagen also mitten auf der
+          Website, die sie zeigen sollen. Unten in einer Reihe verdecken sie
+          nichts, und Pfeil–Punkte–Pfeil ist auf den ersten Blick als
+          Schau zu lesen. */}
+      <div className="galerie-leiste" style={{ transform: `translateX(${-schub}px)` }}>
+        <button type="button" onClick={() => um(-1)} aria-label={vorher} className="galerie-pfeil">
           <span aria-hidden>&larr;</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => um(1)}
-          aria-label={weiter}
-          className="galerie-pfeil right-3 sm:right-6"
-        >
-          <span aria-hidden>&rarr;</span>
         </button>
 
         <div className="galerie-punkte">
@@ -511,6 +512,10 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
             </button>
           ))}
         </div>
+
+        <button type="button" onClick={() => um(1)} aria-label={weiter} className="galerie-pfeil">
+          <span aria-hidden>&rarr;</span>
+        </button>
       </div>
 
       <span aria-live="polite" aria-atomic className="sr-only">

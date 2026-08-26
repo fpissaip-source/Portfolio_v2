@@ -1099,17 +1099,30 @@ button.enquiry-input {
    der Sammlung mit eigener Handschrift statt des ueblichen Standard-Blau.
    ───────────────────────────────────────────────────────────────────────── */
 
+/* Die Seite steht jetzt im Dunkeln, und zwar ganz.
+
+   Der Grund ist der Held: ein Schreibtisch auf einem Berggipfel im
+   Sonnenaufgang, formatfuellend und ueber das Scrollen gefahren. Ein heller
+   Papierbogen darunter waere kein Wechsel, sondern ein Bruch — man sieht
+   dann zwei Seiten, die zufaellig untereinander stehen. Umgekehrt traegt das
+   Dunkel den warmen Akzent, den das Bild ohnehin mitbringt.
+
+   Es sind dieselben Marken wie vorher, nur andere Werte. Genau dafuer stehen
+   sie da: kein Abschnitt kennt eine Farbe, jeder kennt nur seine Rolle. Der
+   dunkle Akt weiter unten hat seine Sonderfarben deshalb verloren — er hat
+   jetzt dieselben wie alle. */
 .hd {
-  --hd-paper: #fbfaf8;
-  --hd-paper-2: #f2efea;
-  --hd-ink: #14120f;
-  --hd-ink-soft: #57514a;
-  --hd-line: #e2ddd5;
-  /* Ein Akzent, aus dem warmen Ende des Logoverlaufs. Dunkel genug, um als
-     Flaeche mit weisser Schrift 4.5:1 zu erreichen — die helle Fassung des
-     Logo-Orange haette das auf Papier nicht geschafft. */
-  --hd-accent: oklch(0.55 0.16 42);
-  --hd-accent-soft: oklch(0.96 0.02 60);
+  --hd-paper: #0b0a09;
+  --hd-paper-2: #131110;
+  --hd-ink: #f7f4f0;
+  --hd-ink-soft: #a8a099;
+  --hd-line: #2a2724;
+  /* Der Akzent kommt aus dem Sonnenaufgang im Heldenbild. Auf Papier musste
+     er dunkel sein, um mit weisser Schrift 4.5:1 zu erreichen; im Dunkeln
+     gilt das Gegenteil, und er darf die Helligkeit haben, die er im Bild
+     auch hat. */
+  --hd-accent: oklch(0.78 0.15 58);
+  --hd-accent-soft: oklch(0.22 0.045 48);
 
   background: var(--hd-paper);
   color: var(--hd-ink);
@@ -1121,7 +1134,13 @@ button.enquiry-input {
 .hd-surface {
   border: 1px solid var(--hd-line);
   border-radius: 14px;
-  background: #fff;
+  /* Milchglas statt Weiss. Auf Papier war eine Karte einfach weisser als
+     ihr Grund; im Dunkeln gibt es kein "dunkler als schwarz", also traegt
+     die Flaeche stattdessen etwas Licht und laesst durchscheinen, was
+     dahinter liegt. */
+  background: color-mix(in oklch, var(--hd-paper-2) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
 }
 
 .hd-shot {
@@ -1131,7 +1150,7 @@ button.enquiry-input {
   background: var(--hd-paper-2);
   /* Der Schatten ist auf den Papierton getoent, nicht schwarz. Reines
      Schwarz unter einem warmen Weiss sieht immer nach Fremdkoerper aus. */
-  box-shadow: 0 18px 40px -28px rgb(60 45 30 / 0.45);
+  box-shadow: 0 24px 60px -34px rgb(0 0 0 / 0.85);
 }
 
 .hd-label {
@@ -1155,13 +1174,23 @@ button.enquiry-input {
   background: var(--hd-ink);
   color: var(--hd-paper);
   font-weight: 600;
+  /* Die Lichtkante oben und der Schatten darunter machen aus der Flaeche
+     einen Koerper. Auf Papier brauchte der Knopf das nicht, im Dunkeln
+     schon: eine helle Flaeche ohne Kante sieht aus wie ein Loch. */
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.4),
+    0 10px 24px -12px rgb(0 0 0 / 0.7);
   transition:
     background-color 0.2s ease,
+    box-shadow 0.2s ease,
     transform 0.15s ease;
 }
 
 .hd-cta:hover {
   background: var(--hd-accent);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.4),
+    0 14px 30px -12px rgb(0 0 0 / 0.8);
   transform: translateY(-1px);
 }
 
@@ -1184,7 +1213,7 @@ button.enquiry-input {
 
 .hd-cta-ghost:hover {
   border-color: var(--hd-ink);
-  background: #fff;
+  background: color-mix(in oklch, var(--hd-ink) 12%, transparent);
 }
 
 /* Die Ziffern vor den Leistungen. Plakatschrift, aber klein und in der
@@ -1249,17 +1278,11 @@ section.hd-akt {
     var(--hd-paper);
 }
 
-.hd-akt {
-  --hd-paper: #0d0c0b;
-  --hd-paper-2: #131211;
-  --hd-ink: #f7f4f0;
-  --hd-ink-soft: #a49c93;
-  --hd-line: #2a2724;
-  --hd-accent: oklch(0.76 0.15 55);
-
-  background: var(--hd-paper);
-  color: var(--hd-ink);
-}
+/* Frueher definierte der Akt hier seine eigenen, dunklen Marken — er war die
+   eine schwarze Einstellung in einer hellen Seite. Seit die ganze Seite
+   dunkel ist, haette er nichts mehr umzudefinieren. Geblieben ist der
+   Lichtkegel oben drueber (siehe `section.hd-akt`), der ihn weiterhin als
+   eigenen Raum lesbar macht. */
 
 /* Kinoformat. Ein Bildschirmfoto im Breitbild gelesen zu bekommen ist etwas
    anderes, als es im Fensterformat zu sehen — der Schnitt allein macht aus
@@ -1283,17 +1306,8 @@ section.hd-akt {
 }
 
 .hd-akt .hd-shot {
-  border-color: var(--hd-line);
   background: #000;
   box-shadow: 0 40px 90px -50px rgb(0 0 0 / 0.9);
-}
-
-/* Der Umriss-Knopf erbt seine Farben aus den Marken des Akts. Nur sein
-   Hover-Grund nicht: der stand fest auf Weiss und waere im Dunkeln ein
-   Loch gewesen. */
-.hd-akt .hd-cta-ghost:hover {
-  border-color: var(--hd-ink);
-  background: color-mix(in oklch, var(--hd-ink) 12%, transparent);
 }
 
 /* ---------------------------------------------------------------------
@@ -1400,22 +1414,6 @@ section.hd-akt {
   }
 }
 
-/* Die Schlagzeile der Landingpage.
-
-   Zwei Zeilen, jede in einem Stueck. Die Groesse haengt an der
-   Bildschirmbreite und nicht an einem festen Wert: die laengere der beiden
-   Zeilen soll die verfuegbare Breite ausnutzen und trotzdem nie ueber sie
-   hinauslaufen. Der vw-Anteil ist an der deutschen Fassung ausgemessen
-   ("Maximale Sichtbarkeit." ist die laengste Zeile aller drei Sprachen). */
-.hd-schlagzeile {
-  /* Der untere Wert ist gemessen, nicht geschaetzt: bei 320px Breite und
-     1,75rem stand die deutsche Zeile mit 270 von 272 Pixeln zwei Pixel vor der
-     Kante. Das haelt zwar, aber ein Ersatzschriftschnitt vor dem Laden der
-     Hausschrift setzt breiter, und dann schoebe die Zeile die Seite quer.
-     1,6rem laesst Luft. */
-  font-size: clamp(1.6rem, 7.6vw, 3.6rem);
-}
-
 /* EchoText, portiert von React Bits. Die Vorlage bringt eine eigene
    .css-Datei mit; hier steht sie bei den anderen Klassen der Seite.
 
@@ -1468,9 +1466,9 @@ section.hd-akt {
 /* Die Schlagzeile behaelt ihren eigenen Satz: die Vorlage setzt zeilenhoehe
    0.9 und Sperrung -0.04em fest, und beides gehoert hier zur Seite und nicht
    zum Bauteil. */
-.hd-schlagzeile .echo-text {
-  line-height: 1.03;
-  letter-spacing: -0.025em;
+.hd-held-zeile .echo-text {
+  line-height: 1.06;
+  letter-spacing: -0.03em;
 }
 
 /* HalftoneReveal, portiert von React Bits.
@@ -2082,4 +2080,166 @@ section.hd-akt {
   .galerie-punkt > span {
     transition: none;
   }
+}
+
+/* ── Die Heldenbühne mit dem Film ────────────────────────────────────────
+
+   Ein Schreibtisch auf einem Berggipfel, der Nebel zieht ab, die Sonne
+   kommt hoch. Der Film läuft nicht von allein: er hängt am Scrollen. Wer
+   stehen bleibt, bei dem bleibt auch das Bild stehen.
+
+   Der Abschnitt ist höher als der Bildschirm, die Bühne darin klebt oben
+   fest. Der Weg dazwischen ist die Laufzeit des Films. */
+
+.hd-held {
+  position: relative;
+  /* Zwei Bildschirmhöhen Scrollweg für fünf Sekunden Film. Länger fühlt es
+     sich an wie Sirup, kürzer springt jedes Rad um mehrere Bilder. */
+  height: 220svh;
+}
+
+.hd-held-buehne {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  /* Der Grund unter dem Film, für die Zeit, bis das erste Bild steht. */
+  background: #0b0a09;
+}
+
+.hd-held-bild,
+.hd-held-film {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* Der Film liegt über dem Standbild und blendet auf, sobald er Bilder hat.
+   Bis dahin sieht man das Standbild — dasselbe Bild, nur früher da. */
+.hd-held-film {
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.hd-held-film[data-bereit='ja'] {
+  opacity: 1;
+}
+
+/* Der Schleier. Das Bild ist im Nebel fast weiss, und weisse Schrift darauf
+   ist keine. Er liegt oben und unten dichter als in der Mitte: oben steht
+   die Kopfzeile, unten der Text, dazwischen soll man den Sonnenaufgang
+   sehen. */
+.hd-held-schleier {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      to bottom,
+      rgb(11 10 9 / 0.6) 0%,
+      rgb(11 10 9 / 0.3) 26%,
+      rgb(11 10 9 / 0.34) 52%,
+      rgb(11 10 9 / 0.82) 100%
+    ),
+    radial-gradient(120% 80% at 50% 100%, rgb(11 10 9 / 0.45) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hd-held-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  padding: 0 1.5rem calc(9svh + env(safe-area-inset-bottom));
+  text-align: center;
+}
+
+/* Die Schlagzeile. Zwei Zeilen, jede erzwungen, und die Grösse hängt an der
+   Bildschirmbreite: die deutsche Fassung ist die längste und muss auf 320
+   Pixeln noch in eine Zeile passen. */
+.hd-held-zeile {
+  display: block;
+  white-space: nowrap;
+  /* Der vw-Anteil ist gemessen, nicht geschaetzt: bei 320 Pixeln Breite
+     stehen 272 Pixel zwischen den Innenabstaenden, und die laengste Zeile
+     aller drei Sprachen ("etwas Einzigartiges bauen.") kam mit 6,4vw auf
+     275 — sie ass also drei Pixel Rand auf. Ein Ersatzschnitt vor dem Laden
+     der Hausschrift setzt noch breiter. 5,7vw laesst Luft. */
+  font-size: clamp(1.3rem, 5.7vw, 4.4rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  /* Ein weicher Schlagschatten, kein Kasten dahinter. Der Nebel wandert
+     während des Films, und ein Kasten stünde die halbe Zeit auf dunklem
+     Grund und sähe aus wie vergessen. */
+  text-shadow: 0 2px 30px rgb(0 0 0 / 0.55);
+}
+
+/* Der Hinweis nach unten. Er verschwindet, sobald der Film läuft — dann hat
+   die Bewegung selbst schon gesagt, was er sagen wollte. */
+.hd-held-hinweis {
+  position: absolute;
+  bottom: calc(2.4svh + env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgb(247 244 240 / 0.62);
+}
+
+.hd-held-hinweis span:last-child {
+  display: block;
+  height: 22px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgb(247 244 240 / 0.6), transparent);
+}
+
+/* Auf kurzen Telefonen ist eine Bildschirmhöhe schnell voll. Der Text rückt
+   nach unten zusammen, die Schlagzeile wird kleiner, der Hinweis fällt weg. */
+@media (max-height: 700px) {
+  .hd-held-text {
+    padding-bottom: calc(6svh + env(safe-area-inset-bottom));
+  }
+
+  .hd-held-hinweis {
+    display: none;
+  }
+}
+
+/* Bei abgeschalteter Bewegung fährt nichts. Der Abschnitt ist dann genau
+   einen Bildschirm hoch, und es steht das Standbild da. */
+@media (prefers-reduced-motion: reduce) {
+  .hd-held {
+    height: 100svh;
+  }
+
+  .hd-held-film {
+    display: none;
+  }
+
+  .hd-held-hinweis {
+    display: none;
+  }
+}
+
+/* Die Zeile im Leistungsteil bekam beim Zeigen einen weissen Grund. Im
+   Dunkeln nimmt sie stattdessen etwas Licht auf. */
+.hd-zeile {
+  transition:
+    background-color 0.3s ease,
+    padding 0.3s ease;
+}
+
+.hd-zeile:hover {
+  background: color-mix(in oklch, var(--hd-ink) 7%, transparent);
+  padding-left: 1rem;
 }

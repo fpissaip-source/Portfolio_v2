@@ -34,11 +34,16 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  /* Hell, und das ist die Entscheidung, die den zweiten Anlauf traegt. Die
-     Kundenseite soll nicht aussehen wie das Portfolio, und ein Besucher, der
-     eine Schreinerei fuehrt, liest auf Papier besser als auf Schwarz. */
-  colorScheme: 'light',
-  themeColor: '#fbfaf8',
+  /* Dunkel, seit der Held ein formatfuellender Film ist: ein Schreibtisch auf
+     einem Berggipfel im Sonnenaufgang. Die Seite darunter im hellen Papierton
+     zu lassen waere kein Wechsel, sondern ein Bruch — man saehe zwei Seiten,
+     die zufaellig untereinander stehen.
+
+     Der Wert steuert auch die Farbe der Adressleiste auf dem Telefon und die
+     Voreinstellung der Formularfelder. Beides stand vorher auf Hell und waere
+     jetzt zweimal falsch. */
+  colorScheme: 'dark',
+  themeColor: '#0b0a09',
   width: 'device-width',
   initialScale: 1,
 }

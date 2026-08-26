@@ -7,7 +7,7 @@ import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { ClickSpark } from './click-spark'
 import { FoldText } from './fold-text'
 import { Galerie, type Schaustueck } from './galerie'
-import { EchoText } from './echo-text'
+import { HdHeld } from './hd-held'
 import { HdSprachschalter } from './hd-sprachschalter'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
 import { langPath } from '@/lib/i18n'
@@ -109,7 +109,11 @@ function kasten(el: HTMLElement) {
 
 const misch = (a: number, b: number, t: number) => a + (b - a) * t
 
-function useFliegenderRuf(kopf: React.RefObject<HTMLElement | null>, reduce: boolean) {
+function useFliegenderRuf(
+  kopf: React.RefObject<HTMLElement | null>,
+  reduce: boolean,
+  held: React.RefObject<HTMLElement | null>,
+) {
   const buehneAnker = useRef<HTMLSpanElement>(null)
   const kopfAnker = useRef<HTMLSpanElement>(null)
   /* Beide Knöpfe teilen sich einen Ref: es ist immer nur einer eingehängt,
@@ -130,13 +134,24 @@ function useFliegenderRuf(kopf: React.RefObject<HTMLElement | null>, reduce: boo
 
     const pruefen = () => {
       if (flugRef.current) return
-      const kante = kopf.current?.getBoundingClientRect().height ?? 64
-      const unten = anker.getBoundingClientRect().bottom
-      /* Zwei Schwellen. Mit nur einer steht der Knopf genau auf der Kante und
-         ein einziger Pixel Scrollweg lässt ihn zwischen oben und unten
-         flackern. */
+
+      /* Der Abflug hängt am Fortschritt der Bühne und nicht mehr daran, ob
+         der Knopf unter die Kopfzeile gerutscht ist.
+
+         Der Grund: die Bühne klebt oben fest. Der Knopf steht darin zwei
+         Bildschirme lang an derselben Stelle und rutscht nirgendwohin — er
+         wäre also nie abgeflogen, und wenn doch, dann erst, nachdem der Text
+         längst ausgeblendet war. Ein Knopf, der aus dem Nichts hervorkommt
+         und nach oben fliegt, sieht aus wie ein Fehler.
+
+         Jetzt fliegt er in dem Moment, in dem der Text anfängt zu gehen.
+         Zwei Schwellen statt einer, sonst flackert er auf der Kante. */
+      const el = held.current
+      if (!el) return
+      const weg = Math.max(el.offsetHeight - window.innerHeight, 1)
+      const p = (window.scrollY - (el.getBoundingClientRect().top + window.scrollY)) / weg
       const soll: 'buehne' | 'kopf' =
-        ortRef.current === 'kopf' ? (unten < kante + 34 ? 'kopf' : 'buehne') : unten < kante + 10 ? 'kopf' : 'buehne'
+        ortRef.current === 'kopf' ? (p > 0.26 ? 'kopf' : 'buehne') : p > 0.34 ? 'kopf' : 'buehne'
       if (soll === ortRef.current) return
 
       if (reduce || !sichtbar.current) {
@@ -153,7 +168,7 @@ function useFliegenderRuf(kopf: React.RefObject<HTMLElement | null>, reduce: boo
       window.removeEventListener('scroll', pruefen)
       window.removeEventListener('resize', pruefen)
     }
-  }, [kopf, reduce])
+  }, [kopf, reduce, held])
 
   useEffect(() => {
     if (!flug) return
@@ -536,21 +551,10 @@ export function HdLanding({ lang }: { lang: HdLang }) {
   const zumFormular = langPath(lang, '/anfrage')
   const reduce = useReducedMotion()
 
-  /* Die Bühne: das Bild liegt eine Spur hinter dem Text und zieht beim
-     Scrollen nach. Was es mitteilt: Tiefe. Ein einziger Wert, über einen
-     Motion-Wert geführt statt über React-Zustand — sonst rendert der Baum
-     bei jedem Bild neu. */
-  const buehne = useRef<HTMLElement>(null)
-  const { scrollYProgress: buehneP } = useScroll({
-    target: buehne,
-    offset: ['start start', 'end start'],
-  })
-  const bildY = useTransform(buehneP, [0, 1], [0, reduce ? 0 : 70])
-  const bildWeich = useSpring(bildY, { stiffness: 120, damping: 26, mass: 0.4 })
-  /* Das Bild wächst beim Scrollen ein Stück über seinen Rahmen hinaus. Was es
-     mitteilt: die Kamera fährt heran. Ein Prozent Maßstab pro Scrollweg reicht
-     dafür; mehr sieht nach Effekt aus statt nach Bewegung. */
-  const bildZoom = useTransform(buehneP, [0, 1], [1, reduce ? 1 : 1.06])
+  /* Die Heldenbühne. Der Abschnitt gehört dem Bauteil, der Verweis darauf
+     steht hier: die Kopfzeile und der fliegende Knopf müssen wissen, wie weit
+     die Bühne durchgescrollt ist. */
+  const held = useRef<HTMLElement>(null)
 
   /* Der Beleg im Arbeitsteil richtet sich beim Hereinscrollen auf: von leicht
      nach hinten gekippt auf gerade. Was es mitteilt: hier liegt etwas auf dem
@@ -570,25 +574,27 @@ export function HdLanding({ lang }: { lang: HdLang }) {
      ausgibt, wäre schlicht falsch gewesen. Das Bewegungsbudget liegt
      stattdessen dort, wo es etwas mitteilt: bei den durchgestrichenen
      Sätzen, den hochzählenden Zahlen und dem Aufbau der Abschnitte. */
-  /* Die Kopfzeile kippt mit, solange der dunkle Akt hinter ihr liegt. Was es
-     mitteilt: die Seite hat den Raum gewechselt, nicht nur die Farbe. Ein
-     heller Balken über einer schwarzen Einstellung sieht aus wie ein Fehler
-     im Vorführraum, nicht wie eine Entscheidung.
+  /* Die Kopfzeile ist durchsichtig, solange der Film hinter ihr läuft, und
+     bekommt ihren Grund erst danach. Was es mitteilt: oben ist Bild, unten
+     ist Seite. Ein Balken mit Milchglas über einem formatfüllenden Film sieht
+     aus wie ein vergessenes Bedienfeld.
 
-     Gemessen wird gegen die tatsächliche Höhe der Leiste statt gegen eine
-     abgeschriebene Zahl, und der Zustand ist ein Wahrheitswert: React rendert
-     nur beim Umschlag neu, nicht bei jedem Scrollschritt. */
+     Der Zustand ist ein Wahrheitswert und kein Messwert: React rendert nur
+     beim Umschlag neu, nicht bei jedem Scrollschritt.
+
+     Früher stand hier dieselbe Mechanik für den dunklen Akt — die Kopfzeile
+     kippte auf Schwarz, sobald er hinter ihr lag. Seit die ganze Seite dunkel
+     ist, hat sie nichts mehr zu kippen. */
   const kopf = useRef<HTMLElement>(null)
   const akt = useRef<HTMLElement>(null)
-  const [imAkt, setImAkt] = useState(false)
+  const [ueberDemFilm, setUeberDemFilm] = useState(true)
 
   useEffect(() => {
-    const abschnitt = akt.current
+    const abschnitt = held.current
     if (!abschnitt) return
     const pruefen = () => {
       const kante = kopf.current?.getBoundingClientRect().height ?? 64
-      const r = abschnitt.getBoundingClientRect()
-      setImAkt(r.top <= kante && r.bottom > kante)
+      setUeberDemFilm(abschnitt.getBoundingClientRect().bottom > kante)
     }
     pruefen()
     window.addEventListener('scroll', pruefen, { passive: true })
@@ -618,7 +624,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
   })
   const linie = useSpring(ablaufP, { stiffness: 120, damping: 28, mass: 0.4 })
 
-  const ruf = useFliegenderRuf(kopf, !!reduce)
+  const ruf = useFliegenderRuf(kopf, !!reduce, held)
 
   const film = useRef<HTMLDivElement>(null)
   const { scrollYProgress: filmP } = useScroll({
@@ -633,15 +639,31 @@ export function HdLanding({ lang }: { lang: HdLang }) {
 
   return (
     <div>
-      {/* Funken am Zeiger, bei jedem Klick. Dunkle Tinte, die Seite ist
-          hell. */}
-      <ClickSpark sparkColor="#8a7a68" sparkSize={10} sparkRadius={16} sparkCount={8} duration={420} />
+      {/* Funken am Zeiger, bei jedem Klick. Warmes Licht, die Seite ist
+          dunkel. */}
+      <ClickSpark sparkColor="#e8a765" sparkSize={10} sparkRadius={16} sparkCount={8} duration={420} />
 
       {/* ── Kopfzeile ───────────────────────────────────────────────────── */}
       <header
         ref={kopf}
-        className={`sticky top-0 z-40 border-b backdrop-blur-md transition-colors duration-500 ${imAkt ? 'hd-akt' : ''} relative`}
-        style={{ borderColor: 'var(--hd-line)', background: 'color-mix(in oklch, var(--hd-paper) 82%, transparent)' }}
+        /* Fest und nicht klebend. Eine klebende Leiste bleibt im Fluss und
+           schiebt den Film um ihre Höhe nach unten — dann steht oben ein
+           schwarzer Balken und darunter fängt das Bild an. Fest liegt sie
+           darüber, und der Film beginnt bei Null.
+
+           `relative` steht nicht mehr dabei: es setzte dieselbe Eigenschaft
+           ein zweites Mal, und der Fortschrittsbalken darunter braucht es
+           nicht — eine feste Leiste ist selbst schon der Bezugsrahmen für
+           alles, was absolut darin liegt. */
+        className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-500 ${
+          ueberDemFilm ? '' : 'backdrop-blur-md'
+        }`}
+        style={{
+          borderColor: ueberDemFilm ? 'transparent' : 'var(--hd-line)',
+          background: ueberDemFilm
+            ? 'transparent'
+            : 'color-mix(in oklch, var(--hd-paper) 82%, transparent)',
+        }}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           {/* min-h-11: die Zeile ist immer so hoch wie der ankommende Knopf.
@@ -652,7 +674,9 @@ export function HdLanding({ lang }: { lang: HdLang }) {
               darunter ruckt um vierzehn Pixel. */}
           <Link href="/start" className="flex min-h-11 items-center gap-2.5">
             <Image src="/icon-32-v2.png" alt="" width={30} height={30} className="rounded-lg" />
-            <span className="font-display text-[19px] font-bold tracking-tight">Hareb Digital</span>
+            <span className="whitespace-nowrap font-display text-[19px] font-bold tracking-tight">
+              Hareb Digital
+            </span>
           </Link>
           <div className="flex items-center gap-3">
             <HdSprachschalter lang={lang} />
@@ -682,128 +706,44 @@ export function HdLanding({ lang }: { lang: HdLang }) {
         />
       </header>
 
-      {/* ── Bühne ───────────────────────────────────────────────────────── */}
-      <section ref={buehne} className="mx-auto max-w-6xl px-6 pb-24 pt-12 sm:pt-20">
-        <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
-          <div>
-            {/* Jede Aussage eine Zeile, und zwar erzwungen.
-                Vorher war es ein Satz in einem Kasten mit max-w-[16ch]: der
-                Browser brach ihn dort, wo die Breite endete, und auf dem
-                Telefon stand "Gefunden / werden. Arbeit / loswerden." — der
-                Umbruch mitten in der zweiten Aussage.
+      {/* ── Heldenbühne ─────────────────────────────────────────────────── */}
+      <HdHeld
+        sektion={held}
+        titelOben={t.buehne.titelOben}
+        titelUnten={t.buehne.titelUnten}
+        vorspann={t.buehne.vorspann}
+        bildAlt={t.buehne.bildAlt}
+        hinweis={t.buehne.hinweis}
+      >
+        {/* Der Anker haelt Breite und Höhe, waehrend der Knopf oben in der
+            Kopfzeile sitzt. Ohne ihn ruecke "Arbeiten ansehen" in genau dem
+            Moment nach links, in dem der Knopf abhebt.
 
-                nowrap erzwingt die Zeile, und die Schriftgroesse haengt an der
-                Bildschirmbreite statt an einem festen Wert, damit die laengere
-                der beiden Zeilen immer hineinpasst. Ausgemessen an der
-                deutschen Fassung, weil die die laengste ist. */}
-            <motion.h1
-              className="hd-schlagzeile font-display font-bold leading-[1.03] tracking-[-0.025em]"
-              initial={reduce ? false : { opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: EASE }}
+            Kein Magnet um diesen Knopf: der Magnet legt eine verschobene
+            Huelle darum, und die Flugbahn wird in Bildschirmkoordinaten
+            gemessen. Eine Verschiebung dazwischen macht aus der ruhigen Bahn
+            einen Sprung. */}
+        <span ref={ruf.buehneAnker} className="relative inline-flex">
+          <span aria-hidden className="hd-cta invisible px-7 py-3.5 text-[17px]">
+            {t.ctaHaupt}
+            <ArrowRight className="h-[18px] w-[18px]" />
+          </span>
+          {ruf.ort === 'buehne' && !ruf.flug && (
+            <Link
+              ref={ruf.sichtbar}
+              href={zumFormular}
+              className="hd-cta hd-cta-pulse absolute inset-0 justify-center px-7 text-[17px]"
             >
-              {/* Jede Zeile ein eigener Nachhall. Die Vorlage kennt nur eine
-                  Zeile (white-space: nowrap), was hier genau richtig ist: die
-                  beiden Aussagen sollen ohnehin nie umbrechen.
+              {t.ctaHaupt}
+              <ArrowRight className="h-[18px] w-[18px] shrink-0" aria-hidden />
+            </Link>
+          )}
+        </span>
+        <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
+          {t.buehne.arbeitenAnsehen}
+        </a>
+      </HdHeld>
 
-                  Massvolle Werte, aus zwei Gruenden. Die Schatten liegen
-                  absolut und laufen beim Einlauf nach rechts aus dem Kasten
-                  heraus, ein grosses offset schoebe auf dem Telefon die Seite
-                  quer. Und Unschaerfe auf Text ist teuer: sieben Schatten mal
-                  zwei Zeilen sind schon vierzehn Ebenen, die am Rechner
-                  waehrend des Schwebens in jedem Bild neu gezeichnet werden. */}
-              {[t.buehne.titelOben, t.buehne.titelUnten].map((zeile) => (
-                <span key={zeile} className="block">
-                  <EchoText
-                    text={zeile}
-                    echoes={7}
-                    offset={14}
-                    lag={0.26}
-                    fade={0.66}
-                    blur={2}
-                    direction="right"
-                    duration={1100}
-                    ease="ease-out"
-                    cursorRadius={420}
-                    tint="#b3541c"
-                    color="#14120f"
-                    fontSize="inherit"
-                    fontWeight="inherit"
-                  />
-                </span>
-              ))}
-            </motion.h1>
-            <motion.p
-              className="mt-6 max-w-[46ch] text-[19px] leading-[1.6] text-[color:var(--hd-ink-soft)]"
-              initial={reduce ? false : { opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
-            >
-              {t.buehne.vorspann}
-            </motion.p>
-            <motion.div
-              className="mt-9 flex flex-wrap items-center gap-3"
-              initial={reduce ? false : { opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.22, ease: EASE }}
-            >
-              {/* Der Anker haelt Breite und Höhe, waehrend der Knopf oben in
-                  der Kopfzeile sitzt. Ohne ihn ruecke "Arbeiten ansehen" in
-                  genau dem Moment nach links, in dem der Knopf abhebt.
-
-                  Kein Magnet um diesen Knopf: der Magnet legt eine
-                  verschobene Huelle darum, und die Flugbahn wird in
-                  Bildschirmkoordinaten gemessen. Eine Verschiebung dazwischen
-                  macht aus der ruhigen Bahn einen Sprung. */}
-              <span ref={ruf.buehneAnker} className="relative inline-flex">
-                <span aria-hidden className="hd-cta invisible px-7 py-3.5 text-[17px]">
-                  {t.ctaHaupt}
-                  <ArrowRight className="h-[18px] w-[18px]" />
-                </span>
-                {ruf.ort === 'buehne' && !ruf.flug && (
-                  <Link
-                    ref={ruf.sichtbar}
-                    href={zumFormular}
-                    className="hd-cta hd-cta-pulse absolute inset-0 justify-center px-7 text-[17px]"
-                  >
-                    {t.ctaHaupt}
-                    <ArrowRight className="h-[18px] w-[18px] shrink-0" aria-hidden />
-                  </Link>
-                )}
-              </span>
-                            <a href="#arbeiten" className="hd-cta-ghost px-6 py-3.5 text-[17px]">
-                {t.buehne.arbeitenAnsehen}
-              </a>
-            </motion.div>
-          </div>
-
-          <motion.figure
-            style={{ y: bildWeich }}
-            /* Die Blende öffnet sich von der Mitte nach oben und unten, wie
-               ein Vorhang. Der Maßstab dahinter gehört dem Scrollen, die
-               Blende dem Laden — zwei getrennte Bewegungen auf demselben
-               Element, sonst kämpfen sie um dasselbe Bild. */
-            initial={reduce ? false : { clipPath: 'inset(46% 0% 46% 0%)', opacity: 0 }}
-            animate={{ clipPath: 'inset(0% 0% 0% 0%)', opacity: 1 }}
-            transition={{ duration: 1.1, delay: 0.15, ease: EASE }}
-          >
-            <motion.div className="hd-shot" style={{ scale: bildZoom }}>
-              <Image
-                src="/projects/taxibb.png"
-                alt={t.buehne.bildAlt}
-                width={1320}
-                height={808}
-                priority
-                sizes="(max-width: 1024px) 100vw, 560px"
-                className="h-auto w-full"
-              />
-            </motion.div>
-            <figcaption className="mt-3 text-[15px] text-[color:var(--hd-ink-soft)]">
-              {t.buehne.bildText}
-            </figcaption>
-          </motion.figure>
-        </div>
-      </section>
 
       {/* ── Wiedererkennung ─────────────────────────────────────────────── */}
       <section className="hd-rule">
@@ -977,7 +917,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
                 {/* Die Zeile bekommt beim Zeigen einen hellen Grund und rückt
                     ein Stück nach rechts. Was es mitteilt: das hier ist eine
                     Auswahl, keine Aufzählung. */}
-                <div className="hd-rule grid gap-x-10 gap-y-3 py-8 transition-[background-color,padding] duration-300 hover:bg-white hover:pl-4 sm:grid-cols-[8rem_1fr]">
+                <div className="hd-zeile hd-rule grid gap-x-10 gap-y-3 py-8 sm:grid-cols-[8rem_1fr]">
                   <span className="hd-num">{l.n}</span>
                   <h3 className="font-display text-xl font-bold tracking-[-0.015em] sm:text-[22px]">
                     {l.titel}
@@ -1100,7 +1040,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       <footer className="hd-rule px-6 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
           <span className="text-[15px] text-[color:var(--hd-ink-soft)]">
-            <strong className="font-semibold text-[color:var(--hd-ink)]">Hareb Digital</strong>,
+            <strong className="font-semibold text-[color:var(--hd-ink)]">Hareb Digital</strong>,{' '}
             {t.fuss.inhaber}
           </span>
           <nav className="flex flex-wrap items-center gap-x-7 gap-y-1 text-[15px] text-[color:var(--hd-ink-soft)] [&_a]:inline-flex [&_a]:min-h-[24px] [&_a]:items-center [&_a:hover]:text-[color:var(--hd-ink)]">

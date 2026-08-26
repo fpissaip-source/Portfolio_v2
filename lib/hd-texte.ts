@@ -121,8 +121,12 @@ export type HdTexte = {
     titelUnten: string
     vorspann: string
     arbeitenAnsehen: string
+    /* Der Text zum Standbild des Films. Es ist kein Schmuck, sondern das
+       erste Bild der Seite — wer es nicht sieht, soll wissen, was dort
+       steht. */
     bildAlt: string
-    bildText: string
+    /* Der Hinweis nach unten, solange der Film noch nicht laeuft. */
+    hinweis: string
   }
   probleme: { titel: string; punkte: string[] }
   behauptung: string
@@ -168,13 +172,14 @@ const DE: HdTexte = {
   },
   ctaHaupt: 'Projekt anfragen',
   buehne: {
-    titelOben: 'Maximale Sichtbarkeit.',
-    titelUnten: 'Maximale Entlastung.',
+    titelOben: 'Lass uns gemeinsam',
+    titelUnten: 'etwas Einzigartiges bauen.',
     vorspann:
       'Websites und Programme für Betriebe ohne IT-Abteilung. Du sagst mir, was dich stört. Ich sage dir, was es kostet.',
     arbeitenAnsehen: 'Arbeiten ansehen',
-    bildAlt: 'Startseite von taxibbessen.de, gebaut für Taxi B&B in Essen',
-    bildText: 'taxibbessen.de, gebaut für Taxi B&B in Essen. Läuft seit 2026.',
+    bildAlt:
+      'Ein Schreibtisch auf einem Berggipfel über dem Nebelmeer, dahinter geht die Sonne über den Tälern auf.',
+    hinweis: 'Scrollen',
   },
   probleme: {
     titel: 'Kommt dir einer dieser Sätze bekannt vor?',
@@ -309,13 +314,14 @@ const EN: HdTexte = {
   },
   ctaHaupt: 'Start a project',
   buehne: {
-    titelOben: 'Maximum visibility.',
-    titelUnten: 'Minimum busywork.',
+    titelOben: "Let's build something",
+    titelUnten: 'singular. Together.',
     vorspann:
       'Websites and software for businesses without an IT department. You tell me what bothers you. I tell you what it costs.',
     arbeitenAnsehen: 'See the work',
-    bildAlt: 'Home page of taxibbessen.de, built for Taxi B&B in Essen',
-    bildText: 'taxibbessen.de, built for Taxi B&B in Essen. Live since 2026.',
+    bildAlt:
+      'A desk on a mountain top above the clouds, with the sun rising over the valleys behind it.',
+    hinweis: 'Scroll',
   },
   probleme: {
     titel: 'Does any of this sound familiar?',
@@ -447,13 +453,14 @@ const ES: HdTexte = {
   },
   ctaHaupt: 'Solicitar proyecto',
   buehne: {
-    titelOben: 'Máxima visibilidad.',
-    titelUnten: 'Mínima carga.',
+    titelOben: 'Construyamos juntos',
+    titelUnten: 'algo único.',
     vorspann:
       'Webs y programas para empresas sin departamento de informática. Tú me cuentas qué te molesta. Yo te digo lo que cuesta.',
     arbeitenAnsehen: 'Ver los trabajos',
-    bildAlt: 'Página de inicio de taxibbessen.de, hecha para Taxi B&B en Essen',
-    bildText: 'taxibbessen.de, hecha para Taxi B&B en Essen. En marcha desde 2026.',
+    bildAlt:
+      'Un escritorio en la cima de una montaña sobre el mar de nubes, con el sol saliendo tras los valles.',
+    hinweis: 'Desplázate',
   },
   probleme: {
     titel: '¿Te suena alguna de estas frases?',

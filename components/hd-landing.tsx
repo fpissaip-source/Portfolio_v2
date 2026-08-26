@@ -746,9 +746,9 @@ export function HdLanding({ lang }: { lang: HdLang }) {
 
 
       {/* ── Wiedererkennung ─────────────────────────────────────────────── */}
-      <section className="hd-rule">
+      <section className="hd-rule hd-glanz">
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
-          <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-4xl">
+          <Titel className="hd-titel max-w-[20ch] font-display font-bold">
             {t.probleme.titel}
           </Titel>
           {/* Zitate, keine Liste mit Strichen.
@@ -762,9 +762,17 @@ export function HdLanding({ lang }: { lang: HdLang }) {
               das gefaltet war. Was es mitteilt: das hier sind Saetze, die
               jemand gesagt hat, und sie werden gerade aufgeschlagen. Die
               Anfuehrungszeichen sind Typografie und keine Linien. */}
-          <ul className="hd-satzfalz mt-10 grid gap-x-12 gap-y-8 sm:grid-cols-2">
+          {/* Jeder Satz in einer eigenen Fassung.
+              Vorher standen sechs graue Einzeiler frei im Schwarz, mit einer
+              halben Bildschirmhöhe Leere darunter — auf Papier trägt so viel
+              Weissraum, im Dunkeln ist er einfach leer. In Kästen sind es
+              sechs Stimmen und nicht sechs Zeilen. */}
+          <ul className="hd-satzfalz mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5">
             {t.probleme.punkte.map((p) => (
-              <li key={p} className="text-[18px] text-[color:var(--hd-ink-soft)] sm:text-[19px]">
+              <li
+                key={p}
+                className="hd-kasten px-6 py-5 text-[17px] leading-[1.5] text-[color:var(--hd-ink-soft)] sm:text-[18px]"
+              >
                 <span aria-hidden className="mr-0.5 text-[color:var(--hd-accent)]">
                   &bdquo;
                 </span>
@@ -813,7 +821,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
           <Auf className="text-center">
             <span className="hd-label">{t.arbeiten.label}</span>
           </Auf>
-          <Titel className="mx-auto mt-4 max-w-[20ch] text-center font-display text-[2.1rem] font-bold leading-[1.08] tracking-[-0.025em] sm:text-[3.1rem]">
+          <Titel className="hd-titel mx-auto mt-4 max-w-[20ch] text-center font-display font-bold">
             {t.arbeiten.titel}
           </Titel>
 
@@ -898,7 +906,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       {/* ── Leistungen ──────────────────────────────────────────────────── */}
       <section className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 pb-4 pt-16 sm:pt-24">
-          <Titel className="max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+          <Titel className="hd-titel max-w-[20ch] font-display font-bold">
             {t.leistungen.titel}
           </Titel>
           <Auf delay={0.1}>
@@ -933,12 +941,12 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       </section>
 
       {/* ── Ablauf ──────────────────────────────────────────────────────── */}
-      <section className="hd-rule" style={{ background: 'var(--hd-paper-2)' }}>
+      <section className="hd-rule hd-glanz" style={{ background: 'var(--hd-paper-2)' }}>
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
           <Auf>
             <span className="hd-label">{t.ablauf.label}</span>
           </Auf>
-          <Titel className="mt-4 max-w-[18ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.02em] sm:text-[2.6rem]">
+          <Titel className="hd-titel mt-4 max-w-[18ch] font-display font-bold">
             {t.ablauf.titel}
           </Titel>
 
@@ -952,14 +960,15 @@ export function HdLanding({ lang }: { lang: HdLang }) {
             <ol className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
             {t.ablauf.schritte.map((s, i) => (
               <Auf key={s.n} delay={i * 0.09}>
-                <li>
+                {/* Die Ziffer sitzt in der Fassung und nicht darüber: vier
+                    Textblöcke mit einer Haarlinie darüber lasen sich auf
+                    Schwarz als vier Absätze, nicht als vier Schritte. */}
+                <li className="hd-kasten h-full px-6 py-6">
                   <span className="hd-num">{s.n}</span>
-                  <div className="hd-rule mt-4 pt-4">
-                    <h3 className="font-display text-lg font-bold tracking-[-0.015em]">{s.t}</h3>
-                    <p className="mt-2 text-[16px] leading-[1.55] text-[color:var(--hd-ink-soft)]">
-                      {s.b}
-                    </p>
-                  </div>
+                  <h3 className="mt-3 font-display text-lg font-bold tracking-[-0.015em]">{s.t}</h3>
+                  <p className="mt-2 text-[16px] leading-[1.55] text-[color:var(--hd-ink-soft)]">
+                    {s.b}
+                  </p>
                 </li>
               </Auf>
             ))}
@@ -973,24 +982,26 @@ export function HdLanding({ lang }: { lang: HdLang }) {
         {/* Drei Angaben, drei Spalten. Die vierte war "3 Sprachen: Deutsch,
             Englisch, Spanisch" — die sagt die Seite jetzt selbst, indem sie in
             der Sprache des Browsers dasteht. */}
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mx-auto grid max-w-6xl gap-4 px-6 py-16 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {t.fakten.map((f, i) => (
             <Auf key={f.v} delay={i * 0.08}>
-              <div className="font-display text-[2.6rem] font-bold leading-none tabular-nums tracking-tight">
-                <Zahl ziel={f.zahl} suffix={f.suffix} />
+              <div className="hd-kasten h-full px-7 py-7">
+                <div className="font-display text-[2.9rem] font-bold leading-none tabular-nums tracking-tight text-[color:var(--hd-accent)]">
+                  <Zahl ziel={f.zahl} suffix={f.suffix} />
+                </div>
+                <p className="mt-2.5 max-w-[24ch] text-[16px] leading-[1.5] text-[color:var(--hd-ink-soft)]">
+                  {f.v}
+                </p>
               </div>
-              <p className="mt-2.5 max-w-[24ch] text-[16px] leading-[1.5] text-[color:var(--hd-ink-soft)]">
-                {f.v}
-              </p>
             </Auf>
           ))}
         </div>
       </section>
 
       {/* ── Schluss ─────────────────────────────────────────────────────── */}
-      <section className="hd-rule" style={{ background: 'var(--hd-accent-soft)' }}>
-        <div className="mx-auto max-w-3xl px-6 py-20 text-center sm:py-24">
-          <Titel className="mx-auto max-w-[20ch] font-display text-3xl font-bold leading-[1.1] tracking-[-0.025em] sm:text-[2.7rem]">
+      <section className="hd-rule hd-schluss" style={{ background: 'var(--hd-accent-soft)' }}>
+        <div className="mx-auto max-w-3xl px-6 py-24 text-center sm:py-32">
+          <Titel className="hd-titel mx-auto max-w-[20ch] font-display font-bold">
             {t.schluss.titel}
           </Titel>
           <Auf delay={0.1}>

@@ -86,6 +86,27 @@ export type Dictionary = {
     ctaLabel: string
     ctaNote: string
   }
+  /** Der Beleg zur Behauptung im Abschnitt darueber.
+   *
+   *  `statement.proof` sagt, KI-Antworten wuerden "nachweislich weit ueber
+   *  dem Durchschnitt" optimiert. Nachweislich ist ein grosses Wort, und bis
+   *  hierher stand kein Nachweis daneben. Jetzt schon: die Antwort, die
+   *  ChatGPT auf die Frage nach dem Namen gibt, mitsamt der Angabe, woher
+   *  sie sie hat.
+   *
+   *  Die Antwort selbst bleibt in jeder Sprachfassung auf Deutsch. Sie ist
+   *  ein Zitat, und ein uebersetztes Zitat ist keines mehr, sondern eine
+   *  Behauptung darueber, was jemand gesagt haette. Uebersetzt wird nur der
+   *  Rahmen; `sprachHinweis` sagt es dazu, wo es noetig ist. */
+  kiAntwort: {
+    label: string
+    heading: string
+    intro: string
+    frage: string
+    sprachHinweis: string
+    quelle: string
+    absaetze: string[]
+  }
   services: {
     kicker: string
     heading: string
@@ -381,6 +402,18 @@ export const EN: Dictionary = {
     extra: 'On top of that: AI agents and automations that quietly take real work off your desk.',
     ctaLabel: 'Get a free design draft',
     ctaNote: 'No obligation. You get a first draft of your start page.',
+  },
+  kiAntwort: {
+    label: 'Evidence',
+    heading: 'This is how ChatGPT answers the question about me.',
+    intro: 'Not a claim, a lookup: ask ChatGPT who Issa Hareb is and this is what comes back — sourced from this site.',
+    frage: 'Wer ist Issa Hareb',
+    sprachHinweis: 'Quoted verbatim in German, the language it was asked in.',
+    quelle: 'ChatGPT, quoted verbatim',
+    absaetze: [
+      'Wenn du Issa Hareb aus Deutschland meinst: Er beschreibt sich auf seiner eigenen Website als autodidaktischen Full-Stack- und KI-Entwickler. Er entwickelt unter anderem Websites, Webanwendungen, Automatisierungen und KI-Agenten. Als Technologien nennt er beispielsweise TypeScript, React/Next.js, Node.js, Python und PostgreSQL.',
+      'Eines seiner Projekte heißt L.U.K.A.S., ein KI-Agent, den er als System mit dauerhaftem Gedächtnis bzw. Wissensgraph beschreibt. Laut seiner Website lebt er in Essen; als geschäftlicher Sitz wird Sankt Augustin angegeben.',
+    ],
   },
   services: {
     kicker: 'Services',
@@ -837,6 +870,18 @@ export const DE: Dictionary = {
     extra: 'Dazu KI-Agenten und Automatisierungen, die im Hintergrund Arbeit übernehmen.',
     ctaLabel: 'Kostenlosen Design-Entwurf sichern',
     ctaNote: 'Unverbindlich. Du bekommst einen ersten Entwurf deiner Startseite.',
+  },
+  kiAntwort: {
+    label: 'Beleg',
+    heading: 'So beantwortet ChatGPT die Frage nach mir.',
+    intro: 'Nicht behauptet, sondern nachgeschlagen: Wer ChatGPT fragt, wer Issa Hareb ist, bekommt diese Antwort — und ihre Quelle ist diese Seite.',
+    frage: 'Wer ist Issa Hareb',
+    sprachHinweis: '',
+    quelle: 'ChatGPT, Antwort unverändert zitiert',
+    absaetze: [
+      'Wenn du Issa Hareb aus Deutschland meinst: Er beschreibt sich auf seiner eigenen Website als autodidaktischen Full-Stack- und KI-Entwickler. Er entwickelt unter anderem Websites, Webanwendungen, Automatisierungen und KI-Agenten. Als Technologien nennt er beispielsweise TypeScript, React/Next.js, Node.js, Python und PostgreSQL.',
+      'Eines seiner Projekte heißt L.U.K.A.S., ein KI-Agent, den er als System mit dauerhaftem Gedächtnis bzw. Wissensgraph beschreibt. Laut seiner Website lebt er in Essen; als geschäftlicher Sitz wird Sankt Augustin angegeben.',
+    ],
   },
   services: {
     kicker: 'Leistungen',

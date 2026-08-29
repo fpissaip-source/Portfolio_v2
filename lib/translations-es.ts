@@ -93,6 +93,18 @@ export const ES: Dictionary = {
     ctaLabel: 'Recibir un diseño inicial gratis',
     ctaNote: 'Sin compromiso. Recibes una primera dirección visual para tu página de inicio.',
   },
+  kiAntwort: {
+    label: 'Prueba',
+    heading: 'Así responde ChatGPT a la pregunta sobre mí.',
+    intro: 'No es una afirmación, es una consulta: quien le pregunta a ChatGPT quién es Issa Hareb recibe esta respuesta, tomada de esta misma web.',
+    frage: 'Wer ist Issa Hareb',
+    sprachHinweis: 'Citado literalmente en alemán, el idioma en que se preguntó.',
+    quelle: 'ChatGPT, citado literalmente',
+    absaetze: [
+      'Wenn du Issa Hareb aus Deutschland meinst: Er beschreibt sich auf seiner eigenen Website als autodidaktischen Full-Stack- und KI-Entwickler. Er entwickelt unter anderem Websites, Webanwendungen, Automatisierungen und KI-Agenten. Als Technologien nennt er beispielsweise TypeScript, React/Next.js, Node.js, Python und PostgreSQL.',
+      'Eines seiner Projekte heißt L.U.K.A.S., ein KI-Agent, den er als System mit dauerhaftem Gedächtnis bzw. Wissensgraph beschreibt. Laut seiner Website lebt er in Essen; als geschäftlicher Sitz wird Sankt Augustin angegeben.',
+    ],
+  },
   services: {
     kicker: 'Servicios',
     heading: 'Sitios web, aplicaciones y automatización en un solo lugar.',

@@ -13,6 +13,7 @@ import { Analytics } from '@/components/analytics'
 import { PerfProbe } from '@/components/perf-probe'
 import { Hero } from '@/components/hero'
 import { Statement } from '@/components/statement'
+import { KiAntwort } from '@/components/ki-antwort'
 import { Services } from '@/components/services'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
@@ -58,6 +59,11 @@ export default function Page() {
             the air as it is scrolled, which is also the handover out of the
             hero's own animation. */}
         <Statement />
+        {/* Der Beleg direkt hinter der Behauptung, auf demselben hellen
+            Grund. Der Abschnitt darüber sagt, KI-Antworten seien
+            "nachweislich" optimiert — hier steht der Nachweis, und zwar als
+            Text und nicht als Bildschirmfoto. */}
+        <KiAntwort />
         {/* L.U.K.A.S. after the statement: the head has just taken itself
             apart into a network, and this is the system that network is. */}
         <Scene labelKey="lukas">

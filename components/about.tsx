@@ -1,40 +1,46 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useInView } from 'motion/react'
+import { useInView, useReducedMotion } from 'motion/react'
 import { AboutIntro } from './about-intro'
 import { Reveal } from './anim'
 import { useT } from './language-context'
 import { SectionHeading } from './section-heading'
 
+/**
+ * Eine hochzaehlende Zahl — die im Dokument aber von Anfang an richtig steht.
+ *
+ * Vorher stand hier `useState(0)`. Das hiess: der Server lieferte `0`, und im
+ * ausgelieferten HTML stand woertlich "0+ Gebaute Systeme" und "0
+ * Produktbereiche". Nachgemessen am laufenden Server:
+ *
+ *   Roh-HTML (Server):        0  /  0
+ *   nach 500 ms im Browser:   0  /  0
+ *   nach 4 s im Browser:     15+ /  7
+ *
+ * Fuer einen Menschen war das nie sichtbar, weil die Zahlen unterhalb des
+ * ersten Bildschirms stehen und laengst hochgezaehlt haben, wenn man dort
+ * ankommt. Fuer die Haelfte der Leser dieser Seite ist es aber das Einzige,
+ * was ankommt: jeder Crawler, der kein JavaScript ausfuehrt, liest die
+ * Nullen — und das sind genau die, die in robots.txt eigens eingeladen
+ * werden (GPTBot, ClaudeBot, PerplexityBot und die anderen). Auch Googles
+ * erster Durchgang liest das rohe HTML; gerendert wird spaeter und nicht
+ * immer.
+ *
+ * Jetzt steht der Zielwert von der ersten Auslieferung an da. Hochgezaehlt
+ * wird nur, wenn die Zahl tatsaechlich ins Bild kommt — der blinde
+ * 2,5-Sekunden-Wecker von vorher ist weg, denn genau der liess die Zahl auch
+ * fuer einen Crawler auf Null springen, der nie in ihre Naehe gescrollt ist.
+ * Bei abgeschalteter Bewegung passiert gar nichts, die Zahl steht einfach da.
+ */
 function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
   const ref = useRef<HTMLSpanElement>(null)
   const inView = useInView(ref, { once: true, margin: '-20% 0px -20% 0px' })
-  const [started, setStarted] = useState(false)
-  const [value, setValue] = useState(0)
+  const reduce = useReducedMotion()
+  const [value, setValue] = useState(to)
 
   useEffect(() => {
-    if (started) return
-    if (inView) {
-      setStarted(true)
-      return
-    }
-
-    const element = ref.current
-    if (element) {
-      const rect = element.getBoundingClientRect()
-      if (rect.top < window.innerHeight && rect.bottom > 0) {
-        setStarted(true)
-        return
-      }
-    }
-
-    const timer = window.setTimeout(() => setStarted(true), 2500)
-    return () => window.clearTimeout(timer)
-  }, [inView, started])
-
-  useEffect(() => {
-    if (!started) return
+    if (!inView || reduce) return
     let frame = 0
     const start = performance.now()
     const duration = 1600
@@ -44,11 +50,17 @@ function Counter({ to, suffix = '' }: { to: number; suffix?: string }) {
       const eased = 1 - Math.pow(1 - progress, 3)
       setValue(Math.round(eased * to))
       if (progress < 1) frame = requestAnimationFrame(tick)
+      else setValue(to)
     }
 
     frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [started, to])
+    return () => {
+      cancelAnimationFrame(frame)
+      /* Wer waehrend des Zaehlens weiterscrollt, soll keine halbe Zahl
+         zurueckgelassen bekommen. */
+      setValue(to)
+    }
+  }, [inView, reduce, to])
 
   return (
     <span ref={ref} className="tabular-nums">

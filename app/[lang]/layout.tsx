@@ -60,7 +60,14 @@ const labelFace = Oswald({
 })
 
 const SITE_URL = 'https://issahareb.me'
-const SITE_TITLE = 'Issa Hareb | Full-Stack & AI Engineer aus Essen'
+/* "Full-Stack & AI Engineer" stand hier auf Englisch, in einem Titel, der
+   fuer deutsche Suchanfragen gedacht ist. Gemessen am 26.08.: die Wendung
+   "Full-Stack-Entwickler" kam auf der ganzen Seite kein einziges Mal vor,
+   "Entwickler" zweimal. Wer "fullstack entwickler essen" tippt, tippt
+   deutsch, und der Titel ist die eine Stelle, an der das ohne Verrenkung
+   hingehoert. Der Name bleibt vorn: er ist die Anfrage, die diese Seite
+   zuerst beantworten soll, und der Anker der Person im Wissensgraphen. */
+const SITE_TITLE = 'Issa Hareb | Full-Stack-Entwickler und KI-Entwickler in Essen'
 /* 156 characters. It was 206, which Bing's own URL inspection flags and
    which both engines cut off around 160 anyway — the tail was being
    written for nobody. The name leads, because that is the query this page

@@ -1,8 +1,9 @@
 'use client'
 
+import Link from 'next/link'
 import { Globe, LayoutDashboard, Bot, Rocket, Phone } from 'lucide-react'
 import { Reveal } from './anim'
-import { useT } from './language-context'
+import { useLanguage, useT } from './language-context'
 import { SectionHeading } from './section-heading'
 
 const ICONS = [Globe, LayoutDashboard, Bot, Rocket, Phone]
@@ -39,6 +40,7 @@ function trackTrail(event: React.PointerEvent<HTMLElement>) {
 
 export function Services() {
   const t = useT()
+  const { lang } = useLanguage()
   const closingHighlight = splitClosingHighlight(t.services.closingHighlight)
 
   return (
@@ -135,6 +137,42 @@ export function Services() {
               {t.services.cta}
               <span aria-hidden>→</span>
             </a>
+
+            {/* Zwei Verweise ins Detail, und zwar nur auf Deutsch — die
+                Leistungsseiten gibt es nur dort, weil die Absicht dahinter
+                eine lokale ist.
+
+                Sie stehen hier im Fliesstext und nicht nur in der Fusszeile:
+                ein Verweis aus dem Abschnitt, der dasselbe Thema behandelt,
+                sagt mehr darueber aus, worum es auf der Zielseite geht, als
+                einer aus einer Linkliste am Seitenende. Und ohne irgendeinen
+                Verweis waeren die beiden Seiten Waisen, die nur in der
+                Sitemap stehen. */}
+            {lang === 'de' && (
+              <nav aria-label="Leistungen im Detail" className="mt-9">
+                <p className="font-label text-[12px] uppercase tracking-[0.22em] text-blue/90 sm:text-[11px]">
+                  Im Detail
+                </p>
+                <ul className="mt-3 flex flex-col gap-2 text-[16px] sm:flex-row sm:gap-7">
+                  <li>
+                    <Link
+                      href="/leistungen/fullstack-entwickler-essen"
+                      className="inline-flex min-h-[24px] items-center underline decoration-purple/40 underline-offset-4 transition-colors hover:decoration-purple"
+                    >
+                      Full-Stack-Entwickler in Essen
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/leistungen/webdesign-essen"
+                      className="inline-flex min-h-[24px] items-center underline decoration-purple/40 underline-offset-4 transition-colors hover:decoration-purple"
+                    >
+                      Webdesigner in Essen
+                    </Link>
+                  </li>
+                </ul>
+              </nav>
+            )}
           </div>
         </div>
       </Reveal>

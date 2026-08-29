@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { DEFAULT_LANG, HREFLANG, LANGS, langUrl } from '@/lib/i18n'
+import { LEISTUNGEN } from '@/lib/leistungen'
 
 /**
  * Jede Seite in jeder Sprache, und jede nennt die anderen beiden.
@@ -28,10 +29,28 @@ const ROUTES: {
   { path: '/datenschutz', changeFrequency: 'yearly', priority: 0.3 },
 ]
 
+/**
+ * Die Leistungsseiten stehen ausserhalb der Sprachschleife.
+ *
+ * Sie gibt es nur auf Deutsch — die Absicht dahinter ist lokal, und lokal
+ * heisst hier deutschsprachig. Eine Zeile in der Sprachschleife haette drei
+ * Adressen erzeugt, von denen zwei 404 liefern, und eine Sitemap, die auf
+ * 404 zeigt, ist genau die Art Fehler, die die Search Console anschliessend
+ * meldet.
+ */
+function leistungsseiten(now: Date): MetadataRoute.Sitemap {
+  return LEISTUNGEN.map((l) => ({
+    url: langUrl(DEFAULT_LANG, `/leistungen/${l.slug}`),
+    lastModified: now,
+    changeFrequency: 'monthly' as const,
+    priority: 0.9,
+  }))
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
 
-  return ROUTES.flatMap((route) => {
+  return [...leistungsseiten(now), ...ROUTES.flatMap((route) => {
     const languages: Record<string, string> = {}
     for (const l of LANGS) languages[HREFLANG[l]] = langUrl(l, route.path)
     languages['x-default'] = langUrl(DEFAULT_LANG, route.path)
@@ -46,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: lang === DEFAULT_LANG ? route.priority : route.priority - 0.1,
       alternates: { languages },
     }))
-  })
+  })]
 }
 
 /* /start fehlt hier mit Absicht: die Kundenseite trägt noindex, solange ihre

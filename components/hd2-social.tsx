@@ -12,10 +12,16 @@ import { socialBeleg } from '@/lib/hd2-site'
  *    das Argument des Abschnitts, und ein Argument, das nur als JPEG
  *    vorliegt, wird nirgends zitiert.
  *
- * 2. Die Bildschirmfotos haben weissen Grund, die Seite hat schwarzen. Sie
- *    liegen deshalb in einem hellen Rahmen mit weichem Rand, statt frei auf
- *    der Flaeche zu leuchten. Das ist auch inhaltlich richtig: sie sind ein
- *    Zitat aus einer fremden Anwendung und sollen als solches erkennbar sein.
+ * 2. Gezeigt werden die beiden Profilkoepfe und sonst nichts. Die Videoliste
+ *    stand hier zuerst mit dabei und ist wieder raus: die Vorschaubilder
+ *    eines Unterhaltungskontos arbeiten gegen eine Seite, die Betrieben eine
+ *    Website verkauft. Ihr Argument, die Streuung der Aufrufe, steht jetzt
+ *    als Text da, wo es hingehoert.
+ *
+ *    Die Bildschirmfotos haben weissen Grund, die Seite hat schwarzen. Sie
+ *    liegen deshalb in einem hellen Rahmen, statt frei auf der Flaeche zu
+ *    leuchten: sie sind ein Zitat aus einer fremden Anwendung und sollen als
+ *    solches erkennbar sein.
  *
  * 3. Kein JavaScript, keine Animation. Der Abschnitt behauptet, dass die
  *    ersten Sekunden ueber Aufmerksamkeit entscheiden. Er sollte nicht selbst
@@ -59,6 +65,7 @@ export function SocialBelegAbschnitt() {
     <Abschnitt id="social">
       <Ueberschrift eyebrow={s.eyebrow}>{s.titel}</Ueberschrift>
       <p className="mt-4 max-w-2xl leading-relaxed text-nebel">{s.text}</p>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-nebel/80">{s.einordnung}</p>
 
       <div className="mt-10 grid gap-6 md:grid-cols-2">
         {s.konten.map((k) => (
@@ -91,28 +98,23 @@ export function SocialBelegAbschnitt() {
         ))}
       </div>
 
-      <div className="mt-10 grid items-start gap-8 md:grid-cols-[minmax(0,300px)_1fr] md:gap-12">
-        {/* Auf dem Telefon gedeckelt: das Raster ist der Beleg, nicht der
-            Abschnitt. Ueber die volle Breite waere es das Erste und Groesste,
-            was jemand hier sieht, und das ist nicht, was verkauft wird. */}
-        <div className="mx-auto w-full max-w-[260px] rounded-2xl border border-white/10 bg-kohle/60 p-2 md:mx-0 md:max-w-none">
-          <SocialBild name={s.raster.bild} alt={s.raster.alt} breite={900} hoehe={1444} />
+      <div className="mt-10 grid items-start gap-6 md:grid-cols-2">
+        <div className="md:pt-1">
+          <h3 className="text-xl font-semibold">{s.streuung.titel}</h3>
+          <p className="mt-3 max-w-xl leading-relaxed text-nebel">{s.streuung.text}</p>
         </div>
-        <div>
-          <h3 className="text-xl font-semibold">{s.raster.titel}</h3>
-          <p className="mt-3 max-w-xl leading-relaxed text-nebel">{s.raster.text}</p>
 
-          <div className="mt-8 rounded-2xl border border-white/10 bg-kohle/60 p-6">
-            <h3 className="text-lg font-semibold">{s.hinweis.titel}</h3>
-            <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-nebel">{s.hinweis.text}</p>
-            <div className="mt-6">
-              <Knopf href={s.hinweis.cta.href} variante="leer">
-                {s.hinweis.cta.label}
-              </Knopf>
-            </div>
+        <div className="rounded-2xl border border-white/10 bg-kohle/60 p-6">
+          <h3 className="text-lg font-semibold">{s.hinweis.titel}</h3>
+          <p className="mt-2.5 max-w-xl text-sm leading-relaxed text-nebel">{s.hinweis.text}</p>
+          <div className="mt-6">
+            <Knopf href={s.hinweis.cta.href} variante="leer">
+              {s.hinweis.cta.label}
+            </Knopf>
           </div>
         </div>
       </div>
+
     </Abschnitt>
   )
 }

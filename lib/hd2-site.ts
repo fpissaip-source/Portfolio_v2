@@ -340,11 +340,17 @@ export const socialBeleg = {
   eyebrow: "Social Media",
   titel: "Reichweite, für die kein Cent Werbebudget bezahlt wurde",
   text: "Werbeanzeigen hören auf zu wirken, sobald das Budget aufgebraucht ist. Organische Reichweite nicht. Diese beiden TikTok-Konten habe ich selbst aufgebaut, beide ohne einen Euro Mediabudget, und das eine davon in einem einzigen Monat.",
+  /* Der Satz, der den Abschnitt vor dem naheliegenden Missverstaendnis
+     schuetzt: die Konten sind Versuchsaufbauten, keine Arbeitsproben aus
+     einer Branche. Ohne ihn liest ein Handwerksbetrieb hier eine Leistung,
+     die er nicht bestellen will. */
+  einordnung:
+    "Beide Konten sind Versuchsaufbauten und keine Arbeitsproben aus einer Branche. Übertragbar ist nicht das Thema der Videos, sondern der Aufbau der ersten drei Sekunden. Der entscheidet darüber, ob ein Video überhaupt gesehen wird, und er funktioniert bei einem Betrieb aus Essen genauso.",
   konten: [
     {
       name: "Lucy",
       handle: "@lucy_srg",
-      art: "KI-Influencer-Konto, in einem Monat aufgebaut",
+      art: "KI-Influencer-Konto, als Versuch in einem Monat aufgebaut",
       bild: "lucy-profil",
       alt: "TikTok-Profil des Kontos Lucy, @lucy_srg, mit 5.045 Followern und 60.327 Likes",
       zahlen: [
@@ -367,11 +373,14 @@ export const socialBeleg = {
       ],
     },
   ],
-  raster: {
-    bild: "lucy-videos",
-    alt: "Videoübersicht des Kontos Lucy mit den Aufrufzahlen einzelner Videos, darunter eines mit einer Million Aufrufen",
-    titel: "Die Aufrufe einzelner Videos",
-    text: "Nicht jedes Video läuft, und das ist der Punkt. Ein Konto wächst nicht am Durchschnitt, sondern an den wenigen Videos, deren erste drei Sekunden funktioniert haben. Bei diesem Konto war es das mit einer Million Aufrufen.",
+  /* Stand hier zuerst als Bildschirmfoto der Videoliste. Das Bild ist wieder
+     raus: die Vorschaubilder eines Unterhaltungskontos gehoeren nicht auf
+     eine Seite, die Betrieben eine Website verkauft. Das Argument steckte
+     ohnehin in den Zahlen und nicht in den Bildern, und als Text ist es
+     auch lesbar fuer alles, was die Seite nicht ansieht. */
+  streuung: {
+    titel: "Ein Konto wächst an wenigen Videos",
+    text: "Die Aufrufe der einzelnen Videos liegen zwischen knapp zweitausend und einer Million. Ein Konto wächst nicht am Durchschnitt, sondern an den wenigen Videos, deren erste drei Sekunden funktioniert haben. Deshalb wird der Anfang gebaut und nicht der Rest.",
   },
   hinweis: {
     titel: "Dieselbe Methode für Ihr Unternehmen",

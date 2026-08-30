@@ -105,7 +105,14 @@ export type Dictionary = {
     frage: string
     sprachHinweis: string
     quelle: string
+    /** Der Wortlaut der Antwort. Sichtbar ist das Bildschirmfoto; diese
+     *  Abschrift steht daneben, damit auch etwas dasteht fuer jeden, der die
+     *  Seite nicht ansieht, sondern ausliest. */
     absaetze: string[]
+    bildAlt: string
+    /** Worauf man achten soll. Keine Wiederholung der Antwort, sondern das,
+     *  was an ihr fuer einen Kunden zaehlt. */
+    punkte: string[]
   }
   services: {
     kicker: string
@@ -413,6 +420,13 @@ export const EN: Dictionary = {
     absaetze: [
       'Wenn du Issa Hareb aus Deutschland meinst: Er beschreibt sich auf seiner eigenen Website als autodidaktischen Full-Stack- und KI-Entwickler. Er entwickelt unter anderem Websites, Webanwendungen, Automatisierungen und KI-Agenten. Als Technologien nennt er beispielsweise TypeScript, React/Next.js, Node.js, Python und PostgreSQL.',
       'Eines seiner Projekte heißt L.U.K.A.S., ein KI-Agent, den er als System mit dauerhaftem Gedächtnis bzw. Wissensgraph beschreibt. Laut seiner Website lebt er in Essen; als geschäftlicher Sitz wird Sankt Augustin angegeben.',
+    ],
+    bildAlt:
+      'Screenshot of a ChatGPT answer to the question “Wer ist Issa Hareb”. It calls him a self-taught full-stack and AI developer, names his technologies, the L.U.K.A.S. project, Essen as where he lives and Sankt Augustin as the registered seat. This website is cited underneath as the source.',
+    punkte: [
+      'It names L.U.K.A.S. — and describes the project correctly.',
+      'It knows the location: Essen, registered in Sankt Augustin.',
+      'The source cited underneath is this site.',
     ],
   },
   services: {
@@ -881,6 +895,13 @@ export const DE: Dictionary = {
     absaetze: [
       'Wenn du Issa Hareb aus Deutschland meinst: Er beschreibt sich auf seiner eigenen Website als autodidaktischen Full-Stack- und KI-Entwickler. Er entwickelt unter anderem Websites, Webanwendungen, Automatisierungen und KI-Agenten. Als Technologien nennt er beispielsweise TypeScript, React/Next.js, Node.js, Python und PostgreSQL.',
       'Eines seiner Projekte heißt L.U.K.A.S., ein KI-Agent, den er als System mit dauerhaftem Gedächtnis bzw. Wissensgraph beschreibt. Laut seiner Website lebt er in Essen; als geschäftlicher Sitz wird Sankt Augustin angegeben.',
+    ],
+    bildAlt:
+      'Bildschirmfoto einer ChatGPT-Antwort auf die Frage „Wer ist Issa Hareb“. Die Antwort nennt ihn einen autodidaktischen Full-Stack- und KI-Entwickler, nennt seine Technologien, das Projekt L.U.K.A.S., den Wohnort Essen und den Sitz Sankt Augustin. Unter der Antwort steht diese Website als Quelle.',
+    punkte: [
+      'Sie nennt L.U.K.A.S. — und beschreibt das Projekt richtig.',
+      'Sie kennt den Standort: Essen, Sitz Sankt Augustin.',
+      'Unter der Antwort steht die Quelle: diese Seite.',
     ],
   },
   services: {

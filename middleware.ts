@@ -54,7 +54,11 @@ export function middleware(request: NextRequest) {
      Noetig ist er auch nicht, denn die Seite wird bei jedem Aufruf gerendert
      und geht mit "private, no-store" hinaus, was jedem geteilten Speicher das
      Ablegen ohnehin verbietet. */
-  if (pathname === '/start' || pathname.startsWith('/start/')) {
+  /* `/start-alt` steht mit in der Bedingung, seit die neue Hareb-Digital-Seite
+     auf `/start` liegt und die vorherige Fassung dorthin ausgewichen ist.
+     Ohne sie liefe sie in die Sprachumschreibung und landete auf einer
+     deutschen Adresse, die es nicht gibt. */
+  if (pathname === '/start' || pathname === '/start-alt' || pathname.startsWith('/start/')) {
     return NextResponse.next()
   }
 

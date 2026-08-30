@@ -36,6 +36,19 @@
   --color-accent-soft: var(--accent-soft);
   --color-accent-deep: var(--accent-deep);
 
+  /* Die sechs Farben der neuen Hareb-Digital-Seite (Vorschau unter /start).
+     Im Ursprungsprojekt stehen sie in einer `tailwind.config.ts` nach Art von
+     Tailwind 3; hier muessen sie an dieser Stelle stehen, weil Tailwind 4
+     seine Klassen aus dem `@theme`-Block erzeugt und nicht aus einer
+     Konfigurationsdatei. Sie werden ausschliesslich unter `.hd2` benutzt und
+     kollidieren mit nichts, was das Portfolio kennt. */
+  --color-tinte: #07090d;
+  --color-kohle: #0d1117;
+  --color-nebel: #98a2b3;
+  --color-kreide: #e7ecf3;
+  --color-signal: #4f7dff;
+  --color-leuchten: #3dd8c4;
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -2376,4 +2389,35 @@ section.hd-rule {
     color-mix(in oklch, var(--hd-paper) 55%, transparent) 40%,
     var(--hd-paper) 100%
   );
+}
+
+/* ── Die neue Hareb-Digital-Seite (Vorschau unter /start) ────────────────
+
+   Das Gegenstueck zu `app/globals.css` im Ursprungsprojekt. Dort stehen
+   diese Regeln auf `body` und `:focus-visible` und gelten fuer die ganze
+   Anwendung; hier haengen sie an `.hd2` und gelten nur fuer diese Seite —
+   das Portfolio und die alte Kundenseite haben eigene und duerfen sie nicht
+   verlieren. */
+
+.hd2 {
+  background: var(--color-tinte);
+  color: var(--color-kreide);
+  font-family: var(--font-hd2), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.hd2 :focus-visible {
+  outline: 2px solid var(--color-leuchten);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hd2,
+  .hd2 *,
+  .hd2 *::before,
+  .hd2 *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

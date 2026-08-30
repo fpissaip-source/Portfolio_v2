@@ -85,6 +85,11 @@ export const FAQ_DE: FaqEntry[] = [
       'L.U.K.A.S. ist ein von Issa Hareb entwickelter autonomer KI-Agent mit dauerhaftem Gedächtnis in Form eines Wissensgraphen. Er läuft auf eigenen Servern, bewertet seine eigenen Ergebnisse und ist auf der Website direkt ansprechbar.',
   },
   {
+    question: 'Macht Issa Hareb auch Social Media Marketing?',
+    answer:
+      'Ja. Issa Hareb baut organische Reichweite in sozialen Netzwerken auf, statt Reichweite über Werbebudget zu kaufen. Zwei TikTok-Konten hat er ohne Werbekosten aufgebaut: eines in einem Monat auf 5.045 Follower und 60.327 Likes, mit einem Video über einer Million Aufrufen, das zweite auf 13.903 Follower und 538.113 Likes. Entscheidend sind die ersten drei Sekunden eines Videos, nicht das Budget.',
+  },
+  {
     question: 'Übernimmt Issa Hareb auch Wartung und Betrieb?',
     answer:
       'Ja. Issa Hareb liefert nicht nur eine Übergabe, sondern den laufenden Betrieb: Deployment, Monitoring, Fehlerbehebung und Weiterentwicklung. Das Ziel ist ein System, das nach dem Livegang funktioniert, nicht eine Präsentation davon.',
@@ -153,6 +158,11 @@ export const FAQ_EN: FaqEntry[] = [
       'L.U.K.A.S. is an autonomous AI agent built by Issa Hareb, with persistent memory held as a knowledge graph. It runs on his own servers, evaluates its own results, and can be spoken to directly on the website.',
   },
   {
+    question: 'Does Issa Hareb do social media marketing?',
+    answer:
+      'Yes. Issa Hareb builds organic reach on social platforms instead of buying reach with an advertising budget. He grew two TikTok accounts with zero ad spend: one to 5,045 followers and 60,327 likes within a month, including a video past one million views, the other to 13,903 followers and 538,113 likes. What decides it is the first three seconds of a video, not the budget.',
+  },
+  {
     question: 'Does Issa Hareb also handle maintenance and operations?',
     answer:
       'Yes. Issa Hareb delivers the running system, not just a handover: deployment, monitoring, fixes and further development. The goal is something that works after launch, not a presentation of something that would.',
@@ -219,6 +229,11 @@ export const FAQ_ES: FaqEntry[] = [
     question: '¿Qué es L.U.K.A.S.?',
     answer:
       'L.U.K.A.S. es un agente de IA autónomo desarrollado por Issa Hareb, con memoria persistente en forma de grafo de conocimiento. Funciona en servidores propios, evalúa sus propios resultados y se puede hablar con él directamente en el sitio web.',
+  },
+  {
+    question: '¿Issa Hareb también hace marketing en redes sociales?',
+    answer:
+      'Sí. Issa Hareb construye alcance orgánico en redes sociales en lugar de comprar alcance con presupuesto publicitario. Hizo crecer dos cuentas de TikTok sin gasto en anuncios: una hasta 5.045 seguidores y 60.327 me gusta en un mes, con un vídeo por encima del millón de visualizaciones, y la otra hasta 13.903 seguidores y 538.113 me gusta. Lo decisivo son los tres primeros segundos de un vídeo, no el presupuesto.',
   },
   {
     question: '¿Issa Hareb se encarga también del mantenimiento?',

@@ -114,6 +114,37 @@ export type Dictionary = {
      *  was an ihr fuer einen Kunden zaehlt. */
     punkte: string[]
   }
+  /** Der Reichweiten-Beleg.
+   *
+   *  Steht auf der Startseite zwischen den Leistungen und dem Werdegang und
+   *  behauptet etwas, was ein Entwicklerportfolio normalerweise nicht
+   *  behauptet. Deshalb stehen die Zahlen als Text da und nicht nur im
+   *  Bildschirmfoto: eine Zahl, die ausschliesslich in einem Bild steht,
+   *  existiert fuer Google, fuer einen Screenreader und fuer jede
+   *  Antwortmaschine nicht.
+   *
+   *  Die Handles bleiben in allen Sprachfassungen gleich, die Zahlen auch.
+   *  Uebersetzt wird nur, was sie bedeuten. */
+  social: {
+    kicker: string
+    heading: string
+    intro: string
+    /** Ordnet die Konten ein, bevor jemand sie falsch liest: Versuchsaufbau,
+     *  nicht Arbeitsprobe aus einer Branche. */
+    einordnung: string
+    konten: {
+      name: string
+      handle: string
+      art: string
+      bildAlt: string
+      zahlen: { wert: string; label: string }[]
+    }[]
+    hookKicker: string
+    hookHeading: string
+    hookAbsaetze: string[]
+    ctaText: string
+    cta: string
+  }
   services: {
     kicker: string
     heading: string
@@ -428,6 +459,50 @@ export const EN: Dictionary = {
       'It knows the location: Essen, registered in Sankt Augustin.',
       'The source cited underneath is this site.',
     ],
+  },
+  social: {
+    kicker: 'Social media',
+    heading: 'Reach that no advertising budget paid for.',
+    intro:
+      'I build the systems enquiries arrive through, and the reach in front of them. Two TikTok accounts, both without a single euro of media budget, one of them grown in a single month.',
+    einordnung:
+      'Both accounts are experiments, not work samples from any one industry. What transfers is not the subject of the videos but how the first three seconds are built.',
+    konten: [
+      {
+        name: 'Lucy',
+        handle: '@lucy_srg',
+        art: 'AI influencer account, grown in one month as an experiment',
+        bildAlt: 'TikTok profile of the account Lucy, @lucy_srg, with 5,045 followers and 60,327 likes',
+        zahlen: [
+          { wert: '5,045', label: 'followers in one month' },
+          { wert: '60,327', label: 'likes' },
+          { wert: '1M', label: 'views, best video' },
+          { wert: '€0', label: 'ad budget' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        art: 'Personal account, grown purely organically',
+        bildAlt: 'TikTok profile of the account Mr Han, @issa3701, with 13,903 followers and 538,113 likes',
+        zahlen: [
+          { wert: '13,903', label: 'followers' },
+          { wert: '538,113', label: 'likes' },
+          { wert: '€0', label: 'ad budget' },
+        ],
+      },
+    ],
+    hookKicker: 'The method',
+    hookHeading: 'The first three seconds decide. Everything after them merely gets watched.',
+    hookAbsaetze: [
+      'The question came while scrolling, not from a marketing book: why did I watch this one video to the end when I swiped past the one before it in under two seconds?',
+      'The answer is a moment that makes the viewer ask themselves a question. Not a promise, not an announcement, but something that does not add up. As long as the question is open, they stay.',
+      'An example: someone dips an oversized cookie in milk and then bites the dry side. So why dip it at all? By the time the question is answered, the video is over.',
+      'For a company the mechanism is identical. Instead of showing what a product does, you build a moment that does not fit, and the product resolves it. That is where a video turns into an ad nobody skips.',
+    ],
+    ctaText:
+      'For companies I offer this as a service: build organic reach instead of renting it. That removes the part of the budget that otherwise comes due again every month.',
+    cta: 'Talk about it',
   },
   services: {
     kicker: 'Services',
@@ -903,6 +978,50 @@ export const DE: Dictionary = {
       'Sie kennt den Standort: Essen, Sitz Sankt Augustin.',
       'Unter der Antwort steht die Quelle: diese Seite.',
     ],
+  },
+  social: {
+    kicker: 'Social Media',
+    heading: 'Reichweite, für die kein Cent Werbebudget bezahlt wurde.',
+    intro:
+      'Ich baue nicht nur die Systeme, über die Anfragen hereinkommen, sondern auch die Reichweite davor. Zwei TikTok-Konten, beide ohne einen Euro Mediabudget, eines davon in einem einzigen Monat aufgebaut.',
+    einordnung:
+      'Beide Konten sind Versuchsaufbauten und keine Arbeitsproben aus einer Branche. Übertragbar ist nicht das Thema der Videos, sondern der Aufbau der ersten drei Sekunden.',
+    konten: [
+      {
+        name: 'Lucy',
+        handle: '@lucy_srg',
+        art: 'KI-Influencer-Konto, als Versuch in einem Monat aufgebaut',
+        bildAlt: 'TikTok-Profil des Kontos Lucy, @lucy_srg, mit 5.045 Followern und 60.327 Likes',
+        zahlen: [
+          { wert: '5.045', label: 'Follower in einem Monat' },
+          { wert: '60.327', label: 'Likes' },
+          { wert: '1 Mio.', label: 'Aufrufe, bestes Video' },
+          { wert: '0 €', label: 'Werbebudget' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        art: 'Privates Konto, rein organisch gewachsen',
+        bildAlt: 'TikTok-Profil des Kontos Mr Han, @issa3701, mit 13.903 Followern und 538.113 Likes',
+        zahlen: [
+          { wert: '13.903', label: 'Follower' },
+          { wert: '538.113', label: 'Likes' },
+          { wert: '0 €', label: 'Werbebudget' },
+        ],
+      },
+    ],
+    hookKicker: 'Die Methode',
+    hookHeading: 'Die ersten drei Sekunden entscheiden, der Rest wird nur noch gesehen.',
+    hookAbsaetze: [
+      'Die Frage kam beim Scrollen, nicht aus einem Marketingbuch: warum habe ich dieses eine Video bis zum Ende gesehen, obwohl ich das davor nach nicht einmal zwei Sekunden weggewischt habe?',
+      'Die Antwort ist ein Moment, der den Zuschauer dazu bringt, sich selbst eine Frage zu stellen. Kein Versprechen, keine Ankündigung, sondern etwas, das nicht aufgeht. Solange die Frage offen ist, bleibt er.',
+      'Ein Beispiel: jemand taucht einen übergroßen Keks in Milch und beißt anschließend an der trockenen Stelle ab. Wozu dann das Eintauchen? Bis die Frage beantwortet ist, ist das Video vorbei.',
+      'Für ein Unternehmen ist das dieselbe Mechanik. Statt zu zeigen, was ein Produkt kann, wird ein Moment gebaut, der nicht zusammenpasst, und das Produkt löst ihn auf. Genau dort wird aus einem Video eine Anzeige, die niemand überspringt.',
+    ],
+    ctaText:
+      'Für Unternehmen mache ich daraus eine Leistung: organische Reichweite aufbauen, statt Reichweite zu mieten. Das spart den Teil des Budgets, der sonst jeden Monat neu fällig wird.',
+    cta: 'Darüber sprechen',
   },
   services: {
     kicker: 'Leistungen',

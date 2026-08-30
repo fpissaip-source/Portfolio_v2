@@ -15,6 +15,7 @@ import { Hero } from '@/components/hero'
 import { Statement } from '@/components/statement'
 import { KiAntwort } from '@/components/ki-antwort'
 import { Services } from '@/components/services'
+import { SocialReichweite } from '@/components/social-reichweite'
 import { Lukas } from '@/components/lukas'
 import { Projects } from '@/components/projects'
 import { About } from '@/components/about'
@@ -78,6 +79,11 @@ export default function Page() {
         <Scene labelKey="services" backdrop="cursor-grid">
           <Services />
         </Scene>
+        {/* Der Teil vor den Anfragen. Die Leistungen darueber bauen die
+            Strecke, durch die jemand hereinkommt; hier steht, wie er
+            ueberhaupt kommt, und zwar mit Zahlen statt mit einer
+            Behauptung. */}
+        <SocialReichweite />
         <Scene labelKey="about" backdrop="dust">
           <About />
         </Scene>

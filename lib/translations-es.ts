@@ -112,6 +112,50 @@ export const ES: Dictionary = {
       'Debajo de la respuesta aparece la fuente: esta web.',
     ],
   },
+  social: {
+    kicker: 'Redes sociales',
+    heading: 'Alcance por el que no se pagó ni un céntimo de publicidad.',
+    intro:
+      'No solo construyo los sistemas por los que entran las solicitudes, sino también el alcance previo. Dos cuentas de TikTok, ambas sin un euro de presupuesto publicitario, una de ellas creada en un solo mes.',
+    einordnung:
+      'Ambas cuentas son experimentos, no muestras de trabajo de un sector concreto. Lo que se traslada no es el tema de los vídeos, sino cómo se construyen los tres primeros segundos.',
+    konten: [
+      {
+        name: 'Lucy',
+        handle: '@lucy_srg',
+        art: 'Cuenta de influencer con IA, creada en un mes como experimento',
+        bildAlt: 'Perfil de TikTok de la cuenta Lucy, @lucy_srg, con 5.045 seguidores y 60.327 me gusta',
+        zahlen: [
+          { wert: '5.045', label: 'seguidores en un mes' },
+          { wert: '60.327', label: 'me gusta' },
+          { wert: '1 M', label: 'visualizaciones, mejor vídeo' },
+          { wert: '0 €', label: 'presupuesto publicitario' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        art: 'Cuenta personal, crecida de forma puramente orgánica',
+        bildAlt: 'Perfil de TikTok de la cuenta Mr Han, @issa3701, con 13.903 seguidores y 538.113 me gusta',
+        zahlen: [
+          { wert: '13.903', label: 'seguidores' },
+          { wert: '538.113', label: 'me gusta' },
+          { wert: '0 €', label: 'presupuesto publicitario' },
+        ],
+      },
+    ],
+    hookKicker: 'El método',
+    hookHeading: 'Los tres primeros segundos deciden. El resto solo se ve.',
+    hookAbsaetze: [
+      'La pregunta surgió mientras hacía scroll, no en un libro de marketing: ¿por qué vi este vídeo hasta el final si al anterior lo salté en menos de dos segundos?',
+      'La respuesta es un momento que lleva al espectador a hacerse una pregunta a sí mismo. No una promesa ni un anuncio, sino algo que no encaja. Mientras la pregunta siga abierta, se queda.',
+      'Un ejemplo: alguien moja una galleta enorme en leche y después muerde por el lado seco. ¿Para qué mojarla entonces? Cuando la pregunta se responde, el vídeo ya ha terminado.',
+      'Para una empresa el mecanismo es el mismo. En lugar de mostrar lo que hace un producto, se construye un momento que no encaja y el producto lo resuelve. Ahí es donde un vídeo se convierte en un anuncio que nadie se salta.',
+    ],
+    ctaText:
+      'Para empresas lo ofrezco como servicio: construir alcance orgánico en lugar de alquilarlo. Eso elimina la parte del presupuesto que de otro modo vuelve cada mes.',
+    cta: 'Hablar de ello',
+  },
   services: {
     kicker: 'Servicios',
     heading: 'Sitios web, aplicaciones y automatización en un solo lugar.',

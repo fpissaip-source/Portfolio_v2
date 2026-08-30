@@ -46,9 +46,15 @@ knowledge-graph memory: https://github.com/fpissaip-source/Lukas_autonom.
   monitoring
 - SEO, AEO and GEO: technical search optimisation, structured data, and
   content written to be quotable by answer engines
+- Organic social media reach: short-form video built so the first three
+  seconds hold the viewer, so a company earns reach instead of buying it
 
 ## Notable work
 
+- Two TikTok accounts grown to a combined ~19,000 followers and ~600,000
+  likes with zero advertising spend, one of them within a single month and
+  including a video past one million views. Handles @lucy_srg and @issa3701.
+  They are experiments in reach mechanics, not client work.
 - L.U.K.A.S.: an autonomous AI agent with a knowledge-graph memory,
   self-hosted, that can be spoken to directly on this site.
   Source: https://github.com/fpissaip-source/Lukas_autonom
@@ -131,6 +137,10 @@ Ja. Issa Hareb entwickelt KI-Agenten, die an bestehende Werkzeuge angebunden sin
 ### Was ist L.U.K.A.S.?
 
 L.U.K.A.S. ist ein von Issa Hareb entwickelter autonomer KI-Agent mit dauerhaftem Gedächtnis in Form eines Wissensgraphen. Er läuft auf eigenen Servern, bewertet seine eigenen Ergebnisse und ist auf der Website direkt ansprechbar.
+
+### Macht Issa Hareb auch Social Media Marketing?
+
+Ja. Issa Hareb baut organische Reichweite in sozialen Netzwerken auf, statt Reichweite über Werbebudget zu kaufen. Zwei TikTok-Konten hat er ohne Werbekosten aufgebaut: eines in einem Monat auf 5.045 Follower und 60.327 Likes, mit einem Video über einer Million Aufrufen, das zweite auf 13.903 Follower und 538.113 Likes. Entscheidend sind die ersten drei Sekunden eines Videos, nicht das Budget.
 
 ### Übernimmt Issa Hareb auch Wartung und Betrieb?
 

@@ -54,25 +54,25 @@ const KEINE_AGENTUR =
   'Entwurf, Umsetzung und Betrieb liegen bei derselben Person. Es gibt keine Übergabe zwischen Design, Entwicklung und Betrieb und keinen Aufschlag für Zwischenschichten. Wer beauftragt, schreibt mit der Person, die das System auch baut.'
 
 const ERSTER_SCHRITT =
-  'Eine kurze Nachricht mit dem Vorhaben genügt. Innerhalb von 24 Stunden kommt eine ehrliche Einschätzung zu Umfang, Vorgehen und dem nächsten sinnvollen Schritt zurück — auf Wunsch mit einem kostenlosen ersten Design-Entwurf, bevor irgendetwas festgelegt wird.'
+  'Eine kurze Nachricht mit dem Vorhaben genügt. Innerhalb von 24 Stunden kommt eine ehrliche Einschätzung zu Umfang, Vorgehen und dem nächsten sinnvollen Schritt zurück, auf Wunsch mit einem kostenlosen ersten Design-Entwurf, bevor irgendetwas festgelegt wird.'
 
 export const LEISTUNGEN: Leistung[] = [
   {
     slug: 'webdesign-essen',
     kurz: 'Webdesign',
-    metaTitel: 'Webdesigner in Essen — Websites, die Anfragen bringen',
+    metaTitel: 'Webdesigner in Essen: Websites, die Anfragen bringen',
     metaText:
       'Webdesign und Umsetzung aus einer Hand: Entwurf, Programmierung und Betrieb von einer Person. Für Betriebe in Essen und im Ruhrgebiet. Antwort innerhalb von 24 Stunden.',
     h1: 'Webdesigner in Essen',
     vorspann:
-      'Ein Entwurf, der niemand umsetzt, ist ein Bild. Hier kommt beides von derselben Person: das Aussehen und die Website, die daraus wird — gebaut, online gestellt und im Betrieb gehalten.',
+      'Ein Entwurf, den niemand umsetzt, ist ein Bild. Hier kommt beides von derselben Person: das Aussehen und die Website, die daraus wird. Gebaut, online gestellt und im Betrieb gehalten.',
     dienstName: 'Webdesign und Website-Entwicklung',
     dienstText:
       'Entwurf, Programmierung, Inbetriebnahme und Betrieb von Websites für Betriebe. Ausgeführt von Issa Hareb aus Essen.',
     abschnitte: [
       {
         titel: 'Was dabei entsteht',
-        text: 'Eine Website ist kein Bild von einer Website. Was hier entworfen wird, wird auch gebaut — mit den Abläufen dahinter, die aus einem Besuch eine Anfrage machen.',
+        text: 'Eine Website ist kein Bild von einer Website. Was hier entworfen wird, wird auch gebaut, mit den Abläufen dahinter, die aus einem Besuch eine Anfrage machen.',
         punkte: [
           'Entwurf und Aufbau der Seiten, abgestimmt auf das, was der Betrieb wirklich anbietet',
           'Buchungs- und Kontaktstrecken, die im Postfach ankommen und nicht im Nichts',
@@ -83,7 +83,7 @@ export const LEISTUNGEN: Leistung[] = [
       },
       {
         titel: 'Gestaltung und Technik trennen sich hier nicht',
-        text: 'Der häufigste Bruch in Webprojekten liegt zwischen dem Entwurf und dem, was am Ende im Browser steht: Abstände, die nicht halten, Schriften, die anders setzen, ein Verhalten auf dem Telefon, an das im Entwurf niemand gedacht hat. Wenn dieselbe Person entwirft und baut, gibt es diese Übergabe nicht — und damit auch nicht die Stelle, an der eine gute Idee verloren geht.',
+        text: 'Der häufigste Bruch in Webprojekten liegt zwischen dem Entwurf und dem, was am Ende im Browser steht: Abstände, die nicht halten, Schriften, die anders setzen, ein Verhalten auf dem Telefon, an das im Entwurf niemand gedacht hat. Wenn dieselbe Person entwirft und baut, gibt es diese Übergabe nicht, und damit auch nicht die Stelle, an der eine gute Idee verloren geht.',
       },
       {
         titel: 'Ein Beleg statt einer Behauptung',
@@ -107,10 +107,10 @@ export const LEISTUNGEN: Leistung[] = [
       {
         frage: 'Macht Issa Hareb nur das Design oder auch die Umsetzung?',
         antwort:
-          'Beides. Issa Hareb entwirft die Website und programmiert sie anschliessend selbst, stellt sie online und hält sie im Betrieb. Es gibt keinen zweiten Dienstleister, der den Entwurf umsetzt.',
+          'Beides. Issa Hareb entwirft die Website und programmiert sie anschließend selbst, stellt sie online und hält sie im Betrieb. Es gibt keinen zweiten Dienstleister, der den Entwurf umsetzt.',
       },
       {
-        frage: 'Arbeitet Issa Hareb auch ausserhalb von Essen?',
+        frage: 'Arbeitet Issa Hareb auch außerhalb von Essen?',
         antwort:
           'Ja. Issa Hareb arbeitet für Kunden im gesamten deutschsprachigen Raum und remote. Essen und das Ruhrgebiet sind der räumliche Schwerpunkt, aber keine Voraussetzung für ein Projekt.',
       },
@@ -129,19 +129,19 @@ export const LEISTUNGEN: Leistung[] = [
   {
     slug: 'fullstack-entwickler-essen',
     kurz: 'Full-Stack-Entwicklung',
-    metaTitel: 'Full-Stack-Entwickler in Essen — Websites, Web-Apps, KI-Agenten',
+    metaTitel: 'Full-Stack-Entwickler in Essen: Websites, Web-Apps, KI-Agenten',
     metaText:
       'Full-Stack-Entwickler aus Essen: Oberfläche, Backend, Datenbank und Deployment aus einer Hand. Websites, individuelle Webanwendungen, KI-Agenten und Automatisierungen.',
     h1: 'Full-Stack-Entwickler in Essen',
     vorspann:
-      'Oberfläche, Backend, Datenbank, die Schnittstellen dazwischen und der Betrieb danach — von einer Person geplant, gebaut und live gehalten. Kein Konzept, keine Demo.',
+      'Oberfläche, Backend, Datenbank, die Schnittstellen dazwischen und der Betrieb danach, von einer Person geplant, gebaut und live gehalten. Kein Konzept, keine Demo.',
     dienstName: 'Full-Stack-Entwicklung',
     dienstText:
       'Entwicklung von Websites, Webanwendungen, KI-Agenten und Automatisierungen über den gesamten Stapel: Oberfläche, Backend, Datenbank, Deployment und Betrieb. Ausgeführt von Issa Hareb aus Essen.',
     abschnitte: [
       {
         titel: 'Was gebaut wird',
-        text: 'Nicht ein Ausschnitt, sondern das laufende System — von der ersten Zeile bis zu dem Tag, an dem es Arbeit abnimmt.',
+        text: 'Nicht ein Ausschnitt, sondern das laufende System, von der ersten Zeile bis zu dem Tag, an dem es Arbeit abnimmt.',
         punkte: [
           'Websites mit digitalen Kundenprozessen: Buchung, Kontakt, automatische E-Mails, Kundenbereich',
           'Individuelle Webanwendungen: Dashboards, CRM, Buchungssysteme, Rollen und Rechte',
@@ -152,7 +152,7 @@ export const LEISTUNGEN: Leistung[] = [
       },
       {
         titel: 'Womit',
-        text: 'TypeScript, React und Next.js in der Oberfläche. Node.js und PostgreSQL dahinter. Three.js, wenn etwas dreidimensional werden soll. Dazu KI-Systeme mit Retrieval, Werkzeugaufrufen und Leitplanken sowie Deployment und Überwachung auf der Plattform, die zum Projekt passt — Linux-VPS, Railway, Render, Cloudflare.',
+        text: 'TypeScript, React und Next.js in der Oberfläche. Node.js und PostgreSQL dahinter. Three.js, wenn etwas dreidimensional werden soll. Dazu KI-Systeme mit Retrieval, Werkzeugaufrufen und Leitplanken sowie Deployment und Überwachung auf der Plattform, die zum Projekt passt: Linux-VPS, Railway, Render oder Cloudflare.',
       },
       {
         titel: 'Was „Full-Stack" hier bedeutet',
@@ -175,7 +175,7 @@ export const LEISTUNGEN: Leistung[] = [
       {
         frage: 'Was macht ein Full-Stack-Entwickler?',
         antwort:
-          'Ein Full-Stack-Entwickler baut beide Hälften einer Anwendung: die Oberfläche, die man sieht, und alles dahinter — Server, Datenbank, Schnittstellen und den Betrieb. Issa Hareb übernimmt zusätzlich Entwurf und Deployment, sodass ein Projekt ohne Übergaben zwischen mehreren Beteiligten auskommt.',
+          'Ein Full-Stack-Entwickler baut beide Hälften einer Anwendung: die Oberfläche, die man sieht, und alles dahinter: Server, Datenbank, Schnittstellen und den Betrieb. Issa Hareb übernimmt zusätzlich Entwurf und Deployment, sodass ein Projekt ohne Übergaben zwischen mehreren Beteiligten auskommt.',
       },
       {
         frage: 'Welche Technologien setzt Issa Hareb ein?',

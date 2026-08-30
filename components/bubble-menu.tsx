@@ -56,7 +56,7 @@ export function BubbleMenu({
   logo,
   items,
   menuAriaLabel = 'Menü öffnen',
-  closeAriaLabel = 'Menü schliessen',
+  closeAriaLabel = 'Menü schließen',
   navAriaLabel = 'Hauptnavigation',
   menuBg = '#fff',
   menuContentColor = '#111',

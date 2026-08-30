@@ -31,7 +31,7 @@ export async function generateMetadata({
     description: eintrag.beschreibung,
     alternates: { canonical: `/${eintrag.slug}/` },
     openGraph: {
-      title: `${eintrag.titel} — ${marke.name}`,
+      title: `${eintrag.titel} | ${marke.name}`,
       description: eintrag.beschreibung,
       url: `${marke.domain}/${eintrag.slug}/`,
     },

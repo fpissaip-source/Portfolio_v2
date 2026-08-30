@@ -5,7 +5,7 @@ import { marke, referenzen } from "@/lib/hd2-site";
 export const metadata: Metadata = {
   title: "Referenzen",
   description:
-    "Echte Projekte von Hareb Digital aus Essen: ein live laufendes Kundensystem, ein autonomer KI-Agent und weitere Plattformen — mit Bildern und Stand.",
+    "Echte Projekte von Hareb Digital aus Essen: ein live laufendes Kundensystem, ein autonomer KI-Agent und weitere Plattformen, mit Bildern und Stand.",
     alternates: { canonical: "/referenzen/" },
 };
 
@@ -15,7 +15,7 @@ export default function Referenzseite() {
       <Abschnitt className="pt-20 sm:pt-24">
         <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">Referenzen</h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-nebel">
-          Alles hier ist gebaut und läuft — kein Konzeptbild, keine erfundene Kundenstimme. Wo ein
+          Alles hier ist gebaut und läuft. Kein Konzeptbild, keine erfundene Kundenstimme. Wo ein
           Projekt noch in Entwicklung ist, steht es dabei.
         </p>
       </Abschnitt>

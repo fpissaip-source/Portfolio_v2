@@ -8,7 +8,7 @@ export const metadata: Metadata = {
    * stuende der Markenname zweimal im Titel — einmal aus der Vorlage, einmal
    * aus dem Text. Ueber sechzig Zeichen kuerzt Google ohnehin.
    */
-  title: { absolute: "Hareb Digital — Websites und KI-Systeme, die arbeiten" },
+  title: { absolute: "Hareb Digital: Websites und KI-Systeme, die arbeiten" },
   description: start.beschreibung,
     alternates: { canonical: "/" },
 };
@@ -72,7 +72,7 @@ export default function Startseite() {
               <p className="mt-2.5 text-sm leading-relaxed text-nebel">{l.einleitung}</p>
               <p className="mt-5">
                 <a href={pfad(`/${l.slug}`)} className="text-sm font-medium text-leuchten hover:underline">
-                  {l.titel} ansehen →
+                  {l.titel} →
                 </a>
               </p>
             </Karte>
@@ -83,7 +83,7 @@ export default function Startseite() {
       <Abschnitt>
         <Ueberschrift eyebrow="Referenzen">Gebaut, nicht behauptet</Ueberschrift>
         <p className="mt-4 max-w-2xl text-nebel">
-          Keine erfundenen Kundenstimmen — echte Projekte, die laufen. Zwei davon hier, alle
+          Keine erfundenen Kundenstimmen, sondern echte Projekte, die laufen. Zwei davon hier, alle
           weiteren auf der Referenzseite.
         </p>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
@@ -134,7 +134,7 @@ export default function Startseite() {
           <h2 className="text-3xl font-semibold tracking-tight">Lassen Sie uns kurz sprechen</h2>
           <p className="mt-4 max-w-2xl text-nebel">
             Dreißig Minuten, kostenlos. Danach wissen Sie, was Ihr Vorhaben kostet und wie lange es
-            dauert — verbindlich.
+            dauert, und zwar verbindlich.
           </p>
           <div className="mt-7">
             <Knopf href="/kontakt">Erstgespräch anfragen</Knopf>

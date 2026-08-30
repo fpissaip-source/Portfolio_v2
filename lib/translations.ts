@@ -413,7 +413,7 @@ export const EN: Dictionary = {
   kiAntwort: {
     label: 'Evidence',
     heading: 'This is how ChatGPT answers the question about me.',
-    intro: 'Not a claim, a lookup: ask ChatGPT who Issa Hareb is and this is what comes back — sourced from this site.',
+    intro: 'Not a claim, a lookup: ask ChatGPT who Issa Hareb is and this is what comes back, sourced from this site.',
     frage: 'Wer ist Issa Hareb',
     sprachHinweis: 'Quoted verbatim in German, the language it was asked in.',
     quelle: 'ChatGPT, quoted verbatim',
@@ -424,7 +424,7 @@ export const EN: Dictionary = {
     bildAlt:
       'Screenshot of a ChatGPT answer to the question “Wer ist Issa Hareb”. It calls him a self-taught full-stack and AI developer, names his technologies, the L.U.K.A.S. project, Essen as where he lives and Sankt Augustin as the registered seat. This website is cited underneath as the source.',
     punkte: [
-      'It names L.U.K.A.S. — and describes the project correctly.',
+      'It names L.U.K.A.S., and describes the project correctly.',
       'It knows the location: Essen, registered in Sankt Augustin.',
       'The source cited underneath is this site.',
     ],
@@ -888,7 +888,7 @@ export const DE: Dictionary = {
   kiAntwort: {
     label: 'Beleg',
     heading: 'So beantwortet ChatGPT die Frage nach mir.',
-    intro: 'Nicht behauptet, sondern nachgeschlagen: Wer ChatGPT fragt, wer Issa Hareb ist, bekommt diese Antwort — und ihre Quelle ist diese Seite.',
+    intro: 'Nicht behauptet, sondern nachgeschlagen: Wer ChatGPT fragt, wer Issa Hareb ist, bekommt diese Antwort, und ihre Quelle ist diese Seite.',
     frage: 'Wer ist Issa Hareb',
     sprachHinweis: '',
     quelle: 'ChatGPT, Antwort unverändert zitiert',
@@ -899,7 +899,7 @@ export const DE: Dictionary = {
     bildAlt:
       'Bildschirmfoto einer ChatGPT-Antwort auf die Frage „Wer ist Issa Hareb“. Die Antwort nennt ihn einen autodidaktischen Full-Stack- und KI-Entwickler, nennt seine Technologien, das Projekt L.U.K.A.S., den Wohnort Essen und den Sitz Sankt Augustin. Unter der Antwort steht diese Website als Quelle.',
     punkte: [
-      'Sie nennt L.U.K.A.S. — und beschreibt das Projekt richtig.',
+      'Sie nennt L.U.K.A.S. und beschreibt das Projekt richtig.',
       'Sie kennt den Standort: Essen, Sitz Sankt Augustin.',
       'Unter der Antwort steht die Quelle: diese Seite.',
     ],
@@ -984,7 +984,7 @@ export const DE: Dictionary = {
         title: 'Er beobachtet sich selbst beim Denken.',
         body: [
           'Kontrollierte Selbstbewertung seines eigenen Belohnungssystems im Sandbox-Modus.',
-          'Einschließlich des philosophischen Grenzfalls: Ist das ein Systemfeedback, oder etwas, das sich wie Stolz anfühlt?',
+          'Einschließlich des philosophischen Grenzfalls: Ist das ein Systemfeedback oder etwas, das sich wie Stolz anfühlt?',
         ],
       },
     ],
@@ -1053,7 +1053,7 @@ export const DE: Dictionary = {
     tapHint: 'System antippen zum Ansehen',
   },
   about: {
-    introTitle: 'Lass mich vorstellen, wer ich bin.',
+    introTitle: 'Lass mich kurz erzählen, wer ich bin.',
     nameWords: ['ICH', 'BIN', 'ISSA', 'HAREB'],
     kicker: 'Über mich',
     heading: 'Ich denke in Systemen und liefere Produkte.',
@@ -1100,7 +1100,7 @@ export const DE: Dictionary = {
       },
       {
         title: 'Künstliche Intelligenz',
-        body: 'Hier tauche ich am tiefsten ein. Echte KI in echten Systemen, mit ordentlichem Retrieval, Tooling und Guardrails dahinter, nicht ein API-Wrapper mit hübschem Prompt. Das Ziel bleibt gleich: zuverlässig genug, um sie wirklich in Betrieb zu nehmen.',
+        body: 'Hier tauche ich am tiefsten ein. Echte KI in echten Systemen, mit ordentlichem Retrieval, Tooling und Guardrails dahinter, kein API-Wrapper mit hübschem Prompt. Das Ziel bleibt gleich: zuverlässig genug, um sie wirklich in Betrieb zu nehmen.',
       },
       {
         title: 'Systemdenken',

@@ -72,7 +72,7 @@ export const FAQ_DE: FaqEntry[] = [
   {
     question: 'Übernimmt Issa Hareb auch Wartung und Betrieb?',
     answer:
-      'Ja. Issa Hareb liefert nicht nur eine Abgabe, sondern den laufenden Betrieb: Deployment, Monitoring, Fehlerbehebung und Weiterentwicklung. Das Ziel ist ein System, das nach dem Livegang funktioniert, nicht eine Präsentation davon.',
+      'Ja. Issa Hareb liefert nicht nur eine Übergabe, sondern den laufenden Betrieb: Deployment, Monitoring, Fehlerbehebung und Weiterentwicklung. Das Ziel ist ein System, das nach dem Livegang funktioniert, nicht eine Präsentation davon.',
   },
   {
     question: 'Arbeitet Issa Hareb auch außerhalb von Essen?',

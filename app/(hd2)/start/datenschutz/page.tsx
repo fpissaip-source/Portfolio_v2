@@ -28,7 +28,7 @@ export default function Datenschutz() {
 
       <div className="mt-10 max-w-2xl space-y-8 leading-relaxed text-nebel">
         <p className="rounded-xl border border-white/15 bg-kohle/60 p-4 text-sm">
-          PLATZHALTER_RECHTSPRUEFUNG — dieser Text ist ein Gerüst für den aktuellen Stand der
+          PLATZHALTER_RECHTSPRUEFUNG. Dieser Text ist ein Gerüst für den aktuellen Stand der
           Seite und muss vor dem Livegang geprüft und ergänzt werden.
         </p>
 
@@ -48,7 +48,7 @@ export default function Datenschutz() {
           <p className="mt-3">
             Beim Abruf dieser Seite verarbeitet der Hoster technisch notwendige Daten wie
             IP-Adresse, Zeitpunkt, abgerufene Datei und übermittelnden Browser. Rechtsgrundlage ist
-            Art. 6 Abs. 1 lit. f DSGVO — das berechtigte Interesse am sicheren und störungsfreien
+            Art. 6 Abs. 1 lit. f DSGVO, also das berechtigte Interesse am sicheren und störungsfreien
             Betrieb.
           </p>
         </section>

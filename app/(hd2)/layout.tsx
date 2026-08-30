@@ -32,8 +32,8 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-hd2', display: 'swap
 export const metadata: Metadata = {
   metadataBase: new URL(marke.domain),
   title: {
-    default: `${start.titel} — ${marke.name}`,
-    template: `%s — ${marke.name}`,
+    default: `${start.titel} | ${marke.name}`,
+    template: `%s | ${marke.name}`,
   },
   description: start.beschreibung,
   robots: { index: false, follow: false },

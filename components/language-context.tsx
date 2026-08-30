@@ -175,7 +175,7 @@ const DE_REFINED: Dictionary = {
     story: [
       {
         flag: 'Ausgangspunkt',
-        title: 'Neugier für digitale Produkte',
+        title: 'Neugier auf digitale Produkte',
         body: 'Mich interessiert, wie Gestaltung, Technik und Geschäftsabläufe zusammenwirken.',
       },
       {
@@ -186,7 +186,7 @@ const DE_REFINED: Dictionary = {
       {
         flag: 'Heute',
         title: 'Lernen durch echte Projekte',
-        body: 'Ich baue eigene Produkte und Kundensysteme, messe was funktioniert und verbessere sie im Betrieb.',
+        body: 'Ich baue eigene Produkte und Kundensysteme, messe, was funktioniert, und verbessere sie im Betrieb.',
       },
       {
         flag: 'Hintergrund',

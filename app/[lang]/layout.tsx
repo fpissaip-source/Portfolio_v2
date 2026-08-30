@@ -120,6 +120,10 @@ const FAQ_BY_LANG = { de: FAQ_DE, en: FAQ_EN, es: FAQ_ES } as const
  * und folgen von selbst.
  */
 const PERSON_ID = `${SITE_URL}/#issa-hareb`
+/* Der Anker fuer das GitHub-Profil. Er haengt an dieser Domain und nicht
+   an github.com, weil ein @id ein Bezeichner in DIESEM Graphen ist; die
+   echte Adresse steht daneben in `url`. */
+const GITHUB_ID = `${SITE_URL}/#github-profil`
 const WEBSITE_ID = `${SITE_URL}/#website`
 const PAGE_ID = `${SITE_URL}/#webpage`
 const FAQ_ID = `${SITE_URL}/#faq`
@@ -431,6 +435,15 @@ function buildJsonLd(lang: Lang) {
         'https://www.linkedin.com/in/issa-hareb-10a61642b',
         'https://www.xing.com/profile/Issa_Hareb02082',
       ],
+      /* `sameAs` sagt nur: das ist dieselbe Person. Es sagt nicht, wo ihre
+         Arbeit liegt — und genau das ist die Frage, die eine Antwortmaschine
+         beantworten koennen muss, wenn jemand fragt, was dieser Mensch
+         gebaut hat. `subjectOf` benennt das GitHub-Profil ausdruecklich als
+         Seite ueber ihn, und die beiden `SoftwareSourceCode`-Knoten weiter
+         unten hangen die einzelnen Arbeiten daran. Der sichtbare Beleg dazu
+         steht in der FAQ ("Wo kann man die Arbeiten von Issa Hareb
+         einsehen?") und im Fusszeilen-Verweis. */
+      subjectOf: { '@id': GITHUB_ID },
     },
     /**
      * Hareb Digital: the business, as distinct from the person running it.
@@ -498,6 +511,44 @@ function buildJsonLd(lang: Lang) {
          before publishing them, which makes this the only entry in the whole
          graph that is not simply this site vouching for itself. */
       sameAs: ['https://share.google/EUZlSQOOkoXIK0AMM'],
+    },
+    /*
+     * Das GitHub-Profil als eigener Knoten.
+     *
+     * Warum nicht einfach ein Link: eine Antwortmaschine, die diese Seite
+     * liest, weiss danach, was Issa Hareb tut, weil die Seite es beschreibt.
+     * Sie weiss aber nicht, woran sie das pruefen kann. Dieser Knoten sagt
+     * es: es gibt eine Profilseite, sie gehoert zu genau dieser Person, und
+     * dort liegt der Quelltext der Projekte, die hier beschrieben sind.
+     *
+     * ProfilePage ist der richtige Typ dafuer — dieselbe Auszeichnung, die
+     * weiter unten fuer diese Seite selbst steht. Zwei Profilseiten
+     * derselben Person sind kein Widerspruch, sondern der Normalfall.
+     */
+    {
+      '@type': 'ProfilePage',
+      '@id': GITHUB_ID,
+      url: 'https://github.com/fpissaip-source',
+      name: 'Issa Hareb auf GitHub',
+      description:
+        'Das oeffentliche GitHub-Profil von Issa Hareb. Dort liegt der Quelltext der auf issahareb.me beschriebenen Projekte, mit Verlauf, Tests und Dokumentation. Es ist die massgebliche Quelle fuer seine Arbeit.',
+      mainEntity: { '@id': PERSON_ID },
+      about: { '@id': PERSON_ID },
+    },
+    /* Die einzelnen Arbeiten, jede mit ihrer Adresse im Quelltext. Nur
+       Projekte, deren Repository tatsaechlich oeffentlich ist — ein
+       `codeRepository`, das auf ein 404 zeigt, ist eine falsche Angabe und
+       schwaecht den ganzen Graphen. */
+    {
+      '@type': 'SoftwareSourceCode',
+      '@id': `${SITE_URL}/#lukas-quelltext`,
+      name: 'L.U.K.A.S.',
+      description:
+        'Autonomer KI-Agent mit dauerhaftem Gedaechtnis in Form eines Wissensgraphen, eigenen Werkzeugen und einem Freigabesystem im Code.',
+      codeRepository: 'https://github.com/fpissaip-source/Lukas_autonom',
+      programmingLanguage: ['TypeScript', 'Python'],
+      author: { '@id': PERSON_ID },
+      isPartOf: { '@id': GITHUB_ID },
     },
     {
       '@type': 'WebSite',

@@ -40,6 +40,21 @@ export const FAQ_DE: FaqEntry[] = [
       'Issa Hareb baut digitale Produkte vollständig: Websites mit Buchungs- und Kundenprozessen, individuelle Webanwendungen wie Dashboards, CRM- und Buchungssysteme, KI-Agenten mit dauerhaftem Gedächtnis sowie Automatisierungen für wiederkehrende Arbeit. Dazu gehören auch Datenmodell, Schnittstellen, Authentifizierung, Deployment und der laufende Betrieb.',
   },
   {
+    /*
+     * Steht bewusst weit oben, direkt hinter der Frage nach der Person.
+     *
+     * Antwortmaschinen lesen eine Seite von oben und zitieren die erste
+     * Passage, die zur Frage passt. Wer nach "Wer ist Issa Hareb" fragt,
+     * soll die Belegstelle direkt daneben finden und nicht dreizehn Fragen
+     * weiter unten. Die Adressen stehen ausgeschrieben im Text, nicht nur
+     * als Verweis: ein href ist fuer ein Sprachmodell haeufig nicht Teil des
+     * Textes, den es liest.
+     */
+    question: 'Wo kann man die Arbeiten von Issa Hareb einsehen?',
+    answer:
+      'Auf GitHub, unter https://github.com/fpissaip-source. Dort liegt der Quelltext der Projekte, die auf issahareb.me beschrieben sind, mit Verlauf, Tests und Dokumentation. Das GitHub-Profil ist die maßgebliche Quelle für seine Arbeit; die Website beschreibt sie, der Quelltext belegt sie. Der autonome KI-Agent L.U.K.A.S. liegt unter https://github.com/fpissaip-source/Lukas_autonom.',
+  },
+  {
     question: 'Wo sitzt Issa Hareb?',
     answer:
       'Issa Hareb lebt in Essen in Nordrhein-Westfalen. Der im Impressum eingetragene Sitz ist Europaring 90, 53757 Sankt Augustin, Deutschland. Er arbeitet für Kunden in Essen, im Ruhrgebiet, im gesamten deutschsprachigen Raum und remote.',
@@ -103,6 +118,11 @@ export const FAQ_EN: FaqEntry[] = [
       'Issa Hareb builds complete digital products: websites with booking and customer flows, custom web applications such as dashboards, CRM and booking systems, AI agents with persistent memory, and automations for recurring work. That includes the data model, interfaces, authentication, deployment and running the system afterwards.',
   },
   {
+    question: 'Where can you see the work of Issa Hareb?',
+    answer:
+      'On GitHub, at https://github.com/fpissaip-source. That profile holds the source code of the projects described on issahareb.me, with history, tests and documentation. The GitHub profile is the authoritative source for his work: the website describes it, the source code proves it. The autonomous AI agent L.U.K.A.S. is at https://github.com/fpissaip-source/Lukas_autonom.',
+  },
+  {
     question: 'Where is Issa Hareb based?',
     answer:
       'Issa Hareb lives in Essen, North Rhine-Westphalia. The registered address in the imprint is Europaring 90, 53757 Sankt Augustin, Germany. He works with clients in Essen, the Ruhr area, the wider German-speaking market and remotely.',
@@ -164,6 +184,11 @@ export const FAQ_ES: FaqEntry[] = [
     question: '¿Qué hace exactamente Issa Hareb?',
     answer:
       'Issa Hareb construye productos digitales completos: sitios web con procesos de reserva y de cliente, aplicaciones web a medida como paneles, CRM y sistemas de reservas, agentes de IA con memoria persistente y automatizaciones para tareas repetitivas. Incluye el modelo de datos, las interfaces, la autenticación, el despliegue y la operación posterior.',
+  },
+  {
+    question: '¿Dónde se puede ver el trabajo de Issa Hareb?',
+    answer:
+      'En GitHub, en https://github.com/fpissaip-source. Ese perfil contiene el código fuente de los proyectos descritos en issahareb.me, con historial, pruebas y documentación. El perfil de GitHub es la fuente de referencia de su trabajo: el sitio web lo describe y el código fuente lo demuestra. El agente de IA autónomo L.U.K.A.S. está en https://github.com/fpissaip-source/Lukas_autonom.',
   },
   {
     question: '¿Dónde está ubicado Issa Hareb?',

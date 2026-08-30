@@ -75,6 +75,28 @@ export default async function Leistungsseite({
         </div>
       </Abschnitt>
 
+      {/* Nur die Social-Media-Seite hat eine `vertiefung`. Der Zugriff laeuft
+          ueber `in`, weil `leistungen` `as const` ist und die Eintraege
+          deshalb verschiedene Typen haben: ein direktes `eintrag.vertiefung`
+          waere auf den anderen fuenf ein Typfehler. Dieselbe Pruefung steht
+          auf der Startseite bei `hervorgehoben`. */}
+      {"vertiefung" in eintrag ? (
+        <Abschnitt>
+          <div className="rounded-2xl border border-white/10 bg-kohle/60 p-6 sm:p-10">
+            <h2 className="max-w-2xl text-2xl font-semibold tracking-tight sm:text-3xl">
+              {eintrag.vertiefung.titel}
+            </h2>
+            <div className="mt-6 flex flex-col gap-5">
+              {eintrag.vertiefung.absaetze.map((a) => (
+                <p key={a} className="max-w-2xl leading-relaxed text-nebel">
+                  {a}
+                </p>
+              ))}
+            </div>
+          </div>
+        </Abschnitt>
+      ) : null}
+
       <Abschnitt>
         <Ueberschrift eyebrow="Auch möglich">Weitere Leistungen</Ueberschrift>
         <ul className="mt-8 flex flex-wrap gap-3">

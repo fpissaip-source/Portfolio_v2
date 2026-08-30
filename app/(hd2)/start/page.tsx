@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Abschnitt, Karte, Knopf, Projektbild, Ueberschrift } from "@/components/hd2-bausteine";
+import { SocialBelegAbschnitt } from "@/components/hd2-social";
 import { ablauf, fragen, leistungen, pfad, referenzen, start } from "@/lib/hd2-site";
 
 export const metadata: Metadata = {
@@ -103,6 +104,8 @@ export default function Startseite() {
           </a>
         </p>
       </Abschnitt>
+
+      <SocialBelegAbschnitt />
 
       <Abschnitt id="ablauf">
         <Ueberschrift eyebrow="Ablauf">Vier Schritte, keine Überraschungen</Ueberschrift>

@@ -206,6 +206,41 @@ export const leistungen = [
       { titel: "Nicht aus der Broschüre", text: "L.U.K.A.S., mein eigener autonomer Agent, läuft seit Monaten produktiv. Der Quelltext ist öffentlich einsehbar, samt Sicherheitsmodell und Prüfungen." },
     ],
   },
+  {
+    /*
+     * Die einzige Leistung mit einer `vertiefung`.
+     *
+     * Grund: die anderen vier verkaufen ein Ergebnis, das man beschreiben
+     * kann (eine Seite, ein System, ein Preis). Diese verkauft eine Methode,
+     * und eine Methode, die man nur behauptet, ist wertlos. Der Abschnitt
+     * unten erklaert sie deshalb vollstaendig, samt Beispiel. Wer sie danach
+     * selbst anwendet, hat etwas gelernt; wer sie umgesetzt haben will,
+     * schreibt.
+     */
+    slug: "social-media-marketing-essen",
+    kurz: "Social Media",
+    titel: "Social Media Marketing Essen",
+    beschreibung:
+      "Social Media Marketing aus Essen mit organischer Reichweite statt Werbebudget: Videos, die von selbst laufen, gebaut auf den ersten drei Sekunden.",
+    h1: "Reichweite, für die Sie kein Werbebudget bezahlen",
+    einleitung:
+      "Die meisten Unternehmen kaufen Aufmerksamkeit. Sie zahlen pro Klick, und in dem Moment, in dem das Budget ausläuft, ist auch die Reichweite weg. Der andere Weg ist Inhalt, der von allein läuft. Zwei TikTok-Konten habe ich ohne einen Cent Werbebudget aufgebaut, eines davon in einem Monat, mit einem Video über einer Million Aufrufe.",
+    punkte: [
+      { titel: "Die ersten drei Sekunden", text: "Über ein Video entscheidet nicht der Schnitt und nicht die Musik, sondern der Anfang. Wer nach zwei Sekunden weiterwischt, sieht den Rest nie. Deshalb wird der Aufhänger zuerst gebaut und alles andere danach." },
+      { titel: "Werbung, die nicht nach Werbung aussieht", text: "Ein Produkt kann im Video vorkommen, ohne der Grund zu sein, warum jemand hinschaut. Genau das trennt einen Clip mit Reichweite von einem, den man wegdrückt." },
+      { titel: "Kein Budget nötig, um anzufangen", text: "Beide Konten sind mit null Euro Werbekosten gewachsen. Was organisch funktioniert, kann man danach immer noch mit Budget verstärken. Umgekehrt funktioniert es selten." },
+      { titel: "Zahlen statt Geschmack", text: "Aufrufe, Haltequote in den ersten Sekunden, Absprungpunkt. Das nächste Video entsteht aus diesen Zahlen und nicht aus einer Meinung im Meeting." },
+    ],
+    vertiefung: {
+      titel: "Warum ein Video läuft und fast alle anderen nicht",
+      absaetze: [
+        "Die Frage kam beim Scrollen, nicht aus einem Marketingbuch: warum habe ich dieses eine Video bis zum Ende gesehen, obwohl ich das davor nach nicht einmal zwei Sekunden weggewischt habe? Was war daran anders?",
+        "Die Antwort ist ein Moment, der den Zuschauer dazu bringt, sich selbst eine Frage zu stellen. Kein Versprechen, keine Ankündigung, sondern etwas, das nicht aufgeht. Solange die Frage offen ist, bleibt er.",
+        "Ein Beispiel: jemand taucht einen übergroßen Keks in Milch und beißt anschließend an der trockenen Stelle ab. Wozu dann das Eintauchen? Die Frage stellt sich von selbst, und bis sie beantwortet ist, ist das Video vorbei. Der übergroße Keks hält den Zuschauer schon in der ersten Sekunde, der Widerspruch hält ihn bis zum Schluss.",
+        "Für ein Unternehmen ist das dieselbe Mechanik. Statt zu zeigen, was ein Produkt kann, wird ein Moment gebaut, der nicht zusammenpasst, und das Produkt löst ihn auf. Das ist die Stelle, an der aus einem Video eine Anzeige wird, die niemand überspringt, und der Grund, warum organische Reichweite billiger ist als jedes Mediabudget.",
+      ],
+    },
+  },
 ] as const;
 
 /*
@@ -273,6 +308,7 @@ export const fragen = [
   { frage: "Arbeiten Sie nur in Essen?", antwort: "Der Schwerpunkt liegt im Ruhrgebiet: Essen, Bochum, Gelsenkirchen, Duisburg, Oberhausen und Mülheim. Alles andere geht auch, dann eben per Video statt vor Ort." },
   { frage: "Kann ich die Inhalte selbst pflegen?", antwort: "Ja. Auf Wunsch mit CMS, mit dem Sie Texte, Bilder und ganze Abschnitte ohne Code ändern. Eine kurze Einweisung ist inklusive." },
   { frage: "Muss meine Website barrierefrei sein?", antwort: "Seit dem Barrierefreiheitsstärkungsgesetz gilt das für viele Unternehmen mit Endkundengeschäft. Ich baue barrierefrei von Anfang an. Nachträglich ist es aufwendiger und teurer." },
+  { frage: "Lohnt sich Social Media ohne Werbebudget?", antwort: "Ja, und meist mehr als mit. Eine Anzeige wirkt genau so lange, wie sie bezahlt wird; ein Video mit organischer Reichweite läuft weiter, wenn das Budget längst aus wäre. Ich habe zwei TikTok-Konten ohne einen Euro Mediabudget aufgebaut, eines davon in einem Monat und mit einem Video über einer Million Aufrufe. Entscheidend sind die ersten drei Sekunden, nicht die Ausgaben." },
   { frage: "Was passiert nach dem Launch?", antwort: "Auf Wunsch übernehme ich Wartung, Updates und Überwachung und melde mich monatlich mit Zahlen. Ohne Betreuung bekommen Sie die Seite vollständig übergeben: Code, Domain und Zugänge." },
 ] as const;
 
@@ -281,4 +317,65 @@ export const kontakt = {
   h1: "Erzählen Sie mir in zwei Sätzen, worum es geht",
   text: "Ich melde mich innerhalb von 24 Stunden mit einer ehrlichen Einschätzung, auch dann, wenn ich nicht der Richtige für Ihr Vorhaben bin.",
   punkte: ["Kostenloses 30-Minuten-Gespräch", "Festpreis statt Stundenzettel", "Antwort innerhalb von 24 Stunden"],
+} as const;
+
+/*
+ * Der Beleg zur Social-Media-Leistung.
+ *
+ * Zwei echte Konten mit ihren echten Zahlen, Stand der beigefuegten
+ * Bildschirmfotos. Sie stehen hier als Text NEBEN dem Bild, nicht nur darin:
+ * eine Zahl, die ausschliesslich in einem JPEG steht, existiert fuer Google,
+ * fuer einen Screenreader und fuer jede Antwortmaschine nicht.
+ *
+ * `konten` ist eine Liste, weil noch weitere dazukommen (ein zweites
+ * Bildschirmfoto vom privaten Profil, eines vom Instagram-Konto). Ein
+ * weiterer Eintrag ist ein Objekt hier und zwei Dateien in public/social,
+ * sonst nichts.
+ *
+ * Was hier NICHT steht: eine Behauptung, dass dieselben Zahlen fuer jeden
+ * Betrieb herauskommen. Die Konten belegen die Methode, nicht ein Ergebnis,
+ * das man verkaufen koennte.
+ */
+export const socialBeleg = {
+  eyebrow: "Social Media",
+  titel: "Reichweite, für die kein Cent Werbebudget bezahlt wurde",
+  text: "Werbeanzeigen hören auf zu wirken, sobald das Budget aufgebraucht ist. Organische Reichweite nicht. Diese beiden TikTok-Konten habe ich selbst aufgebaut, beide ohne einen Euro Mediabudget, und das eine davon in einem einzigen Monat.",
+  konten: [
+    {
+      name: "Lucy",
+      handle: "@lucy_srg",
+      art: "KI-Influencer-Konto, in einem Monat aufgebaut",
+      bild: "lucy-profil",
+      alt: "TikTok-Profil des Kontos Lucy, @lucy_srg, mit 5.045 Followern und 60.327 Likes",
+      zahlen: [
+        { wert: "5.045", label: "Follower in einem Monat" },
+        { wert: "60.327", label: "Likes" },
+        { wert: "1 Mio.", label: "Aufrufe, bestes Video" },
+        { wert: "0 €", label: "Werbebudget" },
+      ],
+    },
+    {
+      name: "Mr Han",
+      handle: "@issa3701",
+      art: "Privates Konto, rein organisch gewachsen",
+      bild: "mrhan-profil",
+      alt: "TikTok-Profil des Kontos Mr Han, @issa3701, mit 13.903 Followern und 538.113 Likes",
+      zahlen: [
+        { wert: "13.903", label: "Follower" },
+        { wert: "538.113", label: "Likes" },
+        { wert: "0 €", label: "Werbebudget" },
+      ],
+    },
+  ],
+  raster: {
+    bild: "lucy-videos",
+    alt: "Videoübersicht des Kontos Lucy mit den Aufrufzahlen einzelner Videos, darunter eines mit einer Million Aufrufen",
+    titel: "Die Aufrufe einzelner Videos",
+    text: "Nicht jedes Video läuft, und das ist der Punkt. Ein Konto wächst nicht am Durchschnitt, sondern an den wenigen Videos, deren erste drei Sekunden funktioniert haben. Bei diesem Konto war es das mit einer Million Aufrufen.",
+  },
+  hinweis: {
+    titel: "Dieselbe Methode für Ihr Unternehmen",
+    text: "Was diese Videos gehalten hat, ist kein Zufall und keine Persönlichkeit, sondern ein Aufbau, den man auf ein Produkt übertragen kann.",
+    cta: { label: "Wie das funktioniert", href: "/social-media-marketing-essen" },
+  },
 } as const;

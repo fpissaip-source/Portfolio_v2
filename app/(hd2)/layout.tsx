@@ -83,6 +83,8 @@ function strukturierteDaten() {
       'SEO',
       'Barrierefreiheit',
       'KI-Agenten',
+      'Social Media Marketing',
+      'Organische Reichweite',
     ],
     sameAs: [marke.portfolio],
   }

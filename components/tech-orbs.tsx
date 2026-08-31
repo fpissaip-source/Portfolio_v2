@@ -4,6 +4,7 @@ import { forwardRef, useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { usePerfTier } from './perf-probe'
+import { useImBild } from './use-im-bild'
 
 /**
  * Real-time 3D tech stack: each technology is a sphere with its logo baked
@@ -358,6 +359,8 @@ function Scene({ count }: { count: number }) {
 export default function TechOrbs() {
   // Max 20 spheres on desktop, max 12 on mobile.
   const [count, setCount] = useState(20)
+  const rahmen = useRef<HTMLDivElement>(null)
+  const imBild = useImBild(rahmen)
   const tier = usePerfTier()
   const cheap = tier === 'low'
 
@@ -366,12 +369,18 @@ export default function TechOrbs() {
   }, [])
 
   return (
+    <div ref={rahmen} className="h-full w-full">
     <Canvas
       // On a device that has already shown it cannot hold its frame budget,
       // render at 1× and without MSAA. The spheres are glossy and blurred by
       // their own environment map, so the softer edges cost almost nothing
       // to look at and a great deal to draw.
       dpr={cheap ? [1, 1] : [1, 1.5]}
+      /* Aus dem Bild heisst: nicht rechnen. Die Kugeln haengen in einem
+         gepinnten Abschnitt, der einmal montiert und danach nicht wieder
+         abgeraeumt wird — ohne diese Zeile rechnen sie bis zum Seitenfuss
+         weiter. */
+      frameloop={imBild ? 'always' : 'never'}
       shadows={false}
       gl={{ antialias: !cheap, alpha: true, powerPreference: 'high-performance' }}
       camera={{ position: [0, 0, 20], fov: 32.5, near: 1, far: 100 }}
@@ -379,5 +388,6 @@ export default function TechOrbs() {
     >
       <Scene count={count} />
     </Canvas>
+    </div>
   )
 }

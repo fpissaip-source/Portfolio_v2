@@ -9,6 +9,7 @@ import { useT } from './language-context'
 import { markLukasReached } from '@/lib/lukas-presence'
 import { OPEN_CHAT_EVENT } from './lukas-voice-widget'
 import { LukasRobot } from './lukas-robot'
+import { usePerfTier } from './perf-probe'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -116,6 +117,19 @@ export function Lukas() {
     }
     setMode(ok ? '3d' : 'video')
   }, [])
+
+  /* Zweiter Grund fuer den Film: nicht fehlendes WebGL, sondern zu wenig
+     Leistung. Die Sonde in lib/perf-tier.ts misst waehrend der ersten
+     Sekunden, ob das Geraet seine Bildrate schon im Leerlauf haelt. Faellt
+     sie auf `low`, ist ein Neuronenfeld aus tausenden Partikeln das
+     Falsche, und der vorgerenderte Film zeigt dasselbe zu einem Bruchteil
+     der Kosten. Nur in diese Richtung: `high` hebt nichts wieder an, ein
+     Abschnitt, der mitten im Scrollen die Technik wechselt, waere
+     schlimmer als jede der beiden Fassungen. */
+  const tier = usePerfTier()
+  useEffect(() => {
+    if (tier === 'low') setMode('video')
+  }, [tier])
 
   useEffect(() => {
     if (brainNear) return

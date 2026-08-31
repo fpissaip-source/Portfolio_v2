@@ -679,17 +679,85 @@ body:has([role='dialog'][aria-modal='true']) [data-page-chrome] {
 }
 
 /* The canvas overhangs the button so the rim light can bleed past the edge */
-.specular-btn__fx {
-  position: absolute;
-  inset: -20px;
-  pointer-events: none;
-  z-index: 1;
+/* Der wandernde Glanz am Rand.
+ *
+ * Hier lag bis zum 30.08. eine WebGL-Leinwand mit eigenem Shader, fuer
+ * einen Knopf von 249 x 97 Pixeln. Sie war einer von sieben
+ * WebGL-Zustaenden auf der Startseite, und sieben ist ungefaehr die Zahl,
+ * ab der Safari auf einem aelteren iPhone anfaengt, den aeltesten
+ * wegzuwerfen.
+ *
+ * Der Ersatz ist ein Kegelverlauf, der sich dreht, per Maske auf einen
+ * Ring von einem Pixel beschnitten. `mask-composite: exclude` stanzt die
+ * Innenflaeche wieder heraus: uebrig bleibt genau der Rand.
+ *
+ * Ohne die `@property`-Anmeldung ginge das nicht. Ein Winkel ist fuer den
+ * Browser sonst eine Zeichenkette, und Zeichenketten werden nicht
+ * interpoliert — der Verlauf spraenge zwischen Anfang und Ende, statt zu
+ * laufen. Browser ohne Unterstuetzung zeigen den Glanz still stehend, und
+ * der Knopf sieht auch dann vollstaendig aus: Rahmen, Flaeche und
+ * Beschriftung stehen oben und haengen an nichts davon. */
+@property --spekular-winkel {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
-.specular-btn__fx canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
+.specular-btn__fx {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--spekular-winkel),
+    transparent 0deg,
+    transparent 24deg,
+    color-mix(in oklch, var(--blue) 55%, white) 46deg,
+    color-mix(in oklch, var(--blue) 90%, white) 52deg,
+    color-mix(in oklch, var(--blue) 55%, white) 58deg,
+    transparent 80deg,
+    transparent 360deg
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  opacity: 0.75;
+  animation: spekular-lauf 5.5s linear infinite;
+  transition: opacity 0.2s ease;
+}
+
+.specular-btn:hover .specular-btn__fx {
+  opacity: 1;
+}
+
+@keyframes spekular-lauf {
+  to {
+    --spekular-winkel: 360deg;
+  }
+}
+
+/* Der Glanz laeuft, das ist Bewegung ohne Anlass. Wer weniger davon
+   moechte, bekommt ihn still und schwaecher, aber nicht weg: er ist an
+   dieser Stelle auch ein Stueck Rahmen. */
+@media (prefers-reduced-motion: reduce) {
+  .specular-btn__fx {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+/* Dieselbe Ueberlegung wie bei Weichzeichner und Filmkorn: was gemessen
+   zu langsam ist, bekommt die ruhige Fassung (siehe lib/perf-tier.ts). */
+html[data-perf='low'] .specular-btn__fx {
+  animation: none;
+  opacity: 0.5;
 }
 
 .specular-btn__label {
@@ -2420,4 +2488,94 @@ section.hd-rule {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ─── Wellenfeld am Seitenfuss ───────────────────────────────────────────────
+ *
+ * Ersetzt die WebGL-Fassung (components/gradient-waves.tsx, am 30.08.
+ * entfernt). Die Vorlage rechnete ein Hoehenfeld mit Nebel und Korn in
+ * einem Shader; sichtbar war davon durch die Maske hindurch ein Schimmer
+ * am unteren Rand und ein paar weiche diagonale Baender. Genau das steht
+ * hier, als zwei Verlaufsebenen.
+ *
+ * Bewegt wird ausschliesslich `transform`. Das ist der einzige
+ * Animationsweg, den der Browser auf dem Compositor erledigt, ohne pro
+ * Bild neu zu zeichnen — und damit der einzige, der auf der Seite mit
+ * einer Hoehe von sechsundzwanzigtausend Pixeln vertretbar ist.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.wellenfeld {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Der Schimmer, aus dem die Baender herauswachsen. Er sitzt unten und
+     traegt die Farbe des Abschnitts. */
+  background:
+    radial-gradient(
+      120% 70% at 50% 118%,
+      color-mix(in oklch, var(--purple) 26%, transparent) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      80% 60% at 12% 100%,
+      color-mix(in oklch, var(--blue) 14%, transparent) 0%,
+      transparent 70%
+    );
+}
+
+.wellenfeld::before,
+.wellenfeld::after {
+  content: '';
+  position: absolute;
+  /* Weit ueber den Rand hinaus: die Ebene wird geschoben, und ohne
+     Ueberstand liefe eine Kante durchs Bild. */
+  inset: -60% -40%;
+  will-change: transform;
+}
+
+/* Einzelne Haltepunkte statt Bereichen: dazwischen blendet der Browser
+   ueber, und aus einem Streifen mit Kante wird ein Schimmer. Mit
+   `transparent 0 14rem, farbe 14rem 17rem` standen hier vorher harte
+   Baender, und die Vorlage war ein Hoehenfeld mit Nebel — weich ist hier
+   also nicht Geschmack, sondern das, was ersetzt werden sollte. */
+.wellenfeld::before {
+  background: repeating-linear-gradient(
+    109deg,
+    transparent 0rem,
+    color-mix(in oklch, var(--purple) 13%, transparent) 16rem,
+    transparent 32rem,
+    transparent 38rem
+  );
+  animation: wellen-zug 64s linear infinite;
+}
+
+.wellenfeld::after {
+  background: repeating-linear-gradient(
+    97deg,
+    transparent 0rem,
+    color-mix(in oklch, var(--blue) 9%, transparent) 23rem,
+    transparent 46rem,
+    transparent 54rem
+  );
+  animation: wellen-zug 97s linear infinite reverse;
+}
+
+@keyframes wellen-zug {
+  to {
+    transform: translate3d(34rem, 0, 0);
+  }
+}
+
+/* Still, wo Bewegung nicht erwuenscht oder nicht bezahlbar ist. Die
+   Baender bleiben stehen, der Fuss sieht unveraendert aus. */
+@media (prefers-reduced-motion: reduce) {
+  .wellenfeld::before,
+  .wellenfeld::after {
+    animation: none;
+  }
+}
+
+html[data-perf='low'] .wellenfeld::before,
+html[data-perf='low'] .wellenfeld::after {
+  animation: none;
 }

@@ -32,6 +32,8 @@
 import * as React from "react";
 import { useMemo, useRef, useState, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useImBild } from "./use-im-bild";
+import { usePerfTier } from "./perf-probe";
 import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 
@@ -553,6 +555,12 @@ function RobotPrototype({
  */
 export function LukasRobot({ className = "" }: { className?: string }) {
   const [eligible, setEligible] = useState(false);
+  /* Der Rahmen wird beobachtet, nicht die Leinwand: er steht auch dann da,
+     wenn der Roboter (noch) nicht gerendert wird, und ist damit das
+     stabilere Bezugselement. */
+  const rahmen = useRef<HTMLDivElement>(null);
+  const imBild = useImBild(rahmen);
+  const tier = usePerfTier();
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px) and (prefers-reduced-motion: no-preference)");
@@ -562,13 +570,33 @@ export function LukasRobot({ className = "" }: { className?: string }) {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  if (!eligible) return null;
+  /* Auf einem Geraet, das die Bildrate schon im Leerlauf nicht haelt, ist
+     ein gerastertes Robotermodell das Erste, was gehen muss. Die Sonde in
+     lib/perf-tier.ts misst das; bis hierher wurde ihr Ergebnis nur fuer
+     Weichzeichner und Filmkorn ausgewertet, waehrend genau diese Leinwand
+     weiterlief. Der Abschnitt funktioniert ohne ihn: daneben steht der
+     Text, dahinter das Neuronenfeld. */
+  const zeigen = eligible && tier === "high";
+
+  /* Wenn er nicht gezeigt wird, bleibt ein leeres div ohne Klassen stehen
+     statt gar nichts. Zwei Gruende:
+       1. Die Klassen tragen `w-[min(40rem,44vw)]`. Blieben sie, hielte der
+          leere Rahmen weiter 44vw Breite frei, und der Einladungstext
+          daneben klebte mit einer halben leeren Bildschirmbreite rechts von
+          sich am linken Rand. Genau so sah es im ersten Anlauf aus.
+       2. Der Beobachter braucht ein Element. React verwendet dasselbe div
+          weiter, wenn es Klassen und Kinder bekommt, also bleibt die
+          Beobachtung gueltig, sobald der Roboter doch erscheint. */
+  if (!zeigen) return <div ref={rahmen} aria-hidden />
 
   return (
-    <div className={className}>
+    <div ref={rahmen} className={className}>
       <Canvas
         camera={{ position: [0, 0.05, 6], fov: 40 }}
         gl={{ alpha: true }}
+        /* Aus dem Bild heisst: nicht rechnen. Ohne diese Zeile rendert der
+           Roboter weiter, auch zwanzigtausend Pixel weiter unten. */
+        frameloop={imBild ? "always" : "never"}
         // The invite panel sits inside a pinned ScrollTrigger section; a
         // transparent canvas lets the neuron field show through behind him
         // instead of punching a grey rectangle into the scene.

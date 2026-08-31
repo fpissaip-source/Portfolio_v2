@@ -17,8 +17,18 @@ export function scrollToSelector(selector: string, offset = -40) {
   const el = document.querySelector(selector)
   if (!el) return
   const lenis = (window as unknown as { __lenis?: Lenis }).__lenis
-  if (lenis) lenis.scrollTo(el, { offset })
-  else el.scrollIntoView({ behavior: 'smooth' })
+  if (lenis) {
+    lenis.scrollTo(el, { offset })
+    return
+  }
+  /* Ohne Lenis. Seit dem 30.08. ist das der Normalfall auf Telefonen und
+     auf Geraeten, die die Sonde als langsam gemessen hat (siehe
+     components/smooth-scroll.tsx), und nicht mehr nur der Notnagel.
+     `scrollIntoView` stand hier vorher allein und kannte den Versatz
+     nicht: das Ziel landete unter der Navigationspille, also genau der
+     Fehler, den `offset` verhindern soll. */
+  const ziel = el.getBoundingClientRect().top + window.scrollY + offset
+  window.scrollTo({ top: ziel, behavior: 'smooth' })
 }
 
 /** Click handler for an in-page `<a href="#…">`. Keeps the real href so the

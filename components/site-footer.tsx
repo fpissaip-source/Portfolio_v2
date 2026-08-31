@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { useLanguage, useT } from "./language-context";
 import { langPath } from "@/lib/i18n";
-import { GradientWaves } from "./gradient-waves";
 import { openConsentSettings } from "@/lib/consent";
 
 const SOCIALS = [
@@ -84,22 +83,15 @@ export function SiteFooter() {
               "linear-gradient(to bottom, transparent 0%, black 30%, black 100%)",
           }}
         >
-          <GradientWaves
-            horizonColor="#120f22"
-            waveColor="#5b47a8"
-            crestColor="#9fb6e8"
-            speed={0.22}
-            amplitude={2.1}
-            waveScale={0.55}
-            tilt={1.16}
-            height={5.2}
-            fogDepth={18}
-            detail="low"
-            brightness={1}
-            opacity={0.9}
-            parallaxStrength={0.35}
-            grainIntensity={0.03}
-          />
+          {/* Hier lag eine WebGL-Flaeche von 1280 x 615 Pixeln (React Bits'
+              GradientWaves, portiert). Sie war der letzte von sieben
+              WebGL-Zustaenden auf dieser Seite und der am leichtesten zu
+              ersetzende: was man durch die Maske hindurch sieht, sind ein
+              paar weiche diagonale Baender ueber einem Schimmer am unteren
+              Rand. Das kann CSS, ohne einen Grafikkontext dafuer zu
+              oeffnen. Der Rest dieses Blocks, die Maske nach oben, bleibt
+              unveraendert. */}
+          <div className="wellenfeld" />
         </div>
 
         {/*

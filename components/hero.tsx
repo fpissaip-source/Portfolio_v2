@@ -12,6 +12,7 @@ import { handleAnchorClick } from '@/lib/scroll-to'
 import { ScrubVideo, type ScrubVideoHandle } from './scrub-video'
 import { SideRays } from './side-rays'
 import { SpecularButton } from './specular-button'
+import { usePerfTier } from './perf-probe'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -86,6 +87,10 @@ export function Hero() {
      sehen — und was bleibt, kostet eine dauerhaft laufende WebGL-Flaeche auf
      dem Geraet mit der schwaechsten Grafik und dem knappsten Akku. */
   const [breit, setBreit] = useState(false)
+  /* Das gemessene Leistungsvermoegen des Geraets (lib/perf-tier.ts). Es
+     entscheidet hier ueber zwei WebGL-Flaechen, die beide reine
+     Atmosphaere sind. */
+  const sparsam = usePerfTier() === 'low'
 
   useEffect(() => {
     setReduced(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -293,7 +298,11 @@ export function Hero() {
               hinter dem Kopf und nicht die Hauptsache. Der Fluchtpunkt sitzt
               etwas hoeher als die Mitte, damit er nicht genau hinter dem
               Gesicht steht. */}
-          {breit && (
+          {/* `sparsam`: auf einem Geraet, das seine Bildrate schon im
+              Leerlauf nicht haelt, faellt der Tunnel weg. Er ist Atmosphaere
+              hinter dem Kopf, kein Inhalt, und er ist die teuerste Schicht
+              im Helden. */}
+          {breit && !sparsam && (
           <div className="absolute inset-0">
             <LightTunnel
               cableColor="#8f7bd6"
@@ -322,7 +331,9 @@ export function Hero() {
           </div>
           )}
           <GradientOrbs />
-          <SideRays />
+          {/* Zweite WebGL-Schicht im selben Bildausschnitt. Auf schwachen
+              Geraeten reichen die Farbverlaeufe darueber. */}
+          {!sparsam && <SideRays />}
         </div>
 
         {/* A local dark well sits above the ambient lights but below the

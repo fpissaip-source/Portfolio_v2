@@ -13,6 +13,8 @@ import {
 } from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useImBild } from './use-im-bild'
+import { usePerfTier } from './perf-probe'
 import { Html, OrbitControls, Plane, Sphere, Stars } from '@react-three/drei'
 import { Code2, ExternalLink, X } from 'lucide-react'
 import { useT } from './language-context'
@@ -462,6 +464,10 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
   // sake of a drag gesture. It is therefore mounted for fine pointers only;
   // touch keeps the auto-rotation, which brings every card round anyway, and
   // tapping a card still opens it.
+  const buehne = useRef<HTMLDivElement>(null)
+  const imBild = useImBild(buehne)
+  const tier = usePerfTier()
+
   const [canDrag, setCanDrag] = useState(false)
   useEffect(() => {
     const mq = window.matchMedia('(pointer: fine)')
@@ -473,14 +479,22 @@ export function StellarGallery({ cards }: { cards: GalleryCard[] }) {
 
   return (
     <CardContext.Provider value={{ selectedCard, setSelectedCard, cards }}>
-      <div className="absolute inset-0">
+      <div ref={buehne} className="absolute inset-0">
         <Canvas
           camera={{ position: [0, 0, 26], fov: 60 }}
           className="absolute inset-0"
+          /* Aus dem Bild heisst: nicht rechnen. Die Galerie steht in der
+             Mitte einer sechsundzwanzigtausend Pixel hohen Seite und lief
+             bis hierher auch dann weiter, wenn sie zehn Bildschirme weit
+             weg war. */
+          frameloop={imBild ? 'always' : 'never'}
         >
           <Suspense fallback={null}>
-            {/* Replaces upstream's separate fixed-position renderer. */}
-            <Stars radius={120} depth={60} count={2600} factor={4} fade speed={0.4} />
+            {/* Replaces upstream's separate fixed-position renderer.
+                Die Anzahl haengt am gemessenen Leistungsvermoegen: 2600
+                Sterne sind auf einer schwachen GPU der teuerste Teil der
+                Szene und der, den am wenigsten jemand vermisst. */}
+            <Stars radius={120} depth={60} count={tier === 'high' ? 2600 : 700} factor={4} fade speed={0.4} />
             <ambientLight intensity={0.5} />
             <pointLight position={[10, 10, 10]} intensity={0.6} />
             <pointLight position={[-10, -10, -10]} intensity={0.3} />

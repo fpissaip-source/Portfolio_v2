@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useImBild } from './use-im-bild'
 import * as THREE from 'three'
 
 /**
@@ -679,9 +680,20 @@ export function LukasBrain({
     [],
   )
 
+  /* Der Rahmen ist das, was beobachtet wird. Die Leinwand selbst liegt
+     absolut im gepinnten Abschnitt und ist dort formal immer "im Bild";
+     der Rahmen wandert mit dem Abschnitt und sagt damit die Wahrheit. */
+  const rahmen = useRef<HTMLDivElement>(null)
+  const imBild = useImBild(rahmen)
+
   return (
+    <div ref={rahmen} className="absolute inset-0">
     <Canvas
       className="!absolute inset-0"
+      /* Aus dem Bild heisst: nicht rechnen. Zweitausendsechshundert
+         leuchtende Partikel mit Nebel kosten auch dann, wenn niemand
+         hinsieht. */
+      frameloop={imBild ? 'always' : 'never'}
       // Mobile GPUs (and high-DPR phone screens, often 3x) choke on this
       // volume of glowing particles rendered at a high pixel ratio with
       // MSAA — the frame rate drops and the scroll-scrub reads as stuttery.
@@ -695,5 +707,6 @@ export function LukasBrain({
       <fogExp2 attach="fog" args={[BG, FOG_DENSITY]} />
       <BrainScene progress={progress} snaps={snaps} dense={dense} reduced={reduced} />
     </Canvas>
+    </div>
   )
 }

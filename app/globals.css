@@ -2579,3 +2579,305 @@ html[data-perf='low'] .wellenfeld::before,
 html[data-perf='low'] .wellenfeld::after {
   animation: none;
 }
+
+/* ─── Kartenmenue der Landingpage ────────────────────────────────────────────
+ *
+ * Nach React Bits' CardNav. Geschlossen eine Leiste, offen faehrt dieselbe
+ * Flaeche nach unten auf und gibt drei Karten frei, die versetzt von unten
+ * hereinkommen.
+ *
+ * Animiert werden `height` (an der Flaeche), `transform` und `opacity` (an
+ * den Karten). `height` ist der teure Teil, aber er laeuft genau einmal pro
+ * Klick und nicht beim Scrollen — und es ist die einzige Eigenschaft, mit
+ * der sich "die Leiste selbst wird zum Menue" ueberhaupt ausdruecken laesst.
+ * Die Zielhoehe misst die Komponente, hier steht nur der Uebergang.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.hd-kartenmenue {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  transition:
+    height 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    backdrop-filter 0.5s ease;
+  will-change: height;
+}
+
+/* Unter dem Film bekommt die Leiste ihren Grund. Ueber dem Film bleibt sie
+   durchsichtig, sonst steht oben ein Balken und darunter faengt das Bild an. */
+.hd-kartenmenue[data-ueber-film='nein'],
+.hd-kartenmenue--offen {
+  border-color: var(--hd-line);
+  background: color-mix(in oklch, var(--hd-paper) 88%, transparent);
+  backdrop-filter: blur(14px);
+}
+
+.hd-kartenmenue__leiste {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  height: 64px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px 0 14px;
+}
+
+.hd-kartenmenue__marke {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.hd-kartenmenue__rechts {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Der Umschalter. Zwei Striche, die sich zum Kreuz drehen — kein drittes
+   Streichholz in der Mitte, das beim Schliessen wieder auftauchen muesste. */
+.hd-burger {
+  display: inline-flex;
+  height: 44px;
+  width: 44px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 10px;
+  color: var(--hd-ink);
+  transition: background-color 0.2s ease;
+}
+
+.hd-burger:hover {
+  background: color-mix(in oklch, var(--hd-ink) 8%, transparent);
+}
+
+.hd-burger:focus-visible {
+  outline: 2px solid var(--hd-accent);
+  outline-offset: 2px;
+}
+
+.hd-burger__strich {
+  display: block;
+  height: 2px;
+  width: 22px;
+  background: currentColor;
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.28s ease;
+}
+
+.hd-burger--offen .hd-burger__strich:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.hd-burger--offen .hd-burger__strich:last-child {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+.hd-kartenmenue__inhalt {
+  position: absolute;
+  inset: 64px 6px 6px;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.hd-kartenmenue__karte {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--hd-line);
+  background: var(--hd-paper-2);
+  padding: 14px 16px;
+  /* Zustand geschlossen. Sichtbar wird die Karte erst, wenn die Flaeche
+     aufgefahren ist; ohne `visibility` bliebe sie mit der Tastatur
+     erreichbar, waehrend niemand sie sieht. */
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.34s ease var(--verzug, 0s),
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1) var(--verzug, 0s),
+    visibility 0s linear 0.42s;
+}
+
+.hd-kartenmenue--offen .hd-kartenmenue__karte {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.38s ease var(--verzug, 0s),
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) var(--verzug, 0s),
+    visibility 0s;
+}
+
+.hd-kartenmenue__label {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hd-accent);
+}
+
+/* Oben ausgerichtet, nicht unten.
+   Die Vorlage schiebt die Verweise mit `margin-top: auto` an den unteren
+   Rand der Karte. Das sieht gut aus, solange alle Karten gleich viele
+   Verweise haben; hier sind es drei, zwei und zwei, und die erste Zeile sass
+   dann in jeder Karte woanders. */
+.hd-kartenmenue__links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hd-kartenmenue__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  font-size: 16px;
+  color: var(--hd-ink-soft);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.hd-kartenmenue__links a:hover {
+  color: var(--hd-ink);
+  transform: translateX(2px);
+}
+
+@media (max-width: 768px) {
+  .hd-kartenmenue__inhalt {
+    grid-template-columns: 1fr;
+  }
+  .hd-kartenmenue__karte {
+    gap: 6px;
+    padding: 10px 14px;
+  }
+  .hd-kartenmenue__marke span {
+    display: none;
+  }
+}
+
+/* Wer weniger Bewegung moechte, bekommt das Menue ohne Fahrt: es ist da
+   oder es ist weg. Die Hoehe springt dann, und das ist genau richtig. */
+@media (prefers-reduced-motion: reduce) {
+  .hd-kartenmenue,
+  .hd-kartenmenue__karte,
+  .hd-burger__strich {
+    transition-duration: 0.01ms;
+  }
+}
+
+/* ─── Laufendes Satzband ─────────────────────────────────────────────────────
+ *
+ * Zwei Reihen, die gegeneinander laufen. Ersetzt ein Raster aus acht
+ * gleichen Kaesten, das die Flaeche stillstehen liess.
+ *
+ * Bewegt wird ausschliesslich `transform`, das erledigt der Browser auf dem
+ * Compositor ohne Neuzeichnen. Die Liste steht zweimal nebeneinander und die
+ * Fahrt endet bei -50 %: dort steht die Kopie exakt dort, wo das Original
+ * angefangen hat, und der Sprung zurueck ist unsichtbar.
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+.hd-band {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  /* Klemmt die Reihen ab. Ohne das waechst `width: max-content` der Reihen
+     ueber den Bildschirm hinaus und die ganze Seite laesst sich seitlich
+     schieben — gemessen: 2617 statt 1280 Pixel Dokumentbreite. Die Maske
+     darunter blendet nur die Sicht aus, sie beschneidet das Layout nicht. */
+  overflow: hidden;
+  /* Die Enden laufen aus, statt an einer Kante abzureissen. */
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.hd-band__reihe {
+  display: flex;
+  width: max-content;
+  gap: 0.85rem;
+}
+
+.hd-band__reihe--0 {
+  animation: hd-band-fahrt 52s linear infinite;
+}
+
+/* Die zweite Reihe laeuft rueckwaerts und etwas langsamer. Gleich schnell
+   und gleiche Richtung waere ein Block, der sich verschiebt; gegenlaeufig
+   ist es eine Flaeche, die lebt. */
+.hd-band__reihe--1 {
+  animation: hd-band-fahrt 67s linear infinite reverse;
+}
+
+.hd-band:hover .hd-band__reihe {
+  animation-play-state: paused;
+}
+
+.hd-band__spur {
+  display: flex;
+  gap: 0.85rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.hd-band__satz {
+  white-space: nowrap;
+  border-radius: 12px;
+  border: 1px solid var(--hd-line);
+  background: var(--hd-paper-2);
+  padding: 0.85rem 1.35rem;
+  font-size: 17px;
+  line-height: 1.4;
+  color: var(--hd-ink-soft);
+}
+
+@keyframes hd-band-fahrt {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Ohne Bewegung wird aus dem Band wieder eine Liste, die umbricht. Sie
+   laeuft dann nicht, aber sie ist vollstaendig lesbar — und das ist der
+   Punkt, an dem eine Animation aufhoeren muss. */
+@media (prefers-reduced-motion: reduce) {
+  .hd-band {
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+  .hd-band__reihe {
+    width: auto;
+    flex-wrap: wrap;
+    animation: none;
+  }
+  .hd-band__spur[aria-hidden='true'] {
+    display: none;
+  }
+  .hd-band__spur {
+    flex-wrap: wrap;
+  }
+  .hd-band__satz {
+    white-space: normal;
+  }
+}
+
+html[data-perf='low'] .hd-band__reihe {
+  animation: none;
+}

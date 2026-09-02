@@ -5,10 +5,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight } from 'lucide-react'
 import { ClickSpark } from './click-spark'
-import { FoldText } from './fold-text'
 import { Galerie, type Schaustueck } from './galerie'
 import { HdHeld } from './hd-held'
 import { HdSprachschalter } from './hd-sprachschalter'
+import { HdKartenmenue } from './hd-kartenmenue'
 import { HD_TEXTE, type HdLang, type HdTexte } from '@/lib/hd-texte'
 import { langPath } from '@/lib/i18n'
 import {
@@ -558,7 +558,12 @@ function Laufwerk({ t }: { t: HdTexte }) {
   })
 
   return (
-    <div ref={bahn} className="relative h-[280vh]">
+    /* 210vh statt 280vh.
+       Die Strecke bestimmt, wie schnell die Karten seitlich fahren: 280vh
+       waren siebzig Bildschirmhoehen Scrollen pro Karte, und das las sich
+       als "hier passiert nichts". Kuerzer ist dieselbe Bewegung, nur mit
+       Antrieb. */
+    <div ref={bahn} className="relative h-[210vh]">
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
         <div className="mx-auto flex w-[min(72rem,calc(100vw-3rem))] items-baseline justify-between pb-8">
           <span className="hd-label">{t.leistungen.label}</span>
@@ -719,50 +724,54 @@ export function HdLanding({ lang }: { lang: HdLang }) {
            ein zweites Mal, und der Fortschrittsbalken darunter braucht es
            nicht — eine feste Leiste ist selbst schon der Bezugsrahmen für
            alles, was absolut darin liegt. */
-        className={`fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color,backdrop-filter] duration-500 ${
-          ueberDemFilm ? '' : 'backdrop-blur-md'
-        }`}
-        style={{
-          borderColor: ueberDemFilm ? 'transparent' : 'var(--hd-line)',
-          background: ueberDemFilm
-            ? 'transparent'
-            : 'color-mix(in oklch, var(--hd-paper) 82%, transparent)',
-        }}
+        /* Der Grund sitzt nicht mehr hier, sondern an der Leiste selbst:
+           die faehrt beim Oeffnen auf, und ein zweiter Grund darunter waere
+           ein Rechteck, das mit ihr nicht mitwaechst. */
+        className="fixed inset-x-0 top-0 z-40"
       >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          {/* min-h-11: die Zeile ist immer so hoch wie der ankommende Knopf.
-              Die Mindesthöhe sitzt am Zeichen und nicht an der Zeile, weil
-              sie am Kasten der Zeile die Polsterung mitzaehlen wuerde und
-              damit wirkungslos waere. Ohne sie waechst die Kopfzeile genau in
-              dem Moment, in dem der Pfeil ankommt, und die ganze Seite
-              darunter ruckt um vierzehn Pixel. */}
-          <Link href="/start" className="flex min-h-11 items-center gap-2.5">
-            <Image src="/icon-32-v2.png" alt="" width={30} height={30} className="rounded-lg" />
-            <span className="whitespace-nowrap font-display text-[19px] font-bold tracking-tight">
-              Hareb Digital
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <HdSprachschalter lang={lang} />
+        {/* Ein Schleier hinter der schwebenden Leiste.
+            Seit die Leiste nicht mehr die volle Breite hat, laeuft der Text
+            der Seite oben an ihr vorbei und steht angeschnitten darueber.
+            Der Verlauf blendet ihn weg, statt ihn abzuschneiden — dieselbe
+            Loesung wie im Portfolio (components/top-scrim.tsx). */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[104px] transition-opacity duration-500"
+          style={{
+            opacity: ueberDemFilm ? 0 : 1,
+            background:
+              'linear-gradient(to bottom, var(--hd-paper) 0%, color-mix(in oklch, var(--hd-paper) 70%, transparent) 55%, transparent 100%)',
+          }}
+        />
 
-          {/* Der Anker steht immer da und haelt die Zeilenhöhe. Der Knopf
-              selbst liegt darauf und fehlt, solange er unten in der Bühne
-              steht oder gerade unterwegs ist. */}
-          <span ref={ruf.kopfAnker} className="relative inline-flex h-11 w-11 shrink-0">
-            {ruf.ort === 'kopf' && !ruf.flug && (
-              <Link
-                ref={ruf.sichtbar}
-                href={zumFormular}
-                aria-label={t.ctaHaupt}
-                title={t.ctaHaupt}
-                className="hd-cta hd-cta-pulse absolute inset-0 justify-center p-0"
-              >
-                <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
-              </Link>
-            )}
-            </span>
-          </div>
+        {/* Die Leiste ist jetzt das Kartenmenue (components/hd-kartenmenue.tsx,
+            nach React Bits' CardNav). Sprachschalter und der Anker, auf dem
+            der Anfrage-Knopf landet, wandern hinein statt daneben: sie
+            muessen ueber der aufgefahrenen Flaeche bleiben, sonst
+            verschwinden sie unter den Karten. */}
+        <div className="mx-auto max-w-6xl px-4 py-3 sm:px-6">
+          <HdKartenmenue
+            t={t}
+            formular={zumFormular}
+            ueberDemFilm={ueberDemFilm}
+            ankerRef={ruf.kopfAnker}
+            rechts={<HdSprachschalter lang={lang} />}
+            kinder={
+              ruf.ort === 'kopf' && !ruf.flug ? (
+                <Link
+                  ref={ruf.sichtbar}
+                  href={zumFormular}
+                  aria-label={t.ctaHaupt}
+                  title={t.ctaHaupt}
+                  className="hd-cta hd-cta-pulse absolute inset-0 justify-center p-0"
+                >
+                  <ArrowRight className="h-[18px] w-[18px]" aria-hidden />
+                </Link>
+              ) : null
+            }
+          />
         </div>
+
         <motion.div
           aria-hidden
           className="absolute inset-x-0 -bottom-px h-[2px] origin-left"
@@ -831,31 +840,41 @@ export function HdLanding({ lang }: { lang: HdLang }) {
               halben Bildschirmhöhe Leere darunter — auf Papier trägt so viel
               Weissraum, im Dunkeln ist er einfach leer. In Kästen sind es
               sechs Stimmen und nicht sechs Zeilen. */}
-          <ul className="hd-satzfalz mt-10 grid gap-4 sm:grid-cols-2 sm:gap-5">
-            {t.probleme.punkte.map((p) => (
-              <li
-                key={p}
-                className="hd-kasten px-6 py-5 text-[17px] leading-[1.5] text-[color:var(--hd-ink-soft)] sm:text-[18px]"
-              >
-                <span aria-hidden className="mr-0.5 text-[color:var(--hd-accent)]">
-                  &bdquo;
-                </span>
-                {/* Das schliessende Zeichen steht im Text und nicht daneben.
-                    Daneben ist es ein eigenes Wort und landet bei einem Satz,
-                    der die Zeile fuellt, allein in der naechsten. */}
-                <FoldText
-                  text={`${p}\u201c`}
-                  splitBy="word"
-                  hinge="top"
-                  trigger="scroll"
-                  duration={0.55}
-                  stagger={0.035}
-                  creaseShading={0.4}
-                  perspective={520}
-                />
-              </li>
-            ))}
-          </ul>
+        </div>
+
+        {/* Ein laufendes Band statt acht gleicher Kaesten.
+            Vorher stand hier ein Raster: zweimal vier Zitate, alle gleich
+            gross, alle gleich grau, und beim Scrollen klappte jedes einzeln
+            auf. Das war Bewegung ohne Rhythmus — die Flaeche stand still und
+            zuckte nur.
+
+            Jetzt laufen die Saetze in zwei Reihen gegeneinander. Das nimmt
+            die volle Breite statt eines Rasters mit Rand, und es sagt
+            nebenbei etwas Richtiges: das sind keine acht abgehakten Punkte,
+            das ist ein Strom von Saetzen, den jeder schon einmal gehoert hat.
+
+            Bewegt wird nur `transform`. Die Liste steht zweimal da, damit die
+            zweite Haelfte genau dann anfaengt, wenn die erste durch ist; der
+            Schnitt liegt bei -50 %, deshalb ist er unsichtbar. Die Kopie
+            traegt `aria-hidden`, sonst laese ein Vorlesegeraet alles doppelt. */}
+        <div className="hd-band">
+          {[0, 1].map((reihe) => (
+            <div key={reihe} className={`hd-band__reihe hd-band__reihe--${reihe}`}>
+              {[0, 1].map((halb) => (
+                <ul key={halb} className="hd-band__spur" aria-hidden={halb === 1 || undefined}>
+                  {t.probleme.punkte
+                    .filter((_, i) => i % 2 === reihe)
+                    .map((satz) => (
+                      <li key={satz} className="hd-band__satz">
+                        <span aria-hidden className="text-[color:var(--hd-accent)]">&bdquo;</span>
+                        {satz}
+                        <span aria-hidden className="text-[color:var(--hd-accent)]">&ldquo;</span>
+                      </li>
+                    ))}
+                </ul>
+              ))}
+            </div>
+          ))}
         </div>
       </section>
 
@@ -968,7 +987,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       </section>
 
       {/* ── Leistungen ──────────────────────────────────────────────────── */}
-      <section className="hd-rule">
+      <section id="leistungen" className="hd-rule">
         <div className="mx-auto max-w-6xl px-6 pb-4 pt-16 sm:pt-24">
           <Titel className="hd-titel max-w-[20ch] font-display font-bold">
             {t.leistungen.titel}
@@ -1104,7 +1123,7 @@ export function HdLanding({ lang }: { lang: HdLang }) {
       </section>
 
       {/* ── Ablauf ──────────────────────────────────────────────────────── */}
-      <section className="hd-rule hd-glanz" style={{ background: 'var(--hd-paper-2)' }}>
+      <section id="ablauf" className="hd-rule hd-glanz" style={{ background: 'var(--hd-paper-2)' }}>
         <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
           <Auf>
             <span className="hd-label">{t.ablauf.label}</span>

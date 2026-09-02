@@ -128,6 +128,17 @@ export type HdTexte = {
     /* Der Hinweis nach unten, solange der Film noch nicht laeuft. */
     hinweis: string
   }
+  /* Das Kartenmenue in der Kopfzeile.
+   *
+   * `{formular}` in einem `href` wird von der Komponente durch den
+   * sprachrichtigen Pfad zur Anfrageseite ersetzt. Sonst muesste hier drei
+   * Mal dieselbe Adresse mit unterschiedlichem Sprachpraefix stehen, und
+   * beim naechsten Sprachwechsel waere genau eine davon vergessen. */
+  menue: {
+    oeffnen: string
+    schliessen: string
+    karten: { label: string; links: { label: string; href: string }[] }[]
+  }
   probleme: { titel: string; punkte: string[] }
   behauptung: string
   arbeiten: {
@@ -219,6 +230,34 @@ const DE: HdTexte = {
     bildAlt:
       'Ein Schreibtisch auf einem Berggipfel über dem Nebelmeer, dahinter geht die Sonne über den Tälern auf.',
     hinweis: 'Scrollen',
+  },
+  menue: {
+    oeffnen: 'Menü öffnen',
+    schliessen: 'Menü schließen',
+    karten: [
+      {
+        label: 'Arbeiten',
+        links: [
+          { label: 'Kundenprojekt', href: '#arbeiten' },
+          { label: 'Websites', href: '#werkschau' },
+          { label: 'Social Media', href: '#social' },
+        ],
+      },
+      {
+        label: 'Angebot',
+        links: [
+          { label: 'Was ich mache', href: '#leistungen' },
+          { label: 'So läuft es', href: '#ablauf' },
+        ],
+      },
+      {
+        label: 'Loslegen',
+        links: [
+          { label: 'Projekt anfragen', href: '{formular}' },
+          { label: 'Portfolio', href: 'https://issahareb.me' },
+        ],
+      },
+    ],
   },
   probleme: {
     titel: 'Kommt dir einer dieser Sätze bekannt vor?',
@@ -434,6 +473,34 @@ const EN: HdTexte = {
       'A desk on a mountain top above the clouds, with the sun rising over the valleys behind it.',
     hinweis: 'Scroll',
   },
+  menue: {
+    oeffnen: 'Open menu',
+    schliessen: 'Close menu',
+    karten: [
+      {
+        label: 'Work',
+        links: [
+          { label: 'Client project', href: '#arbeiten' },
+          { label: 'Websites', href: '#werkschau' },
+          { label: 'Social media', href: '#social' },
+        ],
+      },
+      {
+        label: 'Services',
+        links: [
+          { label: 'What I do', href: '#leistungen' },
+          { label: 'How it works', href: '#ablauf' },
+        ],
+      },
+      {
+        label: 'Start',
+        links: [
+          { label: 'Start a project', href: '{formular}' },
+          { label: 'Portfolio', href: 'https://issahareb.me' },
+        ],
+      },
+    ],
+  },
   probleme: {
     titel: 'Does any of this sound familiar?',
     punkte: [
@@ -644,6 +711,34 @@ const ES: HdTexte = {
     bildAlt:
       'Un escritorio en la cima de una montaña sobre el mar de nubes, con el sol saliendo tras los valles.',
     hinweis: 'Desplázate',
+  },
+  menue: {
+    oeffnen: 'Abrir menú',
+    schliessen: 'Cerrar menú',
+    karten: [
+      {
+        label: 'Trabajos',
+        links: [
+          { label: 'Proyecto de cliente', href: '#arbeiten' },
+          { label: 'Webs', href: '#werkschau' },
+          { label: 'Redes sociales', href: '#social' },
+        ],
+      },
+      {
+        label: 'Servicios',
+        links: [
+          { label: 'Lo que hago', href: '#leistungen' },
+          { label: 'Cómo funciona', href: '#ablauf' },
+        ],
+      },
+      {
+        label: 'Empezar',
+        links: [
+          { label: 'Solicitar proyecto', href: '{formular}' },
+          { label: 'Portfolio', href: 'https://issahareb.me' },
+        ],
+      },
+    ],
   },
   probleme: {
     titel: '¿Te suena alguna de estas frases?',

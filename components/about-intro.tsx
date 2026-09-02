@@ -77,7 +77,18 @@ export function AboutIntro() {
   }, [reduced, filmNear])
 
   return (
-    <div ref={rootRef} className={`relative ${reduced ? '' : 'h-[190vh]'}`}>
+    /* Die Hoehe ist die Geschwindigkeit.
+     *
+     * Der Film ist 7,6 Sekunden lang, und diese Strecke bestimmt, ueber wie
+     * viel Scrollen er ablaeuft — 190vh waren auf einem Telefon rund 1600
+     * Pixel, also eine einzige Wischbewegung fuer den ganzen Film samt
+     * Namenszug. 300vh geben derselben Sequenz gut die Haelfte mehr Weg.
+     *
+     * Es gibt hier keinen zweiten Regler: Film und Typografie haengen an
+     * einem einzigen ScrollTrigger, und `seek(progress)` bekommt den
+     * Fortschritt der Strecke. Wer langsamer will, macht die Strecke laenger.
+     */
+    <div ref={rootRef} className={`relative ${reduced ? '' : 'h-[300vh]'}`}>
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-6">
         <div ref={filmRef} aria-hidden className="absolute inset-0">
           {filmNear ? (

@@ -202,43 +202,43 @@ export const ES: Dictionary = {
     repoLink: 'Ver código en GitHub',
     beats: [
       {
-        kicker: 'Visión e identidad',
-        title: 'Un agente que recuerda quién es.',
+        kicker: 'Autonomía',
+        title: 'Sigue trabajando cuando nadie mira.',
         body: [
-          'Un agente persistente y autónomo cuyo comportamiento surge de un historial vivo de decisiones, no de instrucciones estáticas.',
-          'Cada decisión pasa a formar parte de su identidad.',
+          'Cada treinta minutos lib/autonomy.ts pregunta si hay algo que hacer: objetivos activos, respuestas nuevas, eventos. Si nada cambió desde la última vuelta, ni siquiera se piensa.',
+          'Sin número fijo de turnos. Si una tarea necesita veinte órdenes, hace veinte. El límite es un presupuesto de tokens y tiempo por jugada, no una cifra en el código.',
         ],
       },
       {
-        kicker: 'Nexus Brain',
-        title: 'La memoria como grafo de conocimiento.',
+        kicker: 'Modelo de seguridad',
+        title: 'Un modelo de lenguaje nunca es un servidor de autorización.',
         body: [
-          'Una memoria cognitiva persistente basada en grafos de conocimiento estructurados.',
-          'Un mapa consultable de su razonamiento, objetivos e historial entre sesiones.',
+          'Lukas decide qué quiere hacer. Si se ejecuta lo decide lib/policy.ts: después del modelo y antes de la herramienta que tiene las credenciales reales.',
+          'Cuatro niveles. Leer y las ejecuciones internas pasan solas; todo lo que sale al exterior o cuesta dinero necesita aprobación. Una herramienta sin clasificar cuenta como que la necesita.',
         ],
       },
       {
-        kicker: 'Agencia operativa',
-        title: 'Su propia infraestructura. Sus propias reglas.',
+        kicker: 'Memoria',
+        title: 'No un historial, sino un grafo.',
         body: [
-          'Control aislado de servidores Linux, máquinas Windows y bases de datos.',
-          'Genera, valida y despliega código dentro de límites definidos.',
+          'Recuerdos, objetivos, diario y episodios viven en Postgres y se recuperan mediante embeddings. Encima, un grafo de nodos y aristas, exportable como bóveda de Obsidian.',
+          'Cada llamada a una herramienta deja su resultado. Tras tres fallos en lo mismo, el prompt dice en qué falló. Contado, no narrado.',
         ],
       },
       {
-        kicker: 'Evolución y red de pares',
-        title: 'Aprende de cada resultado.',
+        kicker: 'Actuar en la web',
+        title: 'Ve lo que está haciendo.',
         body: [
-          'Las decisiones futuras se ajustan con ciclos ponderados de éxitos, errores y comentarios.',
-          'En una red cerrada, entidades de IA pueden revisar y aprender unas de otras.',
+          'Maneja páginas en una sesión permanentemente iniciada: hacer clic, escribir, subir archivos. Lo que vuelve es una captura de pantalla.',
+          'El texto de una página no dice si hay un aviso de cookies encima del botón. La imagen sí.',
         ],
       },
       {
-        kicker: 'Metacognición reflexiva',
-        title: 'Observa su propio razonamiento.',
+        kicker: 'Comprobaciones',
+        title: 'Cada promesa necesita una contraprueba.',
         body: [
-          'Evalúa de forma controlada su sistema de recompensa dentro de un entorno aislado.',
-          'También examina los límites entre retroalimentación, identidad y comportamiento aprendido.',
+          'Más de treinta scripts de comprobación empaquetan el módulo real y sustituyen solo la base de datos, la red y el proveedor del modelo. No comprueban que el código exista, sino que funcione.',
+          'El criterio: se quita la defensa y la prueba tiene que saltar. La prueba contra DNS rebinding pasaba al principio y no demostraba nada. Ahora corre un servidor real contra ella.',
         ],
       },
     ],

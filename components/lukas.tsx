@@ -9,7 +9,6 @@ import { useT } from './language-context'
 import { markLukasReached } from '@/lib/lukas-presence'
 import { OPEN_CHAT_EVENT } from './lukas-voice-widget'
 import { LukasRobot } from './lukas-robot'
-import { usePerfTier } from './perf-probe'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -118,18 +117,21 @@ export function Lukas() {
     setMode(ok ? '3d' : 'video')
   }, [])
 
-  /* Zweiter Grund fuer den Film: nicht fehlendes WebGL, sondern zu wenig
-     Leistung. Die Sonde in lib/perf-tier.ts misst waehrend der ersten
-     Sekunden, ob das Geraet seine Bildrate schon im Leerlauf haelt. Faellt
-     sie auf `low`, ist ein Neuronenfeld aus tausenden Partikeln das
-     Falsche, und der vorgerenderte Film zeigt dasselbe zu einem Bruchteil
-     der Kosten. Nur in diese Richtung: `high` hebt nichts wieder an, ein
-     Abschnitt, der mitten im Scrollen die Technik wechselt, waere
-     schlimmer als jede der beiden Fassungen. */
-  const tier = usePerfTier()
-  useEffect(() => {
-    if (tier === 'low') setMode('video')
-  }, [tier])
+  /* HIER STAND EINE ABSTUFUNG, DIE WIEDER RAUS IST.
+   *
+   * Am 30.08. schaltete dieser Abschnitt bei gemessen niedriger Leistung auf
+   * den vorgerenderten Film um. Der Gedanke war richtig, das Ergebnis nicht:
+   * der Film ist eine aeltere Fassung des Neuronenfelds, grosse glasige
+   * Kugeln an dicken Linien, und er sieht deutlich anders aus als die Szene,
+   * die hier eigentlich laeuft. Auf dem Telefon bekam damit praktisch jeder
+   * die schwaechere Fassung, ohne dass es dafuer einen sichtbaren Grund gab.
+   *
+   * Der Film bleibt Rueckfallebene fuer Geraete ohne WebGL2 — dort ist er
+   * die einzige Moeglichkeit, ueberhaupt etwas zu zeigen. Die
+   * Leistungsmessung entscheidet hier aber nicht mehr mit. Was von der
+   * Optimierung bleibt und den eigentlichen Gewinn gebracht hat: die Szene
+   * rechnet nur noch, wenn sie im Bild ist (frameloop in lukas-brain.tsx).
+   */
 
   useEffect(() => {
     if (brainNear) return

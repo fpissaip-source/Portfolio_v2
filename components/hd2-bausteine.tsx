@@ -4,7 +4,7 @@ import { pfad } from '@/lib/hd2-site'
 /*
  * Die Bausteine der neuen Hareb-Digital-Seite.
  *
- * Uebernommen aus github.com/fpissaip-source/harebdigital (components/
+ * Uebernommen aus github.com/issahareb/harebdigital (components/
  * bausteine.tsx). Zwei Abweichungen, beide der Vorschau geschuldet:
  *
  * 1. `Knopf` schickt seinen Verweis durch `pfad()`. Im Ursprung liegt die

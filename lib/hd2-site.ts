@@ -1,7 +1,7 @@
 /*
  * DIE NEUE HAREB-DIGITAL-SEITE, hier zur Ansicht eingehaengt.
  *
- * Herkunft: github.com/fpissaip-source/harebdigital, Stand 5ae2485
+ * Herkunft: github.com/issahareb/harebdigital, Stand 5ae2485
  * ("Startseite traegt die Positionierung, der Ort die Unterseiten"). Sie ist
  * dort eine eigenstaendige Next-App fuer harebdigital.de und wird das auch
  * bleiben — dies hier ist eine Vorschau unter issahareb.me/start-alt, damit man

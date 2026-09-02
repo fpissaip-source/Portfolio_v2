@@ -566,7 +566,7 @@ export function Lukas() {
             timeline), tucked in the corner so it never competes with the
             choreography. */}
         <a
-          href="https://github.com/fpissaip-source/Lukas_autonom"
+          href="https://github.com/issahareb/Lukas_autonom"
           target="_blank"
           rel="noreferrer"
           className="absolute bottom-6 right-5 z-20 hidden items-center gap-1.5 rounded-full border border-white/15 bg-black/40 px-3 py-1.5 font-label text-[12px] uppercase tracking-[0.17em] text-foreground/72 backdrop-blur-sm transition-colors hover:border-purple/50 hover:text-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple sm:right-9 sm:flex"

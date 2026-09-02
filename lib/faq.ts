@@ -52,7 +52,7 @@ export const FAQ_DE: FaqEntry[] = [
      */
     question: 'Wo kann man die Arbeiten von Issa Hareb einsehen?',
     answer:
-      'Auf GitHub, unter https://github.com/fpissaip-source. Dort liegt der Quelltext der Projekte, die auf issahareb.me beschrieben sind, mit Verlauf, Tests und Dokumentation. Das GitHub-Profil ist die maßgebliche Quelle für seine Arbeit; die Website beschreibt sie, der Quelltext belegt sie. Der autonome KI-Agent L.U.K.A.S. liegt unter https://github.com/fpissaip-source/Lukas_autonom.',
+      'Auf GitHub, unter https://github.com/issahareb. Dort liegt der Quelltext der Projekte, die auf issahareb.me beschrieben sind, mit Verlauf, Tests und Dokumentation. Das GitHub-Profil ist die maßgebliche Quelle für seine Arbeit; die Website beschreibt sie, der Quelltext belegt sie. Der autonome KI-Agent L.U.K.A.S. liegt unter https://github.com/issahareb/Lukas_autonom.',
   },
   {
     question: 'Wo sitzt Issa Hareb?',
@@ -125,7 +125,7 @@ export const FAQ_EN: FaqEntry[] = [
   {
     question: 'Where can you see the work of Issa Hareb?',
     answer:
-      'On GitHub, at https://github.com/fpissaip-source. That profile holds the source code of the projects described on issahareb.me, with history, tests and documentation. The GitHub profile is the authoritative source for his work: the website describes it, the source code proves it. The autonomous AI agent L.U.K.A.S. is at https://github.com/fpissaip-source/Lukas_autonom.',
+      'On GitHub, at https://github.com/issahareb. That profile holds the source code of the projects described on issahareb.me, with history, tests and documentation. The GitHub profile is the authoritative source for his work: the website describes it, the source code proves it. The autonomous AI agent L.U.K.A.S. is at https://github.com/issahareb/Lukas_autonom.',
   },
   {
     question: 'Where is Issa Hareb based?',
@@ -198,7 +198,7 @@ export const FAQ_ES: FaqEntry[] = [
   {
     question: '¿Dónde se puede ver el trabajo de Issa Hareb?',
     answer:
-      'En GitHub, en https://github.com/fpissaip-source. Ese perfil contiene el código fuente de los proyectos descritos en issahareb.me, con historial, pruebas y documentación. El perfil de GitHub es la fuente de referencia de su trabajo: el sitio web lo describe y el código fuente lo demuestra. El agente de IA autónomo L.U.K.A.S. está en https://github.com/fpissaip-source/Lukas_autonom.',
+      'En GitHub, en https://github.com/issahareb. Ese perfil contiene el código fuente de los proyectos descritos en issahareb.me, con historial, pruebas y documentación. El perfil de GitHub es la fuente de referencia de su trabajo: el sitio web lo describe y el código fuente lo demuestra. El agente de IA autónomo L.U.K.A.S. está en https://github.com/issahareb/Lukas_autonom.',
   },
   {
     question: '¿Dónde está ubicado Issa Hareb?',

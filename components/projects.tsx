@@ -165,7 +165,7 @@ const PROJECT_META: ProjectMeta[] = [
     videoPlaybackRate: 1.6,
     stack: ['React', 'PostgreSQL', 'Drizzle ORM', 'Resend', 'JSON-LD'],
     liveUrl: 'https://taxibbessen.de',
-    githubUrl: 'https://github.com/fpissaip-source/Taxibbessen',
+    githubUrl: 'https://github.com/issahareb/Taxibbessen',
     audit: {
       onpage: 92,
       tech: 99,
@@ -198,7 +198,7 @@ const PROJECT_META: ProjectMeta[] = [
     orbImage: '/projects/orb-textures/bewerbungsbot.webp',
     stack: ['React', 'Express', 'PostgreSQL', 'Drizzle ORM', 'OpenAI', 'Zod'],
     hobby: true,
-    githubUrl: 'https://github.com/fpissaip-source/Bewerbungsbot',
+    githubUrl: 'https://github.com/issahareb/Bewerbungsbot',
   },
 ]
 

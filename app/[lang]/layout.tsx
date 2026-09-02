@@ -431,7 +431,7 @@ function buildJsonLd(lang: Lang) {
          Every URL here is also a visible link in the footer: a claim of
          identity that the page itself does not make is the weaker kind. */
       sameAs: [
-        'https://github.com/fpissaip-source',
+        'https://github.com/issahareb',
         'https://www.linkedin.com/in/issa-hareb-10a61642b',
         'https://www.xing.com/profile/Issa_Hareb02082',
       ],
@@ -528,7 +528,7 @@ function buildJsonLd(lang: Lang) {
     {
       '@type': 'ProfilePage',
       '@id': GITHUB_ID,
-      url: 'https://github.com/fpissaip-source',
+      url: 'https://github.com/issahareb',
       name: 'Issa Hareb auf GitHub',
       description:
         'Das oeffentliche GitHub-Profil von Issa Hareb. Dort liegt der Quelltext der auf issahareb.me beschriebenen Projekte, mit Verlauf, Tests und Dokumentation. Es ist die massgebliche Quelle fuer seine Arbeit.',
@@ -545,7 +545,7 @@ function buildJsonLd(lang: Lang) {
       name: 'L.U.K.A.S.',
       description:
         'Autonomer KI-Agent mit dauerhaftem Gedaechtnis in Form eines Wissensgraphen, eigenen Werkzeugen und einem Freigabesystem im Code.',
-      codeRepository: 'https://github.com/fpissaip-source/Lukas_autonom',
+      codeRepository: 'https://github.com/issahareb/Lukas_autonom',
       programmingLanguage: ['TypeScript', 'Python'],
       author: { '@id': PERSON_ID },
       isPartOf: { '@id': GITHUB_ID },

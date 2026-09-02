@@ -11,7 +11,7 @@ const SOCIALS = [
   {
     type: "img" as const,
     src: "/logos/github.svg",
-    href: "https://github.com/fpissaip-source",
+    href: "https://github.com/issahareb",
     label: "GitHub",
   },
   // Restored with the real profile URL. It had shipped as href="#", which
@@ -263,7 +263,10 @@ export function SiteFooter() {
                       stand vorher "GitHub: github.com/fpissaip-source" —
                       korrekt, aber ohne ein einziges Vorkommen des Namens,
                       und genau danach wird gesucht ("Issa Hareb GitHub").
-                      Der Nutzername enthaelt den Namen nicht. */}
+                      Der Nutzername wurde deshalb am 01.09. auf `issahareb`
+                      umbenannt; die Repo-Adressen leitet GitHub weiter, die
+                      Profiladresse nicht, und deren elf Vorkommen in diesem
+                      Projekt sind mitgezogen. */}
                   Issa Hareb auf {s.label}: {s.href.replace(/^https?:\/\/(www\.)?/, "")}
                 </a>
               </span>

@@ -116,26 +116,28 @@ export const ES: Dictionary = {
     kicker: 'Redes sociales',
     heading: 'Alcance por el que no se pagó ni un céntimo de publicidad.',
     intro:
-      'No solo construyo los sistemas por los que entran las solicitudes, sino también el alcance previo. Dos cuentas de TikTok, ambas sin un euro de presupuesto publicitario, una de ellas creada en un solo mes.',
+      'No solo construyo los sistemas por los que entran las solicitudes, sino también el alcance previo. Una cuenta de Instagram y una de TikTok, ninguna con un euro de presupuesto publicitario, y más de 1.500 seguidores nuevos a partir de una sola publicación.',
     einordnung:
       'Ambas cuentas son experimentos, no muestras de trabajo de un sector concreto. Lo que se traslada no es el tema de los vídeos, sino cómo se construyen los tres primeros segundos.',
     konten: [
       {
-        name: 'Lucy',
-        handle: '@lucy_srg',
-        art: 'Cuenta de influencer con IA, creada en un mes como experimento',
-        bildAlt: 'Perfil de TikTok de la cuenta Lucy, @lucy_srg, con 5.045 seguidores y 60.327 me gusta',
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        bild: 'drh-profil',
+        art: 'Instagram, rap y hip-hop, crecida de forma puramente orgánica',
+        bildAlt: 'Perfil de Instagram dailyraphood con 21,3 mil seguidores y 631 publicaciones',
         zahlen: [
-          { wert: '5.045', label: 'seguidores en un mes' },
-          { wert: '60.327', label: 'me gusta' },
-          { wert: '1 M', label: 'visualizaciones, mejor vídeo' },
+          { wert: '21.300', label: 'seguidores' },
+          { wert: '1.582', label: 'seguidores nuevos de una publicación' },
+          { wert: '1,7 M', label: 'impresiones en siete días' },
           { wert: '0 €', label: 'presupuesto publicitario' },
         ],
       },
       {
         name: 'Mr Han',
         handle: '@issa3701',
-        art: 'Cuenta personal, crecida de forma puramente orgánica',
+        bild: 'mrhan-profil',
+        art: 'TikTok, cuenta personal, crecida de forma puramente orgánica',
         bildAlt: 'Perfil de TikTok de la cuenta Mr Han, @issa3701, con 13.903 seguidores y 538.113 me gusta',
         zahlen: [
           { wert: '13.903', label: 'seguidores' },

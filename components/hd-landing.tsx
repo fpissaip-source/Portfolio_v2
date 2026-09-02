@@ -221,6 +221,70 @@ function useFliegenderRuf(
   return { buehneAnker, kopfAnker, sichtbar, flieger, ort, flug }
 }
 
+/* Ein Bildschirmfoto aus einer fremden App.
+ *
+ * AVIF mit WebP daneben, handgeschrieben statt next/image: die Dateien
+ * liegen bereits in beiden Formaten vor, und der Optimierer wuerde fertige
+ * Bilder ein zweites Mal umrechnen.
+ *
+ * Weisser Grund im Rahmen: die Bilder kommen aus Instagram und TikTok und
+ * sind dort hell. Frei auf der dunklen Seite wuerden sie leuchten; im
+ * Rahmen sind sie erkennbar ein Zitat aus einer anderen Anwendung. */
+function SocialBild({
+  name,
+  alt,
+  breite,
+  hoehe,
+}: {
+  name: string
+  alt: string
+  breite: number
+  hoehe: number
+}) {
+  return (
+    <picture>
+      <source srcSet={`/social/${name}.avif`} type="image/avif" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/social/${name}.webp`}
+        alt={alt}
+        width={breite}
+        height={hoehe}
+        loading="lazy"
+        decoding="async"
+        className="w-full rounded-lg bg-white"
+      />
+    </picture>
+  )
+}
+
+/* Wert oben, Wort darunter, im Dokument aber Begriff vor Wert.
+ * `flex-col-reverse` dreht nur die Darstellung. Sonst muesste die
+ * Beschriftung zweimal dastehen, einmal sichtbar und einmal versteckt, und
+ * ein Vorlesegeraet laese sie doppelt. */
+function Zahlenliste({
+  zahlen,
+  spalten,
+}: {
+  zahlen: { wert: string; label: string }[]
+  spalten: string
+}) {
+  return (
+    <dl className={`grid gap-x-5 gap-y-4 ${spalten}`}>
+      {zahlen.map((z) => (
+        <div key={z.label} className="flex flex-col-reverse">
+          <dt className="mt-1 text-[13px] leading-snug text-[color:var(--hd-ink-soft)]">
+            {z.label}
+          </dt>
+          <dd className="font-display text-[1.6rem] font-bold leading-none tabular-nums tracking-tight text-[color:var(--hd-accent)]">
+            {z.wert}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
+
 /* Ein Abschnitt fährt beim Eintreten auf./* Ein Abschnitt fährt beim Eintreten auf. Was es mitteilt: hier fängt etwas
    Neues an. Einmalig, nicht bei jedem Vorbeiscrollen — ein Element, das bei
    jedem Richtungswechsel neu aufblendet, wirkt kaputt, nicht lebendig. */
@@ -938,6 +1002,105 @@ export function HdLanding({ lang }: { lang: HdLang }) {
             ))}
           </div>
         )}
+      </section>
+
+      {/* ── Social Media ────────────────────────────────────────────────── */}
+      <section id="social" className="hd-rule hd-glanz">
+        <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24">
+          <Auf>
+            <span className="hd-label">{t.social.label}</span>
+          </Auf>
+          <Titel className="hd-titel mt-4 max-w-[22ch] font-display font-bold">
+            {t.social.titel}
+          </Titel>
+          <Auf delay={0.1}>
+            <p className="mt-5 max-w-[56ch] text-[18px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
+              {t.social.vorspann}
+            </p>
+          </Auf>
+          <Auf delay={0.16}>
+            {/* Der Einordnungssatz steht VOR den Konten, nicht danach. Ohne
+                ihn liest ein Betrieb hier eine Leistung, die er nicht
+                bestellen will. */}
+            <p className="mt-4 max-w-[56ch] text-[16px] leading-[1.55] text-[color:var(--hd-ink-soft)] opacity-80">
+              {t.social.einordnung}
+            </p>
+          </Auf>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-2">
+            {t.social.konten.map((k, i) => (
+              <Auf key={k.handle} delay={i * 0.08}>
+                <article className="hd-kasten h-full px-6 py-6">
+                  <div className="rounded-xl p-1.5" style={{ background: 'var(--hd-line)' }}>
+                    <SocialBild name={k.bild} alt={k.alt} breite={1125} hoehe={689} />
+                  </div>
+                  <p className="hd-num mt-5">{k.netz}</p>
+                  <h3 className="mt-2 font-display text-xl font-bold tracking-[-0.015em]">
+                    {k.name}{' '}
+                    <span className="font-normal text-[color:var(--hd-ink-soft)]">{k.handle}</span>
+                  </h3>
+                  <p className="mt-1.5 text-[15px] leading-[1.45] text-[color:var(--hd-ink-soft)]">
+                    {k.art}
+                  </p>
+                  <div className="mt-6">
+                    <Zahlenliste zahlen={k.zahlen} spalten="grid-cols-3" />
+                  </div>
+                </article>
+              </Auf>
+            ))}
+          </div>
+
+          {/* Die Belege. Sie tragen die eigentliche Aussage: nicht das Konto
+              ist gross, sondern einzelne Beitraege gehen weit ueber es
+              hinaus. Deshalb stehen sie unter den Konten und nicht darin. */}
+          <div className="mt-16 flex flex-col gap-12">
+            {t.social.belege.map((b, i) => (
+              <Auf key={b.titel} delay={i * 0.06}>
+                <div className="grid items-start gap-8 md:grid-cols-[minmax(0,280px)_1fr] md:gap-12">
+                  <div className="rounded-xl p-1.5" style={{ background: 'var(--hd-line)' }}>
+                    <SocialBild
+                      name={b.bild}
+                      alt={b.alt}
+                      breite={820}
+                      hoehe={b.bild === 'drh-beitrag' ? 1467 : 933}
+                    />
+                  </div>
+                  <div>
+                    <h3 className="font-display text-xl font-bold tracking-[-0.015em] sm:text-[22px]">
+                      {b.titel}
+                    </h3>
+                    <p className="mt-3 max-w-[56ch] text-[17px] leading-[1.6] text-[color:var(--hd-ink-soft)]">
+                      {b.text}
+                    </p>
+                    <div className="mt-7">
+                      <Zahlenliste zahlen={b.zahlen} spalten="grid-cols-2 sm:grid-cols-3" />
+                    </div>
+                  </div>
+                </div>
+              </Auf>
+            ))}
+          </div>
+
+          {/* Zweispaltig wie die Belege darueber: die Ueberschrift links, der
+              Text rechts. Untereinander stand der Absatzblock mit seinen
+              62 Zeichen Zeilenlaenge in einem Kasten von 1100 Pixeln, und die
+              rechte Haelfte war leer. */}
+          <div className="hd-kasten mt-16 grid gap-8 px-6 py-8 sm:px-10 sm:py-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] md:gap-12">
+            <h3 className="max-w-[20ch] font-display text-[1.4rem] font-bold leading-[1.2] tracking-[-0.015em] sm:text-[1.75rem]">
+              {t.social.hookTitel}
+            </h3>
+            <div className="flex flex-col gap-4">
+              {t.social.hookAbsaetze.map((a) => (
+                <p
+                  key={a}
+                  className="max-w-[62ch] text-[17px] leading-[1.62] text-[color:var(--hd-ink-soft)]"
+                >
+                  {a}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── Ablauf ──────────────────────────────────────────────────────── */}

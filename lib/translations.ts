@@ -135,6 +135,12 @@ export type Dictionary = {
     konten: {
       name: string
       handle: string
+      /* Der Dateiname unter public/social, ohne Endung. Stand vorher nicht
+         hier, und die Komponente entschied nach Position: der erste Eintrag
+         war Lucy, der zweite Mr Han. Beim Austausch eines Kontos war das
+         genau die Stelle, an der ein falsches Bild an einem richtigen Namen
+         gelandet waere. */
+      bild: string
       art: string
       bildAlt: string
       zahlen: { wert: string; label: string }[]
@@ -464,26 +470,28 @@ export const EN: Dictionary = {
     kicker: 'Social media',
     heading: 'Reach that no advertising budget paid for.',
     intro:
-      'I build the systems enquiries arrive through, and the reach in front of them. Two TikTok accounts, both without a single euro of media budget, one of them grown in a single month.',
+      'I build the systems enquiries arrive through, and the reach in front of them. One Instagram account and one TikTok account, neither with a single euro of media budget, and over 1,500 new followers from a single post.',
     einordnung:
       'Both accounts are experiments, not work samples from any one industry. What transfers is not the subject of the videos but how the first three seconds are built.',
     konten: [
       {
-        name: 'Lucy',
-        handle: '@lucy_srg',
-        art: 'AI influencer account, grown in one month as an experiment',
-        bildAlt: 'TikTok profile of the account Lucy, @lucy_srg, with 5,045 followers and 60,327 likes',
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        bild: 'drh-profil',
+        art: 'Instagram, rap and hip-hop, grown purely organically',
+        bildAlt: 'Instagram profile dailyraphood with 21.3 thousand followers and 631 posts',
         zahlen: [
-          { wert: '5,045', label: 'followers in one month' },
-          { wert: '60,327', label: 'likes' },
-          { wert: '1M', label: 'views, best video' },
+          { wert: '21,300', label: 'followers' },
+          { wert: '1,582', label: 'new followers from one post' },
+          { wert: '1.7M', label: 'impressions in seven days' },
           { wert: '€0', label: 'ad budget' },
         ],
       },
       {
         name: 'Mr Han',
         handle: '@issa3701',
-        art: 'Personal account, grown purely organically',
+        bild: 'mrhan-profil',
+        art: 'TikTok, personal account, grown purely organically',
         bildAlt: 'TikTok profile of the account Mr Han, @issa3701, with 13,903 followers and 538,113 likes',
         zahlen: [
           { wert: '13,903', label: 'followers' },
@@ -983,26 +991,29 @@ export const DE: Dictionary = {
     kicker: 'Social Media',
     heading: 'Reichweite, für die kein Cent Werbebudget bezahlt wurde.',
     intro:
-      'Ich baue nicht nur die Systeme, über die Anfragen hereinkommen, sondern auch die Reichweite davor. Zwei TikTok-Konten, beide ohne einen Euro Mediabudget, eines davon in einem einzigen Monat aufgebaut.',
+      'Ich baue nicht nur die Systeme, über die Anfragen hereinkommen, sondern auch die Reichweite davor. Ein Instagram-Konto und ein TikTok-Konto, beide ohne einen Euro Mediabudget, und über 1.500 neue Follower aus einem einzelnen Beitrag.',
     einordnung:
       'Beide Konten sind Versuchsaufbauten und keine Arbeitsproben aus einer Branche. Übertragbar ist nicht das Thema der Videos, sondern der Aufbau der ersten drei Sekunden.',
     konten: [
       {
-        name: 'Lucy',
-        handle: '@lucy_srg',
-        art: 'KI-Influencer-Konto, als Versuch in einem Monat aufgebaut',
-        bildAlt: 'TikTok-Profil des Kontos Lucy, @lucy_srg, mit 5.045 Followern und 60.327 Likes',
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        bild: 'drh-profil',
+        art: 'Instagram, Rap und Hip-Hop, rein organisch aufgebaut',
+        bildAlt:
+          'Instagram-Profil dailyraphood mit 21,3 Tausend Abonnenten und 631 Beiträgen',
         zahlen: [
-          { wert: '5.045', label: 'Follower in einem Monat' },
-          { wert: '60.327', label: 'Likes' },
-          { wert: '1 Mio.', label: 'Aufrufe, bestes Video' },
+          { wert: '21.300', label: 'Abonnenten' },
+          { wert: '1.582', label: 'neue Follower aus einem Beitrag' },
+          { wert: '1,7 Mio.', label: 'Impressionen in sieben Tagen' },
           { wert: '0 €', label: 'Werbebudget' },
         ],
       },
       {
         name: 'Mr Han',
         handle: '@issa3701',
-        art: 'Privates Konto, rein organisch gewachsen',
+        bild: 'mrhan-profil',
+        art: 'TikTok, privates Konto, rein organisch gewachsen',
         bildAlt: 'TikTok-Profil des Kontos Mr Han, @issa3701, mit 13.903 Followern und 538.113 Likes',
         zahlen: [
           { wert: '13.903', label: 'Follower' },

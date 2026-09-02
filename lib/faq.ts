@@ -87,7 +87,7 @@ export const FAQ_DE: FaqEntry[] = [
   {
     question: 'Macht Issa Hareb auch Social Media Marketing?',
     answer:
-      'Ja. Issa Hareb baut organische Reichweite in sozialen Netzwerken auf, statt Reichweite über Werbebudget zu kaufen. Zwei TikTok-Konten hat er ohne Werbekosten aufgebaut: eines in einem Monat auf 5.045 Follower und 60.327 Likes, mit einem Video über einer Million Aufrufen, das zweite auf 13.903 Follower und 538.113 Likes. Entscheidend sind die ersten drei Sekunden eines Videos, nicht das Budget.',
+      'Ja. Issa Hareb baut organische Reichweite in sozialen Netzwerken auf, statt Reichweite über Werbebudget zu kaufen. Ohne Werbekosten: ein Instagram-Konto mit 21.300 Abonnenten, aus dem ein einzelner Beitrag 1.322.523 Konten erreichte, 1.582 neue Follower brachte und 45.956 Likes sowie 575 Kommentare sammelte, dazu 1.724.151 Impressionen in einer Woche. Ein TikTok-Konto steht bei 13.903 Followern und 538.113 Likes. Entscheidend sind die ersten drei Sekunden eines Videos, nicht das Budget.',
   },
   {
     question: 'Übernimmt Issa Hareb auch Wartung und Betrieb?',
@@ -160,7 +160,7 @@ export const FAQ_EN: FaqEntry[] = [
   {
     question: 'Does Issa Hareb do social media marketing?',
     answer:
-      'Yes. Issa Hareb builds organic reach on social platforms instead of buying reach with an advertising budget. He grew two TikTok accounts with zero ad spend: one to 5,045 followers and 60,327 likes within a month, including a video past one million views, the other to 13,903 followers and 538,113 likes. What decides it is the first three seconds of a video, not the budget.',
+      'Yes. Issa Hareb builds organic reach on social platforms instead of buying reach with an advertising budget. With zero ad spend: an Instagram account at 21,300 followers, where a single post reached 1,322,523 accounts, gained 1,582 followers and drew 45,956 likes and 575 comments, plus 1,724,151 impressions in one week. A TikTok account stands at 13,903 followers and 538,113 likes. What decides it is the first three seconds of a video, not the budget.',
   },
   {
     question: 'Does Issa Hareb also handle maintenance and operations?',
@@ -233,7 +233,7 @@ export const FAQ_ES: FaqEntry[] = [
   {
     question: '¿Issa Hareb también hace marketing en redes sociales?',
     answer:
-      'Sí. Issa Hareb construye alcance orgánico en redes sociales en lugar de comprar alcance con presupuesto publicitario. Hizo crecer dos cuentas de TikTok sin gasto en anuncios: una hasta 5.045 seguidores y 60.327 me gusta en un mes, con un vídeo por encima del millón de visualizaciones, y la otra hasta 13.903 seguidores y 538.113 me gusta. Lo decisivo son los tres primeros segundos de un vídeo, no el presupuesto.',
+      'Sí. Issa Hareb construye alcance orgánico en redes sociales en lugar de comprar alcance con presupuesto publicitario. Sin gasto en anuncios: una cuenta de Instagram con 21.300 seguidores, en la que una sola publicación alcanzó 1.322.523 cuentas, sumó 1.582 seguidores y reunió 45.956 me gusta y 575 comentarios, además de 1.724.151 impresiones en una semana. Una cuenta de TikTok está en 13.903 seguidores y 538.113 me gusta. Lo decisivo son los tres primeros segundos de un vídeo, no el presupuesto.',
   },
   {
     question: '¿Issa Hareb se encarga también del mantenimiento?',

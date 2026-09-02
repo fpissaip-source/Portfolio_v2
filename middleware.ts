@@ -54,11 +54,21 @@ export function middleware(request: NextRequest) {
      Noetig ist er auch nicht, denn die Seite wird bei jedem Aufruf gerendert
      und geht mit "private, no-store" hinaus, was jedem geteilten Speicher das
      Ablegen ohnehin verbietet. */
-  /* `/start-alt` steht mit in der Bedingung, seit die neue Hareb-Digital-Seite
-     auf `/start` liegt und die vorherige Fassung dorthin ausgewichen ist.
-     Ohne sie liefe sie in die Sprachumschreibung und landete auf einer
-     deutschen Adresse, die es nicht gibt. */
-  if (pathname === '/start' || pathname === '/start-alt' || pathname.startsWith('/start/')) {
+  /* Beide Landingpages stehen ausserhalb der Sprachlogik. `/start` ist die
+     Fassung, die laeuft, `/start-alt` die zweite aus dem harebdigital-Repo;
+     am 01.09. haben sie die Plaetze getauscht. Ohne diese Bedingung liefen
+     sie in die Sprachumschreibung und landeten auf deutschen Adressen, die es
+     nicht gibt.
+
+     Die Unterpfade muessen beide mit drin stehen: die zweite Fassung hat
+     eigene Seiten (`/start-alt/kontakt`, `/start-alt/referenzen` und die
+     Leistungsseiten), und `startsWith('/start/')` deckt die nicht ab. */
+  if (
+    pathname === '/start' ||
+    pathname === '/start-alt' ||
+    pathname.startsWith('/start/') ||
+    pathname.startsWith('/start-alt/')
+  ) {
     return NextResponse.next()
   }
 

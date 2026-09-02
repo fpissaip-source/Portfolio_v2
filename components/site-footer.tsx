@@ -257,7 +257,14 @@ export function SiteFooter() {
                   rel="me noreferrer"
                   className="inline-flex min-h-[24px] items-center underline decoration-white/20 underline-offset-4 transition-colors hover:text-foreground hover:decoration-white/50"
                 >
-                  {s.label}: {s.href.replace(/^https?:\/\/(www\.)?/, "")}
+                  {/* Der Name steht im Verweistext, nicht nur die Adresse.
+                      Grund: eine Suchmaschine verbindet eine Zielseite mit
+                      den Woertern, die in den Verweisen darauf stehen. Hier
+                      stand vorher "GitHub: github.com/fpissaip-source" —
+                      korrekt, aber ohne ein einziges Vorkommen des Namens,
+                      und genau danach wird gesucht ("Issa Hareb GitHub").
+                      Der Nutzername enthaelt den Namen nicht. */}
+                  Issa Hareb auf {s.label}: {s.href.replace(/^https?:\/\/(www\.)?/, "")}
                 </a>
               </span>
             ))}

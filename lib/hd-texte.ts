@@ -158,6 +158,45 @@ export type HdTexte = {
     vorspann: string
     punkte: { n: string; titel: string; text: string }[]
   }
+  /* Der Reichweiten-Beleg.
+   *
+   * Steht als eigener Abschnitt zwischen den Leistungen und dem Ablauf und
+   * behauptet etwas, was die Seite sonst nirgends behauptet: dass hier auch
+   * die Aufmerksamkeit VOR der Website herkommt.
+   *
+   * Die Zahlen stehen als Text neben den Bildschirmfotos, nicht nur darin.
+   * Eine Zahl, die ausschliesslich in einem Bild steht, existiert fuer
+   * Google, fuer ein Vorlesegeraet und fuer jede Antwortmaschine nicht — und
+   * die Zahlen sind hier das ganze Argument.
+   *
+   * `konten` und `belege` sind Listen, weil weitere dazukommen. Ein Eintrag
+   * ist ein Objekt hier und zwei Dateien in public/social. */
+  social: {
+    label: string
+    titel: string
+    vorspann: string
+    /* Ordnet die Konten ein, bevor jemand sie falsch liest: Versuchsaufbau,
+       nicht Arbeitsprobe aus seiner Branche. */
+    einordnung: string
+    konten: {
+      name: string
+      handle: string
+      netz: string
+      art: string
+      bild: string
+      alt: string
+      zahlen: { wert: string; label: string }[]
+    }[]
+    belege: {
+      bild: string
+      alt: string
+      titel: string
+      text: string
+      zahlen: { wert: string; label: string }[]
+    }[]
+    hookTitel: string
+    hookAbsaetze: string[]
+  }
   ablauf: { label: string; titel: string; schritte: { n: string; t: string; b: string }[] }
   fakten: { zahl: number; suffix: string; v: string }[]
   schluss: { titel: string; text: string }
@@ -175,7 +214,7 @@ const DE: HdTexte = {
     titelOben: 'Lass uns gemeinsam',
     titelUnten: 'etwas Einzigartiges bauen.',
     vorspann:
-      'Websites und Programme für Betriebe ohne IT-Abteilung. Du sagst mir, was dich stört. Ich sage dir, was es kostet.',
+      'Websites und Programme für Betriebe ohne IT-Abteilung. Kein Baukasten, kein Plugin-Stapel, keine Agentur-Kette: du sprichst mit dem, der es baut. Du sagst mir, was dich stört, ich sage dir, was es kostet.',
     arbeitenAnsehen: 'Arbeiten ansehen',
     bildAlt:
       'Ein Schreibtisch auf einem Berggipfel über dem Nebelmeer, dahinter geht die Sonne über den Tälern auf.',
@@ -190,6 +229,8 @@ const DE: HdTexte = {
       'Auf dem Handy ist alles verrutscht.',
       'Angebote schreiben dauert jedes Mal ewig.',
       'Die Agentur meldet sich seit Wochen nicht.',
+      'Barrierefrei soll sie jetzt auch noch sein.',
+      'Drei Leute reden mit, gebaut hat sie keiner davon.',
     ],
   },
   behauptung:
@@ -244,12 +285,12 @@ const DE: HdTexte = {
       {
         n: '01',
         titel: 'Eine neue Website',
-        text: 'Von der ersten Skizze bis zu dem Tag, an dem sie läuft. Sie sieht auf dem Handy so gut aus wie am Rechner, wird bei Google gefunden und schickt dir Anfragen direkt zu.',
+        text: 'Von der ersten Skizze bis zu dem Tag, an dem sie läuft. Sie sieht auf dem Handy so gut aus wie am Rechner, wird bei Google gefunden und schickt dir Anfragen direkt zu. Eine Landingpage in zwei bis drei Wochen, eine mehrseitige Seite in vier bis acht.',
       },
       {
         n: '02',
         titel: 'Die bestehende überarbeiten',
-        text: 'Wenn das Grundgerüst steht, aber nichts davon mehr stimmt. Neues Aussehen ohne bei null anzufangen, schneller, endlich sauber auf dem Handy.',
+        text: 'Wenn das Grundgerüst steht, aber nichts davon mehr stimmt. Neues Aussehen ohne bei null anzufangen, schneller, endlich sauber auf dem Handy. Und barrierefrei nach dem Barrierefreiheitsstärkungsgesetz, was nachträglich aufwendiger ist als gleich mitgemacht.',
       },
       {
         n: '03',
@@ -261,6 +302,76 @@ const DE: HdTexte = {
         titel: 'Nur gefunden werden',
         text: 'Die Seite bleibt, wie sie ist. Sichtbar wird sie trotzdem: ganz oben bei Google und in den Antworten von ChatGPT und Perplexity.',
       },
+    ],
+  },
+  social: {
+    label: 'Social Media',
+    titel: 'Reichweite, für die kein Cent Werbebudget bezahlt wurde.',
+    vorspann:
+      'Bevor jemand deine Website besucht, muss er von dir gehört haben. Genau das baue ich auch: Inhalte, die von allein laufen. Zwei Konten, beide ohne einen Euro Mediabudget.',
+    einordnung:
+      'Die Konten sind Versuchsaufbauten und keine Arbeitsproben aus deiner Branche. Übertragbar ist nicht das Thema der Videos, sondern der Aufbau der ersten drei Sekunden. Der entscheidet darüber, ob ein Video überhaupt gesehen wird.',
+    konten: [
+      {
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        netz: 'Instagram',
+        art: 'Rap- und Hip-Hop-Konto, rein organisch aufgebaut',
+        bild: 'drh-profil',
+        alt: 'Instagram-Profil dailyraphood mit 21,3 Tausend Abonnenten und 631 Beiträgen',
+        zahlen: [
+          { wert: '21.300', label: 'Abonnenten' },
+          { wert: '631', label: 'Beiträge' },
+          { wert: '0 €', label: 'Werbebudget' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        netz: 'TikTok',
+        art: 'Privates Konto, rein organisch gewachsen',
+        bild: 'mrhan-profil',
+        alt: 'TikTok-Profil Mr Han, @issa3701, mit 13.903 Followern und 538.113 Likes',
+        zahlen: [
+          { wert: '13.903', label: 'Follower' },
+          { wert: '538.113', label: 'Likes' },
+          { wert: '0 €', label: 'Werbebudget' },
+        ],
+      },
+    ],
+    belege: [
+      {
+        bild: 'drh-beitrag',
+        alt: 'Instagram-Beitragsstatistik: 1.322.523 erreichte Konten, 1.582 Abonnements, 45.956 Likes, 575 Kommentare',
+        titel: 'Ein einziger Beitrag',
+        text: 'Über 1.500 neue Follower aus einem Video, 1,3 Millionen erreichte Konten, und 99 Prozent davon waren vorher keine Follower. Getragen hat das nicht die Größe des Kontos, sondern der Anfang des Videos.',
+        zahlen: [
+          { wert: '1.582', label: 'neue Follower aus einem Beitrag' },
+          { wert: '1.322.523', label: 'erreichte Konten' },
+          { wert: '45.956', label: 'Likes' },
+          { wert: '575', label: 'Kommentare' },
+          { wert: '30.905', label: 'mal geteilt' },
+          { wert: '11.794', label: 'gespeichert' },
+        ],
+      },
+      {
+        bild: 'drh-woche',
+        alt: 'Instagram-Wochenstatistik: 1.724.151 Impressionen, 405.352 erreichte Konten, 4.724 Profilaufrufe',
+        titel: 'Eine Woche',
+        text: '1,7 Millionen Impressionen in sieben Tagen, dazu 4.724 Profilaufrufe. Eine Anzeige hört auf zu wirken, sobald das Budget aufgebraucht ist. Hier war nie eins da.',
+        zahlen: [
+          { wert: '1.724.151', label: 'Impressionen in sieben Tagen' },
+          { wert: '405.352', label: 'erreichte Konten' },
+          { wert: '4.724', label: 'Profilaufrufe' },
+        ],
+      },
+    ],
+    hookTitel: 'Warum ein Video läuft und fast alle anderen nicht',
+    hookAbsaetze: [
+      'Die Frage kam beim Scrollen, nicht aus einem Marketingbuch: warum habe ich dieses eine Video bis zum Ende gesehen, obwohl ich das davor nach nicht einmal zwei Sekunden weggewischt habe?',
+      'Die Antwort ist ein Moment, der den Zuschauer dazu bringt, sich selbst eine Frage zu stellen. Kein Versprechen, keine Ankündigung, sondern etwas, das nicht aufgeht. Solange die Frage offen ist, bleibt er.',
+      'Ein Beispiel: jemand taucht einen übergroßen Keks in Milch und beißt anschließend an der trockenen Stelle ab. Wozu dann das Eintauchen? Bis die Frage beantwortet ist, ist das Video vorbei.',
+      'Für einen Betrieb ist das dieselbe Mechanik. Statt zu zeigen, was ein Produkt kann, wird ein Moment gebaut, der nicht zusammenpasst, und das Produkt löst ihn auf. Genau dort wird aus einem Video eine Anzeige, die niemand überspringt.',
     ],
   },
   ablauf: {
@@ -275,7 +386,7 @@ const DE: HdTexte = {
       {
         n: '02',
         t: 'Ich sage, was geht',
-        b: 'Innerhalb von 24 Stunden: was es kostet, wie lange es dauert, ob es sich lohnt. Auch wenn die Antwort nein ist.',
+        b: 'Innerhalb von 24 Stunden: ein fester Preis statt eines Stundenzettels, wie lange es dauert, ob es sich lohnt. Auch wenn die Antwort nein ist.',
       },
       {
         n: '03',
@@ -317,7 +428,7 @@ const EN: HdTexte = {
     titelOben: "Let's build something",
     titelUnten: 'singular. Together.',
     vorspann:
-      'Websites and software for businesses without an IT department. You tell me what bothers you. I tell you what it costs.',
+      'Websites and software for businesses without an IT department. No page builder, no stack of plugins, no agency chain: you talk to the person who builds it. You tell me what bothers you, I tell you what it costs.',
     arbeitenAnsehen: 'See the work',
     bildAlt:
       'A desk on a mountain top above the clouds, with the sun rising over the valleys behind it.',
@@ -332,6 +443,8 @@ const EN: HdTexte = {
       'On a phone everything is out of place.',
       'Writing quotes takes forever every single time.',
       'The agency has not answered for weeks.',
+      'Now it is supposed to be accessible on top of everything else.',
+      'Three people have opinions, none of them built it.',
     ],
   },
   behauptung:
@@ -383,12 +496,12 @@ const EN: HdTexte = {
       {
         n: '01',
         titel: 'A new website',
-        text: 'From the first sketch to the day it goes live. It looks as good on a phone as on a desktop, gets found on Google, and sends enquiries straight to you.',
+        text: 'From the first sketch to the day it goes live. It looks as good on a phone as on a desktop, gets found on Google, and sends enquiries straight to you. A landing page in two to three weeks, a multi-page site in four to eight.',
       },
       {
         n: '02',
         titel: 'Rework the one you have',
-        text: 'When the structure is fine but nothing else is. A new look without starting from zero, faster, and finally clean on a phone.',
+        text: 'When the structure is fine but nothing else is. A new look without starting from zero, faster, and finally clean on a phone. And accessible under the German accessibility act, which costs more to retrofit than to build in.',
       },
       {
         n: '03',
@@ -400,6 +513,76 @@ const EN: HdTexte = {
         titel: 'Just get found',
         text: 'The site stays as it is. It becomes visible anyway: at the top of Google and in the answers of ChatGPT and Perplexity.',
       },
+    ],
+  },
+  social: {
+    label: 'Social media',
+    titel: 'Reach that no advertising budget paid for.',
+    vorspann:
+      'Before anyone visits your website, they have to have heard of you. I build that part too: content that travels on its own. Two accounts, neither with a single euro of media budget.',
+    einordnung:
+      'These accounts are experiments, not work samples from your industry. What transfers is not the subject of the videos but how the first three seconds are built. That is what decides whether a video gets watched at all.',
+    konten: [
+      {
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        netz: 'Instagram',
+        art: 'Rap and hip-hop account, grown purely organically',
+        bild: 'drh-profil',
+        alt: 'Instagram profile dailyraphood with 21.3 thousand followers and 631 posts',
+        zahlen: [
+          { wert: '21,300', label: 'followers' },
+          { wert: '631', label: 'posts' },
+          { wert: '€0', label: 'ad budget' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        netz: 'TikTok',
+        art: 'Personal account, grown purely organically',
+        bild: 'mrhan-profil',
+        alt: 'TikTok profile Mr Han, @issa3701, with 13,903 followers and 538,113 likes',
+        zahlen: [
+          { wert: '13,903', label: 'followers' },
+          { wert: '538,113', label: 'likes' },
+          { wert: '€0', label: 'ad budget' },
+        ],
+      },
+    ],
+    belege: [
+      {
+        bild: 'drh-beitrag',
+        alt: 'Instagram post insights: 1,322,523 accounts reached, 1,582 follows, 45,956 likes, 575 comments',
+        titel: 'One single post',
+        text: 'Over 1,500 new followers from one video, 1.3 million accounts reached, and 99 per cent of them were not following the account beforehand. What carried it was not the size of the account but the opening of the video.',
+        zahlen: [
+          { wert: '1,582', label: 'new followers from one post' },
+          { wert: '1,322,523', label: 'accounts reached' },
+          { wert: '45,956', label: 'likes' },
+          { wert: '575', label: 'comments' },
+          { wert: '30,905', label: 'shares' },
+          { wert: '11,794', label: 'saves' },
+        ],
+      },
+      {
+        bild: 'drh-woche',
+        alt: 'Instagram weekly insights: 1,724,151 impressions, 405,352 accounts reached, 4,724 profile visits',
+        titel: 'One week',
+        text: '1.7 million impressions in seven days, plus 4,724 profile visits. An ad stops working the moment the budget runs out. There never was one here.',
+        zahlen: [
+          { wert: '1,724,151', label: 'impressions in seven days' },
+          { wert: '405,352', label: 'accounts reached' },
+          { wert: '4,724', label: 'profile visits' },
+        ],
+      },
+    ],
+    hookTitel: 'Why one video travels and almost none of the others do',
+    hookAbsaetze: [
+      'The question came while scrolling, not from a marketing book: why did I watch this one video to the end when I swiped past the one before it in under two seconds?',
+      'The answer is a moment that makes the viewer ask themselves a question. Not a promise, not an announcement, but something that does not add up. As long as the question is open, they stay.',
+      'An example: someone dips an oversized cookie in milk and then bites the dry side. So why dip it at all? By the time the question is answered, the video is over.',
+      'For a business the mechanism is identical. Instead of showing what a product does, you build a moment that does not fit, and the product resolves it. That is where a video turns into an ad nobody skips.',
     ],
   },
   ablauf: {
@@ -414,7 +597,7 @@ const EN: HdTexte = {
       {
         n: '02',
         t: 'I tell you what is possible',
-        b: 'Within 24 hours: what it costs, how long it takes, whether it is worth it. Including when the answer is no.',
+        b: 'Within 24 hours: a fixed price rather than a timesheet, how long it takes, whether it is worth it. Including when the answer is no.',
       },
       {
         n: '03',
@@ -456,7 +639,7 @@ const ES: HdTexte = {
     titelOben: 'Construyamos juntos',
     titelUnten: 'algo único.',
     vorspann:
-      'Webs y programas para empresas sin departamento de informática. Tú me cuentas qué te molesta. Yo te digo lo que cuesta.',
+      'Webs y programas para empresas sin departamento de informática. Sin maquetador, sin pila de plugins, sin cadena de agencia: hablas con quien la construye. Tú me cuentas qué te molesta, yo te digo lo que cuesta.',
     arbeitenAnsehen: 'Ver los trabajos',
     bildAlt:
       'Un escritorio en la cima de una montaña sobre el mar de nubes, con el sol saliendo tras los valles.',
@@ -471,6 +654,8 @@ const ES: HdTexte = {
       'En el móvil está todo descolocado.',
       'Preparar presupuestos tarda una eternidad cada vez.',
       'La agencia lleva semanas sin contestar.',
+      'Y ahora encima tiene que ser accesible.',
+      'Opinan tres personas y ninguna la ha construido.',
     ],
   },
   behauptung:
@@ -522,12 +707,12 @@ const ES: HdTexte = {
       {
         n: '01',
         titel: 'Una web nueva',
-        text: 'Desde el primer boceto hasta el día en que está en marcha. Se ve igual de bien en el móvil que en el ordenador, se encuentra en Google y te envía las solicitudes directamente.',
+        text: 'Desde el primer boceto hasta el día en que está en marcha. Se ve igual de bien en el móvil que en el ordenador, se encuentra en Google y te envía las solicitudes directamente. Una landing en dos o tres semanas, una web de varias páginas en cuatro a ocho.',
       },
       {
         n: '02',
         titel: 'Renovar la que ya tienes',
-        text: 'Cuando la base sirve pero ya no encaja nada más. Otro aspecto sin empezar de cero, más rápida y por fin correcta en el móvil.',
+        text: 'Cuando la base sirve pero ya no encaja nada más. Otro aspecto sin empezar de cero, más rápida y por fin correcta en el móvil. Y accesible según la ley alemana de accesibilidad, algo que cuesta más añadir después que hacerlo desde el principio.',
       },
       {
         n: '03',
@@ -539,6 +724,76 @@ const ES: HdTexte = {
         titel: 'Solo ganar visibilidad',
         text: 'La web se queda como está. Aun así se ve: arriba del todo en Google y en las respuestas de ChatGPT y Perplexity.',
       },
+    ],
+  },
+  social: {
+    label: 'Redes sociales',
+    titel: 'Alcance por el que no se pagó ni un céntimo de publicidad.',
+    vorspann:
+      'Antes de que alguien visite tu web, tiene que haber oído hablar de ti. Eso también lo construyo: contenido que circula solo. Dos cuentas, ninguna con un euro de presupuesto publicitario.',
+    einordnung:
+      'Las cuentas son experimentos, no muestras de trabajo de tu sector. Lo que se traslada no es el tema de los vídeos, sino cómo se construyen los tres primeros segundos. Eso decide si un vídeo llega a verse.',
+    konten: [
+      {
+        name: 'dailyraphood',
+        handle: '@dailyraphood',
+        netz: 'Instagram',
+        art: 'Cuenta de rap y hip-hop, crecida de forma puramente orgánica',
+        bild: 'drh-profil',
+        alt: 'Perfil de Instagram dailyraphood con 21,3 mil seguidores y 631 publicaciones',
+        zahlen: [
+          { wert: '21.300', label: 'seguidores' },
+          { wert: '631', label: 'publicaciones' },
+          { wert: '0 €', label: 'presupuesto publicitario' },
+        ],
+      },
+      {
+        name: 'Mr Han',
+        handle: '@issa3701',
+        netz: 'TikTok',
+        art: 'Cuenta personal, crecida de forma puramente orgánica',
+        bild: 'mrhan-profil',
+        alt: 'Perfil de TikTok Mr Han, @issa3701, con 13.903 seguidores y 538.113 me gusta',
+        zahlen: [
+          { wert: '13.903', label: 'seguidores' },
+          { wert: '538.113', label: 'me gusta' },
+          { wert: '0 €', label: 'presupuesto publicitario' },
+        ],
+      },
+    ],
+    belege: [
+      {
+        bild: 'drh-beitrag',
+        alt: 'Estadísticas de una publicación de Instagram: 1.322.523 cuentas alcanzadas, 1.582 seguimientos, 45.956 me gusta, 575 comentarios',
+        titel: 'Una sola publicación',
+        text: 'Más de 1.500 seguidores nuevos a partir de un vídeo, 1,3 millones de cuentas alcanzadas, y el 99 por ciento no seguía la cuenta antes. Lo que lo sostuvo no fue el tamaño de la cuenta, sino el inicio del vídeo.',
+        zahlen: [
+          { wert: '1.582', label: 'seguidores nuevos de una publicación' },
+          { wert: '1.322.523', label: 'cuentas alcanzadas' },
+          { wert: '45.956', label: 'me gusta' },
+          { wert: '575', label: 'comentarios' },
+          { wert: '30.905', label: 'veces compartido' },
+          { wert: '11.794', label: 'guardados' },
+        ],
+      },
+      {
+        bild: 'drh-woche',
+        alt: 'Estadísticas semanales de Instagram: 1.724.151 impresiones, 405.352 cuentas alcanzadas, 4.724 visitas al perfil',
+        titel: 'Una semana',
+        text: '1,7 millones de impresiones en siete días, más 4.724 visitas al perfil. Un anuncio deja de funcionar en cuanto se agota el presupuesto. Aquí nunca hubo ninguno.',
+        zahlen: [
+          { wert: '1.724.151', label: 'impresiones en siete días' },
+          { wert: '405.352', label: 'cuentas alcanzadas' },
+          { wert: '4.724', label: 'visitas al perfil' },
+        ],
+      },
+    ],
+    hookTitel: 'Por qué un vídeo circula y casi ninguno de los demás lo hace',
+    hookAbsaetze: [
+      'La pregunta surgió mientras hacía scroll, no en un libro de marketing: ¿por qué vi este vídeo hasta el final si al anterior lo salté en menos de dos segundos?',
+      'La respuesta es un momento que lleva al espectador a hacerse una pregunta a sí mismo. No una promesa ni un anuncio, sino algo que no encaja. Mientras la pregunta siga abierta, se queda.',
+      'Un ejemplo: alguien moja una galleta enorme en leche y después muerde por el lado seco. ¿Para qué mojarla entonces? Cuando la pregunta se responde, el vídeo ya ha terminado.',
+      'Para una empresa el mecanismo es el mismo. En lugar de mostrar lo que hace un producto, se construye un momento que no encaja y el producto lo resuelve. Ahí es donde un vídeo se convierte en un anuncio que nadie se salta.',
     ],
   },
   ablauf: {
@@ -553,7 +808,7 @@ const ES: HdTexte = {
       {
         n: '02',
         t: 'Yo te digo qué se puede',
-        b: 'En menos de 24 horas: lo que cuesta, lo que tarda y si merece la pena. También cuando la respuesta es no.',
+        b: 'En menos de 24 horas: un precio cerrado en lugar de una hoja de horas, lo que tarda y si merece la pena. También cuando la respuesta es no.',
       },
       {
         n: '03',

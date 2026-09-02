@@ -8,7 +8,7 @@ import { pfad } from '@/lib/hd2-site'
  * bausteine.tsx). Zwei Abweichungen, beide der Vorschau geschuldet:
  *
  * 1. `Knopf` schickt seinen Verweis durch `pfad()`. Im Ursprung liegt die
- *    Seite auf der Wurzel ihrer Domain, hier unter /start.
+ *    Seite auf der Wurzel ihrer Domain, hier unter /start-alt.
  * 2. `Projektbild` bleibt ein handgeschriebenes <picture> mit AVIF und WebP
  *    und wird NICHT auf next/image umgestellt. Im Ursprung ist der
  *    Bildoptimierer wegen `output: "export"` abgeschaltet, und die Dateien

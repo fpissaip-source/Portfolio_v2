@@ -4,7 +4,7 @@
  * Herkunft: github.com/fpissaip-source/harebdigital, Stand 5ae2485
  * ("Startseite traegt die Positionierung, der Ort die Unterseiten"). Sie ist
  * dort eine eigenstaendige Next-App fuer harebdigital.de und wird das auch
- * bleiben — dies hier ist eine Vorschau unter issahareb.me/start, damit man
+ * bleiben — dies hier ist eine Vorschau unter issahareb.me/start-alt, damit man
  * sie ansehen kann, bevor die Domain steht.
  *
  * Zwei Dinge sind deshalb anders als im Ursprung:
@@ -17,12 +17,17 @@
  *    aendert es im Ursprungsrepo — sonst laufen die beiden Fassungen
  *    auseinander, und die falsche gewinnt beim naechsten Abgleich.
  *
- * Die alte Landingpage liegt weiterhin vollstaendig da, unter /start-alt.
+ * Die laufende Landingpage liegt unter /start. Diese hier ist die zweite
+ * Fassung, die auf ihre eigene Domain wartet.
  */
 
 /** Wo die Seite in dieser Anwendung haengt. Auf ihrer eigenen Domain ist das
- *  die Wurzel; hier ein Unterpfad. */
-export const BASIS = '/start'
+ *  die Wurzel; hier ein Unterpfad.
+ *
+ *  Am 01.09. von /start auf /start-alt gewechselt: die alte Landingpage hat
+ *  /start zurueckbekommen, weil sie die Fassung ist, die weiterlaeuft. Diese
+ *  hier bleibt vollstaendig erreichbar, sie liegt nur eine Adresse weiter. */
+export const BASIS = '/start-alt'
 
 /** Macht aus einem seiteneigenen Pfad einen, der hier funktioniert. Fremde
  *  Adressen, Mail- und Telefonverweise bleiben, wie sie sind. */
@@ -348,22 +353,22 @@ export const socialBeleg = {
     "Beide Konten sind Versuchsaufbauten und keine Arbeitsproben aus einer Branche. Übertragbar ist nicht das Thema der Videos, sondern der Aufbau der ersten drei Sekunden. Der entscheidet darüber, ob ein Video überhaupt gesehen wird, und er funktioniert bei einem Betrieb aus Essen genauso.",
   konten: [
     {
-      name: "Lucy",
-      handle: "@lucy_srg",
-      art: "KI-Influencer-Konto, als Versuch in einem Monat aufgebaut",
-      bild: "lucy-profil",
-      alt: "TikTok-Profil des Kontos Lucy, @lucy_srg, mit 5.045 Followern und 60.327 Likes",
+      name: "dailyraphood",
+      handle: "@dailyraphood",
+      art: "Instagram, Rap und Hip-Hop, rein organisch aufgebaut",
+      bild: "drh-profil",
+      alt: "Instagram-Profil dailyraphood mit 21,3 Tausend Abonnenten und 631 Beiträgen",
       zahlen: [
-        { wert: "5.045", label: "Follower in einem Monat" },
-        { wert: "60.327", label: "Likes" },
-        { wert: "1 Mio.", label: "Aufrufe, bestes Video" },
+        { wert: "21.300", label: "Abonnenten" },
+        { wert: "1.582", label: "neue Follower aus einem Beitrag" },
+        { wert: "1,7 Mio.", label: "Impressionen in sieben Tagen" },
         { wert: "0 €", label: "Werbebudget" },
       ],
     },
     {
       name: "Mr Han",
       handle: "@issa3701",
-      art: "Privates Konto, rein organisch gewachsen",
+      art: "TikTok, privates Konto, rein organisch gewachsen",
       bild: "mrhan-profil",
       alt: "TikTok-Profil des Kontos Mr Han, @issa3701, mit 13.903 Followern und 538.113 Likes",
       zahlen: [
@@ -373,14 +378,12 @@ export const socialBeleg = {
       ],
     },
   ],
-  /* Stand hier zuerst als Bildschirmfoto der Videoliste. Das Bild ist wieder
-     raus: die Vorschaubilder eines Unterhaltungskontos gehoeren nicht auf
-     eine Seite, die Betrieben eine Website verkauft. Das Argument steckte
-     ohnehin in den Zahlen und nicht in den Bildern, und als Text ist es
-     auch lesbar fuer alles, was die Seite nicht ansieht. */
+  /* Stand hier zuerst als Bildschirmfoto einer Videoliste. Das Bild ist
+     raus, die Zahlen sind geblieben: sie waren ohnehin das Argument, und als
+     Text sind sie auch lesbar fuer alles, was die Seite nicht ansieht. */
   streuung: {
-    titel: "Ein Konto wächst an wenigen Videos",
-    text: "Die Aufrufe der einzelnen Videos liegen zwischen knapp zweitausend und einer Million. Ein Konto wächst nicht am Durchschnitt, sondern an den wenigen Videos, deren erste drei Sekunden funktioniert haben. Deshalb wird der Anfang gebaut und nicht der Rest.",
+    titel: "Ein Konto wächst an wenigen Beiträgen",
+    text: "Ein einzelner Beitrag hat 1.322.523 Konten erreicht, 45.956 Likes und 575 Kommentare gesammelt und über 1.500 neue Follower gebracht; 99 Prozent der Erreichten folgten dem Konto vorher nicht. Ein Konto wächst nicht am Durchschnitt, sondern an den wenigen Beiträgen, deren erste drei Sekunden funktioniert haben.",
   },
   hinweis: {
     titel: "Dieselbe Methode für Ihr Unternehmen",

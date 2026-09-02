@@ -71,7 +71,12 @@ export function SocialBelegAbschnitt() {
         {s.konten.map((k) => (
           <article key={k.handle} className="rounded-2xl border border-white/10 bg-kohle/60 p-5 sm:p-6">
             <div className="rounded-xl border border-white/10 p-1.5">
-              <SocialBild name={k.bild} alt={k.alt} breite={1125} hoehe={542} />
+              <SocialBild
+                name={k.bild}
+                alt={k.alt}
+                breite={1125}
+                hoehe={k.bild === 'drh-profil' ? 689 : 542}
+              />
             </div>
 
             <h3 className="mt-5 text-xl font-semibold">

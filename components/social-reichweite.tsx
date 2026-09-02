@@ -66,10 +66,10 @@ export function SocialReichweite() {
             <article className="h-full rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6">
               <div className="rounded-xl border border-white/10 bg-white p-1.5">
                 <Image
-                  src={`/social/${i === 0 ? 'lucy-profil' : 'mrhan-profil'}.webp`}
+                  src={`/social/${k.bild}.webp`}
                   alt={k.bildAlt}
                   width={1125}
-                  height={542}
+                  height={k.bild === 'drh-profil' ? 689 : 542}
                   sizes="(max-width: 768px) 100vw, 40vw"
                   className="w-full rounded-lg"
                 />

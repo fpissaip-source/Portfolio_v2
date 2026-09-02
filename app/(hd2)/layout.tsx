@@ -5,7 +5,7 @@ import { marke, navigation, pfad, start } from '@/lib/hd2-site'
 import '../globals.css'
 
 /**
- * Die neue Hareb-Digital-Seite, als Vorschau unter /start.
+ * Die neue Hareb-Digital-Seite, als Vorschau unter /start-alt.
  *
  * Ein eigenes Wurzel-Layout, das dritte in diesem Projekt: das Portfolio hat
  * seins unter `app/[lang]/`, die alte Kundenseite unter `app/(kunden)/`. Der
@@ -20,7 +20,7 @@ import '../globals.css'
  * genau dieser Stelle erzeugt. Im Ursprung steht dasselbe in einer
  * `tailwind.config.ts` nach Art von Tailwind 3.
  *
- * `noindex`: die Seite gehoert auf harebdigital.de. Unter issahareb.me/start
+ * `noindex`: die Seite gehoert auf harebdigital.de. Unter issahareb.me/start-alt
  * waere sie eine zweite Fassung derselben Texte auf einer fremden Domain, und
  * Google entscheidet dann selbst, welche es behaelt. Genau das soll es nicht.
  * Der Metadaten-Grund (`metadataBase`) zeigt trotzdem schon auf die
@@ -171,10 +171,10 @@ export default function Hd2Layout({ children }: { children: React.ReactNode }) {
               wer sie unter dieser Adresse findet, soll das wissen. Auf
               harebdigital.de faellt der Hinweis weg. */}
           <p className="mx-auto mt-8 max-w-6xl border-t border-white/5 pt-6 text-xs text-nebel/70">
-            Vorschau unter {marke.portfolio.replace('https://', '')}/start. Die Seite zieht auf{' '}
-            {marke.domain.replace('https://', '')} um. Die vorherige Fassung liegt unter{' '}
-            <Link href="/start-alt" className="underline hover:text-kreide">
-              /start-alt
+            Vorschau unter {marke.portfolio.replace('https://', '')}/start-alt. Die Seite zieht auf{' '}
+            {marke.domain.replace('https://', '')} um. Die laufende Landingpage liegt unter{' '}
+            <Link href="/start" className="underline hover:text-kreide">
+              /start
             </Link>
             .
           </p>

@@ -239,7 +239,7 @@ const DE: HdTexte = {
         label: 'Arbeiten',
         links: [
           { label: 'Kundenprojekt', href: '#arbeiten' },
-          { label: 'Websites', href: '#werkschau' },
+          { label: 'Designmöglichkeiten', href: '#werkschau' },
           { label: 'Social Media', href: '#social' },
         ],
       },
@@ -310,7 +310,7 @@ const DE: HdTexte = {
     ],
   },
   werkschau: {
-    label: 'Websites',
+    label: 'Designmöglichkeiten',
     vorher: 'Vorheriges Bild',
     weiter: 'Nächstes Bild',
     folie: 'Bild {n} von {von}',
@@ -481,7 +481,7 @@ const EN: HdTexte = {
         label: 'Work',
         links: [
           { label: 'Client project', href: '#arbeiten' },
-          { label: 'Websites', href: '#werkschau' },
+          { label: 'Design options', href: '#werkschau' },
           { label: 'Social media', href: '#social' },
         ],
       },
@@ -549,7 +549,7 @@ const EN: HdTexte = {
     ],
   },
   werkschau: {
-    label: 'Websites',
+    label: 'Design options',
     vorher: 'Previous image',
     weiter: 'Next image',
     folie: 'Image {n} of {von}',
@@ -720,7 +720,7 @@ const ES: HdTexte = {
         label: 'Trabajos',
         links: [
           { label: 'Proyecto de cliente', href: '#arbeiten' },
-          { label: 'Webs', href: '#werkschau' },
+          { label: 'Opciones de diseño', href: '#werkschau' },
           { label: 'Redes sociales', href: '#social' },
         ],
       },
@@ -788,7 +788,7 @@ const ES: HdTexte = {
     ],
   },
   werkschau: {
-    label: 'Webs',
+    label: 'Opciones de diseño',
     vorher: 'Imagen anterior',
     weiter: 'Imagen siguiente',
     folie: 'Imagen {n} de {von}',

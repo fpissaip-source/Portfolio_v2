@@ -975,7 +975,10 @@ export function HdLanding({ lang }: { lang: HdLang }) {
         {/* Die Galerie steht ausserhalb des Textcontainers und nimmt die
             volle Breite: der Stapel kippt nach hinten weg und braucht links
             und rechts Luft fuer die zurueckgesetzten Nachbarn. */}
-        <div className="pb-20 sm:pb-32">
+        {/* `scroll-mt`: die Kopfzeile schwebt darueber, ohne den Anker
+            waere die Beschriftung der Galerie beim Anspringen halb
+            verdeckt. */}
+        <div id="werkschau" className="scroll-mt-24 pb-20 sm:pb-32">
           <Galerie
             stuecke={SCHAU}
             label={t.werkschau.label}

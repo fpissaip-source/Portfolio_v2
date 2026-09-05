@@ -112,6 +112,14 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
   const karten = useRef<(HTMLDivElement | null)[]>([])
   const schleier = useRef<(HTMLSpanElement | null)[]>([])
   const filme = useRef<(HTMLVideoElement | null)[]>([])
+  /* Welche Stuecke ihre Quelle schon losgeworden sind.
+     Zwei Wege davor waren falsch, beide gemessen: das `src`-Attribut ist im
+     Effekt immer leer, weil React es beim Commit entfernt, und `currentSrc`
+     wie `networkState` bleiben nach dem Raeumen in Zustaenden stehen, die
+     die Bedingung erneut erfuellen — heraus kamen elf `load()`-Aufrufe fuer
+     drei Videos. Ein Merker beantwortet die Frage "schon geraeumt?" direkt,
+     statt sie aus dem Medienzustand zu erraten. */
+  const geraeumt = useRef<Set<number>>(new Set())
 
   /* Die Position ist eine Fliesskommazahl in Karten: 1.4 heisst "zwischen der
      zweiten und der dritten, naeher an der zweiten". Sie steht in einem Ref
@@ -367,16 +375,40 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
     return () => beobachter.disconnect()
   }, [])
 
+  /* Pausieren reicht auf iOS nicht.
+   *
+   * Ein pausiertes <video> mit geladener Quelle behaelt seine
+   * Dekodersitzung und die dekodierten Bilder im Speicher. Wer sich durch
+   * die vier Stuecke wischt, hat danach drei davon liegen, dazu den Film im
+   * Helden — auf einem iPhone XS mit vier Gigabyte beendet Safari den Tab
+   * und zeigt "Auf hareb.digital ist wiederholt ein Problem aufgetreten".
+   *
+   * Deshalb wird die Quelle am inaktiven Stueck entfernt und `load()`
+   * gerufen: das gibt Dekoder und Puffer frei. Sichtbar bleibt das
+   * `poster`, es haengt nicht an der Quelle. Beim Zurueckwischen laedt das
+   * Stueck neu — ein paar hundert Kilobyte gegen einen Absturz. */
   useEffect(() => {
     filme.current.forEach((film, i) => {
       if (!film) return
-      if (i === aktiv && imBild && !ruhig.current) {
-        const versuch = film.play()
-        if (versuch) versuch.catch(() => {})
-      } else {
-        film.pause()
-        if (i !== aktiv) film.currentTime = 0
+
+      if (i === aktiv) {
+        /* Wieder dran: es darf beim naechsten Verlassen erneut geraeumt
+           werden. React hat die Quelle in diesem Commit schon gesetzt. */
+        geraeumt.current.delete(i)
+        if (imBild && !ruhig.current) {
+          const versuch = film.play()
+          if (versuch) versuch.catch(() => {})
+        } else {
+          film.pause()
+        }
+        return
       }
+
+      film.pause()
+      if (geraeumt.current.has(i)) return
+      geraeumt.current.add(i)
+      film.removeAttribute('src')
+      film.load()
     })
   }, [aktiv, imBild, stumm])
 
@@ -458,21 +490,28 @@ export function Galerie({ stuecke, label, vorher, weiter, folie }: Props) {
                     draggable={false}
                   />
                 ) : (
+                  /* Die Quelle steht am <video> und nicht als <source>-Kind,
+                     und sie steht nur an dem Stueck, das gerade dran ist.
+                     Das ist keine Formsache: nur so laesst sie sich wieder
+                     entfernen. Ein <source> bekommt man aus einem laufenden
+                     Element nicht mehr heraus, ohne den Baum anzufassen —
+                     und ohne Entfernen behaelt iOS den Dekoder samt
+                     Bildspeicher, auch wenn das Video laengst pausiert ist.
+                     Das Standbild bleibt sichtbar, es haengt am `poster`. */
                   <video
                     ref={(el) => {
                       filme.current[i] = el
                     }}
                     className="galerie-medium"
                     poster={stueck.standbild}
+                    src={aktiv === i ? stueck.quelle : undefined}
                     preload="none"
                     muted
                     loop
                     playsInline
                     controls={stumm && aktiv === i}
                     style={{ pointerEvents: stumm ? 'auto' : 'none' }}
-                  >
-                    <source src={stueck.quelle} type="video/mp4" />
-                  </video>
+                  />
                 )}
                 <span
                   ref={(el) => {
